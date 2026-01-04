@@ -1,10 +1,34 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Lock } from 'lucide-react'
 
 const Login = ({ onLogin, users }) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [buildInfo, setBuildInfo] = useState(null)
+
+  useEffect(() => {
+    // Učitaj build info
+    fetch('/build-info.json')
+      .then(res => res.json())
+      .then(data => setBuildInfo(data))
+      .catch(() => {
+        // Fallback ako fajl ne postoji
+        setBuildInfo({
+          timestamp: new Date().toISOString(),
+          date: new Date().toLocaleString('sr-RS', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            timeZone: 'Europe/Belgrade'
+          }),
+          version: 'dev'
+        })
+      })
+  }, [])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -87,6 +111,16 @@ const Login = ({ onLogin, users }) => {
             Prijavi se
           </button>
         </form>
+        
+        {/* Build Info */}
+        {buildInfo && (
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="text-xs text-gray-500 text-center space-y-1">
+              <div>Verzija: {buildInfo.version}</div>
+              <div>Build: {buildInfo.date}</div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
