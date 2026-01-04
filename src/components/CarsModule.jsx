@@ -1,55 +1,25 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import CarsList from './CarsList'
 import CarForm from './CarForm'
 import { Plus } from 'lucide-react'
+import generateCars from '../utils/generateCars'
 
-const initialCars = [
-  {
-    id: 1,
-    proizvodjac: 'Audi',
-    model: 'A4',
-    godiste: 2020,
-    presao_km: 45000,
-    slike: [
-      'https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=400',
-      'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=400',
-      'https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=400',
-      'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=400',
-      'https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=400',
-    ],
-  },
-  {
-    id: 2,
-    proizvodjac: 'BMW',
-    model: '320d',
-    godiste: 2019,
-    presao_km: 68000,
-    slike: [
-      'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400',
-      'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400',
-      'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400',
-      'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400',
-      'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400',
-    ],
-  },
-  {
-    id: 3,
-    proizvodjac: 'Mercedes-Benz',
-    model: 'C220',
-    godiste: 2021,
-    presao_km: 32000,
-    slike: [
-      'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400',
-      'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400',
-      'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400',
-      'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400',
-      'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400',
-    ],
-  },
-]
+// Generiši 500 automobila
+const initialCars = generateCars(500)
 
 const CarsModule = () => {
   const [cars, setCars] = useState(initialCars)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(12) // Prikaži 12 automobila po stranici
+
+  // Izračunaj paginaciju
+  const paginatedCars = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    return cars.slice(startIndex, endIndex)
+  }, [cars, currentPage, itemsPerPage])
+
+  const totalPages = Math.ceil(cars.length / itemsPerPage)
   const [showForm, setShowForm] = useState(false)
   const [editingCar, setEditingCar] = useState(null)
 
@@ -77,9 +47,19 @@ const CarsModule = () => {
       // Add new car
       const newId = Math.max(...cars.map((c) => c.id), 0) + 1
       setCars([...cars, { ...carData, id: newId }])
+      // Prebaci na poslednju stranicu gde će biti novi automobil
+      const newTotalPages = Math.ceil((cars.length + 1) / itemsPerPage)
+      setCurrentPage(newTotalPages)
     }
     setShowForm(false)
     setEditingCar(null)
+  }
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }
 
   const handleCancel = () => {
@@ -107,11 +87,70 @@ const CarsModule = () => {
           onCancel={handleCancel}
         />
       ) : (
-        <CarsList
-          cars={cars}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+        <>
+          <div className="mb-4 text-sm text-gray-600">
+            Prikazano {paginatedCars.length} od {cars.length} automobila
+          </div>
+          <CarsList
+            cars={paginatedCars}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+          
+          {/* Paginacija */}
+          {totalPages > 1 && (
+            <div className="mt-6 flex items-center justify-center gap-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150"
+              >
+                Prethodna
+              </button>
+              
+              <div className="flex gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((page) => {
+                    // Prikaži prvu stranicu, poslednju, trenutnu i po jednu sa svake strane
+                    return (
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1)
+                    )
+                  })
+                  .map((page, index, array) => {
+                    // Dodaj elipsu ako postoji razmak
+                    const showEllipsis = index > 0 && page - array[index - 1] > 1
+                    return (
+                      <div key={page} className="flex items-center gap-1">
+                        {showEllipsis && (
+                          <span className="px-2 text-gray-500">...</span>
+                        )}
+                        <button
+                          onClick={() => handlePageChange(page)}
+                          className={`px-4 py-2 border rounded-md text-sm font-medium transition duration-150 ${
+                            currentPage === page
+                              ? 'bg-indigo-600 text-white border-indigo-600'
+                              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      </div>
+                    )
+                  })}
+              </div>
+              
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150"
+              >
+                Sledeća
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   )

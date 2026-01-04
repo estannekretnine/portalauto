@@ -1,8 +1,9 @@
-import { Edit, Trash2, X } from 'lucide-react'
+import { Edit, Trash2, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 
 const CarsList = ({ cars, onEdit, onDelete }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState({ carId: null, index: null })
+  const [carImageIndexes, setCarImageIndexes] = useState({})
 
   const openImageModal = (carId, index) => {
     setSelectedImageIndex({ carId, index })
@@ -23,6 +24,22 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
     setSelectedImageIndex({ ...selectedImageIndex, index: newIndex })
   }
 
+  const navigateCarImage = (carId, direction) => {
+    const car = cars.find((c) => c.id === carId)
+    if (!car || car.slike.length === 0) return
+
+    const currentIndex = carImageIndexes[carId] || 0
+    let newIndex = currentIndex + direction
+    
+    if (newIndex < 0) newIndex = car.slike.length - 1
+    if (newIndex >= car.slike.length) newIndex = 0
+
+    setCarImageIndexes({
+      ...carImageIndexes,
+      [carId]: newIndex,
+    })
+  }
+
   if (cars.length === 0) {
     return (
       <div className="text-center py-12 bg-white rounded-lg shadow">
@@ -39,29 +56,94 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
             key={car.id}
             className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200"
           >
-            {/* Image Gallery */}
-            <div className="relative">
-              <div className="grid grid-cols-3 gap-1 p-1 bg-gray-100">
-                {car.slike.slice(0, 5).map((slika, index) => (
-                  <div
-                    key={index}
-                    className="aspect-square overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
-                    onClick={() => openImageModal(car.id, index)}
-                  >
+            {/* Image Gallery - prikazuje samo prvu sliku sa scroll funkcionalnostima */}
+            <div className="relative bg-gray-100">
+              {/* Glavna slika */}
+              <div className="relative aspect-square overflow-hidden">
+                {car.slike.length > 0 && (
+                  <>
                     <img
-                      src={slika}
-                      alt={`${car.proizvodjac} ${car.model} ${index + 1}`}
-                      className="w-full h-full object-cover"
+                      src={car.slike[carImageIndexes[car.id] || 0]}
+                      alt={`${car.proizvodjac} ${car.model}`}
+                      className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={() => openImageModal(car.id, carImageIndexes[car.id] || 0)}
                       onError={(e) => {
                         e.target.src = 'https://via.placeholder.com/400x400?text=No+Image'
                       }}
                     />
+                    
+                    {/* Navigacione strelice */}
+                    {car.slike.length > 1 && (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            navigateCarImage(car.id, -1)
+                          }}
+                          className="absolute left-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-opacity z-10"
+                          aria-label="Prethodna slika"
+                        >
+                          <ChevronLeft className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            navigateCarImage(car.id, 1)
+                          }}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-opacity z-10"
+                          aria-label="Sledeća slika"
+                        >
+                          <ChevronRight className="w-5 h-5" />
+                        </button>
+                      </>
+                    )}
+                    
+                    {/* Indikator slika */}
+                    {car.slike.length > 1 && (
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black bg-opacity-70 text-white text-xs px-3 py-1 rounded-full">
+                        {(carImageIndexes[car.id] || 0) + 1} / {car.slike.length}
+                      </div>
+                    )}
+                  </>
+                )}
+                {car.slike.length === 0 && (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">
+                    Nema slike
                   </div>
-                ))}
+                )}
               </div>
-              {car.slike.length > 5 && (
-                <div className="absolute top-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
-                  +{car.slike.length - 5}
+              
+              {/* Horizontalni scroll sa svim slikama */}
+              {car.slike.length > 1 && (
+                <div className="overflow-x-auto overflow-y-hidden p-2 scrollbar-hide">
+                  <div className="flex gap-2" style={{ width: 'max-content' }}>
+                    {car.slike.map((slika, index) => (
+                      <div
+                        key={index}
+                        className={`flex-shrink-0 w-16 h-16 rounded overflow-hidden cursor-pointer border-2 transition-all ${
+                          (carImageIndexes[car.id] || 0) === index
+                            ? 'border-indigo-500 ring-2 ring-indigo-200'
+                            : 'border-transparent hover:border-gray-400'
+                        }`}
+                        onClick={() => {
+                          setCarImageIndexes({
+                            ...carImageIndexes,
+                            [car.id]: index,
+                          })
+                        }}
+                        title={`Slika ${index + 1}`}
+                      >
+                        <img
+                          src={slika}
+                          alt={`${car.proizvodjac} ${car.model} ${index + 1}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/64x64?text=Error'
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
