@@ -21,8 +21,8 @@ const initialUsers = [
   },
 ]
 
-// Generiši 500 automobila
-const initialCars = generateCars(500)
+// Ne generiši odmah - će se generisati u useEffect nakon mounta
+let initialCars = []
 
 // Funkcije za rad sa localStorage
 const getStoredData = (key, defaultValue) => {
@@ -45,23 +45,31 @@ const setStoredData = (key, value) => {
 
 // Migracija automobila - zameni stare URL-ove sa novim data URI placeholder slikama
 const migrateCars = (cars) => {
-  // Generiši placeholder slike
+  // Generiši placeholder slike - samo u browseru
   const generatePlaceholderImage = (width, height, color, textColor = '#FFFFFF') => {
-    const canvas = document.createElement('canvas')
-    canvas.width = width
-    canvas.height = height
-    const ctx = canvas.getContext('2d')
+    if (typeof document === 'undefined') {
+      return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+    }
     
-    ctx.fillStyle = color
-    ctx.fillRect(0, 0, width, height)
-    
-    ctx.fillStyle = textColor
-    ctx.font = `${Math.floor(width / 8)}px Arial`
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText('Car', width / 2, height / 2)
-    
-    return canvas.toDataURL('image/png')
+    try {
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext('2d')
+      
+      ctx.fillStyle = color
+      ctx.fillRect(0, 0, width, height)
+      
+      ctx.fillStyle = textColor
+      ctx.font = `${Math.floor(width / 8)}px Arial`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText('Car', width / 2, height / 2)
+      
+      return canvas.toDataURL('image/png')
+    } catch (error) {
+      return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+    }
   }
 
   const colors = [
@@ -115,13 +123,28 @@ function App() {
       if (allHaveValidImages) {
         return storedCars
       } else {
-        // Ako ima nevalidne slike, obriši i generiši nove sa data URI
+        // Ako ima nevalidne slike, obriši
         localStorage.removeItem('cars')
       }
     }
     
-    return initialCars
+    // Vrati prazan array - generiše se u useEffect
+    return []
   })
+  
+  // Generiši početne automobile samo u browseru, nakon mounta
+  useEffect(() => {
+    // Proveri da li već imamo automobile u localStorage ili state-u
+    if (cars.length === 0 && typeof document !== 'undefined') {
+      const storedCars = getStoredData('cars', null)
+      if (!storedCars || storedCars.length === 0) {
+        // Generiši nove automobile samo u browseru
+        const newCars = generateCars(500)
+        setCars(newCars)
+        setStoredData('cars', newCars)
+      }
+    }
+  }, []) // Prazan dependency array - izvršava se samo jednom nakon mounta
 
   // Sačuvaj users u localStorage kada se promene
   useEffect(() => {

@@ -3,14 +3,10 @@ import CarsList from './CarsList'
 import CarForm from './CarForm'
 import SearchFilters from './SearchFilters'
 import { Plus, Search } from 'lucide-react'
-import generateCars from '../utils/generateCars'
-
-// Generiši 500 automobila
-const initialCars = generateCars(500)
 
 const CarsModule = ({ currentUser, users, cars: propCars, onUpdateCars }) => {
-  // Koristi propCars ako postoji, inače initialCars (fallback)
-  const allCars = propCars || initialCars
+  // Koristi propCars - ne koristi fallback jer će App.jsx uvek proslediti cars
+  const allCars = propCars || []
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(12) // Prikaži 12 automobila po stranici
   const [showForm, setShowForm] = useState(false)
