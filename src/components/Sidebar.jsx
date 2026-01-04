@@ -23,11 +23,14 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout }) => {
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-md shadow-md"
+        aria-label={isMobileMenuOpen ? 'Zatvori meni' : 'Otvori meni'}
+        aria-expanded={isMobileMenuOpen}
+        type="button"
       >
         {isMobileMenuOpen ? (
-          <X className="w-6 h-6" />
+          <X className="w-6 h-6" aria-hidden="true" />
         ) : (
-          <Menu className="w-6 h-6" />
+          <Menu className="w-6 h-6" aria-hidden="true" />
         )}
       </button>
 
@@ -36,12 +39,13 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout }) => {
         className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 transform ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         } transition-transform duration-200 ease-in-out`}
+        aria-label="Glavna navigacija"
       >
         <div className="flex flex-col h-full">
           <div className="p-6 border-b border-gray-200">
             <h2 className="text-lg font-bold text-gray-800">Navigacija</h2>
           </div>
-          <nav className="flex-1 p-4">
+          <nav className="flex-1 p-4" aria-label="Glavni meni">
             <ul className="space-y-2">
               {menuItems.map((item) => {
                 const Icon = item.icon
@@ -57,8 +61,11 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout }) => {
                           ? 'bg-indigo-50 text-indigo-700 font-medium'
                           : 'text-gray-700 hover:bg-gray-100'
                       }`}
+                      aria-current={activeModule === item.id ? 'page' : undefined}
+                      aria-label={`Navigiraj na ${item.label}`}
+                      type="button"
                     >
-                      <Icon className="w-5 h-5" />
+                      <Icon className="w-5 h-5" aria-hidden="true" />
                       <span>{item.label}</span>
                     </button>
                   </li>

@@ -170,7 +170,9 @@ const CarForm = ({ car, onSave, onCancel }) => {
                   <div className="w-20 h-20 flex-shrink-0">
                     <img
                       src={slika}
-                      alt={`Preview ${index + 1}`}
+                      alt={`Preview slike ${index + 1}`}
+                      width="80"
+                      height="80"
                       className="w-full h-full object-cover rounded-md border border-gray-300"
                       onError={(e) => {
                         e.preventDefault()
@@ -180,6 +182,8 @@ const CarForm = ({ car, onSave, onCancel }) => {
                           e.target.className = 'w-full h-full object-cover rounded-md border border-red-300'
                         }
                       }}
+                      loading="lazy"
+                      decoding="async"
                     />
                   </div>
                 )}
@@ -200,7 +204,9 @@ const CarForm = ({ car, onSave, onCancel }) => {
                     <div key={index} className="relative">
                       <img
                         src={slika}
-                        alt={`Preview ${index + 1}`}
+                        alt={`Preview slike ${index + 1}`}
+                        width="200"
+                        height="200"
                         className="w-full aspect-square object-cover rounded-md border-2 border-gray-300 hover:border-indigo-500 transition-colors cursor-pointer"
                         onError={(e) => {
                           e.preventDefault()
@@ -210,6 +216,8 @@ const CarForm = ({ car, onSave, onCancel }) => {
                             e.target.className = 'w-full aspect-square object-cover rounded-md border-2 border-red-300'
                           }
                         }}
+                        loading="lazy"
+                        decoding="async"
                       />
                       <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
                         {index + 1}
@@ -226,16 +234,18 @@ const CarForm = ({ car, onSave, onCancel }) => {
           <button
             type="submit"
             className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150"
+            aria-label={car ? 'Sačuvaj izmene automobila' : 'Dodaj novi automobil'}
           >
-            <Save className="w-5 h-5" />
+            <Save className="w-5 h-5" aria-hidden="true" />
             Sačuvaj
           </button>
           <button
             type="button"
             onClick={onCancel}
             className="flex items-center gap-2 px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-150"
+            aria-label="Otkaži unos"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
             Otkaži
           </button>
         </div>

@@ -16,15 +16,17 @@ const SearchFilters = ({ filters, onFilterChange, availableManufacturers, availa
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Search className="w-5 h-5 text-indigo-600" />
-          <h3 className="text-lg font-semibold text-gray-800">Pretraga i filteri</h3>
+          <Search className="w-5 h-5 text-indigo-600" aria-hidden="true" />
+          <h2 className="text-lg font-semibold text-gray-800">Pretraga i filteri</h2>
         </div>
         {hasActiveFilters && (
           <button
             onClick={handleClearFilters}
             className="flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+            aria-label="Obriši sve aktivne filtere"
+            type="button"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4" aria-hidden="true" />
             Obriši filtere
           </button>
         )}

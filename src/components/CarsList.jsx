@@ -64,7 +64,9 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                   <>
                     <img
                       src={car.slike[carImageIndexes[car.id] || 0] || car.slike[0]}
-                      alt={`${car.proizvodjac} ${car.model}`}
+                      alt={`Automobil ${car.proizvodjac} ${car.model}, godište ${car.godiste}`}
+                      width="400"
+                      height="400"
                       className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
                       onClick={() => openImageModal(car.id, carImageIndexes[car.id] || 0)}
                       onError={(e) => {
@@ -76,9 +78,8 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                         }
                       }}
                       loading="lazy"
-                      onLoad={() => {
-                        // Slika je uspešno učitana
-                      }}
+                      decoding="async"
+                      fetchPriority="low"
                     />
                     
                     {/* Navigacione strelice */}
@@ -90,9 +91,10 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                             navigateCarImage(car.id, -1)
                           }}
                           className="absolute left-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-opacity z-10"
-                          aria-label="Prethodna slika"
+                          aria-label={`Prethodna slika za ${car.proizvodjac} ${car.model}`}
+                          type="button"
                         >
-                          <ChevronLeft className="w-5 h-5" />
+                          <ChevronLeft className="w-5 h-5" aria-hidden="true" />
                         </button>
                         <button
                           onClick={(e) => {
@@ -100,9 +102,10 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                             navigateCarImage(car.id, 1)
                           }}
                           className="absolute right-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-opacity z-10"
-                          aria-label="Sledeća slika"
+                          aria-label={`Sledeća slika za ${car.proizvodjac} ${car.model}`}
+                          type="button"
                         >
-                          <ChevronRight className="w-5 h-5" />
+                          <ChevronRight className="w-5 h-5" aria-hidden="true" />
                         </button>
                       </>
                     )}
@@ -143,7 +146,9 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                       >
                         <img
                           src={slika}
-                          alt={`${car.proizvodjac} ${car.model} ${index + 1}`}
+                          alt={`Mini slika ${index + 1} - ${car.proizvodjac} ${car.model}`}
+                          width="64"
+                          height="64"
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             e.preventDefault()
@@ -153,6 +158,8 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                             }
                           }}
                           loading="lazy"
+                          decoding="async"
+                          fetchPriority="low"
                         />
                       </div>
                     ))}
@@ -190,15 +197,19 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                 <button
                   onClick={() => onEdit(car)}
                   className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition duration-150"
+                  aria-label={`Izmijeni automobil ${car.proizvodjac} ${car.model}`}
+                  type="button"
                 >
-                  <Edit className="w-4 h-4" />
+                  <Edit className="w-4 h-4" aria-hidden="true" />
                   Izmijeni
                 </button>
                 <button
                   onClick={() => onDelete(car.id)}
                   className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition duration-150"
+                  aria-label={`Izbriši automobil ${car.proizvodjac} ${car.model}`}
+                  type="button"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4" aria-hidden="true" />
                   Izbriši
                 </button>
               </div>
@@ -217,13 +228,15 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
             <button
               onClick={closeImageModal}
               className="absolute top-4 right-4 text-white hover:text-gray-300 z-10 bg-black bg-opacity-50 rounded-full p-2"
+              aria-label="Zatvori pregled slike"
+              type="button"
             >
-              <X className="w-6 h-6" />
+              <X className="w-6 h-6" aria-hidden="true" />
             </button>
             <div className="relative">
               <img
                 src={cars.find((c) => c.id === selectedImageIndex.carId)?.slike[selectedImageIndex.index]}
-                alt="Full size"
+                alt={`Pregled slike ${selectedImageIndex.index + 1} - ${cars.find((c) => c.id === selectedImageIndex.carId)?.proizvodjac} ${cars.find((c) => c.id === selectedImageIndex.carId)?.model}`}
                 className="max-h-[90vh] w-full object-contain rounded-lg"
                 onClick={(e) => e.stopPropagation()}
                 onError={(e) => {
@@ -233,6 +246,8 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                     e.target.src = 'https://via.placeholder.com/800x600?text=No+Image'
                   }
                 }}
+                loading="eager"
+                decoding="async"
               />
               {cars.find((c) => c.id === selectedImageIndex.carId)?.slike.length > 1 && (
                 <>
@@ -242,8 +257,10 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                       navigateImage(-1)
                     }}
                     className="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70"
+                    aria-label="Prethodna slika"
+                    type="button"
                   >
-                    ←
+                    <span aria-hidden="true">←</span>
                   </button>
                   <button
                     onClick={(e) => {
@@ -251,8 +268,10 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                       navigateImage(1)
                     }}
                     className="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70"
+                    aria-label="Sledeća slika"
+                    type="button"
                   >
-                    →
+                    <span aria-hidden="true">→</span>
                   </button>
                 </>
               )}

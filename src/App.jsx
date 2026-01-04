@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import Login from './components/Login'
-import Dashboard from './components/Dashboard'
 import generateCars from './utils/generateCars'
+
+// Lazy loading za Dashboard komponentu
+const Dashboard = lazy(() => import('./components/Dashboard'))
 
 // Početni korisnici
 const initialUsers = [
@@ -113,12 +115,10 @@ function App() {
       if (allHaveValidImages) {
         return storedCars
       } else {
-        console.log('Cars have invalid images, generating new ones...')
         localStorage.removeItem('cars')
       }
     }
     
-    console.log('Generating new cars with valid images...')
     return initialCars
   })
 
@@ -158,14 +158,23 @@ function App() {
       {!isAuthenticated ? (
         <Login onLogin={handleLogin} users={users} />
       ) : (
-        <Dashboard
-          onLogout={handleLogout}
-          currentUser={currentUser}
-          users={users}
-          onUpdateUsers={setUsers}
-          cars={cars}
-          onUpdateCars={setCars}
-        />
+        <Suspense fallback={
+          <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Učitavanje...</p>
+            </div>
+          </div>
+        }>
+          <Dashboard
+            onLogout={handleLogout}
+            currentUser={currentUser}
+            users={users}
+            onUpdateUsers={setUsers}
+            cars={cars}
+            onUpdateCars={setCars}
+          />
+        </Suspense>
       )}
     </>
   )

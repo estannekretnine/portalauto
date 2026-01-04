@@ -25,14 +25,14 @@ const Login = ({ onLogin, users }) => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
-        <div className="flex justify-center mb-6">
-          <div className="bg-indigo-100 p-4 rounded-full">
-            <Lock className="w-8 h-8 text-indigo-600" />
+          <div className="flex justify-center mb-6" role="img" aria-label="Ikona za login">
+            <div className="bg-indigo-100 p-4 rounded-full">
+              <Lock className="w-8 h-8 text-indigo-600" aria-hidden="true" />
+            </div>
           </div>
-        </div>
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+        <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Auto Dashboard
-        </h2>
+        </h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
@@ -75,7 +75,9 @@ const Login = ({ onLogin, users }) => {
               required
             />
             {error && (
-              <p className="mt-2 text-sm text-red-600">{error}</p>
+              <p className="mt-2 text-sm text-red-600" role="alert" aria-live="polite">
+                {error}
+              </p>
             )}
           </div>
           <button

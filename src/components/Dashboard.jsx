@@ -31,13 +31,15 @@ const Dashboard = ({ onLogout, currentUser, users, onUpdateUsers, cars, onUpdate
             <button
               onClick={onLogout}
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md transition duration-150"
+              aria-label="Odjavi se iz sistema"
+              type="button"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-4 h-4" aria-hidden="true" />
               Odjavi se
             </button>
           </div>
         </header>
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-6" role="main">
           {activeModule === 'cars' && (
             <CarsModule
               currentUser={currentUser}

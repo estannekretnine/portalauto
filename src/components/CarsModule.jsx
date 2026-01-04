@@ -147,14 +147,19 @@ const CarsModule = ({ currentUser, users, cars: propCars, onUpdateCars }) => {
             onClick={() => setShowSearchFilters(!showSearchFilters)}
             className="flex items-center justify-center w-10 h-10 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150"
             title="Pretraga"
+            aria-label={showSearchFilters ? 'Sakrij filtere pretrage' : 'Prikaži filtere pretrage'}
+            aria-expanded={showSearchFilters}
+            type="button"
           >
-            <Search className="w-5 h-5" />
+            <Search className="w-5 h-5" aria-hidden="true" />
           </button>
           <button
             onClick={handleAdd}
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150"
+            aria-label="Dodaj novi automobil"
+            type="button"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-5 h-5" aria-hidden="true" />
             Dodaj automobil
           </button>
         </div>
@@ -182,7 +187,7 @@ const CarsModule = ({ currentUser, users, cars: propCars, onUpdateCars }) => {
               />
             )}
           </div>
-          <div className="mb-4 text-sm text-gray-600">
+          <div className="mb-4 text-sm text-gray-600" role="status" aria-live="polite">
             Prikazano {paginatedCars.length} od {filteredCars.length} automobila
             {filteredCars.length !== allCars.length && (
               <span className="ml-2 text-indigo-600">
@@ -198,11 +203,13 @@ const CarsModule = ({ currentUser, users, cars: propCars, onUpdateCars }) => {
           
           {/* Paginacija */}
           {totalPages > 1 && (
-            <div className="mt-6 flex items-center justify-center gap-2">
+            <nav className="mt-6 flex items-center justify-center gap-2" aria-label="Navigacija stranica">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
                 className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150"
+                aria-label="Prethodna stranica"
+                type="button"
               >
                 Prethodna
               </button>
@@ -232,6 +239,9 @@ const CarsModule = ({ currentUser, users, cars: propCars, onUpdateCars }) => {
                               ? 'bg-indigo-600 text-white border-indigo-600'
                               : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                           }`}
+                          aria-label={`Stranica ${page}`}
+                          aria-current={currentPage === page ? 'page' : undefined}
+                          type="button"
                         >
                           {page}
                         </button>
@@ -244,10 +254,12 @@ const CarsModule = ({ currentUser, users, cars: propCars, onUpdateCars }) => {
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
                 className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150"
+                aria-label="Sledeća stranica"
+                type="button"
               >
                 Sledeća
               </button>
-            </div>
+            </nav>
           )}
         </>
       )}

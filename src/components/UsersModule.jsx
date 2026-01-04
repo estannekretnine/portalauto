@@ -56,8 +56,10 @@ const UsersModule = ({ users, onUpdateUsers }) => {
         <button
           onClick={handleAdd}
           className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150"
+          aria-label="Dodaj novog korisnika"
+          type="button"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-5 h-5" aria-hidden="true" />
           Dodaj korisnika
         </button>
       </div>
@@ -104,6 +106,7 @@ const UsersModule = ({ users, onUpdateUsers }) => {
                           value={editedUser.ime}
                           onChange={(e) => handleFieldChange('ime', e.target.value)}
                           className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          aria-label="Ime korisnika"
                         />
                       ) : (
                         <div className="text-sm text-gray-900">{user.ime}</div>
@@ -116,6 +119,7 @@ const UsersModule = ({ users, onUpdateUsers }) => {
                           value={editedUser.email}
                           onChange={(e) => handleFieldChange('email', e.target.value)}
                           className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          aria-label="Email korisnika"
                         />
                       ) : (
                         <div className="text-sm text-gray-900">{user.email}</div>
@@ -128,6 +132,7 @@ const UsersModule = ({ users, onUpdateUsers }) => {
                           value={editedUser.password}
                           onChange={(e) => handleFieldChange('password', e.target.value)}
                           className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          aria-label="Password korisnika"
                         />
                       ) : (
                         <div className="text-sm text-gray-500">••••••••</div>
@@ -140,15 +145,19 @@ const UsersModule = ({ users, onUpdateUsers }) => {
                             onClick={() => handleSave(user.id)}
                             className="text-green-600 hover:text-green-900 p-2 hover:bg-green-50 rounded"
                             title="Sačuvaj"
+                            aria-label={`Sačuvaj izmene za korisnika ${user.ime}`}
+                            type="button"
                           >
-                            <Save className="w-4 h-4" />
+                            <Save className="w-4 h-4" aria-hidden="true" />
                           </button>
                           <button
                             onClick={handleCancel}
                             className="text-gray-600 hover:text-gray-900 p-2 hover:bg-gray-50 rounded"
                             title="Otkaži"
+                            aria-label="Otkaži izmene"
+                            type="button"
                           >
-                            <X className="w-4 h-4" />
+                            <X className="w-4 h-4" aria-hidden="true" />
                           </button>
                         </div>
                       ) : (
@@ -157,15 +166,19 @@ const UsersModule = ({ users, onUpdateUsers }) => {
                             onClick={() => handleEdit(user)}
                             className="text-indigo-600 hover:text-indigo-900 p-2 hover:bg-indigo-50 rounded"
                             title="Izmijeni"
+                            aria-label={`Izmijeni korisnika ${user.ime}`}
+                            type="button"
                           >
-                            <Edit className="w-4 h-4" />
+                            <Edit className="w-4 h-4" aria-hidden="true" />
                           </button>
                           <button
                             onClick={() => handleDelete(user.id)}
                             className="text-red-600 hover:text-red-900 p-2 hover:bg-red-50 rounded"
                             title="Izbriši"
+                            aria-label={`Izbriši korisnika ${user.ime}`}
+                            type="button"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4" aria-hidden="true" />
                           </button>
                         </div>
                       )}
