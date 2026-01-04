@@ -177,8 +177,19 @@ const CarForm = ({ car, onSave, onCancel }) => {
                       onError={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
-                        if (e.target.src !== 'https://via.placeholder.com/80x80?text=Error') {
-                          e.target.src = 'https://via.placeholder.com/80x80?text=Error'
+                        if (!e.target.src.startsWith('data:image')) {
+                          const canvas = document.createElement('canvas')
+                          canvas.width = 80
+                          canvas.height = 80
+                          const ctx = canvas.getContext('2d')
+                          ctx.fillStyle = '#FFCCCC'
+                          ctx.fillRect(0, 0, 80, 80)
+                          ctx.fillStyle = '#666666'
+                          ctx.font = '12px Arial'
+                          ctx.textAlign = 'center'
+                          ctx.textBaseline = 'middle'
+                          ctx.fillText('Error', 40, 40)
+                          e.target.src = canvas.toDataURL('image/png')
                           e.target.className = 'w-full h-full object-cover rounded-md border border-red-300'
                         }
                       }}
@@ -211,8 +222,19 @@ const CarForm = ({ car, onSave, onCancel }) => {
                         onError={(e) => {
                           e.preventDefault()
                           e.stopPropagation()
-                          if (e.target.src !== 'https://via.placeholder.com/200x200?text=Error') {
-                            e.target.src = 'https://via.placeholder.com/200x200?text=Error'
+                          if (!e.target.src.startsWith('data:image')) {
+                            const canvas = document.createElement('canvas')
+                            canvas.width = 200
+                            canvas.height = 200
+                            const ctx = canvas.getContext('2d')
+                            ctx.fillStyle = '#FFCCCC'
+                            ctx.fillRect(0, 0, 200, 200)
+                            ctx.fillStyle = '#666666'
+                            ctx.font = '24px Arial'
+                            ctx.textAlign = 'center'
+                            ctx.textBaseline = 'middle'
+                            ctx.fillText('Error', 100, 100)
+                            e.target.src = canvas.toDataURL('image/png')
                             e.target.className = 'w-full aspect-square object-cover rounded-md border-2 border-red-300'
                           }
                         }}

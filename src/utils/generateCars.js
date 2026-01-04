@@ -36,15 +36,41 @@ const getRandomElement = (array) => array[Math.floor(Math.random() * array.lengt
 
 const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
 
+// Generiši data URI placeholder sliku - uvek radi jer je embedded u kod
+const generatePlaceholderImage = (width, height, color) => {
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const ctx = canvas.getContext('2d')
+  
+  // Pozadinska boja
+  ctx.fillStyle = color
+  ctx.fillRect(0, 0, width, height)
+  
+  // Tekst u sredini
+  ctx.fillStyle = '#FFFFFF'
+  ctx.font = `${Math.floor(width / 8)}px Arial`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText('Car', width / 2, height / 2)
+  
+  return canvas.toDataURL('image/png')
+}
+
 const generateCars = (count = 500) => {
   const cars = []
   const currentYear = new Date().getFullYear()
   
-  // Koristimo Picsum Photos - pouzdan servis za placeholder slike
-  const imageUrls = []
-  for (let i = 1; i <= 20; i++) {
-    imageUrls.push(`https://picsum.photos/400/400?random=${i}`)
-  }
+  // Generiši pool data URI slika - različite boje
+  const colors = [
+    '#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+    '#06B6D4', '#EC4899', '#14B8A6', '#F97316', '#6366F1',
+    '#3B82F6', '#8B5A2B', '#059669', '#DC2626', '#7C3AED',
+    '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'
+  ]
+  
+  // Generiši data URI slike - uvek će raditi jer su embedded
+  const imageUrls = colors.map(color => generatePlaceholderImage(400, 400, color))
 
   for (let i = 1; i <= count; i++) {
     const manufacturer = getRandomElement(manufacturers)
@@ -53,10 +79,11 @@ const generateCars = (count = 500) => {
     const godiste = getRandomInt(currentYear - 10, currentYear)
     const presao_km = getRandomInt(0, 200000)
     
-    // Generiši 3-5 slika
+    // Generiši 3-5 slika - koristi data URI slike koje uvek rade
     const numImages = getRandomInt(3, 5)
     const slike = []
     for (let j = 0; j < numImages; j++) {
+      // Uzmi random sliku iz pool-a
       slike.push(getRandomElement(imageUrls))
     }
 

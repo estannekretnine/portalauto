@@ -72,8 +72,20 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                       onError={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
-                        const fallbackUrl = 'https://via.placeholder.com/400x400/CCCCCC/666666?text=No+Image'
-                        if (e.target.src !== fallbackUrl) {
+                        // Generiši data URI fallback sliku - uvek radi
+                        const canvas = document.createElement('canvas')
+                        canvas.width = 400
+                        canvas.height = 400
+                        const ctx = canvas.getContext('2d')
+                        ctx.fillStyle = '#CCCCCC'
+                        ctx.fillRect(0, 0, 400, 400)
+                        ctx.fillStyle = '#666666'
+                        ctx.font = '50px Arial'
+                        ctx.textAlign = 'center'
+                        ctx.textBaseline = 'middle'
+                        ctx.fillText('No Image', 200, 200)
+                        const fallbackUrl = canvas.toDataURL('image/png')
+                        if (e.target.src !== fallbackUrl && !e.target.src.startsWith('data:image')) {
                           e.target.src = fallbackUrl
                         }
                       }}
@@ -153,8 +165,19 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                           onError={(e) => {
                             e.preventDefault()
                             e.stopPropagation()
-                            if (e.target.src !== 'https://via.placeholder.com/64x64?text=Error') {
-                              e.target.src = 'https://via.placeholder.com/64x64?text=Error'
+                            if (!e.target.src.startsWith('data:image')) {
+                              const canvas = document.createElement('canvas')
+                              canvas.width = 64
+                              canvas.height = 64
+                              const ctx = canvas.getContext('2d')
+                              ctx.fillStyle = '#FFCCCC'
+                              ctx.fillRect(0, 0, 64, 64)
+                              ctx.fillStyle = '#666666'
+                              ctx.font = '10px Arial'
+                              ctx.textAlign = 'center'
+                              ctx.textBaseline = 'middle'
+                              ctx.fillText('Error', 32, 32)
+                              e.target.src = canvas.toDataURL('image/png')
                             }
                           }}
                           loading="lazy"
@@ -242,8 +265,19 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                 onError={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
-                  if (e.target.src !== 'https://via.placeholder.com/800x600?text=No+Image') {
-                    e.target.src = 'https://via.placeholder.com/800x600?text=No+Image'
+                  if (!e.target.src.startsWith('data:image')) {
+                    const canvas = document.createElement('canvas')
+                    canvas.width = 800
+                    canvas.height = 600
+                    const ctx = canvas.getContext('2d')
+                    ctx.fillStyle = '#CCCCCC'
+                    ctx.fillRect(0, 0, 800, 600)
+                    ctx.fillStyle = '#666666'
+                    ctx.font = '48px Arial'
+                    ctx.textAlign = 'center'
+                    ctx.textBaseline = 'middle'
+                    ctx.fillText('No Image', 400, 300)
+                    e.target.src = canvas.toDataURL('image/png')
                   }
                 }}
                 loading="eager"

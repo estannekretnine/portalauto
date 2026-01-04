@@ -77,7 +77,7 @@ const migrateCars = (cars) => {
   return cars.map((car) => {
     const hasValidDataUri = car.slike && 
       car.slike.length > 0 && 
-      car.slike.every(url => url && url.trim() !== '' && (url.startsWith('data:image') || url.includes('via.placeholder.com')))
+      car.slike.every(url => url && url.trim() !== '' && url.startsWith('data:image'))
     
     if (!hasValidDataUri) {
       // Generiši 3-5 novih validnih slika
@@ -106,15 +106,16 @@ function App() {
   const [cars, setCars] = useState(() => {
     const storedCars = getStoredData('cars', null)
     if (storedCars && storedCars.length > 0) {
-      // Proveri da li imaju validne slike
+      // Proveri da li imaju validne slike - podržavamo data URI i HTTP(S) URL-ove
       const allHaveValidImages = storedCars.every(car => {
         if (!car.slike || car.slike.length === 0) return false
-        return car.slike.every(url => url && url.trim() !== '' && (url.startsWith('http') || url.startsWith('data:')))
+        return car.slike.every(url => url && url.trim() !== '' && (url.startsWith('data:image') || url.startsWith('http')))
       })
       
       if (allHaveValidImages) {
         return storedCars
       } else {
+        // Ako ima nevalidne slike, obriši i generiši nove sa data URI
         localStorage.removeItem('cars')
       }
     }
