@@ -118,8 +118,29 @@ function App() {
 
   // Sačuvaj cars u localStorage kada se promene
   useEffect(() => {
-    setStoredData('cars', cars)
+    if (cars && cars.length > 0) {
+      setStoredData('cars', cars)
+    }
   }, [cars])
+
+  // Proveri i migriši automobile jednom pri učitavanju
+  useEffect(() => {
+    const storedCars = getStoredData('cars', null)
+    if (storedCars && storedCars.length > 0) {
+      // Proveri da li postoje automobili bez validnih slika
+      const needsMigration = storedCars.some(car => 
+        !car.slike || 
+        car.slike.length === 0 || 
+        car.slike.some(url => !url || url.trim() === '' || url.includes('unsplash.com'))
+      )
+      
+      if (needsMigration) {
+        const migratedCars = migrateCars(storedCars)
+        setStoredData('cars', migratedCars)
+        setCars(migratedCars)
+      }
+    }
+  }, []) // Prazan dependency array - samo jednom pri mount-u
 
   const handleLogin = (user) => {
     setCurrentUser(user)
