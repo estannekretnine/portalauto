@@ -32,17 +32,18 @@ const models = {
   'Mitsubishi': ['Lancer', 'Outlander', 'ASX', 'Eclipse Cross']
 }
 
+// Koristimo placeholder servis koji uvek radi
 const imageUrls = [
-  'https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=400',
-  'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=400',
-  'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400',
-  'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400',
-  'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=400',
-  'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=400',
-  'https://images.unsplash.com/photo-1617469165783-56d090f5c26d?w=400',
-  'https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=400',
-  'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=400',
-  'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=400'
+  'https://via.placeholder.com/400x400/4F46E5/FFFFFF?text=Car+1',
+  'https://via.placeholder.com/400x400/10B981/FFFFFF?text=Car+2',
+  'https://via.placeholder.com/400x400/F59E0B/FFFFFF?text=Car+3',
+  'https://via.placeholder.com/400x400/EF4444/FFFFFF?text=Car+4',
+  'https://via.placeholder.com/400x400/8B5CF6/FFFFFF?text=Car+5',
+  'https://via.placeholder.com/400x400/06B6D4/FFFFFF?text=Car+6',
+  'https://via.placeholder.com/400x400/EC4899/FFFFFF?text=Car+7',
+  'https://via.placeholder.com/400x400/14B8A6/FFFFFF?text=Car+8',
+  'https://via.placeholder.com/400x400/F97316/FFFFFF?text=Car+9',
+  'https://via.placeholder.com/400x400/6366F1/FFFFFF?text=Car+10'
 ]
 
 const getRandomElement = (array) => array[Math.floor(Math.random() * array.length)]

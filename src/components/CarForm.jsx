@@ -173,8 +173,12 @@ const CarForm = ({ car, onSave, onCancel }) => {
                       alt={`Preview ${index + 1}`}
                       className="w-full h-full object-cover rounded-md border border-gray-300"
                       onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/80x80?text=Error'
-                        e.target.className = 'w-full h-full object-cover rounded-md border border-red-300'
+                        e.preventDefault()
+                        e.stopPropagation()
+                        if (e.target.src !== 'https://via.placeholder.com/80x80?text=Error') {
+                          e.target.src = 'https://via.placeholder.com/80x80?text=Error'
+                          e.target.className = 'w-full h-full object-cover rounded-md border border-red-300'
+                        }
                       }}
                     />
                   </div>
@@ -199,8 +203,12 @@ const CarForm = ({ car, onSave, onCancel }) => {
                         alt={`Preview ${index + 1}`}
                         className="w-full aspect-square object-cover rounded-md border-2 border-gray-300 hover:border-indigo-500 transition-colors cursor-pointer"
                         onError={(e) => {
-                          e.target.src = 'https://via.placeholder.com/200x200?text=Error'
-                          e.target.className = 'w-full aspect-square object-cover rounded-md border-2 border-red-300'
+                          e.preventDefault()
+                          e.stopPropagation()
+                          if (e.target.src !== 'https://via.placeholder.com/200x200?text=Error') {
+                            e.target.src = 'https://via.placeholder.com/200x200?text=Error'
+                            e.target.className = 'w-full aspect-square object-cover rounded-md border-2 border-red-300'
+                          }
                         }}
                       />
                       <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">

@@ -68,8 +68,13 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                       className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
                       onClick={() => openImageModal(car.id, carImageIndexes[car.id] || 0)}
                       onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/400x400?text=No+Image'
+                        e.preventDefault()
+                        e.stopPropagation()
+                        if (e.target.src !== 'https://via.placeholder.com/400x400?text=No+Image') {
+                          e.target.src = 'https://via.placeholder.com/400x400?text=No+Image'
+                        }
                       }}
+                      loading="lazy"
                     />
                     
                     {/* Navigacione strelice */}
@@ -138,8 +143,13 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                           alt={`${car.proizvodjac} ${car.model} ${index + 1}`}
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            e.target.src = 'https://via.placeholder.com/64x64?text=Error'
+                            e.preventDefault()
+                            e.stopPropagation()
+                            if (e.target.src !== 'https://via.placeholder.com/64x64?text=Error') {
+                              e.target.src = 'https://via.placeholder.com/64x64?text=Error'
+                            }
                           }}
+                          loading="lazy"
                         />
                       </div>
                     ))}
@@ -213,6 +223,13 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                 alt="Full size"
                 className="max-h-[90vh] w-full object-contain rounded-lg"
                 onClick={(e) => e.stopPropagation()}
+                onError={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  if (e.target.src !== 'https://via.placeholder.com/800x600?text=No+Image') {
+                    e.target.src = 'https://via.placeholder.com/800x600?text=No+Image'
+                  }
+                }}
               />
               {cars.find((c) => c.id === selectedImageIndex.carId)?.slike.length > 1 && (
                 <>
