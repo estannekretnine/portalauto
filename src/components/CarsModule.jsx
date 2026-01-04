@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import CarsList from './CarsList'
 import CarForm from './CarForm'
 import SearchFilters from './SearchFilters'
-import { Plus } from 'lucide-react'
+import { Plus, Search, ChevronDown, ChevronUp } from 'lucide-react'
 import generateCars from '../utils/generateCars'
 
 // Generiši 500 automobila
@@ -14,6 +14,7 @@ const CarsModule = () => {
   const [itemsPerPage] = useState(12) // Prikaži 12 automobila po stranici
   const [showForm, setShowForm] = useState(false)
   const [editingCar, setEditingCar] = useState(null)
+  const [showSearchFilters, setShowSearchFilters] = useState(false)
   const [filters, setFilters] = useState({
     proizvodjac: '',
     model: '',
@@ -130,13 +131,27 @@ const CarsModule = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-800">Automobili</h2>
-        <button
-          onClick={handleAdd}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150"
-        >
-          <Plus className="w-5 h-5" />
-          Dodaj automobil
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowSearchFilters(!showSearchFilters)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150"
+          >
+            <Search className="w-5 h-5" />
+            Pretraga
+            {showSearchFilters ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+          </button>
+          <button
+            onClick={handleAdd}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150"
+          >
+            <Plus className="w-5 h-5" />
+            Dodaj automobil
+          </button>
+        </div>
       </div>
 
       {showForm ? (
@@ -147,12 +162,20 @@ const CarsModule = () => {
         />
       ) : (
         <>
-          <SearchFilters
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            availableManufacturers={availableManufacturers}
-            availableModels={availableModels}
-          />
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              showSearchFilters ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+            }`}
+          >
+            {showSearchFilters && (
+              <SearchFilters
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                availableManufacturers={availableManufacturers}
+                availableModels={availableModels}
+              />
+            )}
+          </div>
           <div className="mb-4 text-sm text-gray-600">
             Prikazano {paginatedCars.length} od {filteredCars.length} automobila
             {filteredCars.length !== allCars.length && (
