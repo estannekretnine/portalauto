@@ -41,40 +41,48 @@ const setStoredData = (key, value) => {
   }
 }
 
-// Migracija automobila - zameni stare Unsplash URL-ove sa novim placeholder URL-ovima
+// Migracija automobila - zameni stare URL-ove sa novim data URI placeholder slikama
 const migrateCars = (cars) => {
-  const newImageUrls = [
-    'https://via.placeholder.com/400x400/4F46E5/FFFFFF',
-    'https://via.placeholder.com/400x400/10B981/FFFFFF',
-    'https://via.placeholder.com/400x400/F59E0B/FFFFFF',
-    'https://via.placeholder.com/400x400/EF4444/FFFFFF',
-    'https://via.placeholder.com/400x400/8B5CF6/FFFFFF',
-    'https://via.placeholder.com/400x400/06B6D4/FFFFFF',
-    'https://via.placeholder.com/400x400/EC4899/FFFFFF',
-    'https://via.placeholder.com/400x400/14B8A6/FFFFFF',
-    'https://via.placeholder.com/400x400/F97316/FFFFFF',
-    'https://via.placeholder.com/400x400/6366F1/FFFFFF',
-    'https://via.placeholder.com/400x400/3B82F6/FFFFFF',
-    'https://via.placeholder.com/400x400/8B5A2B/FFFFFF',
-    'https://via.placeholder.com/400x400/059669/FFFFFF',
-    'https://via.placeholder.com/400x400/DC2626/FFFFFF',
-    'https://via.placeholder.com/400x400/7C3AED/FFFFFF'
-  ]
+  // Generiši placeholder slike
+  const generatePlaceholderImage = (width, height, color, textColor = '#FFFFFF') => {
+    const canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')
+    
+    ctx.fillStyle = color
+    ctx.fillRect(0, 0, width, height)
+    
+    ctx.fillStyle = textColor
+    ctx.font = `${Math.floor(width / 8)}px Arial`
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText('Car', width / 2, height / 2)
+    
+    return canvas.toDataURL('image/png')
+  }
 
+  const colors = [
+    '#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+    '#06B6D4', '#EC4899', '#14B8A6', '#F97316', '#6366F1',
+    '#3B82F6', '#8B5A2B', '#059669', '#DC2626', '#7C3AED'
+  ]
+  
+  const imageUrls = colors.map(color => generatePlaceholderImage(400, 400, color))
   const getRandomElement = (array) => array[Math.floor(Math.random() * array.length)]
   
-  // Agresivna migracija - uvek zameni sve slike osim ako su već validne placeholder URL-ovi
+  // Agresivna migracija - uvek zameni sve slike osim ako su već validne data URI slike
   return cars.map((car) => {
-    const hasValidPlaceholder = car.slike && 
+    const hasValidDataUri = car.slike && 
       car.slike.length > 0 && 
-      car.slike.every(url => url && url.trim() !== '' && url.includes('via.placeholder.com') && !url.includes('unsplash.com'))
+      car.slike.every(url => url && url.trim() !== '' && (url.startsWith('data:image') || url.includes('via.placeholder.com')))
     
-    if (!hasValidPlaceholder) {
+    if (!hasValidDataUri) {
       // Generiši 3-5 novih validnih slika
       const numImages = Math.floor(Math.random() * 3) + 3 // 3-5 slika
       const newSlike = []
       for (let i = 0; i < numImages; i++) {
-        newSlike.push(getRandomElement(newImageUrls))
+        newSlike.push(getRandomElement(imageUrls))
       }
       return {
         ...car,
@@ -96,18 +104,21 @@ function App() {
   const [cars, setCars] = useState(() => {
     const storedCars = getStoredData('cars', null)
     if (storedCars && storedCars.length > 0) {
-      // Migriši stare automobile sa nevalidnim URL-ovima
-      const migratedCars = migrateCars(storedCars)
-      // Sačuvaj migrirane automobile odmah
-      setTimeout(() => {
-        setStoredData('cars', migratedCars)
-      }, 0)
-      return migratedCars
+      // Proveri da li imaju validne slike
+      const allHaveValidImages = storedCars.every(car => {
+        if (!car.slike || car.slike.length === 0) return false
+        return car.slike.every(url => url && url.trim() !== '' && (url.startsWith('http') || url.startsWith('data:')))
+      })
+      
+      if (allHaveValidImages) {
+        return storedCars
+      } else {
+        console.log('Cars have invalid images, generating new ones...')
+        localStorage.removeItem('cars')
+      }
     }
-    // Ako nema sačuvanih automobila, koristi početne i sačuvaj ih
-    setTimeout(() => {
-      setStoredData('cars', initialCars)
-    }, 0)
+    
+    console.log('Generating new cars with valid images...')
     return initialCars
   })
 
@@ -123,24 +134,12 @@ function App() {
     }
   }, [cars])
 
-  // Proveri i migriši automobile jednom pri učitavanju
+  // Sačuvaj automobile u localStorage
   useEffect(() => {
-    const storedCars = getStoredData('cars', null)
-    if (storedCars && storedCars.length > 0) {
-      // Proveri da li postoje automobili bez validnih slika
-      const needsMigration = storedCars.some(car => 
-        !car.slike || 
-        car.slike.length === 0 || 
-        car.slike.some(url => !url || url.trim() === '' || url.includes('unsplash.com'))
-      )
-      
-      if (needsMigration) {
-        const migratedCars = migrateCars(storedCars)
-        setStoredData('cars', migratedCars)
-        setCars(migratedCars)
-      }
+    if (cars && cars.length > 0) {
+      setStoredData('cars', cars)
     }
-  }, []) // Prazan dependency array - samo jednom pri mount-u
+  }, [cars])
 
   const handleLogin = (user) => {
     setCurrentUser(user)

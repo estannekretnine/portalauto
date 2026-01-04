@@ -60,21 +60,25 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
             <div className="relative bg-gray-100">
               {/* Glavna slika */}
               <div className="relative aspect-square overflow-hidden">
-                {car.slike.length > 0 && (
+                {car.slike && car.slike.length > 0 ? (
                   <>
                     <img
-                      src={car.slike[carImageIndexes[car.id] || 0]}
+                      src={car.slike[carImageIndexes[car.id] || 0] || car.slike[0]}
                       alt={`${car.proizvodjac} ${car.model}`}
                       className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
                       onClick={() => openImageModal(car.id, carImageIndexes[car.id] || 0)}
                       onError={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
-                        if (e.target.src !== 'https://via.placeholder.com/400x400?text=No+Image') {
-                          e.target.src = 'https://via.placeholder.com/400x400?text=No+Image'
+                        const fallbackUrl = 'https://via.placeholder.com/400x400/CCCCCC/666666?text=No+Image'
+                        if (e.target.src !== fallbackUrl) {
+                          e.target.src = fallbackUrl
                         }
                       }}
                       loading="lazy"
+                      onLoad={() => {
+                        // Slika je uspešno učitana
+                      }}
                     />
                     
                     {/* Navigacione strelice */}
@@ -110,8 +114,7 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                       </div>
                     )}
                   </>
-                )}
-                {car.slike.length === 0 && (
+                ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">
                     Nema slike
                   </div>
