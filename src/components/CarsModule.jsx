@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import CarsList from './CarsList'
 import CarForm from './CarForm'
 import SearchFilters from './SearchFilters'
-import { Plus, Search, ChevronDown, ChevronUp } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 import generateCars from '../utils/generateCars'
 
 // Generiši 500 automobila
@@ -134,15 +134,10 @@ const CarsModule = () => {
         <div className="flex gap-2">
           <button
             onClick={() => setShowSearchFilters(!showSearchFilters)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150"
+            className="flex items-center justify-center w-10 h-10 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150"
+            title="Pretraga"
           >
             <Search className="w-5 h-5" />
-            Pretraga
-            {showSearchFilters ? (
-              <ChevronUp className="w-4 h-4" />
-            ) : (
-              <ChevronDown className="w-4 h-4" />
-            )}
           </button>
           <button
             onClick={handleAdd}
