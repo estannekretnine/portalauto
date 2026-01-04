@@ -44,27 +44,32 @@ const setStoredData = (key, value) => {
 // Migracija automobila - zameni stare Unsplash URL-ove sa novim placeholder URL-ovima
 const migrateCars = (cars) => {
   const newImageUrls = [
-    'https://via.placeholder.com/400x400/4F46E5/FFFFFF?text=Car+1',
-    'https://via.placeholder.com/400x400/10B981/FFFFFF?text=Car+2',
-    'https://via.placeholder.com/400x400/F59E0B/FFFFFF?text=Car+3',
-    'https://via.placeholder.com/400x400/EF4444/FFFFFF?text=Car+4',
-    'https://via.placeholder.com/400x400/8B5CF6/FFFFFF?text=Car+5',
-    'https://via.placeholder.com/400x400/06B6D4/FFFFFF?text=Car+6',
-    'https://via.placeholder.com/400x400/EC4899/FFFFFF?text=Car+7',
-    'https://via.placeholder.com/400x400/14B8A6/FFFFFF?text=Car+8',
-    'https://via.placeholder.com/400x400/F97316/FFFFFF?text=Car+9',
-    'https://via.placeholder.com/400x400/6366F1/FFFFFF?text=Car+10'
+    'https://via.placeholder.com/400x400/4F46E5/FFFFFF',
+    'https://via.placeholder.com/400x400/10B981/FFFFFF',
+    'https://via.placeholder.com/400x400/F59E0B/FFFFFF',
+    'https://via.placeholder.com/400x400/EF4444/FFFFFF',
+    'https://via.placeholder.com/400x400/8B5CF6/FFFFFF',
+    'https://via.placeholder.com/400x400/06B6D4/FFFFFF',
+    'https://via.placeholder.com/400x400/EC4899/FFFFFF',
+    'https://via.placeholder.com/400x400/14B8A6/FFFFFF',
+    'https://via.placeholder.com/400x400/F97316/FFFFFF',
+    'https://via.placeholder.com/400x400/6366F1/FFFFFF',
+    'https://via.placeholder.com/400x400/3B82F6/FFFFFF',
+    'https://via.placeholder.com/400x400/8B5A2B/FFFFFF',
+    'https://via.placeholder.com/400x400/059669/FFFFFF',
+    'https://via.placeholder.com/400x400/DC2626/FFFFFF',
+    'https://via.placeholder.com/400x400/7C3AED/FFFFFF'
   ]
 
   const getRandomElement = (array) => array[Math.floor(Math.random() * array.length)]
   
+  // Agresivna migracija - uvek zameni sve slike osim ako su već validne placeholder URL-ovi
   return cars.map((car) => {
-    // Proveri da li automobil ima slike sa Unsplash URL-ovima ili prazne slike
-    const hasInvalidImages = !car.slike || 
-      car.slike.length === 0 || 
-      car.slike.some(url => url.includes('unsplash.com') || !url || url.trim() === '')
+    const hasValidPlaceholder = car.slike && 
+      car.slike.length > 0 && 
+      car.slike.every(url => url && url.trim() !== '' && url.includes('via.placeholder.com') && !url.includes('unsplash.com'))
     
-    if (hasInvalidImages) {
+    if (!hasValidPlaceholder) {
       // Generiši 3-5 novih validnih slika
       const numImages = Math.floor(Math.random() * 3) + 3 // 3-5 slika
       const newSlike = []
@@ -93,11 +98,16 @@ function App() {
     if (storedCars && storedCars.length > 0) {
       // Migriši stare automobile sa nevalidnim URL-ovima
       const migratedCars = migrateCars(storedCars)
-      // Sačuvaj migrirane automobile
-      setStoredData('cars', migratedCars)
+      // Sačuvaj migrirane automobile odmah
+      setTimeout(() => {
+        setStoredData('cars', migratedCars)
+      }, 0)
       return migratedCars
     }
-    // Ako nema sačuvanih automobila, koristi početne
+    // Ako nema sačuvanih automobila, koristi početne i sačuvaj ih
+    setTimeout(() => {
+      setStoredData('cars', initialCars)
+    }, 0)
     return initialCars
   })
 
