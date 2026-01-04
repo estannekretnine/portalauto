@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import CarsList from './CarsList'
 import CarForm from './CarForm'
+import SearchFilters from './SearchFilters'
 import { Plus } from 'lucide-react'
 import generateCars from '../utils/generateCars'
 
@@ -8,20 +9,74 @@ import generateCars from '../utils/generateCars'
 const initialCars = generateCars(500)
 
 const CarsModule = () => {
-  const [cars, setCars] = useState(initialCars)
+  const [allCars, setAllCars] = useState(initialCars)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(12) // Prikaži 12 automobila po stranici
+  const [showForm, setShowForm] = useState(false)
+  const [editingCar, setEditingCar] = useState(null)
+  const [filters, setFilters] = useState({
+    proizvodjac: '',
+    model: '',
+    kmOd: '',
+    kmDo: '',
+  })
 
-  // Izračunaj paginaciju
+  // Dinamički generiši listu proizvođača iz baze
+  const availableManufacturers = useMemo(() => {
+    const manufacturers = [...new Set(allCars.map((car) => car.proizvodjac))]
+    return manufacturers.sort()
+  }, [allCars])
+
+  // Dinamički generiši listu modela na osnovu izabranog proizvođača
+  const availableModels = useMemo(() => {
+    if (!filters.proizvodjac) return []
+    const models = allCars
+      .filter((car) => car.proizvodjac === filters.proizvodjac)
+      .map((car) => car.model)
+    const uniqueModels = [...new Set(models)]
+    return uniqueModels.sort()
+  }, [allCars, filters.proizvodjac])
+
+  // Filtrirani automobili
+  const filteredCars = useMemo(() => {
+    return allCars.filter((car) => {
+      // Filter po proizvođaču
+      if (filters.proizvodjac && car.proizvodjac !== filters.proizvodjac) {
+        return false
+      }
+
+      // Filter po modelu
+      if (filters.model && car.model !== filters.model) {
+        return false
+      }
+
+      // Filter po kilometraži od
+      if (filters.kmOd && car.presao_km < parseInt(filters.kmOd)) {
+        return false
+      }
+
+      // Filter po kilometraži do
+      if (filters.kmDo && car.presao_km > parseInt(filters.kmDo)) {
+        return false
+      }
+
+      return true
+    })
+  }, [allCars, filters])
+
+  // Izračunaj paginaciju za filtrirane automobile
   const paginatedCars = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
-    return cars.slice(startIndex, endIndex)
-  }, [cars, currentPage, itemsPerPage])
+    return filteredCars.slice(startIndex, endIndex)
+  }, [filteredCars, currentPage, itemsPerPage])
 
-  const totalPages = Math.ceil(cars.length / itemsPerPage)
-  const [showForm, setShowForm] = useState(false)
-  const [editingCar, setEditingCar] = useState(null)
+  const totalPages = Math.ceil(filteredCars.length / itemsPerPage)
+
+  // Resetuj stranicu kada se filteri promene
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filters])
 
   const handleAdd = () => {
     setEditingCar(null)
@@ -35,24 +90,28 @@ const CarsModule = () => {
 
   const handleDelete = (id) => {
     if (window.confirm('Da li ste sigurni da želite da izbrišete ovaj automobil?')) {
-      setCars(cars.filter((car) => car.id !== id))
+      setAllCars(allCars.filter((car) => car.id !== id))
     }
   }
 
   const handleSave = (carData) => {
     if (editingCar) {
       // Edit existing car
-      setCars(cars.map((car) => (car.id === editingCar.id ? { ...carData, id: editingCar.id } : car)))
+      setAllCars(allCars.map((car) => (car.id === editingCar.id ? { ...carData, id: editingCar.id } : car)))
     } else {
       // Add new car
-      const newId = Math.max(...cars.map((c) => c.id), 0) + 1
-      setCars([...cars, { ...carData, id: newId }])
+      const newId = Math.max(...allCars.map((c) => c.id), 0) + 1
+      setAllCars([...allCars, { ...carData, id: newId }])
       // Prebaci na poslednju stranicu gde će biti novi automobil
-      const newTotalPages = Math.ceil((cars.length + 1) / itemsPerPage)
+      const newTotalPages = Math.ceil((filteredCars.length + 1) / itemsPerPage)
       setCurrentPage(newTotalPages)
     }
     setShowForm(false)
     setEditingCar(null)
+  }
+
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters)
   }
 
   const handlePageChange = (newPage) => {
@@ -88,8 +147,19 @@ const CarsModule = () => {
         />
       ) : (
         <>
+          <SearchFilters
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            availableManufacturers={availableManufacturers}
+            availableModels={availableModels}
+          />
           <div className="mb-4 text-sm text-gray-600">
-            Prikazano {paginatedCars.length} od {cars.length} automobila
+            Prikazano {paginatedCars.length} od {filteredCars.length} automobila
+            {filteredCars.length !== allCars.length && (
+              <span className="ml-2 text-indigo-600">
+                (filtrirano iz {allCars.length} ukupno)
+              </span>
+            )}
           </div>
           <CarsList
             cars={paginatedCars}
