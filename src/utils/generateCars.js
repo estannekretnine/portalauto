@@ -36,45 +36,27 @@ const getRandomElement = (array) => array[Math.floor(Math.random() * array.lengt
 
 const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
 
-// Generiši data URI placeholder sliku - uvek radi jer je embedded u kod
-// Proverava da li je document dostupan (radi samo u browseru)
+// Generiši SVG data URI placeholder sliku - uvek radi, ne zavisi od canvas API-ja
 const generatePlaceholderImage = (width, height, color) => {
-  // Proveri da li je dostupan document (radi samo u browseru)
-  if (typeof document === 'undefined') {
-    // Fallback: koristi pre-generisan base64 string za placeholder
-    // Ovo je minimalna 1x1 transparentna PNG
-    return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
-  }
+  // Koristi SVG koji se konvertuje u data URI - radi svuda bez canvas API-ja
+  const svg = `
+    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+      <rect width="${width}" height="${height}" fill="${color}"/>
+      <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="${Math.floor(width / 8)}" 
+            fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Car</text>
+    </svg>
+  `.trim()
   
-  try {
-    const canvas = document.createElement('canvas')
-    canvas.width = width
-    canvas.height = height
-    const ctx = canvas.getContext('2d')
-    
-    // Pozadinska boja
-    ctx.fillStyle = color
-    ctx.fillRect(0, 0, width, height)
-    
-    // Tekst u sredini
-    ctx.fillStyle = '#FFFFFF'
-    ctx.font = `${Math.floor(width / 8)}px Arial`
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText('Car', width / 2, height / 2)
-    
-    return canvas.toDataURL('image/png')
-  } catch (error) {
-    // Fallback ako nešto ne radi
-    return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
-  }
+  // Konvertuj SVG u data URI
+  const encodedSvg = encodeURIComponent(svg)
+  return `data:image/svg+xml,${encodedSvg}`
 }
 
 const generateCars = (count = 500) => {
   const cars = []
   const currentYear = new Date().getFullYear()
   
-  // Generiši pool data URI slika - različite boje
+  // Pool boja za slike
   const colors = [
     '#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
     '#06B6D4', '#EC4899', '#14B8A6', '#F97316', '#6366F1',
@@ -82,7 +64,7 @@ const generateCars = (count = 500) => {
     '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'
   ]
   
-  // Generiši data URI slike - samo ako je browser dostupan
+  // Generiši SVG data URI slike - radi svuda, ne zavisi od browser API-ja
   const imageUrls = colors.map(color => generatePlaceholderImage(400, 400, color))
 
   for (let i = 1; i <= count; i++) {

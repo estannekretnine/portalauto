@@ -43,33 +43,20 @@ const setStoredData = (key, value) => {
   }
 }
 
-// Migracija automobila - zameni stare URL-ove sa novim data URI placeholder slikama
+// Migracija automobila - zameni stare URL-ove sa novim SVG data URI placeholder slikama
 const migrateCars = (cars) => {
-  // Generiši placeholder slike - samo u browseru
+  // Generiši SVG placeholder slike - radi svuda
   const generatePlaceholderImage = (width, height, color, textColor = '#FFFFFF') => {
-    if (typeof document === 'undefined') {
-      return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
-    }
+    const svg = `
+      <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+        <rect width="${width}" height="${height}" fill="${color}"/>
+        <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="${Math.floor(width / 8)}" 
+              fill="${textColor}" text-anchor="middle" dominant-baseline="middle">Car</text>
+      </svg>
+    `.trim()
     
-    try {
-      const canvas = document.createElement('canvas')
-      canvas.width = width
-      canvas.height = height
-      const ctx = canvas.getContext('2d')
-      
-      ctx.fillStyle = color
-      ctx.fillRect(0, 0, width, height)
-      
-      ctx.fillStyle = textColor
-      ctx.font = `${Math.floor(width / 8)}px Arial`
-      ctx.textAlign = 'center'
-      ctx.textBaseline = 'middle'
-      ctx.fillText('Car', width / 2, height / 2)
-      
-      return canvas.toDataURL('image/png')
-    } catch (error) {
-      return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
-    }
+    const encodedSvg = encodeURIComponent(svg)
+    return `data:image/svg+xml,${encodedSvg}`
   }
 
   const colors = [

@@ -72,21 +72,15 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                       onError={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
-                        // Generiši data URI fallback sliku - uvek radi
-                        const canvas = document.createElement('canvas')
-                        canvas.width = 400
-                        canvas.height = 400
-                        const ctx = canvas.getContext('2d')
-                        ctx.fillStyle = '#CCCCCC'
-                        ctx.fillRect(0, 0, 400, 400)
-                        ctx.fillStyle = '#666666'
-                        ctx.font = '50px Arial'
-                        ctx.textAlign = 'center'
-                        ctx.textBaseline = 'middle'
-                        ctx.fillText('No Image', 200, 200)
-                        const fallbackUrl = canvas.toDataURL('image/png')
-                        if (e.target.src !== fallbackUrl && !e.target.src.startsWith('data:image')) {
-                          e.target.src = fallbackUrl
+                        // Generiši SVG data URI fallback sliku - uvek radi
+                        if (!e.target.src.startsWith('data:image')) {
+                          const svg = `<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="400" height="400" fill="#CCCCCC"/>
+                            <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="50" 
+                                  fill="#666666" text-anchor="middle" dominant-baseline="middle">No Image</text>
+                          </svg>`
+                          const encodedSvg = encodeURIComponent(svg.trim())
+                          e.target.src = `data:image/svg+xml,${encodedSvg}`
                         }
                       }}
                       loading="lazy"
@@ -166,18 +160,13 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                             e.preventDefault()
                             e.stopPropagation()
                             if (!e.target.src.startsWith('data:image')) {
-                              const canvas = document.createElement('canvas')
-                              canvas.width = 64
-                              canvas.height = 64
-                              const ctx = canvas.getContext('2d')
-                              ctx.fillStyle = '#FFCCCC'
-                              ctx.fillRect(0, 0, 64, 64)
-                              ctx.fillStyle = '#666666'
-                              ctx.font = '10px Arial'
-                              ctx.textAlign = 'center'
-                              ctx.textBaseline = 'middle'
-                              ctx.fillText('Error', 32, 32)
-                              e.target.src = canvas.toDataURL('image/png')
+                              const svg = `<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="64" height="64" fill="#FFCCCC"/>
+                                <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="10" 
+                                      fill="#666666" text-anchor="middle" dominant-baseline="middle">Error</text>
+                              </svg>`
+                              const encodedSvg = encodeURIComponent(svg.trim())
+                              e.target.src = `data:image/svg+xml,${encodedSvg}`
                             }
                           }}
                           loading="lazy"
@@ -266,18 +255,13 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                   e.preventDefault()
                   e.stopPropagation()
                   if (!e.target.src.startsWith('data:image')) {
-                    const canvas = document.createElement('canvas')
-                    canvas.width = 800
-                    canvas.height = 600
-                    const ctx = canvas.getContext('2d')
-                    ctx.fillStyle = '#CCCCCC'
-                    ctx.fillRect(0, 0, 800, 600)
-                    ctx.fillStyle = '#666666'
-                    ctx.font = '48px Arial'
-                    ctx.textAlign = 'center'
-                    ctx.textBaseline = 'middle'
-                    ctx.fillText('No Image', 400, 300)
-                    e.target.src = canvas.toDataURL('image/png')
+                    const svg = `<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="800" height="600" fill="#CCCCCC"/>
+                      <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="48" 
+                            fill="#666666" text-anchor="middle" dominant-baseline="middle">No Image</text>
+                    </svg>`
+                    const encodedSvg = encodeURIComponent(svg.trim())
+                    e.target.src = `data:image/svg+xml,${encodedSvg}`
                   }
                 }}
                 loading="eager"

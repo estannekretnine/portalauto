@@ -178,18 +178,13 @@ const CarForm = ({ car, onSave, onCancel }) => {
                         e.preventDefault()
                         e.stopPropagation()
                         if (!e.target.src.startsWith('data:image')) {
-                          const canvas = document.createElement('canvas')
-                          canvas.width = 80
-                          canvas.height = 80
-                          const ctx = canvas.getContext('2d')
-                          ctx.fillStyle = '#FFCCCC'
-                          ctx.fillRect(0, 0, 80, 80)
-                          ctx.fillStyle = '#666666'
-                          ctx.font = '12px Arial'
-                          ctx.textAlign = 'center'
-                          ctx.textBaseline = 'middle'
-                          ctx.fillText('Error', 40, 40)
-                          e.target.src = canvas.toDataURL('image/png')
+                          const svg = `<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="80" height="80" fill="#FFCCCC"/>
+                            <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="12" 
+                                  fill="#666666" text-anchor="middle" dominant-baseline="middle">Error</text>
+                          </svg>`
+                          const encodedSvg = encodeURIComponent(svg.trim())
+                          e.target.src = `data:image/svg+xml,${encodedSvg}`
                           e.target.className = 'w-full h-full object-cover rounded-md border border-red-300'
                         }
                       }}
@@ -223,18 +218,13 @@ const CarForm = ({ car, onSave, onCancel }) => {
                           e.preventDefault()
                           e.stopPropagation()
                           if (!e.target.src.startsWith('data:image')) {
-                            const canvas = document.createElement('canvas')
-                            canvas.width = 200
-                            canvas.height = 200
-                            const ctx = canvas.getContext('2d')
-                            ctx.fillStyle = '#FFCCCC'
-                            ctx.fillRect(0, 0, 200, 200)
-                            ctx.fillStyle = '#666666'
-                            ctx.font = '24px Arial'
-                            ctx.textAlign = 'center'
-                            ctx.textBaseline = 'middle'
-                            ctx.fillText('Error', 100, 100)
-                            e.target.src = canvas.toDataURL('image/png')
+                            const svg = `<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+                              <rect width="200" height="200" fill="#FFCCCC"/>
+                              <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="24" 
+                                    fill="#666666" text-anchor="middle" dominant-baseline="middle">Error</text>
+                            </svg>`
+                            const encodedSvg = encodeURIComponent(svg.trim())
+                            e.target.src = `data:image/svg+xml,${encodedSvg}`
                             e.target.className = 'w-full aspect-square object-cover rounded-md border-2 border-red-300'
                           }
                         }}
