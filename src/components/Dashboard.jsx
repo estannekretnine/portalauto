@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import Sidebar from './Sidebar'
 import CarsModule from './CarsModule'
+import UsersModule from './UsersModule'
 import { LogOut, Car } from 'lucide-react'
 
-const Dashboard = ({ onLogout }) => {
+const Dashboard = ({ onLogout, currentUser, users, onUpdateUsers, cars, onUpdateCars }) => {
   const [activeModule, setActiveModule] = useState('cars')
 
   return (
@@ -21,6 +22,11 @@ const Dashboard = ({ onLogout }) => {
               <h1 className="text-xl font-semibold text-gray-800">
                 Auto Dashboard
               </h1>
+              {currentUser && (
+                <span className="text-sm text-gray-500">
+                  ({currentUser.ime})
+                </span>
+              )}
             </div>
             <button
               onClick={onLogout}
@@ -32,7 +38,20 @@ const Dashboard = ({ onLogout }) => {
           </div>
         </header>
         <main className="flex-1 overflow-y-auto p-6">
-          {activeModule === 'cars' && <CarsModule />}
+          {activeModule === 'cars' && (
+            <CarsModule
+              currentUser={currentUser}
+              users={users}
+              cars={cars}
+              onUpdateCars={onUpdateCars}
+            />
+          )}
+          {activeModule === 'users' && (
+            <UsersModule
+              users={users}
+              onUpdateUsers={onUpdateUsers}
+            />
+          )}
         </main>
       </div>
     </div>

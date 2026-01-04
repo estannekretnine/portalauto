@@ -1,17 +1,23 @@
 import { useState } from 'react'
 import { Lock } from 'lucide-react'
 
-const Login = ({ onLogin }) => {
+const Login = ({ onLogin, users }) => {
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (password === 'admin123') {
+    const user = users.find(
+      (u) => u.email === email && u.password === password
+    )
+    
+    if (user) {
       setError('')
-      onLogin()
+      onLogin(user)
     } else {
-      setError('Neispravna šifra!')
+      setError('Neispravan email ili šifra!')
+      setEmail('')
       setPassword('')
     }
   }
@@ -30,6 +36,27 @@ const Login = ({ onLogin }) => {
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                setError('')
+              }}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              placeholder="Unesite email"
+              autoFocus
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label
               htmlFor="password"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
@@ -45,7 +72,7 @@ const Login = ({ onLogin }) => {
               }}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               placeholder="Unesite šifru"
-              autoFocus
+              required
             />
             {error && (
               <p className="mt-2 text-sm text-red-600">{error}</p>

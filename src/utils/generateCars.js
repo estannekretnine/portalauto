@@ -74,6 +74,7 @@ const generateCars = (count = 500) => {
       godiste: godiste,
       presao_km: presao_km,
       slike: slike,
+      azurirao: null, // Početno nema informacije o ko je ažurirao
     })
   }
 

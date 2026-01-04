@@ -164,6 +164,12 @@ const CarsList = ({ cars, onEdit, onDelete }) => {
                 <p>
                   <span className="font-medium">ID:</span> {car.id}
                 </p>
+                {car.azurirao && (
+                  <p>
+                    <span className="font-medium">Ažurirao:</span>{' '}
+                    <span className="text-indigo-600">{car.azurirao}</span>
+                  </p>
+                )}
               </div>
 
               {/* Actions */}

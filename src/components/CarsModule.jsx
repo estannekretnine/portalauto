@@ -8,8 +8,9 @@ import generateCars from '../utils/generateCars'
 // Generiši 500 automobila
 const initialCars = generateCars(500)
 
-const CarsModule = () => {
-  const [allCars, setAllCars] = useState(initialCars)
+const CarsModule = ({ currentUser, users, cars: propCars, onUpdateCars }) => {
+  // Koristi propCars ako postoji, inače initialCars (fallback)
+  const allCars = propCars || initialCars
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(12) // Prikaži 12 automobila po stranici
   const [showForm, setShowForm] = useState(false)
@@ -91,18 +92,28 @@ const CarsModule = () => {
 
   const handleDelete = (id) => {
     if (window.confirm('Da li ste sigurni da želite da izbrišete ovaj automobil?')) {
-      setAllCars(allCars.filter((car) => car.id !== id))
+      onUpdateCars(allCars.filter((car) => car.id !== id))
     }
   }
 
   const handleSave = (carData) => {
     if (editingCar) {
       // Edit existing car
-      setAllCars(allCars.map((car) => (car.id === editingCar.id ? { ...carData, id: editingCar.id } : car)))
+      const updatedCar = {
+        ...carData,
+        id: editingCar.id,
+        azurirao: currentUser ? currentUser.ime : 'Nepoznato',
+      }
+      onUpdateCars(allCars.map((car) => (car.id === editingCar.id ? updatedCar : car)))
     } else {
       // Add new car
       const newId = Math.max(...allCars.map((c) => c.id), 0) + 1
-      setAllCars([...allCars, { ...carData, id: newId }])
+      const newCar = {
+        ...carData,
+        id: newId,
+        azurirao: currentUser ? currentUser.ime : 'Nepoznato',
+      }
+      onUpdateCars([...allCars, newCar])
       // Prebaci na poslednju stranicu gde će biti novi automobil
       const newTotalPages = Math.ceil((filteredCars.length + 1) / itemsPerPage)
       setCurrentPage(newTotalPages)
