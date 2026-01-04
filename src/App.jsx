@@ -41,6 +41,45 @@ const setStoredData = (key, value) => {
   }
 }
 
+// Migracija automobila - zameni stare Unsplash URL-ove sa novim placeholder URL-ovima
+const migrateCars = (cars) => {
+  const newImageUrls = [
+    'https://via.placeholder.com/400x400/4F46E5/FFFFFF?text=Car+1',
+    'https://via.placeholder.com/400x400/10B981/FFFFFF?text=Car+2',
+    'https://via.placeholder.com/400x400/F59E0B/FFFFFF?text=Car+3',
+    'https://via.placeholder.com/400x400/EF4444/FFFFFF?text=Car+4',
+    'https://via.placeholder.com/400x400/8B5CF6/FFFFFF?text=Car+5',
+    'https://via.placeholder.com/400x400/06B6D4/FFFFFF?text=Car+6',
+    'https://via.placeholder.com/400x400/EC4899/FFFFFF?text=Car+7',
+    'https://via.placeholder.com/400x400/14B8A6/FFFFFF?text=Car+8',
+    'https://via.placeholder.com/400x400/F97316/FFFFFF?text=Car+9',
+    'https://via.placeholder.com/400x400/6366F1/FFFFFF?text=Car+10'
+  ]
+
+  const getRandomElement = (array) => array[Math.floor(Math.random() * array.length)]
+  
+  return cars.map((car) => {
+    // Proveri da li automobil ima slike sa Unsplash URL-ovima ili prazne slike
+    const hasInvalidImages = !car.slike || 
+      car.slike.length === 0 || 
+      car.slike.some(url => url.includes('unsplash.com') || !url || url.trim() === '')
+    
+    if (hasInvalidImages) {
+      // Generiši 3-5 novih validnih slika
+      const numImages = Math.floor(Math.random() * 3) + 3 // 3-5 slika
+      const newSlike = []
+      for (let i = 0; i < numImages; i++) {
+        newSlike.push(getRandomElement(newImageUrls))
+      }
+      return {
+        ...car,
+        slike: newSlike
+      }
+    }
+    return car
+  })
+}
+
 function App() {
   // Učitaj sačuvane podatke iz localStorage ili koristi početne vrednosti
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -49,7 +88,18 @@ function App() {
   })
   const [currentUser, setCurrentUser] = useState(() => getStoredData('currentUser', null))
   const [users, setUsers] = useState(() => getStoredData('users', initialUsers))
-  const [cars, setCars] = useState(() => getStoredData('cars', initialCars))
+  const [cars, setCars] = useState(() => {
+    const storedCars = getStoredData('cars', null)
+    if (storedCars && storedCars.length > 0) {
+      // Migriši stare automobile sa nevalidnim URL-ovima
+      const migratedCars = migrateCars(storedCars)
+      // Sačuvaj migrirane automobile
+      setStoredData('cars', migratedCars)
+      return migratedCars
+    }
+    // Ako nema sačuvanih automobila, koristi početne
+    return initialCars
+  })
 
   // Sačuvaj users u localStorage kada se promene
   useEffect(() => {
