@@ -13,10 +13,13 @@ export default function Login() {
   useEffect(() => {
     // Učitaj build info
     fetch('/build-info.json')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Build info not found')
+        return res.json()
+      })
       .then(data => setBuildInfo(data))
       .catch(() => {
-        // Fallback ako fajl ne postoji
+        // Fallback ako fajl ne postoji - ne prikazuj grešku u konzoli
         setBuildInfo({
           timestamp: new Date().toISOString(),
           date: new Date().toLocaleString('sr-RS', {
