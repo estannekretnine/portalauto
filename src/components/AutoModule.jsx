@@ -1,14 +1,22 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
 import { getCurrentUser } from '../utils/auth'
 import AutoForm from './AutoForm'
+import SearchFilters from './SearchFilters'
 import { Plus, Edit, Trash2, Image as ImageIcon } from 'lucide-react'
 
 export default function AutoModule() {
   const [autos, setAutos] = useState([])
+  const [allAutos, setAllAutos] = useState([]) // Svi učitani automobili
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingAuto, setEditingAuto] = useState(null)
+  const [filters, setFilters] = useState({
+    proizvodjac: '',
+    marka: '',
+    kmOd: '',
+    kmDo: '',
+  })
   const currentUser = getCurrentUser()
   const isAdmin = currentUser?.email === 'admin@example.com'
 
@@ -51,9 +59,9 @@ export default function AutoModule() {
           ...auto,
           vlasnik: korisnici?.find(k => k.id === auto.id)
         }))
-        setAutos(autosWithOwner || [])
+        setAllAutos(autosWithOwner || [])
       } else {
-        setAutos(data || [])
+        setAllAutos(data || [])
       }
     } catch (error) {
       console.error('Greška pri učitavanju automobila:', error)
@@ -97,6 +105,51 @@ export default function AutoModule() {
     setEditingAuto(null)
   }
 
+  // Izračunaj dostupne proizvođače i marke
+  const availableManufacturers = useMemo(() => {
+    const manufacturers = [...new Set(allAutos.map(auto => auto.proizvodjac).filter(Boolean))]
+    return manufacturers.sort()
+  }, [allAutos])
+
+  const availableModels = useMemo(() => {
+    if (!filters.proizvodjac) return []
+    const models = allAutos
+      .filter(auto => auto.proizvodjac === filters.proizvodjac)
+      .map(auto => auto.marka)
+      .filter(Boolean)
+    return [...new Set(models)].sort()
+  }, [allAutos, filters.proizvodjac])
+
+  // Filtriraj automobile na osnovu filtera
+  const filteredAutos = useMemo(() => {
+    let filtered = [...allAutos]
+
+    if (filters.proizvodjac) {
+      filtered = filtered.filter(auto => auto.proizvodjac === filters.proizvodjac)
+    }
+
+    if (filters.marka) {
+      filtered = filtered.filter(auto => auto.marka === filters.marka)
+    }
+
+    if (filters.kmOd) {
+      const kmOd = parseFloat(filters.kmOd)
+      filtered = filtered.filter(auto => auto.presao && auto.presao >= kmOd)
+    }
+
+    if (filters.kmDo) {
+      const kmDo = parseFloat(filters.kmDo)
+      filtered = filtered.filter(auto => auto.presao && auto.presao <= kmDo)
+    }
+
+    return filtered
+  }, [allAutos, filters])
+
+  // Koristi filtrirane automobile
+  useEffect(() => {
+    setAutos(filteredAutos)
+  }, [filteredAutos])
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -118,7 +171,17 @@ export default function AutoModule() {
         </button>
       </div>
 
-      {autos.length === 0 ? (
+      {/* Search Filters */}
+      {allAutos.length > 0 && (
+        <SearchFilters
+          filters={filters}
+          onFilterChange={setFilters}
+          availableManufacturers={availableManufacturers}
+          availableModels={availableModels}
+        />
+      )}
+
+      {allAutos.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-12 text-center">
           <ImageIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-600 text-lg mb-2">Nema automobila</p>
@@ -129,6 +192,12 @@ export default function AutoModule() {
           >
             Dodaj automobil
           </button>
+        </div>
+      ) : autos.length === 0 ? (
+        <div className="bg-white rounded-lg shadow p-12 text-center">
+          <ImageIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-600 text-lg mb-2">Nema automobila koji odgovaraju filterima</p>
+          <p className="text-gray-500 mb-4">Pokušajte da promenite filtere</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
