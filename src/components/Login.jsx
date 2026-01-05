@@ -11,15 +11,37 @@ export default function Login() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    // Učitaj build info
+    // Učitaj build info - tihim načinom (ne prikazuj greške u konzoli)
     fetch('/build-info.json')
       .then(res => {
-        if (!res.ok) throw new Error('Build info not found')
+        if (!res.ok) {
+          // Ako fajl ne postoji, koristi fallback bez prikazivanja greške
+          return null
+        }
         return res.json()
       })
-      .then(data => setBuildInfo(data))
+      .then(data => {
+        if (data) {
+          setBuildInfo(data)
+        } else {
+          // Fallback ako fajl ne postoji
+          setBuildInfo({
+            timestamp: new Date().toISOString(),
+            date: new Date().toLocaleString('sr-RS', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              timeZone: 'Europe/Belgrade'
+            }),
+            version: 'dev'
+          })
+        }
+      })
       .catch(() => {
-        // Fallback ako fajl ne postoji - ne prikazuj grešku u konzoli
+        // Tihi fallback - ne prikazuj grešku u konzoli
         setBuildInfo({
           timestamp: new Date().toISOString(),
           date: new Date().toLocaleString('sr-RS', {
