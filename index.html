@@ -2,25 +2,37 @@
 <html lang="sr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    
+    <!-- DNS Prefetch & Preconnect for Performance -->
+    <link rel="dns-prefetch" href="https://otxueawzqduoehlaopfp.supabase.co" />
+    <link rel="preconnect" href="https://otxueawzqduoehlaopfp.supabase.co" crossorigin />
     
     <!-- Primary Meta Tags -->
     <title>Auto Dashboard - Upravljanje automobilima | CRUD Aplikacija</title>
     <meta name="title" content="Auto Dashboard - Upravljanje automobilima | CRUD Aplikacija" />
     <meta name="description" content="Profesionalna web aplikacija za upravljanje automobilima. Dodajte, uredite i obrišite automobile sa pregledom fotografija. Kompletan CRUD sistem sa autentifikacijom i naprednim filterima." />
-    <meta name="keywords" content="automobili, dashboard, CRUD, upravljanje vozila, auto aplikacija, upravljanje automobilima, vozila, baza automobila, auto inventory" />
+    <meta name="keywords" content="automobili, dashboard, CRUD, upravljanje vozila, auto aplikacija, upravljanje automobilima, vozila, baza automobila, auto inventory, auto management, vehicle management system" />
     <meta name="author" content="Auto Dashboard" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
     <meta name="language" content="Serbian" />
     <meta name="revisit-after" content="7 days" />
     <meta name="rating" content="general" />
+    <meta name="distribution" content="global" />
+    <meta name="coverage" content="worldwide" />
     
     <!-- Canonical URL -->
     <link rel="canonical" href="https://portalauto.vercel.app/" />
     
+    <!-- Language Alternates -->
+    <link rel="alternate" hreflang="sr" href="https://portalauto.vercel.app/" />
+    <link rel="alternate" hreflang="x-default" href="https://portalauto.vercel.app/" />
+    
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <link rel="apple-touch-icon" href="/vite.svg" />
+    <link rel="shortcut icon" href="/vite.svg" />
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -55,27 +67,37 @@
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "Auto Dashboard",
-      "description": "Profesionalna web aplikacija za upravljanje automobilima sa CRUD funkcionalnostima",
+      "alternateName": "Auto Management System",
+      "description": "Profesionalna web aplikacija za upravljanje automobilima sa CRUD funkcionalnostima. Dodajte, uredite i obrišite automobile sa pregledom fotografija.",
       "url": "https://portalauto.vercel.app/",
       "applicationCategory": "BusinessApplication",
       "operatingSystem": "Web",
+      "browserRequirements": "Requires JavaScript. Requires HTML5.",
+      "softwareVersion": "1.0",
+      "releaseNotes": "Kompletan CRUD sistem sa autentifikacijom i naprednim filterima",
       "offers": {
         "@type": "Offer",
         "price": "0",
-        "priceCurrency": "RSD"
+        "priceCurrency": "RSD",
+        "availability": "https://schema.org/InStock"
       },
       "aggregateRating": {
         "@type": "AggregateRating",
         "ratingValue": "5",
-        "ratingCount": "1"
+        "ratingCount": "1",
+        "bestRating": "5",
+        "worstRating": "1"
       },
       "featureList": [
         "Upravljanje automobilima",
         "CRUD operacije",
         "Upload fotografija",
         "Pretraga i filteri",
-        "Autentifikacija korisnika"
-      ]
+        "Autentifikacija korisnika",
+        "Admin panel",
+        "Upravljanje korisnicima"
+      ],
+      "screenshot": "https://portalauto.vercel.app/vite.svg"
     }
     </script>
     
@@ -85,8 +107,29 @@
       "@type": "Organization",
       "name": "Auto Dashboard",
       "url": "https://portalauto.vercel.app/",
-      "logo": "https://portalauto.vercel.app/vite.svg",
-      "description": "Web aplikacija za upravljanje automobilima"
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://portalauto.vercel.app/vite.svg",
+        "width": 512,
+        "height": 512
+      },
+      "description": "Web aplikacija za upravljanje automobilima",
+      "sameAs": []
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Auto Dashboard",
+      "url": "https://portalauto.vercel.app/",
+      "description": "Profesionalna web aplikacija za upravljanje automobilima",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://portalauto.vercel.app/dashboard?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
     }
     </script>
   </head>
