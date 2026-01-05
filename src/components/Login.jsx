@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { login } from '../utils/auth'
 import { useNavigate } from 'react-router-dom'
 
@@ -7,7 +7,31 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [buildInfo, setBuildInfo] = useState(null)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    // Učitaj build info
+    fetch('/build-info.json')
+      .then(res => res.json())
+      .then(data => setBuildInfo(data))
+      .catch(() => {
+        // Fallback ako fajl ne postoji
+        setBuildInfo({
+          timestamp: new Date().toISOString(),
+          date: new Date().toLocaleString('sr-RS', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            timeZone: 'Europe/Belgrade'
+          }),
+          version: 'dev'
+        })
+      })
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -75,6 +99,16 @@ export default function Login() {
             {loading ? 'Prijavljivanje...' : 'Prijavi se'}
           </button>
         </form>
+        
+        {/* Build Info */}
+        {buildInfo && (
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="text-xs text-gray-500 text-center space-y-1">
+              <div>Verzija: {buildInfo.version}</div>
+              <div>Build: {buildInfo.date}</div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
