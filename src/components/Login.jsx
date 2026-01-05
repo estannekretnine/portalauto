@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { login } from '../utils/auth'
 import { useNavigate } from 'react-router-dom'
-import SeedButton from './SeedButton'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -111,7 +110,6 @@ export default function Login() {
           </div>
         )}
       </div>
-      <SeedButton />
     </div>
   )
 }

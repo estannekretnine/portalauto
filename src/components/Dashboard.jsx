@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import AutoModule from './AutoModule'
 import KorisniciModule from './KorisniciModule'
-import SeedButton from './SeedButton'
 import { LogOut } from 'lucide-react'
 
 export default function Dashboard() {
@@ -72,8 +71,6 @@ export default function Dashboard() {
           ))}
         </main>
       </div>
-
-      <SeedButton />
     </div>
   )
 }
