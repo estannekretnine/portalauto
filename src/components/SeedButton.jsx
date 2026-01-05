@@ -11,18 +11,7 @@ export default function SeedButton() {
     setMessage('')
 
     try {
-      // Proveri da li već postoje korisnici
-      const { data: existingUsers } = await supabase
-        .from('korisnici')
-        .select('*')
-
-      if (existingUsers && existingUsers.length > 0) {
-        setMessage('Korisnici već postoje u bazi. Preskačem kreiranje.')
-        setLoading(false)
-        return
-      }
-
-      // Kreiraj 2 korisnika
+      // Kreiraj 2 korisnika (ili update ako već postoje)
       const korisnici = [
         {
           naziv: 'Marko Petrović',
@@ -36,16 +25,31 @@ export default function SeedButton() {
         }
       ]
 
-      const { data, error } = await supabase
+      // Prvo proveri da li korisnici već postoje
+      const { data: existingUsers } = await supabase
         .from('korisnici')
-        .insert(korisnici)
-        .select()
+        .select('email')
+        .in('email', ['marko@example.com', 'ana@example.com'])
 
-      if (error) {
-        throw error
+      const existingEmails = existingUsers?.map(u => u.email) || []
+      
+      // Filtriraj korisnike koji ne postoje
+      const newUsers = korisnici.filter(k => !existingEmails.includes(k.email))
+      
+      if (newUsers.length > 0) {
+        const { data, error } = await supabase
+          .from('korisnici')
+          .insert(newUsers)
+          .select()
+
+        if (error) {
+          throw error
+        }
+
+        setMessage(`Uspešno kreirani korisnici: ${data.length}. ${existingEmails.length > 0 ? `(${existingEmails.length} već postoje)` : ''}`)
+      } else {
+        setMessage(`Svi korisnici već postoje u bazi.`)
       }
-
-      setMessage(`Uspešno kreirani korisnici: ${data.length}`)
 
       // Obriši sve postojeće automobile
       const { error: deleteError } = await supabase
@@ -55,9 +59,9 @@ export default function SeedButton() {
 
       if (deleteError) {
         console.error('Greška pri brisanju automobila:', deleteError)
-        setMessage(message + ' Greška pri brisanju automobila.')
+        setMessage(prev => prev + ' Greška pri brisanju automobila.')
       } else {
-        setMessage(message + ' Svi automobili su obrisani.')
+        setMessage(prev => prev + ' Svi automobili su obrisani.')
       }
     } catch (error) {
       setMessage('Greška: ' + error.message)
@@ -67,14 +71,10 @@ export default function SeedButton() {
     }
   }
 
-  // Prikaži samo u development modu
-  if (import.meta.env.PROD) {
-    return null
-  }
-
+  // Prikaži uvek (i u production modu) jer je potrebno za seedovanje
   return (
-    <div className="fixed bottom-4 right-4 bg-yellow-100 border border-yellow-400 rounded-lg p-4 shadow-lg max-w-sm">
-      <h3 className="font-semibold text-yellow-800 mb-2">Development Tools</h3>
+    <div className="fixed bottom-4 right-4 bg-yellow-100 border border-yellow-400 rounded-lg p-4 shadow-lg max-w-sm z-50">
+      <h3 className="font-semibold text-yellow-800 mb-2">Seed Baze</h3>
       <button
         onClick={handleSeed}
         disabled={loading}
