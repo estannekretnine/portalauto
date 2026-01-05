@@ -1,0 +1,19 @@
+{
+  "name": "Auto Dashboard",
+  "short_name": "Auto Dashboard",
+  "description": "Upravljanje automobilima sa CRUD funkcionalnostima",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4F46E5",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
+
