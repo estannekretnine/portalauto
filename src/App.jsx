@@ -1,193 +1,33 @@
-import { useState, useEffect, lazy, Suspense } from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { isAuthenticated } from './utils/auth'
 import Login from './components/Login'
-import generateCars from './utils/generateCars'
+import Dashboard from './components/Dashboard'
+import './index.css'
 
-// Lazy loading za Dashboard komponentu
-const Dashboard = lazy(() => import('./components/Dashboard'))
-
-// Početni korisnici
-const initialUsers = [
-  {
-    id: 1,
-    ime: 'Admin',
-    email: 'admin@admin.com',
-    password: 'admin123',
-  },
-  {
-    id: 2,
-    ime: 'Korisnik 1',
-    email: 'korisnik1@test.com',
-    password: 'test123',
-  },
-]
-
-// Ne generiši odmah - će se generisati u useEffect nakon mounta
-let initialCars = []
-
-// Funkcije za rad sa localStorage
-const getStoredData = (key, defaultValue) => {
-  try {
-    const item = localStorage.getItem(key)
-    return item ? JSON.parse(item) : defaultValue
-  } catch (error) {
-    console.error(`Error reading from localStorage key "${key}":`, error)
-    return defaultValue
-  }
-}
-
-const setStoredData = (key, value) => {
-  try {
-    localStorage.setItem(key, JSON.stringify(value))
-  } catch (error) {
-    console.error(`Error writing to localStorage key "${key}":`, error)
-  }
-}
-
-// Migracija automobila - zameni stare URL-ove sa novim SVG data URI placeholder slikama
-const migrateCars = (cars) => {
-  // Generiši SVG placeholder slike - radi svuda
-  const generatePlaceholderImage = (width, height, color, textColor = '#FFFFFF') => {
-    const svg = `
-      <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-        <rect width="${width}" height="${height}" fill="${color}"/>
-        <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="${Math.floor(width / 8)}" 
-              fill="${textColor}" text-anchor="middle" dominant-baseline="middle">Car</text>
-      </svg>
-    `.trim()
-    
-    const encodedSvg = encodeURIComponent(svg)
-    return `data:image/svg+xml,${encodedSvg}`
-  }
-
-  const colors = [
-    '#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
-    '#06B6D4', '#EC4899', '#14B8A6', '#F97316', '#6366F1',
-    '#3B82F6', '#8B5A2B', '#059669', '#DC2626', '#7C3AED'
-  ]
-  
-  const imageUrls = colors.map(color => generatePlaceholderImage(400, 400, color))
-  const getRandomElement = (array) => array[Math.floor(Math.random() * array.length)]
-  
-  // Agresivna migracija - uvek zameni sve slike osim ako su već validne data URI slike
-  return cars.map((car) => {
-    const hasValidDataUri = car.slike && 
-      car.slike.length > 0 && 
-      car.slike.every(url => url && url.trim() !== '' && url.startsWith('data:image'))
-    
-    if (!hasValidDataUri) {
-      // Generiši 3-5 novih validnih slika
-      const numImages = Math.floor(Math.random() * 3) + 3 // 3-5 slika
-      const newSlike = []
-      for (let i = 0; i < numImages; i++) {
-        newSlike.push(getRandomElement(imageUrls))
-      }
-      return {
-        ...car,
-        slike: newSlike
-      }
-    }
-    return car
-  })
+function ProtectedRoute({ children }) {
+  return isAuthenticated() ? children : <Navigate to="/" replace />
 }
 
 function App() {
-  // Učitaj sačuvane podatke iz localStorage ili koristi početne vrednosti
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    const storedUser = getStoredData('currentUser', null)
-    return storedUser !== null
-  })
-  const [currentUser, setCurrentUser] = useState(() => getStoredData('currentUser', null))
-  const [users, setUsers] = useState(() => getStoredData('users', initialUsers))
-  const [cars, setCars] = useState(() => {
-    const storedCars = getStoredData('cars', null)
-    if (storedCars && storedCars.length > 0) {
-      // Proveri da li imaju validne slike - podržavamo data URI i HTTP(S) URL-ove
-      const allHaveValidImages = storedCars.every(car => {
-        if (!car.slike || car.slike.length === 0) return false
-        return car.slike.every(url => url && url.trim() !== '' && (url.startsWith('data:image') || url.startsWith('http')))
-      })
-      
-      if (allHaveValidImages) {
-        return storedCars
-      } else {
-        // Ako ima nevalidne slike, obriši
-        localStorage.removeItem('cars')
-      }
-    }
-    
-    // Vrati prazan array - generiše se u useEffect
-    return []
-  })
-  
-  // Generiši početne automobile samo u browseru, nakon mounta
-  useEffect(() => {
-    // Proveri da li već imamo automobile u localStorage ili state-u
-    if (cars.length === 0 && typeof document !== 'undefined') {
-      const storedCars = getStoredData('cars', null)
-      if (!storedCars || storedCars.length === 0) {
-        // Generiši nove automobile samo u browseru
-        const newCars = generateCars(500)
-        setCars(newCars)
-        setStoredData('cars', newCars)
-      }
-    }
-  }, []) // Prazan dependency array - izvršava se samo jednom nakon mounta
-
-  // Sačuvaj users u localStorage kada se promene
-  useEffect(() => {
-    setStoredData('users', users)
-  }, [users])
-
-  // Sačuvaj cars u localStorage kada se promene
-  useEffect(() => {
-    if (cars && cars.length > 0) {
-      setStoredData('cars', cars)
-    }
-  }, [cars])
-
-  // Sačuvaj automobile u localStorage
-  useEffect(() => {
-    if (cars && cars.length > 0) {
-      setStoredData('cars', cars)
-    }
-  }, [cars])
-
-  const handleLogin = (user) => {
-    setCurrentUser(user)
-    setIsAuthenticated(true)
-    setStoredData('currentUser', user)
-  }
-
-  const handleLogout = () => {
-    setCurrentUser(null)
-    setIsAuthenticated(false)
-    localStorage.removeItem('currentUser')
-  }
-
   return (
-    <>
-      {!isAuthenticated ? (
-        <Login onLogin={handleLogin} users={users} />
-      ) : (
-        <Suspense fallback={
-          <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Učitavanje...</p>
-            </div>
-          </div>
-        }>
-          <Dashboard
-            onLogout={handleLogout}
-            currentUser={currentUser}
-            users={users}
-            onUpdateUsers={setUsers}
-            cars={cars}
-            onUpdateCars={setCars}
-          />
-        </Suspense>
-      )}
-    </>
+    <Router>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Login />
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </Router>
   )
 }
 

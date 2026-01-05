@@ -1,59 +1,68 @@
-# React Auto Dashboard
+# Auto Dashboard
 
-Web aplikacija za upravljanje automobilima sa login sistemom, Gmail-like navigacijom i responzivnim CRUD modulom.
-
-## Tehnologije
-
-- React (Vite)
-- Tailwind CSS
-- Lucide React (ikonice)
+Aplikacija za upravljanje automobilima sa autentifikacijom i upload-om fotografija.
 
 ## Funkcionalnosti
 
-- **Login sistem**: Zaštićen šifrom `admin123`
-- **Responzivni layout**: Sidebar navigacija i glavni panel
-- **CRUD operacije za automobile**:
-  - Dodavanje novih automobila
-  - Uređivanje postojećih automobila
-  - Brisanje automobila
-  - Prikaz u responzivnom grid-u
-- **Galerija slika**: 5 slika po automobilu sa lightbox prikazom
+- ✅ Login sa email i password
+- ✅ Upload više fotografija odjednom
+- ✅ Editovanje pojedinačnih fotografija
+- ✅ Dodavanje opisa za svaku fotografiju
+- ✅ CRUD operacije za automobile
+- ✅ Čuvanje fotografija u JSON formatu (base64) u `foto` polju
+
+## Instalacija
+
+1. Instaliraj dependencies:
+```bash
+npm install
+```
+
+2. Kreiraj `.env` fajl sa Supabase varijablama (već je kreiran sa osnovnim vrednostima)
+
+3. Seeduj bazu sa 2 korisnika:
+   - Otvori browser konzolu na stranici
+   - Pokreni: `window.seedDatabase()` (dodaj script u App.jsx za development)
+
+## Korisnici za testiranje
+
+1. **Marko Petrović**
+   - Email: `marko@example.com`
+   - Password: `marko123`
+
+2. **Ana Jovanović**
+   - Email: `ana@example.com`
+   - Password: `ana123`
 
 ## Pokretanje
 
 ```bash
-# Instalacija zavisnosti
-npm install
-
-# Pokretanje development servera
 npm run dev
-
-# Build za produkciju
-npm run build
 ```
 
-## Struktura projekta
+Aplikacija će biti dostupna na `http://localhost:5173`
 
-```
-src/
-├── components/
-│   ├── Login.jsx          # Login komponenta
-│   ├── Dashboard.jsx      # Glavni dashboard layout
-│   ├── Sidebar.jsx        # Sidebar navigacija
-│   ├── CarsModule.jsx     # CRUD modul za automobile
-│   ├── CarsList.jsx       # Prikaz liste automobila
-│   └── CarForm.jsx        # Forma za dodavanje/uređivanje
-├── App.jsx                # Glavna aplikacija
-├── main.jsx               # Entry point
-└── index.css              # Globalni stilovi
-```
+## Struktura baze
 
-## Atributi automobila
+### Tabela `korisnici`
+- `id` (bigint, primary key)
+- `naziv` (varchar)
+- `email` (varchar)
+- `password` (varchar)
 
-- ID (automatski generisan)
-- Proizvođač
-- Model
-- Godište
-- Prešao km
-- 5 fotografija (niz URL-ova)
+### Tabela `auto`
+- `id` (bigint, primary key, foreign key -> korisnici.id)
+- `proizvodjac` (varchar)
+- `marka` (varchar)
+- `presao` (numeric)
+- `godiste` (numeric)
+- `foto` (jsonb) - niz objekata sa `{id, url, opis}`
+
+## Napomene
+
+- Fotografije se čuvaju kao base64 stringovi u JSON formatu
+- Svaka fotografija može imati opis
+- Možete upload-ovati više fotografija odjednom
+- Možete editovati pojedinačne fotografije
+- Baza `auto` je inicijalno prazna
 

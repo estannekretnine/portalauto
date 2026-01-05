@@ -1,130 +1,82 @@
-import { useState, useEffect } from 'react'
-import { Lock } from 'lucide-react'
+import { useState } from 'react'
+import { login } from '../utils/auth'
+import { useNavigate } from 'react-router-dom'
 
-const Login = ({ onLogin, users }) => {
+export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [buildInfo, setBuildInfo] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
-  useEffect(() => {
-    // Učitaj build info
-    fetch('/build-info.json')
-      .then(res => res.json())
-      .then(data => setBuildInfo(data))
-      .catch(() => {
-        // Fallback ako fajl ne postoji
-        setBuildInfo({
-          timestamp: new Date().toISOString(),
-          date: new Date().toLocaleString('sr-RS', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            timeZone: 'Europe/Belgrade'
-          }),
-          version: 'dev'
-        })
-      })
-  }, [])
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    const user = users.find(
-      (u) => u.email === email && u.password === password
-    )
-    
-    if (user) {
-      setError('')
-      onLogin(user)
-    } else {
-      setError('Neispravan email ili šifra!')
-      setEmail('')
-      setPassword('')
+    setError('')
+    setLoading(true)
+
+    const { data, error: loginError } = await login(email, password)
+
+    if (loginError) {
+      setError(loginError)
+      setLoading(false)
+      return
+    }
+
+    if (data) {
+      navigate('/dashboard')
     }
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
-          <div className="flex justify-center mb-6" role="img" aria-label="Ikona za login">
-            <div className="bg-indigo-100 p-4 rounded-full">
-              <Lock className="w-8 h-8 text-indigo-600" aria-hidden="true" />
-            </div>
-          </div>
-        <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
+        <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
           Auto Dashboard
         </h1>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email
             </label>
             <input
-              type="email"
               id="email"
+              type="email"
               value={email}
-              onChange={(e) => {
-                setEmail(e.target.value)
-                setError('')
-              }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              placeholder="Unesite email"
-              autoFocus
+              onChange={(e) => setEmail(e.target.value)}
               required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              placeholder="unesite@email.com"
             />
           </div>
-          <div className="mb-4">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Šifra
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              Password
             </label>
             <input
-              type="password"
               id="password"
+              type="password"
               value={password}
-              onChange={(e) => {
-                setPassword(e.target.value)
-                setError('')
-              }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              placeholder="Unesite šifru"
+              onChange={(e) => setPassword(e.target.value)}
               required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              placeholder="••••••••"
             />
-            {error && (
-              <p className="mt-2 text-sm text-red-600" role="alert" aria-live="polite">
-                {error}
-              </p>
-            )}
           </div>
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150"
+            disabled={loading}
+            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            Prijavi se
+            {loading ? 'Prijavljivanje...' : 'Prijavi se'}
           </button>
         </form>
-        
-        {/* Build Info */}
-        {buildInfo && (
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <div className="text-xs text-gray-500 text-center space-y-1">
-              <div>Verzija: {buildInfo.version}</div>
-              <div>Build: {buildInfo.date}</div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )
 }
-
-export default Login
 
