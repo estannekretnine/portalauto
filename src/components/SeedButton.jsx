@@ -1,6 +1,6 @@
-// Komponenta za seedovanje baze - samo za development
+// Komponenta za seedovanje baze
 import { useState } from 'react'
-import { supabase } from '../utils/supabase'
+import { supabase, supabaseAdmin } from '../utils/supabase'
 
 export default function SeedButton() {
   const [loading, setLoading] = useState(false)
@@ -11,6 +11,13 @@ export default function SeedButton() {
     setMessage('')
 
     try {
+      // Koristi admin client ako je dostupan, inače obični client
+      const client = supabaseAdmin || supabase
+
+      if (!supabaseAdmin) {
+        setMessage('⚠️ Service Role Key nije podešen. Koristim anon key (može ne raditi zbog RLS).')
+      }
+
       // Kreiraj 2 korisnika (ili update ako već postoje)
       const korisnici = [
         {
@@ -26,7 +33,7 @@ export default function SeedButton() {
       ]
 
       // Prvo proveri da li korisnici već postoje
-      const { data: existingUsers } = await supabase
+      const { data: existingUsers } = await client
         .from('korisnici')
         .select('email')
         .in('email', ['marko@example.com', 'ana@example.com'])
@@ -37,34 +44,37 @@ export default function SeedButton() {
       const newUsers = korisnici.filter(k => !existingEmails.includes(k.email))
       
       if (newUsers.length > 0) {
-        const { data, error } = await supabase
+        const { data, error } = await client
           .from('korisnici')
           .insert(newUsers)
           .select()
 
         if (error) {
+          if (error.code === '42501') {
+            throw new Error('RLS greška: Dodaj VITE_SUPABASE_SERVICE_ROLE_KEY u environment varijable ili pokreni seed.sql u Supabase SQL Editor-u')
+          }
           throw error
         }
 
-        setMessage(`Uspešno kreirani korisnici: ${data.length}. ${existingEmails.length > 0 ? `(${existingEmails.length} već postoje)` : ''}`)
+        setMessage(`✅ Uspešno kreirani korisnici: ${data.length}. ${existingEmails.length > 0 ? `(${existingEmails.length} već postoje)` : ''}`)
       } else {
-        setMessage(`Svi korisnici već postoje u bazi.`)
+        setMessage(`ℹ️ Svi korisnici već postoje u bazi.`)
       }
 
       // Obriši sve postojeće automobile
-      const { error: deleteError } = await supabase
+      const { error: deleteError } = await client
         .from('auto')
         .delete()
         .neq('id', 0) // Obriši sve
 
       if (deleteError) {
         console.error('Greška pri brisanju automobila:', deleteError)
-        setMessage(prev => prev + ' Greška pri brisanju automobila.')
+        setMessage(prev => prev + ' ⚠️ Greška pri brisanju automobila.')
       } else {
-        setMessage(prev => prev + ' Svi automobili su obrisani.')
+        setMessage(prev => prev + ' ✅ Svi automobili su obrisani.')
       }
     } catch (error) {
-      setMessage('Greška: ' + error.message)
+      setMessage('❌ Greška: ' + error.message)
       console.error('Greška:', error)
     } finally {
       setLoading(false)

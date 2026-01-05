@@ -18,11 +18,23 @@ Aplikacija za upravljanje automobilima sa autentifikacijom i upload-om fotografi
 npm install
 ```
 
-2. Kreiraj `.env` fajl sa Supabase varijablama (već je kreiran sa osnovnim vrednostima)
+2. Kreiraj `.env` fajl sa Supabase varijablama:
+   ```
+   VITE_SUPABASE_URL=https://otxueawzqduoehlaopfp.supabase.co
+   VITE_SUPABASE_ANON_KEY=your_anon_key
+   VITE_SUPABASE_SERVICE_ROLE_KEY=your_service_role_key (opciono, za seed operacije)
+   ```
 
-3. Seeduj bazu sa 2 korisnika:
-   - Otvori browser konzolu na stranici
-   - Pokreni: `window.seedDatabase()` (dodaj script u App.jsx za development)
+3. Seeduj bazu sa 2 korisnika - **DVA NAČINA**:
+
+   **Način 1: SQL skripta (PREPORUČENO)**
+   - Otvori Supabase Dashboard → SQL Editor
+   - Kopiraj sadržaj iz `seed.sql` fajla
+   - Pokreni SQL skriptu
+   
+   **Način 2: Seed Button (zahteva Service Role Key)**
+   - Dodaj `VITE_SUPABASE_SERVICE_ROLE_KEY` u `.env` fajl
+   - Na Login stranici klikni na "Seeduj bazu" dugme u donjem desnom uglu
 
 ## Korisnici za testiranje
 
