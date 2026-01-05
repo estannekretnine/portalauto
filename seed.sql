@@ -11,6 +11,11 @@ DELETE FROM public.auto;
 
 -- Kreiraj korisnike (koristi NOT EXISTS da izbegne duplikate)
 INSERT INTO public.korisnici (naziv, email, password)
+SELECT 'Admin', 'admin@example.com', 'admin123'
+WHERE NOT EXISTS (SELECT 1 FROM public.korisnici WHERE email = 'admin@example.com')
+RETURNING id, naziv, email;
+
+INSERT INTO public.korisnici (naziv, email, password)
 SELECT 'Marko Petrović', 'marko@example.com', 'marko123'
 WHERE NOT EXISTS (SELECT 1 FROM public.korisnici WHERE email = 'marko@example.com')
 RETURNING id, naziv, email;
@@ -23,14 +28,15 @@ RETURNING id, naziv, email;
 -- Proveri kreirane korisnike (bez RLS filtera)
 SELECT id, naziv, email, LENGTH(password) as password_length 
 FROM public.korisnici 
-WHERE email IN ('marko@example.com', 'ana@example.com');
+WHERE email IN ('admin@example.com', 'marko@example.com', 'ana@example.com');
 
 -- Proveri da li se password-ovi poklapaju
 SELECT 
   id,
   email,
+  password = 'admin123' as admin_password_matches,
   password = 'marko123' as marko_password_matches,
   password = 'ana123' as ana_password_matches
 FROM public.korisnici 
-WHERE email IN ('marko@example.com', 'ana@example.com');
+WHERE email IN ('admin@example.com', 'marko@example.com', 'ana@example.com');
 
