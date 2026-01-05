@@ -4,17 +4,19 @@ import { useState } from 'react'
 const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
+  const isAdmin = user?.email === 'admin@example.com'
+
   const menuItems = [
     {
       id: 'auto',
       label: 'Automobili',
       icon: Car,
     },
-    {
+    ...(isAdmin ? [{
       id: 'korisnici',
       label: 'Korisnici',
       icon: Users,
-    },
+    }] : []),
   ]
 
   return (
@@ -38,7 +40,7 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
       <aside
         className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 transform ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } transition-transform duration-200 ease-in-out`}
+        } transition-transform duration-200 ease-in-out h-screen`}
         aria-label="Glavna navigacija"
       >
         <div className="flex flex-col h-full">

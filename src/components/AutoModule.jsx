@@ -9,6 +9,8 @@ export default function AutoModule() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingAuto, setEditingAuto] = useState(null)
+  const currentUser = getCurrentUser()
+  const isAdmin = currentUser?.email === 'admin@example.com'
 
   useEffect(() => {
     loadAutos()
@@ -20,14 +22,39 @@ export default function AutoModule() {
       const currentUser = getCurrentUser()
       if (!currentUser) return
 
-      const { data, error } = await supabase
+      const isAdmin = currentUser.email === 'admin@example.com'
+
+      // Admin vidi sve automobile, obični korisnici vide samo svoje
+      let query = supabase
         .from('auto')
         .select('*')
-        .eq('id', currentUser.id)
+
+      if (!isAdmin) {
+        query = query.eq('id', currentUser.id)
+      }
+      // Za admin korisnike ne dodajemo filter - vidimo sve
+
+      const { data, error } = await query.order('id', { ascending: false })
 
       if (error) throw error
 
-      setAutos(data || [])
+      // Za admin korisnike, dohvati informacije o vlasnicima
+      if (isAdmin && data && data.length > 0) {
+        const userIds = [...new Set(data.map(auto => auto.id))]
+        const { data: korisnici } = await supabase
+          .from('korisnici')
+          .select('id, naziv, email')
+          .in('id', userIds)
+
+        // Dodaj informacije o vlasniku svakom automobilu
+        const autosWithOwner = data.map(auto => ({
+          ...auto,
+          vlasnik: korisnici?.find(k => k.id === auto.id)
+        }))
+        setAutos(autosWithOwner || [])
+      } else {
+        setAutos(data || [])
+      }
     } catch (error) {
       console.error('Greška pri učitavanju automobila:', error)
     } finally {
@@ -126,6 +153,11 @@ export default function AutoModule() {
                   {auto.proizvodjac} {auto.marka}
                 </h3>
                 <div className="space-y-1 text-sm text-gray-600">
+                  {isAdmin && auto.vlasnik && (
+                    <p className="font-medium text-indigo-600">
+                      Vlasnik: {auto.vlasnik.naziv} ({auto.vlasnik.email})
+                    </p>
+                  )}
                   {auto.godiste && (
                     <p>Godište: {auto.godiste}</p>
                   )}
