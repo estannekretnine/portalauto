@@ -255,7 +255,7 @@ export default function InvestitorModule() {
             </div>
           )}
           {/* Desktop Table View */}
-          <div className="hidden lg:block overflow-x-auto">
+          <div className="hidden md:block overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -364,7 +364,7 @@ export default function InvestitorModule() {
           </div>
           
           {/* Mobile Card View */}
-          <div className="lg:hidden divide-y divide-gray-200">
+          <div className="md:hidden divide-y divide-gray-200">
             {filteredAndSortedData.map((investitor) => (
               <div key={investitor.id} className="p-4 hover:bg-gray-50">
                 <div className="space-y-2 mb-3">
