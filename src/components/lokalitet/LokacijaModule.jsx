@@ -9,7 +9,7 @@ export default function LokacijaModule() {
   const [showForm, setShowForm] = useState(false)
   const [editingLokacija, setEditingLokacija] = useState(null)
   const [formData, setFormData] = useState({
-    naziv: '',
+    opis: '',
     opstina_id: ''
   })
 
@@ -23,7 +23,7 @@ export default function LokacijaModule() {
       const { data, error } = await supabase
         .from('opstina')
         .select('*')
-        .order('naziv', { ascending: true })
+        .order('opis', { ascending: true })
 
       if (error) throw error
       setOpstine(data || [])
@@ -38,7 +38,7 @@ export default function LokacijaModule() {
       const { data, error } = await supabase
         .from('lokacija')
         .select('*')
-        .order('naziv', { ascending: true })
+        .order('opis', { ascending: true })
 
       if (error) throw error
       setLokacije(data || [])
@@ -72,7 +72,7 @@ export default function LokacijaModule() {
   const handleEdit = (lokacija) => {
     setEditingLokacija(lokacija)
     setFormData({
-      naziv: lokacija.naziv || '',
+      opis: lokacija.opis || '',
       opstina_id: lokacija.opstina_id || ''
     })
     setShowForm(true)
@@ -81,7 +81,7 @@ export default function LokacijaModule() {
   const handleAdd = () => {
     setEditingLokacija(null)
     setFormData({
-      naziv: '',
+      opis: '',
       opstina_id: opstine.length > 0 ? opstine[0].id : ''
     })
     setShowForm(true)
@@ -90,8 +90,8 @@ export default function LokacijaModule() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!formData.naziv.trim()) {
-      alert('Naziv je obavezan')
+    if (!formData.opis.trim()) {
+      alert('Opis je obavezan')
       return
     }
 
@@ -105,7 +105,7 @@ export default function LokacijaModule() {
         const { error } = await supabase
           .from('lokacija')
           .update({
-            naziv: formData.naziv.trim(),
+            opis: formData.opis.trim(),
             opstina_id: parseInt(formData.opstina_id)
           })
           .eq('id', editingLokacija.id)
@@ -115,7 +115,7 @@ export default function LokacijaModule() {
         const { error } = await supabase
           .from('lokacija')
           .insert([{
-            naziv: formData.naziv.trim(),
+            opis: formData.opis.trim(),
             opstina_id: parseInt(formData.opstina_id)
           }])
 
@@ -181,7 +181,7 @@ export default function LokacijaModule() {
                     ID
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Naziv
+                    Opis
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Opština ID
@@ -193,17 +193,17 @@ export default function LokacijaModule() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {lokacije.map((lokacija) => {
-                  const opstinaNaziv = opstine.find(o => o.id === lokacija.opstina_id)?.naziv || 'N/A'
+                  const opstinaOpis = opstine.find(o => o.id === lokacija.opstina_id)?.opis || 'N/A'
                   return (
                     <tr key={lokacija.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {lokacija.id}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        {lokacija.naziv}
+                        {lokacija.opis}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
-                        {opstinaNaziv} (ID: {lokacija.opstina_id})
+                        {opstinaOpis} (ID: {lokacija.opstina_id})
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end gap-2">
@@ -255,19 +255,19 @@ export default function LokacijaModule() {
                   <option value="">Izaberi opštinu</option>
                   {opstine.map((opstina) => (
                     <option key={opstina.id} value={opstina.id}>
-                      {opstina.naziv}
+                      {opstina.opis}
                     </option>
                   ))}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Naziv *
+                  Opis *
                 </label>
                 <input
                   type="text"
-                  value={formData.naziv}
-                  onChange={(e) => setFormData({ ...formData, naziv: e.target.value })}
+                  value={formData.opis}
+                  onChange={(e) => setFormData({ ...formData, opis: e.target.value })}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />

@@ -9,7 +9,7 @@ export default function GradModule() {
   const [showForm, setShowForm] = useState(false)
   const [editingGrad, setEditingGrad] = useState(null)
   const [formData, setFormData] = useState({
-    naziv: '',
+    opis: '',
     drzava_id: ''
   })
 
@@ -23,7 +23,7 @@ export default function GradModule() {
       const { data, error } = await supabase
         .from('drzava')
         .select('*')
-        .order('naziv', { ascending: true })
+        .order('opis', { ascending: true })
 
       if (error) throw error
       setDrzave(data || [])
@@ -37,28 +37,15 @@ export default function GradModule() {
       setLoading(true)
       const { data, error } = await supabase
         .from('grad')
-        .select(`
-          *,
-          drzava:naziv
-        `)
-        .order('naziv', { ascending: true })
+        .select('*')
+        .order('opis', { ascending: true })
 
       if (error) throw error
 
       setGradovi(data || [])
     } catch (error) {
       console.error('Greška pri učitavanju gradova:', error)
-      // Pokušaj bez join-a ako foreign key ne postoji
-      const { data, error: error2 } = await supabase
-        .from('grad')
-        .select('*')
-        .order('naziv', { ascending: true })
-
-      if (error2) {
-        alert('Greška pri učitavanju gradova: ' + error2.message)
-      } else {
-        setGradovi(data || [])
-      }
+      alert('Greška pri učitavanju gradova: ' + error.message)
     } finally {
       setLoading(false)
     }
@@ -87,8 +74,8 @@ export default function GradModule() {
   const handleEdit = (grad) => {
     setEditingGrad(grad)
     setFormData({
-      naziv: grad.naziv || '',
-      drzava_id: grad.drzava_id || grad.drzava?.id || ''
+      opis: grad.opis || '',
+      drzava_id: grad.drzava_id || ''
     })
     setShowForm(true)
   }
@@ -96,7 +83,7 @@ export default function GradModule() {
   const handleAdd = () => {
     setEditingGrad(null)
     setFormData({
-      naziv: '',
+      opis: '',
       drzava_id: drzave.length > 0 ? drzave[0].id : ''
     })
     setShowForm(true)
@@ -105,8 +92,8 @@ export default function GradModule() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!formData.naziv.trim()) {
-      alert('Naziv je obavezan')
+    if (!formData.opis.trim()) {
+      alert('Opis je obavezan')
       return
     }
 
@@ -120,7 +107,7 @@ export default function GradModule() {
         const { error } = await supabase
           .from('grad')
           .update({
-            naziv: formData.naziv.trim(),
+            opis: formData.opis.trim(),
             drzava_id: parseInt(formData.drzava_id)
           })
           .eq('id', editingGrad.id)
@@ -130,7 +117,7 @@ export default function GradModule() {
         const { error } = await supabase
           .from('grad')
           .insert([{
-            naziv: formData.naziv.trim(),
+            opis: formData.opis.trim(),
             drzava_id: parseInt(formData.drzava_id)
           }])
 
@@ -196,7 +183,7 @@ export default function GradModule() {
                     ID
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Naziv
+                    Opis
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Država
@@ -208,17 +195,17 @@ export default function GradModule() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {gradovi.map((grad) => {
-                  const drzavaNaziv = grad.drzava?.naziv || drzave.find(d => d.id === grad.drzava_id)?.naziv || 'N/A'
+                  const drzavaOpis = drzave.find(d => d.id === grad.drzava_id)?.opis || 'N/A'
                   return (
                     <tr key={grad.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {grad.id}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        {grad.naziv}
+                        {grad.opis}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
-                        {drzavaNaziv}
+                        {drzavaOpis}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end gap-2">
@@ -270,19 +257,19 @@ export default function GradModule() {
                   <option value="">Izaberi državu</option>
                   {drzave.map((drzava) => (
                     <option key={drzava.id} value={drzava.id}>
-                      {drzava.naziv}
+                      {drzava.opis}
                     </option>
                   ))}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Naziv *
+                  Opis *
                 </label>
                 <input
                   type="text"
-                  value={formData.naziv}
-                  onChange={(e) => setFormData({ ...formData, naziv: e.target.value })}
+                  value={formData.opis}
+                  onChange={(e) => setFormData({ ...formData, opis: e.target.value })}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />

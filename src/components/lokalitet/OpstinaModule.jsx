@@ -9,7 +9,7 @@ export default function OpstinaModule() {
   const [showForm, setShowForm] = useState(false)
   const [editingOpstina, setEditingOpstina] = useState(null)
   const [formData, setFormData] = useState({
-    naziv: '',
+    opis: '',
     grad_id: ''
   })
 
@@ -23,7 +23,7 @@ export default function OpstinaModule() {
       const { data, error } = await supabase
         .from('grad')
         .select('*')
-        .order('naziv', { ascending: true })
+        .order('opis', { ascending: true })
 
       if (error) throw error
       setGradovi(data || [])
@@ -38,7 +38,7 @@ export default function OpstinaModule() {
       const { data, error } = await supabase
         .from('opstina')
         .select('*')
-        .order('naziv', { ascending: true })
+        .order('opis', { ascending: true })
 
       if (error) throw error
       setOpstine(data || [])
@@ -72,7 +72,7 @@ export default function OpstinaModule() {
   const handleEdit = (opstina) => {
     setEditingOpstina(opstina)
     setFormData({
-      naziv: opstina.naziv || '',
+      opis: opstina.opis || '',
       grad_id: opstina.grad_id || ''
     })
     setShowForm(true)
@@ -81,7 +81,7 @@ export default function OpstinaModule() {
   const handleAdd = () => {
     setEditingOpstina(null)
     setFormData({
-      naziv: '',
+      opis: '',
       grad_id: gradovi.length > 0 ? gradovi[0].id : ''
     })
     setShowForm(true)
@@ -90,8 +90,8 @@ export default function OpstinaModule() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!formData.naziv.trim()) {
-      alert('Naziv je obavezan')
+    if (!formData.opis.trim()) {
+      alert('Opis je obavezan')
       return
     }
 
@@ -105,7 +105,7 @@ export default function OpstinaModule() {
         const { error } = await supabase
           .from('opstina')
           .update({
-            naziv: formData.naziv.trim(),
+            opis: formData.opis.trim(),
             grad_id: parseInt(formData.grad_id)
           })
           .eq('id', editingOpstina.id)
@@ -115,7 +115,7 @@ export default function OpstinaModule() {
         const { error } = await supabase
           .from('opstina')
           .insert([{
-            naziv: formData.naziv.trim(),
+            opis: formData.opis.trim(),
             grad_id: parseInt(formData.grad_id)
           }])
 
@@ -181,7 +181,7 @@ export default function OpstinaModule() {
                     ID
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Naziv
+                    Opis
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Grad ID
@@ -193,17 +193,17 @@ export default function OpstinaModule() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {opstine.map((opstina) => {
-                  const gradNaziv = gradovi.find(g => g.id === opstina.grad_id)?.naziv || 'N/A'
+                  const gradOpis = gradovi.find(g => g.id === opstina.grad_id)?.opis || 'N/A'
                   return (
                     <tr key={opstina.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {opstina.id}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        {opstina.naziv}
+                        {opstina.opis}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
-                        {gradNaziv} (ID: {opstina.grad_id})
+                        {gradOpis} (ID: {opstina.grad_id})
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end gap-2">
@@ -255,19 +255,19 @@ export default function OpstinaModule() {
                   <option value="">Izaberi grad</option>
                   {gradovi.map((grad) => (
                     <option key={grad.id} value={grad.id}>
-                      {grad.naziv}
+                      {grad.opis}
                     </option>
                   ))}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Naziv *
+                  Opis *
                 </label>
                 <input
                   type="text"
-                  value={formData.naziv}
-                  onChange={(e) => setFormData({ ...formData, naziv: e.target.value })}
+                  value={formData.opis}
+                  onChange={(e) => setFormData({ ...formData, opis: e.target.value })}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />

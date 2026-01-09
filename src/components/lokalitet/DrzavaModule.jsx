@@ -8,7 +8,7 @@ export default function DrzavaModule() {
   const [showForm, setShowForm] = useState(false)
   const [editingDrzava, setEditingDrzava] = useState(null)
   const [formData, setFormData] = useState({
-    naziv: ''
+    opis: ''
   })
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export default function DrzavaModule() {
       const { data, error } = await supabase
         .from('drzava')
         .select('*')
-        .order('naziv', { ascending: true })
+        .order('opis', { ascending: true })
 
       if (error) throw error
 
@@ -57,7 +57,7 @@ export default function DrzavaModule() {
   const handleEdit = (drzava) => {
     setEditingDrzava(drzava)
     setFormData({
-      naziv: drzava.naziv || ''
+      opis: drzava.opis || ''
     })
     setShowForm(true)
   }
@@ -65,7 +65,7 @@ export default function DrzavaModule() {
   const handleAdd = () => {
     setEditingDrzava(null)
     setFormData({
-      naziv: ''
+      opis: ''
     })
     setShowForm(true)
   }
@@ -73,8 +73,8 @@ export default function DrzavaModule() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!formData.naziv.trim()) {
-      alert('Naziv je obavezan')
+    if (!formData.opis.trim()) {
+      alert('Opis je obavezan')
       return
     }
 
@@ -82,14 +82,14 @@ export default function DrzavaModule() {
       if (editingDrzava) {
         const { error } = await supabase
           .from('drzava')
-          .update({ naziv: formData.naziv.trim() })
+          .update({ opis: formData.opis.trim() })
           .eq('id', editingDrzava.id)
 
         if (error) throw error
       } else {
         const { error } = await supabase
           .from('drzava')
-          .insert([{ naziv: formData.naziv.trim() }])
+          .insert([{ opis: formData.opis.trim() }])
 
         if (error) throw error
       }
@@ -144,7 +144,7 @@ export default function DrzavaModule() {
                   ID
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Naziv
+                  Opis
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Akcije
@@ -158,7 +158,7 @@ export default function DrzavaModule() {
                     {drzava.id}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900">
-                    {drzava.naziv}
+                    {drzava.opis}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end gap-2">
@@ -197,12 +197,12 @@ export default function DrzavaModule() {
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Naziv *
+                  Opis *
                 </label>
                 <input
                   type="text"
-                  value={formData.naziv}
-                  onChange={(e) => setFormData({ ...formData, naziv: e.target.value })}
+                  value={formData.opis}
+                  onChange={(e) => setFormData({ ...formData, opis: e.target.value })}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />

@@ -9,7 +9,7 @@ export default function UlicaModule() {
   const [showForm, setShowForm] = useState(false)
   const [editingUlica, setEditingUlica] = useState(null)
   const [formData, setFormData] = useState({
-    naziv: '',
+    opis: '',
     lokacija_id: ''
   })
 
@@ -23,7 +23,7 @@ export default function UlicaModule() {
       const { data, error } = await supabase
         .from('lokacija')
         .select('*')
-        .order('naziv', { ascending: true })
+        .order('opis', { ascending: true })
 
       if (error) throw error
       setLokacije(data || [])
@@ -38,7 +38,7 @@ export default function UlicaModule() {
       const { data, error } = await supabase
         .from('ulica')
         .select('*')
-        .order('naziv', { ascending: true })
+        .order('opis', { ascending: true })
 
       if (error) throw error
       setUlice(data || [])
@@ -72,7 +72,7 @@ export default function UlicaModule() {
   const handleEdit = (ulica) => {
     setEditingUlica(ulica)
     setFormData({
-      naziv: ulica.naziv || '',
+      opis: ulica.opis || '',
       lokacija_id: ulica.lokacija_id || ''
     })
     setShowForm(true)
@@ -81,7 +81,7 @@ export default function UlicaModule() {
   const handleAdd = () => {
     setEditingUlica(null)
     setFormData({
-      naziv: '',
+      opis: '',
       lokacija_id: lokacije.length > 0 ? lokacije[0].id : ''
     })
     setShowForm(true)
@@ -90,8 +90,8 @@ export default function UlicaModule() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!formData.naziv.trim()) {
-      alert('Naziv je obavezan')
+    if (!formData.opis.trim()) {
+      alert('Opis je obavezan')
       return
     }
 
@@ -105,7 +105,7 @@ export default function UlicaModule() {
         const { error } = await supabase
           .from('ulica')
           .update({
-            naziv: formData.naziv.trim(),
+            opis: formData.opis.trim(),
             lokacija_id: parseInt(formData.lokacija_id)
           })
           .eq('id', editingUlica.id)
@@ -115,7 +115,7 @@ export default function UlicaModule() {
         const { error } = await supabase
           .from('ulica')
           .insert([{
-            naziv: formData.naziv.trim(),
+            opis: formData.opis.trim(),
             lokacija_id: parseInt(formData.lokacija_id)
           }])
 
@@ -181,7 +181,7 @@ export default function UlicaModule() {
                     ID
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Naziv
+                    Opis
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Lokacija ID
@@ -193,17 +193,17 @@ export default function UlicaModule() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {ulice.map((ulica) => {
-                  const lokacijaNaziv = lokacije.find(l => l.id === ulica.lokacija_id)?.naziv || 'N/A'
+                  const lokacijaOpis = lokacije.find(l => l.id === ulica.lokacija_id)?.opis || 'N/A'
                   return (
                     <tr key={ulica.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {ulica.id}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        {ulica.naziv}
+                        {ulica.opis}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
-                        {lokacijaNaziv} (ID: {ulica.lokacija_id})
+                        {lokacijaOpis} (ID: {ulica.lokacija_id})
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end gap-2">
@@ -255,19 +255,19 @@ export default function UlicaModule() {
                   <option value="">Izaberi lokaciju</option>
                   {lokacije.map((lokacija) => (
                     <option key={lokacija.id} value={lokacija.id}>
-                      {lokacija.naziv}
+                      {lokacija.opis}
                     </option>
                   ))}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Naziv *
+                  Opis *
                 </label>
                 <input
                   type="text"
-                  value={formData.naziv}
-                  onChange={(e) => setFormData({ ...formData, naziv: e.target.value })}
+                  value={formData.opis}
+                  onChange={(e) => setFormData({ ...formData, opis: e.target.value })}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
