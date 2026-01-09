@@ -65,15 +65,14 @@ export default function Intro({ onComplete }) {
         <div className="h-20 sm:h-24 md:h-28 flex items-center justify-center mb-6">
           <div className="relative overflow-hidden">
             <div
-              className={`text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 bg-clip-text text-transparent transition-all duration-300 ${
+              className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 bg-clip-text text-transparent transition-all duration-300 ${
                 isRotating
-                  ? 'opacity-0 transform translate-y-8 rotate-12'
-                  : 'opacity-100 transform translate-y-0 rotate-0'
+                  ? 'opacity-0 transform translate-y-8 rotate-12 scale-110'
+                  : 'opacity-100 transform translate-y-0 rotate-0 scale-100 animate-shimmer'
               }`}
               style={{
                 backgroundSize: '200% auto'
               }}
-              className={isRotating ? '' : 'animate-shimmer'}
             >
               {agencyNames[currentAgency]}
             </div>
