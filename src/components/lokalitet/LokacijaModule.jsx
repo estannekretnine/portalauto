@@ -212,16 +212,17 @@ export default function LokacijaModule() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-xl font-semibold text-gray-800">Lokacije</h3>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+        <h3 className="text-lg sm:text-xl font-semibold text-gray-800">Lokacije</h3>
         <button
           onClick={handleAdd}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={opstine.length === 0}
         >
-          <Plus className="w-5 h-5" />
-          Dodaj lokaciju
+          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span className="hidden sm:inline">Dodaj lokaciju</span>
+          <span className="sm:hidden">Dodaj</span>
         </button>
       </div>
 
@@ -248,29 +249,30 @@ export default function LokacijaModule() {
         <div className="bg-white rounded-lg shadow overflow-hidden">
           {/* Filter input - prikazuje se samo kada je sortColumn postavljen */}
           {sortColumn && (
-            <div className="p-4 border-b border-gray-200 bg-gray-50">
+            <div className="p-3 sm:p-4 border-b border-gray-200 bg-gray-50">
               <div className="flex items-center gap-2">
-                <Search className="w-5 h-5 text-gray-400" />
+                <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
                 <input
                   type="text"
                   value={filterValue}
                   onChange={(e) => setFilterValue(e.target.value)}
                   placeholder={`Pretraži po ${sortColumn === 'id' ? 'ID' : sortColumn === 'opis' ? 'Opisu' : 'Opštini'}...`}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
                 {filterValue && (
                   <button
                     onClick={() => setFilterValue('')}
-                    className="p-2 text-gray-400 hover:text-gray-600"
+                    className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 flex-shrink-0"
                     type="button"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 )}
               </div>
             </div>
           )}
-          <div className="overflow-x-auto">
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -343,6 +345,40 @@ export default function LokacijaModule() {
                 })}
               </tbody>
             </table>
+          </div>
+          
+          {/* Mobile Card View */}
+          <div className="md:hidden divide-y divide-gray-200">
+            {filteredAndSortedData.map((lokacija) => {
+              const opstinaOpis = opstine.find(o => o.id === lokacija.idopstina)?.opis || 'N/A'
+              return (
+                <div key={lokacija.id} className="p-4 hover:bg-gray-50">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1">
+                      <div className="text-xs text-gray-500 mb-1">ID: {lokacija.id}</div>
+                      <div className="text-sm font-medium text-gray-900 mb-1">{lokacija.opis}</div>
+                      <div className="text-xs text-gray-500">Opština: {opstinaOpis}</div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      onClick={() => handleEdit(lokacija)}
+                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors text-sm"
+                    >
+                      <Edit className="w-4 h-4" />
+                      Izmeni
+                    </button>
+                    <button
+                      onClick={() => handleDelete(lokacija.id)}
+                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Obriši
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
       )}
