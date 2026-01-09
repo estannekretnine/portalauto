@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import VrstaObjektaModule from './VrstaObjektaModule'
 import LokalitetModule from './LokalitetModule'
+import GrejanjeModule from './GrejanjeModule'
+import InvestitorModule from './InvestitorModule'
 import KorisniciModule from './KorisniciModule'
 import { LogOut } from 'lucide-react'
 
@@ -69,6 +71,8 @@ export default function Dashboard() {
             activeModule === 'lokalitet-opstina' || 
             activeModule === 'lokalitet-lokacija' || 
             activeModule === 'lokalitet-ulica') && <LokalitetModule activeTab={activeModule.replace('lokalitet-', '')} />}
+          {activeModule === 'grejanje' && <GrejanjeModule />}
+          {activeModule === 'investitor' && <InvestitorModule />}
           {activeModule === 'korisnici' && (isAdmin ? <KorisniciModule /> : (
             <div className="bg-white rounded-lg shadow p-12 text-center">
               <p className="text-gray-600 text-lg">Nemate pristup ovom modulu.</p>

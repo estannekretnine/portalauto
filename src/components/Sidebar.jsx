@@ -1,4 +1,4 @@
-import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight } from 'lucide-react'
+import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase } from 'lucide-react'
 import { useState } from 'react'
 
 const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
@@ -27,6 +27,16 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
       icon: MapPin,
       hasSubmenu: true,
       subItems: lokalitetSubItems,
+    },
+    {
+      id: 'grejanje',
+      label: 'Grejanje',
+      icon: Flame,
+    },
+    {
+      id: 'investitor',
+      label: 'Investitor',
+      icon: Briefcase,
     },
     ...(isAdmin ? [{
       id: 'korisnici',
