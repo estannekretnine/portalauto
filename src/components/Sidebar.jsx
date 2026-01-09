@@ -1,4 +1,4 @@
-import { Building2, Menu, X, Users } from 'lucide-react'
+import { Building2, Menu, X, Users, MapPin } from 'lucide-react'
 import { useState } from 'react'
 
 const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
@@ -11,6 +11,11 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
       id: 'vrstaobjekta',
       label: 'Vrsta objekta',
       icon: Building2,
+    },
+    {
+      id: 'lokalitet',
+      label: 'Lokalitet',
+      icon: MapPin,
     },
     ...(isAdmin ? [{
       id: 'korisnici',

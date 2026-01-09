@@ -3,6 +3,7 @@ import { getCurrentUser, logout } from '../utils/auth'
 import { useNavigate } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import VrstaObjektaModule from './VrstaObjektaModule'
+import LokalitetModule from './LokalitetModule'
 import KorisniciModule from './KorisniciModule'
 import { LogOut } from 'lucide-react'
 
@@ -63,6 +64,7 @@ export default function Dashboard() {
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
           {activeModule === 'vrstaobjekta' && <VrstaObjektaModule />}
+          {activeModule === 'lokalitet' && <LokalitetModule />}
           {activeModule === 'korisnici' && (isAdmin ? <KorisniciModule /> : (
             <div className="bg-white rounded-lg shadow p-12 text-center">
               <p className="text-gray-600 text-lg">Nemate pristup ovom modulu.</p>
