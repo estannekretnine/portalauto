@@ -272,15 +272,16 @@ export default function KorisniciModule() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Korisnici</h2>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Korisnici</h2>
         <button
           onClick={handleAdd}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm sm:text-base"
         >
-          <Plus className="w-5 h-5" />
-          Dodaj korisnika
+          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span className="hidden sm:inline">Dodaj korisnika</span>
+          <span className="sm:hidden">Dodaj</span>
         </button>
       </div>
 
@@ -300,29 +301,30 @@ export default function KorisniciModule() {
         <div className="bg-white rounded-lg shadow overflow-hidden">
           {/* Filter input - prikazuje se samo kada je sortColumn postavljen */}
           {sortColumn && (
-            <div className="p-4 border-b border-gray-200 bg-gray-50">
+            <div className="p-3 sm:p-4 border-b border-gray-200 bg-gray-50">
               <div className="flex items-center gap-2">
-                <Search className="w-5 h-5 text-gray-400" />
+                <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
                 <input
                   type="text"
                   value={filterValue}
                   onChange={(e) => setFilterValue(e.target.value)}
                   placeholder={`Pretraži po ${getColumnLabel(sortColumn)}...`}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
                 {filterValue && (
                   <button
                     onClick={() => setFilterValue('')}
-                    className="p-2 text-gray-400 hover:text-gray-600"
+                    className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 flex-shrink-0"
                     type="button"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 )}
               </div>
             </div>
           )}
-          <div className="overflow-x-auto">
+          {/* Desktop Table View */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -481,6 +483,73 @@ export default function KorisniciModule() {
                 ))}
               </tbody>
             </table>
+          </div>
+          
+          {/* Mobile Card View */}
+          <div className="lg:hidden divide-y divide-gray-200">
+            {filteredAndSortedData.map((korisnik) => (
+              <div key={korisnik.id} className="p-4 hover:bg-gray-50">
+                <div className="space-y-2 mb-3">
+                  <div className="text-xs text-gray-500">ID: {korisnik.id}</div>
+                  <div className="text-sm font-medium text-gray-900">{korisnik.naziv}</div>
+                  {korisnik.email && (
+                    <div className="text-xs text-gray-600">✉️ {korisnik.email}</div>
+                  )}
+                  {korisnik.brojmob && (
+                    <div className="text-xs text-gray-600">📞 {korisnik.brojmob}</div>
+                  )}
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {korisnik.stsstatus && (
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(korisnik.stsstatus)}`}>
+                        {korisnik.stsstatus}
+                      </span>
+                    )}
+                    <button
+                      onClick={() => handleToggleStatus(korisnik)}
+                      className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors ${
+                        korisnik.stsaktivan === 'da' 
+                          ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                          : 'bg-red-100 text-red-700 hover:bg-red-200'
+                      }`}
+                    >
+                      {korisnik.stsaktivan === 'da' ? (
+                        <>
+                          <ToggleRight className="w-3 h-3" />
+                          Aktivan
+                        </>
+                      ) : (
+                        <>
+                          <ToggleLeft className="w-3 h-3" />
+                          Neaktivan
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  {korisnik.datumk && (
+                    <div className="text-xs text-gray-500">📅 Kreiran: {formatDate(korisnik.datumk)}</div>
+                  )}
+                  {korisnik.datumpt && (
+                    <div className="text-xs text-gray-500">🔄 Ažuriran: {formatDate(korisnik.datumpt)}</div>
+                  )}
+                </div>
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={() => handleEdit(korisnik)}
+                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors text-sm"
+                  >
+                    <Edit className="w-4 h-4" />
+                    Izmeni
+                  </button>
+                  <button
+                    onClick={() => handleDelete(korisnik.id)}
+                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Obriši
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

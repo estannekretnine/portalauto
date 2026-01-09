@@ -203,15 +203,16 @@ export default function InvestitorModule() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-xl font-semibold text-gray-800">Investitori</h3>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+        <h3 className="text-lg sm:text-xl font-semibold text-gray-800">Investitori</h3>
         <button
           onClick={handleAdd}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm sm:text-base"
         >
-          <Plus className="w-5 h-5" />
-          Dodaj investitora
+          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span className="hidden sm:inline">Dodaj investitora</span>
+          <span className="sm:hidden">Dodaj</span>
         </button>
       </div>
 
@@ -231,29 +232,30 @@ export default function InvestitorModule() {
         <div className="bg-white rounded-lg shadow overflow-hidden">
           {/* Filter input - prikazuje se samo kada je sortColumn postavljen */}
           {sortColumn && (
-            <div className="p-4 border-b border-gray-200 bg-gray-50">
+            <div className="p-3 sm:p-4 border-b border-gray-200 bg-gray-50">
               <div className="flex items-center gap-2">
-                <Search className="w-5 h-5 text-gray-400" />
+                <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
                 <input
                   type="text"
                   value={filterValue}
                   onChange={(e) => setFilterValue(e.target.value)}
                   placeholder={`Pretraži po ${getColumnLabel(sortColumn)}...`}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
                 {filterValue && (
                   <button
                     onClick={() => setFilterValue('')}
-                    className="p-2 text-gray-400 hover:text-gray-600"
+                    className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 flex-shrink-0"
                     type="button"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 )}
               </div>
             </div>
           )}
-          <div className="overflow-x-auto">
+          {/* Desktop Table View */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -359,6 +361,46 @@ export default function InvestitorModule() {
                 ))}
               </tbody>
             </table>
+          </div>
+          
+          {/* Mobile Card View */}
+          <div className="lg:hidden divide-y divide-gray-200">
+            {filteredAndSortedData.map((investitor) => (
+              <div key={investitor.id} className="p-4 hover:bg-gray-50">
+                <div className="space-y-2 mb-3">
+                  <div className="text-xs text-gray-500">ID: {investitor.id}</div>
+                  <div className="text-sm font-medium text-gray-900">{investitor.naziv}</div>
+                  {investitor.adresa && (
+                    <div className="text-xs text-gray-600">📍 {investitor.adresa}</div>
+                  )}
+                  {investitor.email && (
+                    <div className="text-xs text-gray-600">✉️ {investitor.email}</div>
+                  )}
+                  {investitor.kontaktosoba && (
+                    <div className="text-xs text-gray-600">👤 {investitor.kontaktosoba}</div>
+                  )}
+                  {investitor.kontakttel && (
+                    <div className="text-xs text-gray-600">📞 {investitor.kontakttel}</div>
+                  )}
+                </div>
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={() => handleEdit(investitor)}
+                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors text-sm"
+                  >
+                    <Edit className="w-4 h-4" />
+                    Izmeni
+                  </button>
+                  <button
+                    onClick={() => handleDelete(investitor.id)}
+                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Obriši
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

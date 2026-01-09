@@ -67,15 +67,15 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
       {/* Mobile menu button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-md shadow-md"
+        className="lg:hidden fixed top-3 left-3 z-50 p-2 bg-white rounded-md shadow-md hover:bg-gray-50 transition-colors"
         aria-label={isMobileMenuOpen ? 'Zatvori meni' : 'Otvori meni'}
         aria-expanded={isMobileMenuOpen}
         type="button"
       >
         {isMobileMenuOpen ? (
-          <X className="w-6 h-6" aria-hidden="true" />
+          <X className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
         ) : (
-          <Menu className="w-6 h-6" aria-hidden="true" />
+          <Menu className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
         )}
       </button>
 
@@ -87,13 +87,13 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
         aria-label="Glavna navigacija"
       >
         <div className="flex flex-col h-full">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-bold text-gray-800">Navigacija</h2>
+          <div className="p-4 sm:p-6 border-b border-gray-200">
+            <h2 className="text-base sm:text-lg font-bold text-gray-800">Navigacija</h2>
             {user && (
-              <p className="text-sm text-gray-600 mt-1">{user.naziv || user.email}</p>
+              <p className="text-xs sm:text-sm text-gray-600 mt-1 truncate">{user.naziv || user.email}</p>
             )}
           </div>
-          <nav className="flex-1 p-4 overflow-y-auto" aria-label="Glavni meni">
+          <nav className="flex-1 p-3 sm:p-4 overflow-y-auto" aria-label="Glavni meni">
             <ul className="space-y-2">
               {menuItems.map((item) => {
                 const Icon = item.icon
@@ -104,7 +104,7 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
                   <li key={item.id}>
                     <button
                       onClick={() => handleMenuItemClick(item.id)}
-                      className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg transition duration-150 ${
+                      className={`w-full flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition duration-150 text-sm sm:text-base ${
                         isActive
                           ? 'bg-indigo-50 text-indigo-700 font-medium'
                           : 'text-gray-700 hover:bg-gray-100'
@@ -114,9 +114,9 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
                       aria-expanded={item.hasSubmenu ? isExpanded : undefined}
                       type="button"
                     >
-                      <div className="flex items-center gap-3">
-                        <Icon className="w-5 h-5" aria-hidden="true" />
-                        <span>{item.label}</span>
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <Icon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" aria-hidden="true" />
+                        <span className="truncate">{item.label}</span>
                       </div>
                       {item.hasSubmenu && (
                         isExpanded ? (
@@ -127,12 +127,12 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
                       )}
                     </button>
                     {item.hasSubmenu && isExpanded && (
-                      <ul className="ml-8 mt-2 space-y-1">
+                      <ul className="ml-6 sm:ml-8 mt-2 space-y-1">
                         {item.subItems.map((subItem) => (
                           <li key={subItem.id}>
                             <button
                               onClick={() => handleSubItemClick(subItem.id)}
-                              className={`w-full text-left px-4 py-2 rounded-lg transition duration-150 ${
+                              className={`w-full text-left px-3 sm:px-4 py-2 rounded-lg transition duration-150 text-sm sm:text-base ${
                                 activeModule === subItem.id
                                   ? 'bg-indigo-100 text-indigo-700 font-medium'
                                   : 'text-gray-600 hover:bg-gray-50'
