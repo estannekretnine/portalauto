@@ -212,16 +212,17 @@ export default function OpstinaModule() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-xl font-semibold text-gray-800">Opštine</h3>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+        <h3 className="text-lg sm:text-xl font-semibold text-gray-800">Opštine</h3>
         <button
           onClick={handleAdd}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={gradovi.length === 0}
         >
-          <Plus className="w-5 h-5" />
-          Dodaj opštinu
+          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span className="hidden sm:inline">Dodaj opštinu</span>
+          <span className="sm:hidden">Dodaj</span>
         </button>
       </div>
 
@@ -343,6 +344,40 @@ export default function OpstinaModule() {
                 })}
               </tbody>
             </table>
+          </div>
+          
+          {/* Mobile Card View */}
+          <div className="md:hidden divide-y divide-gray-200">
+            {filteredAndSortedData.map((opstina) => {
+              const gradOpis = gradovi.find(g => g.id === opstina.idgrad)?.opis || 'N/A'
+              return (
+                <div key={opstina.id} className="p-4 hover:bg-gray-50">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1">
+                      <div className="text-xs text-gray-500 mb-1">ID: {opstina.id}</div>
+                      <div className="text-sm font-medium text-gray-900 mb-1">{opstina.opis}</div>
+                      <div className="text-xs text-gray-500">Grad: {gradOpis}</div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      onClick={() => handleEdit(opstina)}
+                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors text-sm"
+                    >
+                      <Edit className="w-4 h-4" />
+                      Izmeni
+                    </button>
+                    <button
+                      onClick={() => handleDelete(opstina.id)}
+                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Obriši
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
       )}
