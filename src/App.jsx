@@ -1,8 +1,14 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
+import { isAuthenticated } from './utils/auth'
+import Login from './components/Login'
 import Dashboard from './components/Dashboard'
 import { initSEO, updateTitle, updateDescription, updateCanonical, updateOGUrl } from './utils/seo'
 import './index.css'
+
+function ProtectedRoute({ children }) {
+  return isAuthenticated() ? children : <Navigate to="/" replace />
+}
 
 function SEOUpdater() {
   const location = useLocation()
@@ -37,11 +43,17 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={<Navigate to="/dashboard" replace />}
+          element={
+            isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Login />
+          }
         />
         <Route
           path="/dashboard"
-          element={<Dashboard />}
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
         />
       </Routes>
     </Router>
