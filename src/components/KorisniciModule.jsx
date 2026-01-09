@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../utils/supabase'
-import { Edit, Trash2, Plus, User } from 'lucide-react'
+import { Edit, Trash2, Plus, User, Phone, ToggleLeft, ToggleRight } from 'lucide-react'
 
 export default function KorisniciModule() {
   const [korisnici, setKorisnici] = useState([])
@@ -10,7 +10,10 @@ export default function KorisniciModule() {
   const [formData, setFormData] = useState({
     naziv: '',
     email: '',
-    password: ''
+    password: '',
+    brojmob: '',
+    stsstatus: 'kupac',
+    stsaktivan: 'da'
   })
 
   useEffect(() => {
@@ -56,12 +59,61 @@ export default function KorisniciModule() {
     }
   }
 
+  const handleToggleStatus = async (korisnik) => {
+    try {
+      const newStatus = korisnik.stsaktivan === 'da' ? 'ne' : 'da'
+      
+      const { error } = await supabase
+        .from('korisnici')
+        .update({ stsaktivan: newStatus })
+        .eq('id', korisnik.id)
+
+      if (error) throw error
+
+      loadKorisnici()
+    } catch (error) {
+      console.error('Greška pri promeni statusa:', error)
+      alert('Greška pri promeni statusa: ' + error.message)
+    }
+  }
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '-'
+    try {
+      const date = new Date(dateString)
+      return date.toLocaleString('sr-RS', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'Europe/Belgrade'
+      })
+    } catch {
+      return dateString
+    }
+  }
+
+  const getStatusBadgeColor = (status) => {
+    const colors = {
+      'kupac': 'bg-blue-100 text-blue-700',
+      'prodavac': 'bg-green-100 text-green-700',
+      'agent': 'bg-purple-100 text-purple-700',
+      'admin': 'bg-red-100 text-red-700',
+      'manager': 'bg-yellow-100 text-yellow-700'
+    }
+    return colors[status] || 'bg-gray-100 text-gray-700'
+  }
+
   const handleEdit = (korisnik) => {
     setEditingKorisnik(korisnik)
     setFormData({
       naziv: korisnik.naziv || '',
       email: korisnik.email || '',
-      password: '' // Ne prikazujemo postojeći password
+      password: '', // Ne prikazujemo postojeći password
+      brojmob: korisnik.brojmob || '',
+      stsstatus: korisnik.stsstatus || 'kupac',
+      stsaktivan: korisnik.stsaktivan || 'da'
     })
     setShowForm(true)
   }
@@ -71,7 +123,10 @@ export default function KorisniciModule() {
     setFormData({
       naziv: '',
       email: '',
-      password: ''
+      password: '',
+      brojmob: '',
+      stsstatus: 'kupac',
+      stsaktivan: 'da'
     })
     setShowForm(true)
   }
@@ -84,7 +139,10 @@ export default function KorisniciModule() {
         // Update
         const updateData = {
           naziv: formData.naziv,
-          email: formData.email
+          email: formData.email,
+          brojmob: formData.brojmob || null,
+          stsstatus: formData.stsstatus,
+          stsaktivan: formData.stsaktivan
         }
         
         // Dodaj password samo ako je unet novi
@@ -110,7 +168,10 @@ export default function KorisniciModule() {
           .insert([{
             naziv: formData.naziv,
             email: formData.email,
-            password: formData.password
+            password: formData.password,
+            brojmob: formData.brojmob || null,
+            stsstatus: formData.stsstatus,
+            stsaktivan: formData.stsaktivan
           }])
 
         if (error) throw error
@@ -159,57 +220,118 @@ export default function KorisniciModule() {
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Naziv
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Akcije
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {korisnici.map((korisnik) => (
-                <tr key={korisnik.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {korisnik.id}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {korisnik.naziv}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {korisnik.email}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => handleEdit(korisnik)}
-                        className="flex items-center gap-1 px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
-                      >
-                        <Edit className="w-4 h-4" />
-                        Izmeni
-                      </button>
-                      <button
-                        onClick={() => handleDelete(korisnik.id)}
-                        className="flex items-center gap-1 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        Obriši
-                      </button>
-                    </div>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Naziv
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Telefon
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Aktivan
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Kreiran
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Ažuriran
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Akcije
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {korisnici.map((korisnik) => (
+                  <tr key={korisnik.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {korisnik.id}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {korisnik.naziv}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {korisnik.email}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {korisnik.brojmob ? (
+                        <div className="flex items-center gap-1">
+                          <Phone className="w-4 h-4" />
+                          {korisnik.brojmob}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      {korisnik.stsstatus ? (
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(korisnik.stsstatus)}`}>
+                          {korisnik.stsstatus}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <button
+                        onClick={() => handleToggleStatus(korisnik)}
+                        className="flex items-center gap-2 px-3 py-1 rounded-lg transition-colors"
+                        title={`Kliknite da ${korisnik.stsaktivan === 'da' ? 'deaktivirate' : 'aktivirate'} korisnika`}
+                      >
+                        {korisnik.stsaktivan === 'da' ? (
+                          <span className="flex items-center gap-1 text-green-600 hover:text-green-700">
+                            <ToggleRight className="w-5 h-5" />
+                            <span className="text-xs font-medium">Da</span>
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-red-600 hover:text-red-700">
+                            <ToggleLeft className="w-5 h-5" />
+                            <span className="text-xs font-medium">Ne</span>
+                          </span>
+                        )}
+                      </button>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDate(korisnik.datumk)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDate(korisnik.datumpt)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => handleEdit(korisnik)}
+                          className="flex items-center gap-1 px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
+                        >
+                          <Edit className="w-4 h-4" />
+                          Izmeni
+                        </button>
+                        <button
+                          onClick={() => handleDelete(korisnik.id)}
+                          className="flex items-center gap-1 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Obriši
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -246,6 +368,49 @@ export default function KorisniciModule() {
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Broj telefona
+                </label>
+                <input
+                  type="tel"
+                  value={formData.brojmob}
+                  onChange={(e) => setFormData({ ...formData, brojmob: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder="+381 60 123 4567"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Status *
+                </label>
+                <select
+                  value={formData.stsstatus}
+                  onChange={(e) => setFormData({ ...formData, stsstatus: e.target.value })}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                >
+                  <option value="kupac">Kupac</option>
+                  <option value="prodavac">Prodavac</option>
+                  <option value="agent">Agent</option>
+                  <option value="admin">Admin</option>
+                  <option value="manager">Manager</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Aktivan *
+                </label>
+                <select
+                  value={formData.stsaktivan}
+                  onChange={(e) => setFormData({ ...formData, stsaktivan: e.target.value })}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                >
+                  <option value="da">Da</option>
+                  <option value="ne">Ne</option>
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
