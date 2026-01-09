@@ -1,10 +1,19 @@
-import { Building2, Menu, X, Users, MapPin } from 'lucide-react'
+import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 
 const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isLokalitetOpen, setIsLokalitetOpen] = useState(false)
 
   const isAdmin = user?.email === 'admin@example.com'
+
+  const lokalitetSubItems = [
+    { id: 'lokalitet-drzava', label: 'Država' },
+    { id: 'lokalitet-grad', label: 'Grad' },
+    { id: 'lokalitet-opstina', label: 'Opština' },
+    { id: 'lokalitet-lokacija', label: 'Lokacija' },
+    { id: 'lokalitet-ulica', label: 'Ulica' },
+  ]
 
   const menuItems = [
     {
@@ -16,6 +25,8 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
       id: 'lokalitet',
       label: 'Lokalitet',
       icon: MapPin,
+      hasSubmenu: true,
+      subItems: lokalitetSubItems,
     },
     ...(isAdmin ? [{
       id: 'korisnici',
@@ -23,6 +34,23 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
       icon: Users,
     }] : []),
   ]
+
+  const handleMenuItemClick = (itemId) => {
+    if (itemId === 'lokalitet') {
+      setIsLokalitetOpen(!isLokalitetOpen)
+    } else {
+      setActiveModule(itemId)
+      setIsMobileMenuOpen(false)
+    }
+  }
+
+  const handleSubItemClick = (subItemId) => {
+    setActiveModule(subItemId)
+    setIsMobileMenuOpen(false)
+  }
+
+  // Proveri da li je neki od lokalitet sub-itema aktivan
+  const isLokalitetActive = lokalitetSubItems.some(item => activeModule === item.id)
 
   return (
     <>
@@ -55,29 +83,59 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
               <p className="text-sm text-gray-600 mt-1">{user.naziv || user.email}</p>
             )}
           </div>
-          <nav className="flex-1 p-4" aria-label="Glavni meni">
+          <nav className="flex-1 p-4 overflow-y-auto" aria-label="Glavni meni">
             <ul className="space-y-2">
               {menuItems.map((item) => {
                 const Icon = item.icon
+                const isActive = activeModule === item.id || (item.hasSubmenu && isLokalitetActive)
+                const isExpanded = item.hasSubmenu && isLokalitetOpen
+
                 return (
                   <li key={item.id}>
                     <button
-                      onClick={() => {
-                        setActiveModule(item.id)
-                        setIsMobileMenuOpen(false)
-                      }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition duration-150 ${
-                        activeModule === item.id
+                      onClick={() => handleMenuItemClick(item.id)}
+                      className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg transition duration-150 ${
+                        isActive
                           ? 'bg-indigo-50 text-indigo-700 font-medium'
                           : 'text-gray-700 hover:bg-gray-100'
                       }`}
-                      aria-current={activeModule === item.id ? 'page' : undefined}
+                      aria-current={isActive ? 'page' : undefined}
                       aria-label={`Navigiraj na ${item.label}`}
+                      aria-expanded={item.hasSubmenu ? isExpanded : undefined}
                       type="button"
                     >
-                      <Icon className="w-5 h-5" aria-hidden="true" />
-                      <span>{item.label}</span>
+                      <div className="flex items-center gap-3">
+                        <Icon className="w-5 h-5" aria-hidden="true" />
+                        <span>{item.label}</span>
+                      </div>
+                      {item.hasSubmenu && (
+                        isExpanded ? (
+                          <ChevronDown className="w-4 h-4" aria-hidden="true" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                        )
+                      )}
                     </button>
+                    {item.hasSubmenu && isExpanded && (
+                      <ul className="ml-8 mt-2 space-y-1">
+                        {item.subItems.map((subItem) => (
+                          <li key={subItem.id}>
+                            <button
+                              onClick={() => handleSubItemClick(subItem.id)}
+                              className={`w-full text-left px-4 py-2 rounded-lg transition duration-150 ${
+                                activeModule === subItem.id
+                                  ? 'bg-indigo-100 text-indigo-700 font-medium'
+                                  : 'text-gray-600 hover:bg-gray-50'
+                              }`}
+                              aria-current={activeModule === subItem.id ? 'page' : undefined}
+                              type="button"
+                            >
+                              {subItem.label}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </li>
                 )
               })}

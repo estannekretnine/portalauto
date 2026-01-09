@@ -64,7 +64,11 @@ export default function Dashboard() {
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
           {activeModule === 'vrstaobjekta' && <VrstaObjektaModule />}
-          {activeModule === 'lokalitet' && <LokalitetModule />}
+          {(activeModule === 'lokalitet-drzava' || 
+            activeModule === 'lokalitet-grad' || 
+            activeModule === 'lokalitet-opstina' || 
+            activeModule === 'lokalitet-lokacija' || 
+            activeModule === 'lokalitet-ulica') && <LokalitetModule activeTab={activeModule.replace('lokalitet-', '')} />}
           {activeModule === 'korisnici' && (isAdmin ? <KorisniciModule /> : (
             <div className="bg-white rounded-lg shadow p-12 text-center">
               <p className="text-gray-600 text-lg">Nemate pristup ovom modulu.</p>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MapPin } from 'lucide-react'
 import DrzavaModule from './lokalitet/DrzavaModule'
 import GradModule from './lokalitet/GradModule'
@@ -6,8 +6,14 @@ import OpstinaModule from './lokalitet/OpstinaModule'
 import LokacijaModule from './lokalitet/LokacijaModule'
 import UlicaModule from './lokalitet/UlicaModule'
 
-export default function LokalitetModule() {
-  const [activeTab, setActiveTab] = useState('drzava')
+export default function LokalitetModule({ activeTab: propActiveTab }) {
+  const [activeTab, setActiveTab] = useState(propActiveTab || 'drzava')
+
+  useEffect(() => {
+    if (propActiveTab) {
+      setActiveTab(propActiveTab)
+    }
+  }, [propActiveTab])
 
   const tabs = [
     { id: 'drzava', label: 'Država', component: DrzavaModule },
