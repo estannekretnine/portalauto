@@ -10,7 +10,7 @@ export default function LokacijaModule() {
   const [editingLokacija, setEditingLokacija] = useState(null)
   const [formData, setFormData] = useState({
     opis: '',
-    opstina_id: ''
+    idopstina: ''
   })
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function LokacijaModule() {
     setEditingLokacija(lokacija)
     setFormData({
       opis: lokacija.opis || '',
-      opstina_id: lokacija.opstina_id || ''
+      idopstina: lokacija.idopstina || ''
     })
     setShowForm(true)
   }
@@ -82,7 +82,7 @@ export default function LokacijaModule() {
     setEditingLokacija(null)
     setFormData({
       opis: '',
-      opstina_id: opstine.length > 0 ? opstine[0].id : ''
+      idopstina: opstine.length > 0 ? opstine[0].id : ''
     })
     setShowForm(true)
   }
@@ -95,7 +95,7 @@ export default function LokacijaModule() {
       return
     }
 
-    if (!formData.opstina_id) {
+    if (!formData.idopstina) {
       alert('Opština je obavezna')
       return
     }
@@ -106,7 +106,7 @@ export default function LokacijaModule() {
           .from('lokacija')
           .update({
             opis: formData.opis.trim(),
-            opstina_id: parseInt(formData.opstina_id)
+            idopstina: parseInt(formData.idopstina)
           })
           .eq('id', editingLokacija.id)
 
@@ -116,7 +116,7 @@ export default function LokacijaModule() {
           .from('lokacija')
           .insert([{
             opis: formData.opis.trim(),
-            opstina_id: parseInt(formData.opstina_id)
+            idopstina: parseInt(formData.idopstina)
           }])
 
         if (error) throw error
@@ -193,7 +193,7 @@ export default function LokacijaModule() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {lokacije.map((lokacija) => {
-                  const opstinaOpis = opstine.find(o => o.id === lokacija.opstina_id)?.opis || 'N/A'
+                  const opstinaOpis = opstine.find(o => o.id === lokacija.idopstina)?.opis || 'N/A'
                   return (
                     <tr key={lokacija.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -203,7 +203,7 @@ export default function LokacijaModule() {
                         {lokacija.opis}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
-                        {opstinaOpis} (ID: {lokacija.opstina_id})
+                        {opstinaOpis} (ID: {lokacija.idopstina})
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end gap-2">
@@ -247,8 +247,8 @@ export default function LokacijaModule() {
                   Opština *
                 </label>
                 <select
-                  value={formData.opstina_id}
-                  onChange={(e) => setFormData({ ...formData, opstina_id: e.target.value })}
+                  value={formData.idopstina}
+                  onChange={(e) => setFormData({ ...formData, idopstina: e.target.value })}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 >

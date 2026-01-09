@@ -10,7 +10,7 @@ export default function UlicaModule() {
   const [editingUlica, setEditingUlica] = useState(null)
   const [formData, setFormData] = useState({
     opis: '',
-    lokacija_id: ''
+    idlokacija: ''
   })
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function UlicaModule() {
     setEditingUlica(ulica)
     setFormData({
       opis: ulica.opis || '',
-      lokacija_id: ulica.lokacija_id || ''
+      idlokacija: ulica.idlokacija || ''
     })
     setShowForm(true)
   }
@@ -82,7 +82,7 @@ export default function UlicaModule() {
     setEditingUlica(null)
     setFormData({
       opis: '',
-      lokacija_id: lokacije.length > 0 ? lokacije[0].id : ''
+      idlokacija: lokacije.length > 0 ? lokacije[0].id : ''
     })
     setShowForm(true)
   }
@@ -95,7 +95,7 @@ export default function UlicaModule() {
       return
     }
 
-    if (!formData.lokacija_id) {
+    if (!formData.idlokacija) {
       alert('Lokacija je obavezna')
       return
     }
@@ -106,7 +106,7 @@ export default function UlicaModule() {
           .from('ulica')
           .update({
             opis: formData.opis.trim(),
-            lokacija_id: parseInt(formData.lokacija_id)
+            idlokacija: parseInt(formData.idlokacija)
           })
           .eq('id', editingUlica.id)
 
@@ -116,7 +116,7 @@ export default function UlicaModule() {
           .from('ulica')
           .insert([{
             opis: formData.opis.trim(),
-            lokacija_id: parseInt(formData.lokacija_id)
+            idlokacija: parseInt(formData.idlokacija)
           }])
 
         if (error) throw error
@@ -193,7 +193,7 @@ export default function UlicaModule() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {ulice.map((ulica) => {
-                  const lokacijaOpis = lokacije.find(l => l.id === ulica.lokacija_id)?.opis || 'N/A'
+                  const lokacijaOpis = lokacije.find(l => l.id === ulica.idlokacija)?.opis || 'N/A'
                   return (
                     <tr key={ulica.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -203,7 +203,7 @@ export default function UlicaModule() {
                         {ulica.opis}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
-                        {lokacijaOpis} (ID: {ulica.lokacija_id})
+                        {lokacijaOpis} (ID: {ulica.idlokacija})
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end gap-2">
@@ -247,8 +247,8 @@ export default function UlicaModule() {
                   Lokacija *
                 </label>
                 <select
-                  value={formData.lokacija_id}
-                  onChange={(e) => setFormData({ ...formData, lokacija_id: e.target.value })}
+                  value={formData.idlokacija}
+                  onChange={(e) => setFormData({ ...formData, idlokacija: e.target.value })}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 >

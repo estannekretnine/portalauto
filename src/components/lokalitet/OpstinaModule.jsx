@@ -10,7 +10,7 @@ export default function OpstinaModule() {
   const [editingOpstina, setEditingOpstina] = useState(null)
   const [formData, setFormData] = useState({
     opis: '',
-    grad_id: ''
+    idgrad: ''
   })
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function OpstinaModule() {
     setEditingOpstina(opstina)
     setFormData({
       opis: opstina.opis || '',
-      grad_id: opstina.grad_id || ''
+      idgrad: opstina.idgrad || ''
     })
     setShowForm(true)
   }
@@ -82,7 +82,7 @@ export default function OpstinaModule() {
     setEditingOpstina(null)
     setFormData({
       opis: '',
-      grad_id: gradovi.length > 0 ? gradovi[0].id : ''
+      idgrad: gradovi.length > 0 ? gradovi[0].id : ''
     })
     setShowForm(true)
   }
@@ -95,7 +95,7 @@ export default function OpstinaModule() {
       return
     }
 
-    if (!formData.grad_id) {
+    if (!formData.idgrad) {
       alert('Grad je obavezan')
       return
     }
@@ -106,7 +106,7 @@ export default function OpstinaModule() {
           .from('opstina')
           .update({
             opis: formData.opis.trim(),
-            grad_id: parseInt(formData.grad_id)
+            idgrad: parseInt(formData.idgrad)
           })
           .eq('id', editingOpstina.id)
 
@@ -116,7 +116,7 @@ export default function OpstinaModule() {
           .from('opstina')
           .insert([{
             opis: formData.opis.trim(),
-            grad_id: parseInt(formData.grad_id)
+            idgrad: parseInt(formData.idgrad)
           }])
 
         if (error) throw error
@@ -193,7 +193,7 @@ export default function OpstinaModule() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {opstine.map((opstina) => {
-                  const gradOpis = gradovi.find(g => g.id === opstina.grad_id)?.opis || 'N/A'
+                  const gradOpis = gradovi.find(g => g.id === opstina.idgrad)?.opis || 'N/A'
                   return (
                     <tr key={opstina.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -203,7 +203,7 @@ export default function OpstinaModule() {
                         {opstina.opis}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
-                        {gradOpis} (ID: {opstina.grad_id})
+                        {gradOpis} (ID: {opstina.idgrad})
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end gap-2">
@@ -247,8 +247,8 @@ export default function OpstinaModule() {
                   Grad *
                 </label>
                 <select
-                  value={formData.grad_id}
-                  onChange={(e) => setFormData({ ...formData, grad_id: e.target.value })}
+                  value={formData.idgrad}
+                  onChange={(e) => setFormData({ ...formData, idgrad: e.target.value })}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 >
