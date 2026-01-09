@@ -10,35 +10,39 @@ ADD COLUMN IF NOT EXISTS brojmob VARCHAR(20);
 ALTER TABLE public.korisnici 
 ADD COLUMN IF NOT EXISTS stsstatus VARCHAR(20);
 
+-- Ažuriraj postojeće redove sa default vrednošću 'kupac' ako imaju NULL ili nevalidnu vrednost
+UPDATE public.korisnici 
+SET stsstatus = 'kupac'
+WHERE stsstatus IS NULL 
+   OR stsstatus NOT IN ('kupac', 'prodavac', 'agent', 'admin', 'manager');
+
+-- Obriši postojeći constraint ako postoji (da možemo da ga ponovo kreiramo)
+ALTER TABLE public.korisnici 
+DROP CONSTRAINT IF EXISTS korisnici_stsstatus_check;
+
 -- Dodaj CHECK constraint za validne status vrednosti
-DO $$ 
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint 
-    WHERE conname = 'korisnici_stsstatus_check'
-  ) THEN
-    ALTER TABLE public.korisnici 
-    ADD CONSTRAINT korisnici_stsstatus_check 
-    CHECK (stsstatus IS NULL OR stsstatus IN ('kupac', 'prodavac', 'agent', 'admin', 'manager'));
-  END IF;
-END $$;
+ALTER TABLE public.korisnici 
+ADD CONSTRAINT korisnici_stsstatus_check 
+CHECK (stsstatus IS NULL OR stsstatus IN ('kupac', 'prodavac', 'agent', 'admin', 'manager'));
 
 -- 3. Dodaj kolonu stsaktivan sa default vrednošću 'da'
 ALTER TABLE public.korisnici 
 ADD COLUMN IF NOT EXISTS stsaktivan VARCHAR(2) DEFAULT 'da';
 
+-- Ažuriraj postojeće redove sa default vrednošću 'da' ako imaju NULL ili nevalidnu vrednost
+UPDATE public.korisnici 
+SET stsaktivan = 'da'
+WHERE stsaktivan IS NULL 
+   OR stsaktivan NOT IN ('da', 'ne');
+
+-- Obriši postojeći constraint ako postoji (da možemo da ga ponovo kreiramo)
+ALTER TABLE public.korisnici 
+DROP CONSTRAINT IF EXISTS korisnici_stsaktivan_check;
+
 -- Dodaj CHECK constraint za stsaktivan (samo 'da' ili 'ne')
-DO $$ 
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint 
-    WHERE conname = 'korisnici_stsaktivan_check'
-  ) THEN
-    ALTER TABLE public.korisnici 
-    ADD CONSTRAINT korisnici_stsaktivan_check 
-    CHECK (stsaktivan IS NULL OR stsaktivan IN ('da', 'ne'));
-  END IF;
-END $$;
+ALTER TABLE public.korisnici 
+ADD CONSTRAINT korisnici_stsaktivan_check 
+CHECK (stsaktivan IS NULL OR stsaktivan IN ('da', 'ne'));
 
 -- 4. Dodaj kolonu datumk (timestamptz, jednokratno kad se kreira)
 ALTER TABLE public.korisnici 
