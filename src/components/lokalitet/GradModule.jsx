@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../../utils/supabase'
-import { Edit, Trash2, Plus, Building } from 'lucide-react'
+import { Edit, Trash2, Plus, Building, ArrowUp, ArrowDown, Search, X } from 'lucide-react'
 
 export default function GradModule() {
   const [gradovi, setGradovi] = useState([])
@@ -8,6 +8,9 @@ export default function GradModule() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingGrad, setEditingGrad] = useState(null)
+  const [sortColumn, setSortColumn] = useState(null)
+  const [sortDirection, setSortDirection] = useState('asc')
+  const [filterValue, setFilterValue] = useState('')
   const [formData, setFormData] = useState({
     opis: '',
     iddrzave: ''
@@ -136,6 +139,76 @@ export default function GradModule() {
     }
   }
 
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortColumn(column)
+      setSortDirection('asc')
+    }
+    setFilterValue('') // Resetuj filter pri promeni sortiranja
+  }
+
+  const getSortIcon = (column) => {
+    if (sortColumn !== column) return null
+    return sortDirection === 'asc' ? (
+      <ArrowUp className="w-4 h-4 inline-block ml-1" />
+    ) : (
+      <ArrowDown className="w-4 h-4 inline-block ml-1" />
+    )
+  }
+
+  const filteredAndSortedData = useMemo(() => {
+    let data = [...gradovi]
+
+    // Filtriranje
+    if (filterValue && sortColumn) {
+      const filterLower = filterValue.toLowerCase()
+      data = data.filter((item) => {
+        let value = item[sortColumn]
+        // Za foreign key kolone, koristi opis iz referentne tabele
+        if (sortColumn === 'iddrzave') {
+          const drzava = drzave.find(d => d.id === item.iddrzave)
+          value = drzava?.opis || ''
+        }
+        if (value === null || value === undefined) return false
+        return String(value).toLowerCase().includes(filterLower)
+      })
+    }
+
+    // Sortiranje
+    if (sortColumn) {
+      data.sort((a, b) => {
+        let aVal = a[sortColumn]
+        let bVal = b[sortColumn]
+
+        // Za foreign key kolone, koristi opis iz referentne tabele
+        if (sortColumn === 'iddrzave') {
+          const drzavaA = drzave.find(d => d.id === a.iddrzave)
+          const drzavaB = drzave.find(d => d.id === b.iddrzave)
+          aVal = drzavaA?.opis || ''
+          bVal = drzavaB?.opis || ''
+        }
+
+        // Handle null/undefined
+        if (aVal === null || aVal === undefined) aVal = ''
+        if (bVal === null || bVal === undefined) bVal = ''
+
+        // Convert to string for comparison
+        aVal = String(aVal).toLowerCase()
+        bVal = String(bVal).toLowerCase()
+
+        if (sortDirection === 'asc') {
+          return aVal > bVal ? 1 : aVal < bVal ? -1 : 0
+        } else {
+          return aVal < bVal ? 1 : aVal > bVal ? -1 : 0
+        }
+      })
+    }
+
+    return data
+  }, [gradovi, drzave, sortColumn, sortDirection, filterValue])
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -179,18 +252,60 @@ export default function GradModule() {
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
+          {/* Filter input - prikazuje se samo kada je sortColumn postavljen */}
+          {sortColumn && (
+            <div className="p-4 border-b border-gray-200 bg-gray-50">
+              <div className="flex items-center gap-2">
+                <Search className="w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  value={filterValue}
+                  onChange={(e) => setFilterValue(e.target.value)}
+                  placeholder={`Pretraži po ${sortColumn === 'id' ? 'ID' : sortColumn === 'opis' ? 'Opisu' : 'Državi'}...`}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+                {filterValue && (
+                  <button
+                    onClick={() => setFilterValue('')}
+                    className="p-2 text-gray-400 hover:text-gray-600"
+                    type="button"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    ID
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('id')}
+                  >
+                    <div className="flex items-center">
+                      ID
+                      {getSortIcon('id')}
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Opis
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('opis')}
+                  >
+                    <div className="flex items-center">
+                      Opis
+                      {getSortIcon('opis')}
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Država
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('iddrzave')}
+                  >
+                    <div className="flex items-center">
+                      Država
+                      {getSortIcon('iddrzave')}
+                    </div>
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Akcije
@@ -198,7 +313,7 @@ export default function GradModule() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {gradovi.map((grad) => {
+                {filteredAndSortedData.map((grad) => {
                   const drzavaOpis = drzave.find(d => d.id === grad.iddrzave)?.opis || 'N/A'
                   return (
                     <tr key={grad.id} className="hover:bg-gray-50">

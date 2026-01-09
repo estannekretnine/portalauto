@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
-import { Edit, Trash2, Plus, User, Phone, ToggleLeft, ToggleRight } from 'lucide-react'
+import { Edit, Trash2, Plus, User, Phone, ToggleLeft, ToggleRight, ArrowUp, ArrowDown, Search, X } from 'lucide-react'
 
 export default function KorisniciModule() {
   const [korisnici, setKorisnici] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingKorisnik, setEditingKorisnik] = useState(null)
+  const [sortColumn, setSortColumn] = useState(null)
+  const [sortDirection, setSortDirection] = useState('asc')
+  const [filterValue, setFilterValue] = useState('')
   const [formData, setFormData] = useState({
     naziv: '',
     email: '',
@@ -93,6 +96,81 @@ export default function KorisniciModule() {
       return dateString
     }
   }
+
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortColumn(column)
+      setSortDirection('asc')
+    }
+    setFilterValue('') // Resetuj filter pri promeni sortiranja
+  }
+
+  const getSortIcon = (column) => {
+    if (sortColumn !== column) return null
+    return sortDirection === 'asc' ? (
+      <ArrowUp className="w-4 h-4 inline-block ml-1" />
+    ) : (
+      <ArrowDown className="w-4 h-4 inline-block ml-1" />
+    )
+  }
+
+  const getColumnLabel = (column) => {
+    const labels = {
+      'id': 'ID',
+      'naziv': 'Nazivu',
+      'email': 'Emailu',
+      'brojmob': 'Telefonu',
+      'stsstatus': 'Statusu',
+      'stsaktivan': 'Aktivnom statusu',
+      'datumk': 'Datumu kreiranja',
+      'datumpt': 'Datumu ažuriranja'
+    }
+    return labels[column] || column
+  }
+
+  const filteredAndSortedData = useMemo(() => {
+    let data = [...korisnici]
+
+    // Filtriranje
+    if (filterValue && sortColumn) {
+      const filterLower = filterValue.toLowerCase()
+      data = data.filter((item) => {
+        let value = item[sortColumn]
+        // Za datum kolone, formatiraj pre pretrage
+        if (sortColumn === 'datumk' || sortColumn === 'datumpt') {
+          value = formatDate(value)
+        }
+        if (value === null || value === undefined) return false
+        return String(value).toLowerCase().includes(filterLower)
+      })
+    }
+
+    // Sortiranje
+    if (sortColumn) {
+      data.sort((a, b) => {
+        let aVal = a[sortColumn]
+        let bVal = b[sortColumn]
+
+        // Handle null/undefined
+        if (aVal === null || aVal === undefined) aVal = ''
+        if (bVal === null || bVal === undefined) bVal = ''
+
+        // Convert to string for comparison
+        aVal = String(aVal).toLowerCase()
+        bVal = String(bVal).toLowerCase()
+
+        if (sortDirection === 'asc') {
+          return aVal > bVal ? 1 : aVal < bVal ? -1 : 0
+        } else {
+          return aVal < bVal ? 1 : aVal > bVal ? -1 : 0
+        }
+      })
+    }
+
+    return data
+  }, [korisnici, sortColumn, sortDirection, filterValue])
 
   const getStatusBadgeColor = (status) => {
     const colors = {
@@ -220,33 +298,105 @@ export default function KorisniciModule() {
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
+          {/* Filter input - prikazuje se samo kada je sortColumn postavljen */}
+          {sortColumn && (
+            <div className="p-4 border-b border-gray-200 bg-gray-50">
+              <div className="flex items-center gap-2">
+                <Search className="w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  value={filterValue}
+                  onChange={(e) => setFilterValue(e.target.value)}
+                  placeholder={`Pretraži po ${getColumnLabel(sortColumn)}...`}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+                {filterValue && (
+                  <button
+                    onClick={() => setFilterValue('')}
+                    className="p-2 text-gray-400 hover:text-gray-600"
+                    type="button"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    ID
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('id')}
+                  >
+                    <div className="flex items-center">
+                      ID
+                      {getSortIcon('id')}
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Naziv
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('naziv')}
+                  >
+                    <div className="flex items-center">
+                      Naziv
+                      {getSortIcon('naziv')}
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('email')}
+                  >
+                    <div className="flex items-center">
+                      Email
+                      {getSortIcon('email')}
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Telefon
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('brojmob')}
+                  >
+                    <div className="flex items-center">
+                      Telefon
+                      {getSortIcon('brojmob')}
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('stsstatus')}
+                  >
+                    <div className="flex items-center">
+                      Status
+                      {getSortIcon('stsstatus')}
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Aktivan
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('stsaktivan')}
+                  >
+                    <div className="flex items-center">
+                      Aktivan
+                      {getSortIcon('stsaktivan')}
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Kreiran
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('datumk')}
+                  >
+                    <div className="flex items-center">
+                      Kreiran
+                      {getSortIcon('datumk')}
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Ažuriran
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('datumpt')}
+                  >
+                    <div className="flex items-center">
+                      Ažuriran
+                      {getSortIcon('datumpt')}
+                    </div>
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Akcije
@@ -254,7 +404,7 @@ export default function KorisniciModule() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {korisnici.map((korisnik) => (
+                {filteredAndSortedData.map((korisnik) => (
                   <tr key={korisnik.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {korisnik.id}

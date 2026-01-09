@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
-import { Edit, Trash2, Plus, Building2 } from 'lucide-react'
+import { Edit, Trash2, Plus, Building2, ArrowUp, ArrowDown, Search, X } from 'lucide-react'
 
 export default function VrstaObjektaModule() {
   const [vrsteObjekata, setVrsteObjekata] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingVrsta, setEditingVrsta] = useState(null)
+  const [sortColumn, setSortColumn] = useState(null)
+  const [sortDirection, setSortDirection] = useState('asc')
+  const [filterValue, setFilterValue] = useState('')
   const [formData, setFormData] = useState({
     opis: ''
   })
@@ -104,6 +107,63 @@ export default function VrstaObjektaModule() {
     }
   }
 
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortColumn(column)
+      setSortDirection('asc')
+    }
+    setFilterValue('') // Resetuj filter pri promeni sortiranja
+  }
+
+  const getSortIcon = (column) => {
+    if (sortColumn !== column) return null
+    return sortDirection === 'asc' ? (
+      <ArrowUp className="w-4 h-4 inline-block ml-1" />
+    ) : (
+      <ArrowDown className="w-4 h-4 inline-block ml-1" />
+    )
+  }
+
+  const filteredAndSortedData = useMemo(() => {
+    let data = [...vrsteObjekata]
+
+    // Filtriranje
+    if (filterValue && sortColumn) {
+      const filterLower = filterValue.toLowerCase()
+      data = data.filter((item) => {
+        const value = item[sortColumn]
+        if (value === null || value === undefined) return false
+        return String(value).toLowerCase().includes(filterLower)
+      })
+    }
+
+    // Sortiranje
+    if (sortColumn) {
+      data.sort((a, b) => {
+        let aVal = a[sortColumn]
+        let bVal = b[sortColumn]
+
+        // Handle null/undefined
+        if (aVal === null || aVal === undefined) aVal = ''
+        if (bVal === null || bVal === undefined) bVal = ''
+
+        // Convert to string for comparison
+        aVal = String(aVal).toLowerCase()
+        bVal = String(bVal).toLowerCase()
+
+        if (sortDirection === 'asc') {
+          return aVal > bVal ? 1 : aVal < bVal ? -1 : 0
+        } else {
+          return aVal < bVal ? 1 : aVal > bVal ? -1 : 0
+        }
+      })
+    }
+
+    return data
+  }, [vrsteObjekata, sortColumn, sortDirection, filterValue])
+
   const formatDate = (dateString) => {
     if (!dateString) return '-'
     try {
@@ -156,17 +216,59 @@ export default function VrstaObjektaModule() {
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
+          {/* Filter input - prikazuje se samo kada je sortColumn postavljen */}
+          {sortColumn && (
+            <div className="p-4 border-b border-gray-200 bg-gray-50">
+              <div className="flex items-center gap-2">
+                <Search className="w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  value={filterValue}
+                  onChange={(e) => setFilterValue(e.target.value)}
+                  placeholder={`Pretraži po ${sortColumn === 'id' ? 'ID' : sortColumn === 'opis' ? 'Opisu' : 'Datumu'}...`}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+                {filterValue && (
+                  <button
+                    onClick={() => setFilterValue('')}
+                    className="p-2 text-gray-400 hover:text-gray-600"
+                    type="button"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ID
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                  onClick={() => handleSort('id')}
+                >
+                  <div className="flex items-center">
+                    ID
+                    {getSortIcon('id')}
+                  </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Opis
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                  onClick={() => handleSort('opis')}
+                >
+                  <div className="flex items-center">
+                    Opis
+                    {getSortIcon('opis')}
+                  </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Kreirano
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                  onClick={() => handleSort('created_at')}
+                >
+                  <div className="flex items-center">
+                    Kreirano
+                    {getSortIcon('created_at')}
+                  </div>
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Akcije
@@ -174,7 +276,7 @@ export default function VrstaObjektaModule() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {vrsteObjekata.map((vrsta) => (
+              {filteredAndSortedData.map((vrsta) => (
                 <tr key={vrsta.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {vrsta.id}
