@@ -408,26 +408,26 @@ export default function KorisniciModule() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredAndSortedData.map((korisnik) => (
                   <tr key={korisnik.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
                       {korisnik.id}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
                       {korisnik.naziv}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                       {korisnik.email}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                       {korisnik.brojmob ? (
                         <div className="flex items-center gap-1">
-                          <Phone className="w-4 h-4" />
+                          <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
                           {korisnik.brojmob}
                         </div>
                       ) : (
                         <span className="text-gray-400">-</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm">
                       {korisnik.stsstatus ? (
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(korisnik.stsstatus)}`}>
                           {korisnik.stsstatus}
@@ -436,46 +436,46 @@ export default function KorisniciModule() {
                         <span className="text-gray-400">-</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm">
                       <button
                         onClick={() => handleToggleStatus(korisnik)}
-                        className="flex items-center gap-2 px-3 py-1 rounded-lg transition-colors"
+                        className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-lg transition-colors"
                         title={`Kliknite da ${korisnik.stsaktivan === 'da' ? 'deaktivirate' : 'aktivirate'} korisnika`}
                       >
                         {korisnik.stsaktivan === 'da' ? (
-                          <span className="flex items-center gap-1 text-green-600 hover:text-green-700">
-                            <ToggleRight className="w-5 h-5" />
+                          <span className="flex items-center gap-0.5 sm:gap-1 text-green-600 hover:text-green-700">
+                            <ToggleRight className="w-4 h-4 sm:w-5 sm:h-5" />
                             <span className="text-xs font-medium">Da</span>
                           </span>
                         ) : (
-                          <span className="flex items-center gap-1 text-red-600 hover:text-red-700">
-                            <ToggleLeft className="w-5 h-5" />
+                          <span className="flex items-center gap-0.5 sm:gap-1 text-red-600 hover:text-red-700">
+                            <ToggleLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                             <span className="text-xs font-medium">Ne</span>
                           </span>
                         )}
                       </button>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                       {formatDate(korisnik.datumk)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                       {formatDate(korisnik.datumpt)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end gap-2">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
+                      <div className="flex justify-end gap-1 sm:gap-2">
                         <button
                           onClick={() => handleEdit(korisnik)}
-                          className="flex items-center gap-1 px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
+                          className="flex items-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
                         >
-                          <Edit className="w-4 h-4" />
-                          Izmeni
+                          <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <span className="hidden sm:inline">Izmeni</span>
                         </button>
                         <button
                           onClick={() => handleDelete(korisnik.id)}
-                          className="flex items-center gap-1 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                          className="flex items-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
                         >
-                          <Trash2 className="w-4 h-4" />
-                          Obriši
+                          <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <span className="hidden sm:inline">Obriši</span>
                         </button>
                       </div>
                     </td>
