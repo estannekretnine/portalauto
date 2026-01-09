@@ -1,8 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { isAuthenticated } from './utils/auth'
 import Login from './components/Login'
 import Dashboard from './components/Dashboard'
+import Intro from './components/Intro'
 import { initSEO, updateTitle, updateDescription, updateCanonical, updateOGUrl } from './utils/seo'
 import './index.css'
 
@@ -32,30 +33,39 @@ function SEOUpdater() {
 }
 
 function App() {
+  const [showIntro, setShowIntro] = useState(true)
+
   useEffect(() => {
     // Inicijalizuj SEO pri učitavanju aplikacije
     initSEO()
   }, [])
 
+  const handleIntroComplete = () => {
+    setShowIntro(false)
+  }
+
   return (
     <Router>
       <SEOUpdater />
-      <Routes>
-        <Route
-          path="/"
-          element={
-            isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Login />
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+      {showIntro && <Intro onComplete={handleIntroComplete} />}
+      {!showIntro && (
+        <Routes>
+          <Route
+            path="/"
+            element={
+              isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Login />
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      )}
     </Router>
   )
 }
