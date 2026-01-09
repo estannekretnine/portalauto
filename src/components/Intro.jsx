@@ -71,9 +71,9 @@ export default function Intro({ onComplete }) {
                   : 'opacity-100 transform translate-y-0 rotate-0'
               }`}
               style={{
-                backgroundSize: '200% auto',
-                animation: isRotating ? 'none' : 'shimmer 3s linear infinite'
+                backgroundSize: '200% auto'
               }}
+              className={isRotating ? '' : 'animate-shimmer'}
             >
               {agencyNames[currentAgency]}
             </div>
@@ -95,16 +95,6 @@ export default function Intro({ onComplete }) {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes shimmer {
-          0% {
-            background-position: 0% center;
-          }
-          100% {
-            background-position: 200% center;
-          }
-        }
-      `}</style>
     </div>
   )
 }
