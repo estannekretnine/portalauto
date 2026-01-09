@@ -45,8 +45,8 @@ export const updateOGUrl = (url) => {
 // Inicijalizuj SEO za početnu stranicu
 export const initSEO = () => {
   const baseUrl = 'https://portalauto.vercel.app'
-  const title = 'Auto Dashboard - Upravljanje automobilima | CRUD Aplikacija'
-  const description = 'Profesionalna web aplikacija za upravljanje automobilima. Dodajte, uredite i obrišite automobile sa pregledom fotografija. Kompletan CRUD sistem sa autentifikacijom i naprednim filterima.'
+  const title = 'Agencija za Nekretnine - Upravljanje nekretninama | CRUD Aplikacija'
+  const description = 'Profesionalna web aplikacija za upravljanje nekretninama. Upravljajte vrstama objekata, korisnicima i nekretninama. Kompletan CRUD sistem sa autentifikacijom i naprednim funkcionalnostima.'
   
   updateTitle(title)
   updateDescription(description)

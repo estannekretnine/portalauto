@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react'
 import { getCurrentUser, logout } from '../utils/auth'
 import { useNavigate } from 'react-router-dom'
 import Sidebar from './Sidebar'
-import AutoModule from './AutoModule'
+import VrstaObjektaModule from './VrstaObjektaModule'
 import KorisniciModule from './KorisniciModule'
 import { LogOut } from 'lucide-react'
 
 export default function Dashboard() {
-  const [activeModule, setActiveModule] = useState('auto')
+  const [activeModule, setActiveModule] = useState('vrstaobjekta')
   const [user, setUser] = useState(null)
   const navigate = useNavigate()
 
@@ -39,7 +39,7 @@ export default function Dashboard() {
         <header className="bg-white shadow-sm border-b border-gray-200">
           <div className="px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold text-gray-800">Auto Dashboard</h1>
+              <h1 className="text-2xl font-bold text-gray-800">Agencija za Nekretnine</h1>
               <div className="flex items-center gap-4">
                 {isAdmin && (
                   <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">
@@ -62,7 +62,7 @@ export default function Dashboard() {
         </header>
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
-          {activeModule === 'auto' && <AutoModule />}
+          {activeModule === 'vrstaobjekta' && <VrstaObjektaModule />}
           {activeModule === 'korisnici' && (isAdmin ? <KorisniciModule /> : (
             <div className="bg-white rounded-lg shadow p-12 text-center">
               <p className="text-gray-600 text-lg">Nemate pristup ovom modulu.</p>

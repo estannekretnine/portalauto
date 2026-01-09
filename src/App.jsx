@@ -21,8 +21,8 @@ function SEOUpdater() {
     if (currentPath === '/') {
       initSEO()
     } else if (currentPath === '/dashboard') {
-      updateTitle('Dashboard - Auto Dashboard | Upravljanje automobilima')
-      updateDescription('Dashboard za upravljanje automobilima. Pregled, dodavanje, izmena i brisanje automobila sa naprednim filterima i pretragom.')
+      updateTitle('Dashboard - Agencija za Nekretnine | Upravljanje nekretninama')
+      updateDescription('Dashboard za upravljanje nekretninama. Pregled, dodavanje, izmena i brisanje vrsta objekata i korisnika sa naprednim funkcionalnostima.')
       updateCanonical(fullUrl)
       updateOGUrl(fullUrl)
     }

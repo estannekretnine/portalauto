@@ -1,7 +1,7 @@
 {
-  "name": "Auto Dashboard - Upravljanje automobilima",
-  "short_name": "Auto Dashboard",
-  "description": "Profesionalna web aplikacija za upravljanje automobilima sa CRUD funkcionalnostima",
+  "name": "Agencija za Nekretnine",
+  "short_name": "Agencija Nekretnine",
+  "description": "Profesionalna web aplikacija za upravljanje nekretninama sa CRUD funkcionalnostima. Upravljajte vrstama objekata, korisnicima i nekretninama.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
