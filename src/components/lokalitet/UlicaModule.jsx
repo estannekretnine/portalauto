@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../utils/supabase'
-import { Edit, Trash2, Plus, Road } from 'lucide-react'
+import { Edit, Trash2, Plus, Navigation } from 'lucide-react'
 
 export default function UlicaModule() {
   const [ulice, setUlice] = useState([])
@@ -160,7 +160,7 @@ export default function UlicaModule() {
 
       {ulice.length === 0 ? (
         <div className="bg-gray-50 rounded-lg p-12 text-center">
-          <Road className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <Navigation className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-600 text-lg mb-2">Nema ulica</p>
           <p className="text-gray-500 mb-4">Dodajte prvu ulicu</p>
           <button

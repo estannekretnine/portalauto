@@ -10,52 +10,26 @@ export default function Login() {
   const [buildInfo, setBuildInfo] = useState(null)
   const navigate = useNavigate()
 
+  // Prikaži build info samo u produkciji (na Vercelu)
   useEffect(() => {
-    // Učitaj build info - tihim načinom (ne prikazuj greške u konzoli)
-    fetch('/build-info.json')
-      .then(res => {
-        if (!res.ok) {
-          // Ako fajl ne postoji, koristi fallback bez prikazivanja greške
-          return null
-        }
-        return res.json()
-      })
-      .then(data => {
-        if (data) {
-          setBuildInfo(data)
-        } else {
-          // Fallback ako fajl ne postoji
-          setBuildInfo({
-            timestamp: new Date().toISOString(),
-            date: new Date().toLocaleString('sr-RS', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-              timeZone: 'Europe/Belgrade'
-            }),
-            version: 'dev'
-          })
-        }
-      })
-      .catch(() => {
-        // Tihi fallback - ne prikazuj grešku u konzoli
-        setBuildInfo({
-          timestamp: new Date().toISOString(),
-          date: new Date().toLocaleString('sr-RS', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            timeZone: 'Europe/Belgrade'
-          }),
-          version: 'dev'
+    // Proveri da li smo u produkciji (na Vercelu)
+    const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+    
+    if (isProduction) {
+      fetch('/build-info.json')
+        .then(res => {
+          if (!res.ok) return null
+          return res.json()
         })
-      })
+        .then(data => {
+          if (data) {
+            setBuildInfo(data)
+          }
+        })
+        .catch(() => {
+          // Tihi fallback - ne prikazuj grešku
+        })
+    }
   }, [])
 
   const handleSubmit = async (e) => {
@@ -80,7 +54,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
         <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
-          Auto Dashboard
+          Agencija za Nekretnine
         </h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -125,7 +99,7 @@ export default function Login() {
           </button>
         </form>
         
-        {/* Build Info */}
+        {/* Build Info - samo u produkciji (na Vercelu) */}
         {buildInfo && (
           <div className="mt-6 pt-6 border-t border-gray-200">
             <div className="text-xs text-gray-500 text-center space-y-1">
