@@ -10,7 +10,7 @@ export default function GradModule() {
   const [editingGrad, setEditingGrad] = useState(null)
   const [formData, setFormData] = useState({
     opis: '',
-    drzava_id: ''
+    iddrzave: ''
   })
 
   useEffect(() => {
@@ -35,12 +35,17 @@ export default function GradModule() {
   const loadGradovi = async () => {
     try {
       setLoading(true)
+      // Prvo probaj sa svim kolonama
       const { data, error } = await supabase
         .from('grad')
         .select('*')
         .order('opis', { ascending: true })
 
-      if (error) throw error
+      if (error) {
+        console.error('Greška pri učitavanju gradova:', error)
+        alert('Greška pri učitavanju gradova: ' + error.message)
+        return
+      }
 
       setGradovi(data || [])
     } catch (error) {
@@ -75,7 +80,7 @@ export default function GradModule() {
     setEditingGrad(grad)
     setFormData({
       opis: grad.opis || '',
-      drzava_id: grad.drzava_id || ''
+      iddrzave: grad.iddrzave || ''
     })
     setShowForm(true)
   }
@@ -84,7 +89,7 @@ export default function GradModule() {
     setEditingGrad(null)
     setFormData({
       opis: '',
-      drzava_id: drzave.length > 0 ? drzave[0].id : ''
+      iddrzave: drzave.length > 0 ? drzave[0].id : ''
     })
     setShowForm(true)
   }
@@ -97,29 +102,28 @@ export default function GradModule() {
       return
     }
 
-    if (!formData.drzava_id) {
+    if (!formData.iddrzave) {
       alert('Država je obavezna')
       return
     }
 
     try {
+      const updateData = {
+        opis: formData.opis.trim(),
+        iddrzave: parseInt(formData.iddrzave)
+      }
+
       if (editingGrad) {
         const { error } = await supabase
           .from('grad')
-          .update({
-            opis: formData.opis.trim(),
-            drzava_id: parseInt(formData.drzava_id)
-          })
+          .update(updateData)
           .eq('id', editingGrad.id)
 
         if (error) throw error
       } else {
         const { error } = await supabase
           .from('grad')
-          .insert([{
-            opis: formData.opis.trim(),
-            drzava_id: parseInt(formData.drzava_id)
-          }])
+          .insert([updateData])
 
         if (error) throw error
       }
@@ -195,7 +199,7 @@ export default function GradModule() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {gradovi.map((grad) => {
-                  const drzavaOpis = drzave.find(d => d.id === grad.drzava_id)?.opis || 'N/A'
+                  const drzavaOpis = drzave.find(d => d.id === grad.iddrzave)?.opis || 'N/A'
                   return (
                     <tr key={grad.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -249,8 +253,8 @@ export default function GradModule() {
                   Država *
                 </label>
                 <select
-                  value={formData.drzava_id}
-                  onChange={(e) => setFormData({ ...formData, drzava_id: e.target.value })}
+                  value={formData.iddrzave}
+                  onChange={(e) => setFormData({ ...formData, iddrzave: e.target.value })}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 >
