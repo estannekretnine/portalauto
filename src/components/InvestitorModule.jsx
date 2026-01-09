@@ -260,7 +260,7 @@ export default function InvestitorModule() {
               <thead className="bg-gray-50">
                 <tr>
                   <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
                     onClick={() => handleSort('id')}
                   >
                     <div className="flex items-center">
@@ -269,7 +269,7 @@ export default function InvestitorModule() {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
                     onClick={() => handleSort('naziv')}
                   >
                     <div className="flex items-center">
@@ -278,7 +278,7 @@ export default function InvestitorModule() {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
                     onClick={() => handleSort('adresa')}
                   >
                     <div className="flex items-center">
@@ -287,7 +287,7 @@ export default function InvestitorModule() {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
                     onClick={() => handleSort('email')}
                   >
                     <div className="flex items-center">
@@ -296,7 +296,7 @@ export default function InvestitorModule() {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
                     onClick={() => handleSort('kontaktosoba')}
                   >
                     <div className="flex items-center">
@@ -305,7 +305,7 @@ export default function InvestitorModule() {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
                     onClick={() => handleSort('kontakttel')}
                   >
                     <div className="flex items-center">
@@ -339,21 +339,21 @@ export default function InvestitorModule() {
                     <td className="px-6 py-4 text-sm text-gray-500">
                       {investitor.kontakttel || '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end gap-2">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
+                      <div className="flex justify-end gap-1 sm:gap-2">
                         <button
                           onClick={() => handleEdit(investitor)}
-                          className="flex items-center gap-1 px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
+                          className="flex items-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
                         >
-                          <Edit className="w-4 h-4" />
-                          Izmeni
+                          <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <span className="hidden sm:inline">Izmeni</span>
                         </button>
                         <button
                           onClick={() => handleDelete(investitor.id)}
-                          className="flex items-center gap-1 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                          className="flex items-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
                         >
-                          <Trash2 className="w-4 h-4" />
-                          Obriši
+                          <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <span className="hidden sm:inline">Obriši</span>
                         </button>
                       </div>
                     </td>
