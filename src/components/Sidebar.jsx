@@ -1,4 +1,4 @@
-import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database } from 'lucide-react'
+import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
@@ -47,6 +47,11 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
   }, [activeModule])
 
   const menuItems = [
+    {
+      id: 'ponude',
+      label: 'Ponude',
+      icon: Home,
+    },
     {
       id: 'maticni-podaci',
       label: 'Matični podaci',
