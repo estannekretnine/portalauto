@@ -26,14 +26,9 @@ export default function LokalitetModule({ activeTab: propActiveTab }) {
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <MapPin className="w-8 h-8 text-indigo-600" />
-        <h2 className="text-2xl font-bold text-gray-800">Lokalitet</h2>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="bg-white rounded-lg shadow">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Tab Navigation - samo na desktop-u */}
+      <div className="hidden md:block bg-white rounded-lg shadow">
         <div className="border-b border-gray-200">
           <nav className="flex -mb-px overflow-x-auto" aria-label="Tabs">
             {tabs.map((tab) => (
@@ -41,7 +36,7 @@ export default function LokalitetModule({ activeTab: propActiveTab }) {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`
-                  px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors
+                  px-4 lg:px-6 py-3 lg:py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors
                   ${activeTab === tab.id
                     ? 'border-indigo-500 text-indigo-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -55,9 +50,14 @@ export default function LokalitetModule({ activeTab: propActiveTab }) {
         </div>
 
         {/* Tab Content */}
-        <div className="p-6">
+        <div className="p-4 lg:p-6">
           {ActiveComponent && <ActiveComponent />}
         </div>
+      </div>
+
+      {/* Mobile View - direktno prikazuje aktivnu komponentu bez tab navigacije */}
+      <div className="md:hidden">
+        {ActiveComponent && <ActiveComponent />}
       </div>
     </div>
   )

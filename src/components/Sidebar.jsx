@@ -1,42 +1,35 @@
-import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase } from 'lucide-react'
-import { useState } from 'react'
+import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database } from 'lucide-react'
+import { useState, useEffect } from 'react'
 
 const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isLokalitetOpen, setIsLokalitetOpen] = useState(false)
+  const [isMaticniPodaciOpen, setIsMaticniPodaciOpen] = useState(false)
 
   const isAdmin = user?.email === 'admin@example.com'
 
-  const lokalitetSubItems = [
-    { id: 'lokalitet-drzava', label: 'Država' },
-    { id: 'lokalitet-grad', label: 'Grad' },
-    { id: 'lokalitet-opstina', label: 'Opština' },
-    { id: 'lokalitet-lokacija', label: 'Lokacija' },
-    { id: 'lokalitet-ulica', label: 'Ulica' },
+  const maticniPodaciSubItems = [
+    { id: 'vrstaobjekta', label: 'Vrsta objekta', icon: Building2 },
+    { id: 'lokalitet', label: 'Lokalitet', icon: MapPin },
+    { id: 'grejanje', label: 'Grejanje', icon: Flame },
+    { id: 'investitor', label: 'Investitor', icon: Briefcase },
   ]
+
+  // Automatski otvori "Matični podaci" meni ako je neki od sub-itema aktivan
+  useEffect(() => {
+    const isMaticniPodaciActive = maticniPodaciSubItems.some(item => activeModule === item.id)
+    if (isMaticniPodaciActive) {
+      setIsMaticniPodaciOpen(true)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeModule])
 
   const menuItems = [
     {
-      id: 'vrstaobjekta',
-      label: 'Vrsta objekta',
-      icon: Building2,
-    },
-    {
-      id: 'lokalitet',
-      label: 'Lokalitet',
-      icon: MapPin,
+      id: 'maticni-podaci',
+      label: 'Matični podaci',
+      icon: Database,
       hasSubmenu: true,
-      subItems: lokalitetSubItems,
-    },
-    {
-      id: 'grejanje',
-      label: 'Grejanje',
-      icon: Flame,
-    },
-    {
-      id: 'investitor',
-      label: 'Investitor',
-      icon: Briefcase,
+      subItems: maticniPodaciSubItems,
     },
     ...(isAdmin ? [{
       id: 'korisnici',
@@ -46,8 +39,8 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
   ]
 
   const handleMenuItemClick = (itemId) => {
-    if (itemId === 'lokalitet') {
-      setIsLokalitetOpen(!isLokalitetOpen)
+    if (itemId === 'maticni-podaci') {
+      setIsMaticniPodaciOpen(!isMaticniPodaciOpen)
     } else {
       setActiveModule(itemId)
       setIsMobileMenuOpen(false)
@@ -59,8 +52,8 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
     setIsMobileMenuOpen(false)
   }
 
-  // Proveri da li je neki od lokalitet sub-itema aktivan
-  const isLokalitetActive = lokalitetSubItems.some(item => activeModule === item.id)
+  // Proveri da li je neki od matičnih podataka aktivan
+  const isMaticniPodaciActive = maticniPodaciSubItems.some(item => activeModule === item.id)
 
   return (
     <>
@@ -97,8 +90,8 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
             <ul className="space-y-2">
               {menuItems.map((item) => {
                 const Icon = item.icon
-                const isActive = activeModule === item.id || (item.hasSubmenu && isLokalitetActive)
-                const isExpanded = item.hasSubmenu && isLokalitetOpen
+                const isActive = activeModule === item.id || (item.hasSubmenu && isMaticniPodaciActive)
+                const isExpanded = item.hasSubmenu && isMaticniPodaciOpen
 
                 return (
                   <li key={item.id}>
@@ -128,22 +121,26 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
                     </button>
                     {item.hasSubmenu && isExpanded && (
                       <ul className="ml-6 sm:ml-8 mt-2 space-y-1">
-                        {item.subItems.map((subItem) => (
-                          <li key={subItem.id}>
-                            <button
-                              onClick={() => handleSubItemClick(subItem.id)}
-                              className={`w-full text-left px-3 sm:px-4 py-2 rounded-lg transition duration-150 text-sm sm:text-base ${
-                                activeModule === subItem.id
-                                  ? 'bg-indigo-100 text-indigo-700 font-medium'
-                                  : 'text-gray-600 hover:bg-gray-50'
-                              }`}
-                              aria-current={activeModule === subItem.id ? 'page' : undefined}
-                              type="button"
-                            >
-                              {subItem.label}
-                            </button>
-                          </li>
-                        ))}
+                        {item.subItems.map((subItem) => {
+                          const SubIcon = subItem.icon
+                          return (
+                            <li key={subItem.id}>
+                              <button
+                                onClick={() => handleSubItemClick(subItem.id)}
+                                className={`w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-lg transition duration-150 text-sm sm:text-base ${
+                                  activeModule === subItem.id
+                                    ? 'bg-indigo-100 text-indigo-700 font-medium'
+                                    : 'text-gray-600 hover:bg-gray-50'
+                                }`}
+                                aria-current={activeModule === subItem.id ? 'page' : undefined}
+                                type="button"
+                              >
+                                <SubIcon className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+                                <span>{subItem.label}</span>
+                              </button>
+                            </li>
+                          )
+                        })}
                       </ul>
                     )}
                   </li>
