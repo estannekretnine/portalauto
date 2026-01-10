@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
-import { Edit, Trash2, Plus, User, Phone, ToggleLeft, ToggleRight, ArrowUp, ArrowDown, Search, X } from 'lucide-react'
+import { Edit, Trash2, Plus, User, Phone, ToggleLeft, ToggleRight, ArrowUp, ArrowDown, Search, X, MapPin } from 'lucide-react'
 
 export default function KorisniciModule() {
   const [korisnici, setKorisnici] = useState([])
@@ -15,6 +15,7 @@ export default function KorisniciModule() {
     email: '',
     password: '',
     brojmob: '',
+    adresa: '',
     stsstatus: 'kupac',
     stsaktivan: 'da'
   })
@@ -122,6 +123,7 @@ export default function KorisniciModule() {
       'naziv': 'Nazivu',
       'email': 'Emailu',
       'brojmob': 'Telefonu',
+      'adresa': 'Adresi',
       'stsstatus': 'Statusu',
       'stsaktivan': 'Aktivnom statusu',
       'datumk': 'Datumu kreiranja',
@@ -190,6 +192,7 @@ export default function KorisniciModule() {
       email: korisnik.email || '',
       password: '', // Ne prikazujemo postojeći password
       brojmob: korisnik.brojmob || '',
+      adresa: korisnik.adresa || '',
       stsstatus: korisnik.stsstatus || 'kupac',
       stsaktivan: korisnik.stsaktivan || 'da'
     })
@@ -203,6 +206,7 @@ export default function KorisniciModule() {
       email: '',
       password: '',
       brojmob: '',
+      adresa: '',
       stsstatus: 'kupac',
       stsaktivan: 'da'
     })
@@ -219,6 +223,7 @@ export default function KorisniciModule() {
           naziv: formData.naziv,
           email: formData.email,
           brojmob: formData.brojmob || null,
+          adresa: formData.adresa || null,
           stsstatus: formData.stsstatus,
           stsaktivan: formData.stsaktivan
         }
@@ -248,6 +253,7 @@ export default function KorisniciModule() {
             email: formData.email,
             password: formData.password,
             brojmob: formData.brojmob || null,
+            adresa: formData.adresa || null,
             stsstatus: formData.stsstatus,
             stsaktivan: formData.stsaktivan
           }])
@@ -366,6 +372,15 @@ export default function KorisniciModule() {
                   </th>
                   <th 
                     className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('adresa')}
+                  >
+                    <div className="flex items-center">
+                      Adresa
+                      {getSortIcon('adresa')}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
                     onClick={() => handleSort('stsstatus')}
                   >
                     <div className="flex items-center">
@@ -422,6 +437,16 @@ export default function KorisniciModule() {
                         <div className="flex items-center gap-1">
                           <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
                           {korisnik.brojmob}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-500 max-w-xs truncate" title={korisnik.adresa || ''}>
+                      {korisnik.adresa ? (
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                          <span className="truncate">{korisnik.adresa}</span>
                         </div>
                       ) : (
                         <span className="text-gray-400">-</span>
@@ -497,6 +522,9 @@ export default function KorisniciModule() {
                   )}
                   {korisnik.brojmob && (
                     <div className="text-xs text-gray-600">📞 {korisnik.brojmob}</div>
+                  )}
+                  {korisnik.adresa && (
+                    <div className="text-xs text-gray-600">📍 {korisnik.adresa}</div>
                   )}
                   <div className="flex flex-wrap gap-2 mt-2">
                     {korisnik.stsstatus && (
@@ -598,6 +626,18 @@ export default function KorisniciModule() {
                   onChange={(e) => setFormData({ ...formData, brojmob: e.target.value })}
                   className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   placeholder="+381 60 123 4567"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Adresa
+                </label>
+                <textarea
+                  value={formData.adresa}
+                  onChange={(e) => setFormData({ ...formData, adresa: e.target.value })}
+                  rows={3}
+                  className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y"
+                  placeholder="Unesite adresu korisnika"
                 />
               </div>
               <div>

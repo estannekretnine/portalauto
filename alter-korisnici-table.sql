@@ -52,6 +52,10 @@ ADD COLUMN IF NOT EXISTS datumk TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE public.korisnici 
 ADD COLUMN IF NOT EXISTS datumpt TIMESTAMPTZ DEFAULT NOW();
 
+-- 5.1. Dodaj kolonu adresa (text)
+ALTER TABLE public.korisnici 
+ADD COLUMN IF NOT EXISTS adresa TEXT;
+
 -- 6. Kreiraj funkciju za automatsko ažuriranje datumpt pri UPDATE
 CREATE OR REPLACE FUNCTION update_datumpt()
 RETURNS TRIGGER AS $$
