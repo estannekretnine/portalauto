@@ -3,10 +3,14 @@ import { getCurrentUser, logout } from '../utils/auth'
 import { useNavigate } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import VrstaObjektaModule from './VrstaObjektaModule'
-import LokalitetModule from './LokalitetModule'
 import GrejanjeModule from './GrejanjeModule'
 import InvestitorModule from './InvestitorModule'
 import KorisniciModule from './KorisniciModule'
+import DrzavaModule from './lokalitet/DrzavaModule'
+import GradModule from './lokalitet/GradModule'
+import OpstinaModule from './lokalitet/OpstinaModule'
+import LokacijaModule from './lokalitet/LokacijaModule'
+import UlicaModule from './lokalitet/UlicaModule'
 import { LogOut } from 'lucide-react'
 
 export default function Dashboard() {
@@ -67,7 +71,11 @@ export default function Dashboard() {
 
         <main className="flex-1 p-3 sm:p-4 lg:p-6 xl:p-8 overflow-auto">
           {activeModule === 'vrstaobjekta' && <VrstaObjektaModule />}
-          {activeModule === 'lokalitet' && <LokalitetModule />}
+          {activeModule === 'lokalitet-drzava' && <DrzavaModule />}
+          {activeModule === 'lokalitet-grad' && <GradModule />}
+          {activeModule === 'lokalitet-opstina' && <OpstinaModule />}
+          {activeModule === 'lokalitet-lokacija' && <LokacijaModule />}
+          {activeModule === 'lokalitet-ulica' && <UlicaModule />}
           {activeModule === 'grejanje' && <GrejanjeModule />}
           {activeModule === 'investitor' && <InvestitorModule />}
           {activeModule === 'korisnici' && (isAdmin ? <KorisniciModule /> : (

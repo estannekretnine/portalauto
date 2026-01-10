@@ -4,21 +4,44 @@ import { useState, useEffect } from 'react'
 const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMaticniPodaciOpen, setIsMaticniPodaciOpen] = useState(false)
+  const [isLokalitetOpen, setIsLokalitetOpen] = useState(false)
 
   const isAdmin = user?.email === 'admin@example.com'
 
+  const lokalitetSubItems = [
+    { id: 'lokalitet-drzava', label: 'Država' },
+    { id: 'lokalitet-grad', label: 'Grad' },
+    { id: 'lokalitet-opstina', label: 'Opština' },
+    { id: 'lokalitet-lokacija', label: 'Lokacija' },
+    { id: 'lokalitet-ulica', label: 'Ulica' },
+  ]
+
   const maticniPodaciSubItems = [
     { id: 'vrstaobjekta', label: 'Vrsta objekta', icon: Building2 },
-    { id: 'lokalitet', label: 'Lokalitet', icon: MapPin },
+    { 
+      id: 'lokalitet', 
+      label: 'Lokalitet', 
+      icon: MapPin, 
+      hasSubmenu: true, 
+      subItems: lokalitetSubItems 
+    },
     { id: 'grejanje', label: 'Grejanje', icon: Flame },
     { id: 'investitor', label: 'Investitor', icon: Briefcase },
   ]
 
   // Automatski otvori "Matični podaci" meni ako je neki od sub-itema aktivan
   useEffect(() => {
-    const isMaticniPodaciActive = maticniPodaciSubItems.some(item => activeModule === item.id)
+    const isMaticniPodaciActive = maticniPodaciSubItems.some(item => 
+      item.id === activeModule || (item.hasSubmenu && item.subItems.some(subItem => subItem.id === activeModule))
+    )
     if (isMaticniPodaciActive) {
       setIsMaticniPodaciOpen(true)
+    }
+    
+    // Automatski otvori Lokalitet submenu ako je neki od lokalitet itema aktivan
+    const isLokalitetActive = lokalitetSubItems.some(item => activeModule === item.id)
+    if (isLokalitetActive) {
+      setIsLokalitetOpen(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeModule])
@@ -47,13 +70,27 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
     }
   }
 
-  const handleSubItemClick = (subItemId) => {
+  const handleSubItemClick = (subItemId, hasSubmenu) => {
+    if (hasSubmenu && subItemId === 'lokalitet') {
+      setIsLokalitetOpen(!isLokalitetOpen)
+    } else {
+      setActiveModule(subItemId)
+      setIsMobileMenuOpen(false)
+    }
+  }
+
+  const handleLokalitetSubItemClick = (subItemId) => {
     setActiveModule(subItemId)
     setIsMobileMenuOpen(false)
   }
 
   // Proveri da li je neki od matičnih podataka aktivan
-  const isMaticniPodaciActive = maticniPodaciSubItems.some(item => activeModule === item.id)
+  const isMaticniPodaciActive = maticniPodaciSubItems.some(item => 
+    item.id === activeModule || (item.hasSubmenu && item.subItems.some(subItem => subItem.id === activeModule))
+  )
+  
+  // Proveri da li je neki od lokalitet sub-itema aktivan
+  const isLokalitetActive = lokalitetSubItems.some(item => activeModule === item.id)
 
   return (
     <>
@@ -123,21 +160,56 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
                       <ul className="ml-6 sm:ml-8 mt-2 space-y-1">
                         {item.subItems.map((subItem) => {
                           const SubIcon = subItem.icon
+                          const hasSubmenu = subItem.hasSubmenu || false
+                          const isLokalitetItem = subItem.id === 'lokalitet'
+                          const isSubItemActive = hasSubmenu ? isLokalitetActive : activeModule === subItem.id
+                          const isSubItemExpanded = hasSubmenu && isLokalitetItem && isLokalitetOpen
+                          
                           return (
                             <li key={subItem.id}>
                               <button
-                                onClick={() => handleSubItemClick(subItem.id)}
-                                className={`w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-lg transition duration-150 text-sm sm:text-base ${
-                                  activeModule === subItem.id
+                                onClick={() => handleSubItemClick(subItem.id, hasSubmenu)}
+                                className={`w-full flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-lg transition duration-150 text-sm sm:text-base ${
+                                  isSubItemActive
                                     ? 'bg-indigo-100 text-indigo-700 font-medium'
                                     : 'text-gray-600 hover:bg-gray-50'
                                 }`}
-                                aria-current={activeModule === subItem.id ? 'page' : undefined}
+                                aria-current={isSubItemActive ? 'page' : undefined}
+                                aria-expanded={hasSubmenu ? isSubItemExpanded : undefined}
                                 type="button"
                               >
-                                <SubIcon className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
-                                <span>{subItem.label}</span>
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                  <SubIcon className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+                                  <span>{subItem.label}</span>
+                                </div>
+                                {hasSubmenu && (
+                                  isSubItemExpanded ? (
+                                    <ChevronDown className="w-4 h-4" aria-hidden="true" />
+                                  ) : (
+                                    <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                                  )
+                                )}
                               </button>
+                              {hasSubmenu && isSubItemExpanded && subItem.subItems && (
+                                <ul className="ml-4 sm:ml-6 mt-1 space-y-1">
+                                  {subItem.subItems.map((lokalitetSubItem) => (
+                                    <li key={lokalitetSubItem.id}>
+                                      <button
+                                        onClick={() => handleLokalitetSubItemClick(lokalitetSubItem.id)}
+                                        className={`w-full text-left px-3 sm:px-4 py-2 rounded-lg transition duration-150 text-sm sm:text-base ${
+                                          activeModule === lokalitetSubItem.id
+                                            ? 'bg-indigo-100 text-indigo-700 font-medium'
+                                            : 'text-gray-600 hover:bg-gray-50'
+                                        }`}
+                                        aria-current={activeModule === lokalitetSubItem.id ? 'page' : undefined}
+                                        type="button"
+                                      >
+                                        {lokalitetSubItem.label}
+                                      </button>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
                             </li>
                           )
                         })}
