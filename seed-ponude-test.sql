@@ -7,6 +7,8 @@
 DO $$
 DECLARE
   vrsta_id bigint;
+  drzava_id bigint;
+  grad_id bigint;
   opstina_id bigint;
   lokacija_id bigint;
   ulica_id bigint;
@@ -29,23 +31,45 @@ BEGIN
     INSERT INTO vrstaobjekta (opis) VALUES ('Stan') RETURNING id INTO vrsta_id;
   END IF;
 
+  -- Uzmi ili kreiraj državu
+  SELECT id INTO drzava_id FROM drzava LIMIT 1;
+  IF drzava_id IS NULL THEN
+    INSERT INTO drzava (opis) VALUES ('Srbija') RETURNING id INTO drzava_id;
+  END IF;
+
+  -- Uzmi ili kreiraj grad
+  SELECT id INTO grad_id FROM grad LIMIT 1;
+  IF grad_id IS NULL THEN
+    INSERT INTO grad (opis, iddrzava) VALUES ('Beograd', drzava_id) RETURNING id INTO grad_id;
+  ELSE
+    -- Ako postoji grad, uzmi njegovu drzavu_id
+    SELECT iddrzava INTO drzava_id FROM grad WHERE id = grad_id;
+    IF drzava_id IS NULL THEN
+      SELECT id INTO drzava_id FROM drzava LIMIT 1;
+      IF drzava_id IS NULL THEN
+        INSERT INTO drzava (opis) VALUES ('Srbija') RETURNING id INTO drzava_id;
+      END IF;
+      UPDATE grad SET iddrzava = drzava_id WHERE id = grad_id;
+    END IF;
+  END IF;
+
   -- Uzmi ili kreiraj opštinu
   SELECT id INTO opstina_id FROM opstina LIMIT 1;
   IF opstina_id IS NULL THEN
-    -- Prvo proveri da li postoji grad
-    DECLARE
-      grad_id bigint;
-    BEGIN
-      SELECT id INTO grad_id FROM grad LIMIT 1;
-      IF grad_id IS NULL THEN
-        SELECT id INTO grad_id FROM drzava LIMIT 1;
-        IF grad_id IS NULL THEN
-          INSERT INTO drzava (opis) VALUES ('Srbija') RETURNING id INTO grad_id;
+    INSERT INTO opstina (opis, idgrad) VALUES ('Vračar', grad_id) RETURNING id INTO opstina_id;
+  ELSE
+    -- Ako postoji opština, uzmi njen grad_id i drzava_id
+    SELECT idgrad INTO grad_id FROM opstina WHERE id = opstina_id;
+    IF grad_id IS NOT NULL THEN
+      SELECT iddrzava INTO drzava_id FROM grad WHERE id = grad_id;
+      IF drzava_id IS NULL THEN
+        SELECT id INTO drzava_id FROM drzava LIMIT 1;
+        IF drzava_id IS NULL THEN
+          INSERT INTO drzava (opis) VALUES ('Srbija') RETURNING id INTO drzava_id;
         END IF;
-        INSERT INTO grad (opis, iddrzava) VALUES ('Beograd', grad_id) RETURNING id INTO grad_id;
+        UPDATE grad SET iddrzava = drzava_id WHERE id = grad_id;
       END IF;
-      INSERT INTO opstina (opis, idgrad) VALUES ('Vračar', grad_id) RETURNING id INTO opstina_id;
-    END;
+    END IF;
   END IF;
 
   -- Uzmi ili kreiraj lokaciju
@@ -119,8 +143,8 @@ BEGIN
     CURRENT_DATE,
     korisnik_id,
     ulica_id,
-    (SELECT iddrzava FROM grad LIMIT 1),
-    (SELECT id FROM grad LIMIT 1),
+    drzava_id,
+    grad_id,
     opstina_id,
     lokacija_id,
     'Modern stan u centru Beograda',
@@ -206,8 +230,8 @@ BEGIN
     CURRENT_DATE,
     korisnik_id,
     ulica_id,
-    (SELECT iddrzava FROM grad LIMIT 1),
-    (SELECT id FROM grad LIMIT 1),
+    drzava_id,
+    grad_id,
     opstina_id,
     lokacija_id,
     'Luksuzni apartman sa panoramskim pogledom',
@@ -291,8 +315,8 @@ BEGIN
     CURRENT_DATE,
     korisnik_id,
     ulica_id,
-    (SELECT iddrzava FROM grad LIMIT 1),
-    (SELECT id FROM grad LIMIT 1),
+    drzava_id,
+    grad_id,
     opstina_id,
     lokacija_id,
     'Prostran porodični dom sa baštom',
@@ -375,8 +399,8 @@ BEGIN
     CURRENT_DATE,
     korisnik_id,
     ulica_id,
-    (SELECT iddrzava FROM grad LIMIT 1),
-    (SELECT id FROM grad LIMIT 1),
+    drzava_id,
+    grad_id,
     opstina_id,
     lokacija_id,
     'Komforan studio apartman',
@@ -462,8 +486,8 @@ BEGIN
     CURRENT_DATE,
     korisnik_id,
     ulica_id,
-    (SELECT iddrzava FROM grad LIMIT 1),
-    (SELECT id FROM grad LIMIT 1),
+    drzava_id,
+    grad_id,
     opstina_id,
     lokacija_id,
     'Ekskluzivni penthouse sa terasom',
