@@ -1,99 +1,150 @@
 -- SQL skripta za kreiranje 5 test oglasa (ponuda) za testiranje
 -- Pokrenite ovu skriptu u Supabase SQL Editor-u
 -- 
--- PREDUSLOV: Morate imati kreirane šifarnike (vrstaobjekta, opstina, lokacija, ulica, grejanje, investitor, korisnici)
+-- PREDUSLOV: Morate imati postojeće podatke u šifarnicima (drzava, grad, opstina, lokacija, ulica)
+-- Skripta koristi postojeće podatke iz šifarnika
 
--- Proveri da li postoje potrebni šifarnici, ako ne postoje kreiraj osnovne
 DO $$
 DECLARE
+  -- Varijable za 5 različitih oglasa
   vrsta_id bigint;
-  drzava_id bigint;
-  grad_id bigint;
-  opstina_id bigint;
-  lokacija_id bigint;
-  ulica_id bigint;
+  korisnik_id bigint;
   grejanje_id bigint;
   investitor_id bigint;
-  korisnik_id bigint;
+  
+  -- Podaci za oglas 1
+  drzava_id_1 bigint;
+  grad_id_1 bigint;
+  opstina_id_1 bigint;
+  lokacija_id_1 bigint;
+  ulica_id_1 bigint;
+  
+  -- Podaci za oglas 2
+  drzava_id_2 bigint;
+  grad_id_2 bigint;
+  opstina_id_2 bigint;
+  lokacija_id_2 bigint;
+  ulica_id_2 bigint;
+  
+  -- Podaci za oglas 3
+  drzava_id_3 bigint;
+  grad_id_3 bigint;
+  opstina_id_3 bigint;
+  lokacija_id_3 bigint;
+  ulica_id_3 bigint;
+  
+  -- Podaci za oglas 4
+  drzava_id_4 bigint;
+  grad_id_4 bigint;
+  opstina_id_4 bigint;
+  lokacija_id_4 bigint;
+  ulica_id_4 bigint;
+  
+  -- Podaci za oglas 5
+  drzava_id_5 bigint;
+  grad_id_5 bigint;
+  opstina_id_5 bigint;
+  lokacija_id_5 bigint;
+  ulica_id_5 bigint;
+  
   ponuda_id bigint;
 BEGIN
-  -- Uzmi ili kreiraj prvog korisnika
-  SELECT id INTO korisnik_id FROM korisnici LIMIT 1;
+  -- Uzmi prvog korisnika (mora postojati)
+  SELECT id INTO korisnik_id FROM korisnici WHERE stsaktivan = 'da' LIMIT 1;
   IF korisnik_id IS NULL THEN
-    INSERT INTO korisnici (naziv, email, password, stsaktivan, stsstatus)
-    VALUES ('Test Korisnik', 'test@example.com', 'test123', 'da', 'agent')
-    RETURNING id INTO korisnik_id;
+    RAISE EXCEPTION 'Nema aktivnih korisnika. Pokrenite prvo seed.sql';
   END IF;
 
-  -- Uzmi ili kreiraj vrstu objekta
+  -- Uzmi prvu vrstu objekta (mora postojati)
   SELECT id INTO vrsta_id FROM vrstaobjekta LIMIT 1;
   IF vrsta_id IS NULL THEN
-    INSERT INTO vrstaobjekta (opis) VALUES ('Stan') RETURNING id INTO vrsta_id;
+    RAISE EXCEPTION 'Nema vrsta objekata. Kreirajte prvo vrstu objekta.';
   END IF;
 
-  -- Uzmi ili kreiraj državu
-  SELECT id INTO drzava_id FROM drzava LIMIT 1;
-  IF drzava_id IS NULL THEN
-    INSERT INTO drzava (opis) VALUES ('Srbija') RETURNING id INTO drzava_id;
-  END IF;
-
-  -- Uzmi ili kreiraj grad
-  SELECT id INTO grad_id FROM grad LIMIT 1;
-  IF grad_id IS NULL THEN
-    INSERT INTO grad (opis, iddrzava) VALUES ('Beograd', drzava_id) RETURNING id INTO grad_id;
-  ELSE
-    -- Ako postoji grad, uzmi njegovu drzavu_id
-    SELECT iddrzava INTO drzava_id FROM grad WHERE id = grad_id;
-    IF drzava_id IS NULL THEN
-      SELECT id INTO drzava_id FROM drzava LIMIT 1;
-      IF drzava_id IS NULL THEN
-        INSERT INTO drzava (opis) VALUES ('Srbija') RETURNING id INTO drzava_id;
-      END IF;
-      UPDATE grad SET iddrzava = drzava_id WHERE id = grad_id;
-    END IF;
-  END IF;
-
-  -- Uzmi ili kreiraj opštinu
-  SELECT id INTO opstina_id FROM opstina LIMIT 1;
-  IF opstina_id IS NULL THEN
-    INSERT INTO opstina (opis, idgrad) VALUES ('Vračar', grad_id) RETURNING id INTO opstina_id;
-  ELSE
-    -- Ako postoji opština, uzmi njen grad_id i drzava_id
-    SELECT idgrad INTO grad_id FROM opstina WHERE id = opstina_id;
-    IF grad_id IS NOT NULL THEN
-      SELECT iddrzava INTO drzava_id FROM grad WHERE id = grad_id;
-      IF drzava_id IS NULL THEN
-        SELECT id INTO drzava_id FROM drzava LIMIT 1;
-        IF drzava_id IS NULL THEN
-          INSERT INTO drzava (opis) VALUES ('Srbija') RETURNING id INTO drzava_id;
-        END IF;
-        UPDATE grad SET iddrzava = drzava_id WHERE id = grad_id;
-      END IF;
-    END IF;
-  END IF;
-
-  -- Uzmi ili kreiraj lokaciju
-  SELECT id INTO lokacija_id FROM lokacija LIMIT 1;
-  IF lokacija_id IS NULL THEN
-    INSERT INTO lokacija (opis, idopstina) VALUES ('Centar', opstina_id) RETURNING id INTO lokacija_id;
-  END IF;
-
-  -- Uzmi ili kreiraj ulicu
-  SELECT id INTO ulica_id FROM ulica LIMIT 1;
-  IF ulica_id IS NULL THEN
-    INSERT INTO ulica (opis, idlokacija) VALUES ('Knez Mihailova', lokacija_id) RETURNING id INTO ulica_id;
-  END IF;
-
-  -- Uzmi ili kreiraj grejanje
+  -- Uzmi prvo grejanje (mora postojati)
   SELECT id INTO grejanje_id FROM grejanje LIMIT 1;
   IF grejanje_id IS NULL THEN
-    INSERT INTO grejanje (opis) VALUES ('Centralno') RETURNING id INTO grejanje_id;
+    RAISE EXCEPTION 'Nema grejanja. Kreirajte prvo grejanje.';
   END IF;
 
-  -- Uzmi ili kreiraj investitora
+  -- Uzmi prvog investitora (opciono)
   SELECT id INTO investitor_id FROM investitor LIMIT 1;
-  IF investitor_id IS NULL THEN
-    INSERT INTO investitor (opis) VALUES ('Test Investitor') RETURNING id INTO investitor_id;
+
+  -- Uzmi postojeće podatke za 5 različitih oglasa
+  -- Oglas 1 - prvi red iz svakog šifarnika
+  SELECT id INTO drzava_id_1 FROM drzava ORDER BY id LIMIT 1;
+  SELECT id INTO grad_id_1 FROM grad WHERE iddrzava = drzava_id_1 ORDER BY id LIMIT 1;
+  SELECT id INTO opstina_id_1 FROM opstina WHERE idgrad = grad_id_1 ORDER BY id LIMIT 1;
+  SELECT id INTO lokacija_id_1 FROM lokacija WHERE idopstina = opstina_id_1 ORDER BY id LIMIT 1;
+  SELECT id INTO ulica_id_1 FROM ulica WHERE idlokacija = lokacija_id_1 ORDER BY id LIMIT 1;
+
+  -- Oglas 2 - drugi red (ili prvi ako nema drugog)
+  SELECT id INTO drzava_id_2 FROM drzava ORDER BY id LIMIT 1 OFFSET 1;
+  IF drzava_id_2 IS NULL THEN
+    drzava_id_2 := drzava_id_1;
+  END IF;
+  SELECT id INTO grad_id_2 FROM grad WHERE iddrzava = drzava_id_2 ORDER BY id LIMIT 1 OFFSET 1;
+  IF grad_id_2 IS NULL THEN
+    SELECT id INTO grad_id_2 FROM grad WHERE iddrzava = drzava_id_2 ORDER BY id LIMIT 1;
+  END IF;
+  SELECT id INTO opstina_id_2 FROM opstina WHERE idgrad = grad_id_2 ORDER BY id LIMIT 1 OFFSET 1;
+  IF opstina_id_2 IS NULL THEN
+    SELECT id INTO opstina_id_2 FROM opstina WHERE idgrad = grad_id_2 ORDER BY id LIMIT 1;
+  END IF;
+  SELECT id INTO lokacija_id_2 FROM lokacija WHERE idopstina = opstina_id_2 ORDER BY id LIMIT 1 OFFSET 1;
+  IF lokacija_id_2 IS NULL THEN
+    SELECT id INTO lokacija_id_2 FROM lokacija WHERE idopstina = opstina_id_2 ORDER BY id LIMIT 1;
+  END IF;
+  SELECT id INTO ulica_id_2 FROM ulica WHERE idlokacija = lokacija_id_2 ORDER BY id LIMIT 1 OFFSET 1;
+  IF ulica_id_2 IS NULL THEN
+    SELECT id INTO ulica_id_2 FROM ulica WHERE idlokacija = lokacija_id_2 ORDER BY id LIMIT 1;
+  END IF;
+
+  -- Oglas 3 - treći red (ili kombinacija)
+  drzava_id_3 := drzava_id_1;
+  grad_id_3 := grad_id_1;
+  SELECT id INTO opstina_id_3 FROM opstina WHERE idgrad = grad_id_3 ORDER BY id LIMIT 1 OFFSET 2;
+  IF opstina_id_3 IS NULL THEN
+    SELECT id INTO opstina_id_3 FROM opstina WHERE idgrad = grad_id_3 ORDER BY id LIMIT 1;
+  END IF;
+  SELECT id INTO lokacija_id_3 FROM lokacija WHERE idopstina = opstina_id_3 ORDER BY id LIMIT 1 OFFSET 1;
+  IF lokacija_id_3 IS NULL THEN
+    SELECT id INTO lokacija_id_3 FROM lokacija WHERE idopstina = opstina_id_3 ORDER BY id LIMIT 1;
+  END IF;
+  SELECT id INTO ulica_id_3 FROM ulica WHERE idlokacija = lokacija_id_3 ORDER BY id LIMIT 1 OFFSET 1;
+  IF ulica_id_3 IS NULL THEN
+    SELECT id INTO ulica_id_3 FROM ulica WHERE idlokacija = lokacija_id_3 ORDER BY id LIMIT 1;
+  END IF;
+
+  -- Oglas 4 - četvrti red (ili kombinacija)
+  drzava_id_4 := drzava_id_1;
+  grad_id_4 := grad_id_1;
+  opstina_id_4 := opstina_id_1;
+  SELECT id INTO lokacija_id_4 FROM lokacija WHERE idopstina = opstina_id_4 ORDER BY id LIMIT 1 OFFSET 2;
+  IF lokacija_id_4 IS NULL THEN
+    SELECT id INTO lokacija_id_4 FROM lokacija WHERE idopstina = opstina_id_4 ORDER BY id LIMIT 1;
+  END IF;
+  SELECT id INTO ulica_id_4 FROM ulica WHERE idlokacija = lokacija_id_4 ORDER BY id LIMIT 1 OFFSET 1;
+  IF ulica_id_4 IS NULL THEN
+    SELECT id INTO ulica_id_4 FROM ulica WHERE idlokacija = lokacija_id_4 ORDER BY id LIMIT 1;
+  END IF;
+
+  -- Oglas 5 - peti red (ili kombinacija)
+  drzava_id_5 := drzava_id_1;
+  grad_id_5 := grad_id_1;
+  opstina_id_5 := opstina_id_1;
+  lokacija_id_5 := lokacija_id_1;
+  SELECT id INTO ulica_id_5 FROM ulica WHERE idlokacija = lokacija_id_5 ORDER BY id LIMIT 1 OFFSET 2;
+  IF ulica_id_5 IS NULL THEN
+    SELECT id INTO ulica_id_5 FROM ulica WHERE idlokacija = lokacija_id_5 ORDER BY id LIMIT 1 OFFSET 1;
+  END IF;
+  IF ulica_id_5 IS NULL THEN
+    ulica_id_5 := ulica_id_1;
+  END IF;
+
+  -- Proveri da li imamo dovoljno podataka
+  IF drzava_id_1 IS NULL OR ulica_id_1 IS NULL THEN
+    RAISE EXCEPTION 'Nema dovoljno podataka u šifarnicima. Proverite da li postoje: drzava, grad, opstina, lokacija, ulica';
   END IF;
 
   -- Kreiraj 5 test ponuda
@@ -142,12 +193,12 @@ BEGIN
     vrsta_id,
     CURRENT_DATE,
     korisnik_id,
-    ulica_id,
-    drzava_id,
-    grad_id,
-    opstina_id,
-    lokacija_id,
-    'Modern stan u centru Beograda',
+    ulica_id_1,
+    drzava_id_1,
+    grad_id_1,
+    opstina_id_1,
+    lokacija_id_1,
+    'Modern stan u centru',
     'Marko Petrovic',
     '+381 60 123 4567',
     65.5,
@@ -229,11 +280,11 @@ BEGIN
     vrsta_id,
     CURRENT_DATE,
     korisnik_id,
-    ulica_id,
-    drzava_id,
-    grad_id,
-    opstina_id,
-    lokacija_id,
+    ulica_id_2,
+    drzava_id_2,
+    grad_id_2,
+    opstina_id_2,
+    lokacija_id_2,
     'Luksuzni apartman sa panoramskim pogledom',
     'Ana Jovanovic',
     '+381 64 987 6543',
@@ -314,11 +365,11 @@ BEGIN
     vrsta_id,
     CURRENT_DATE,
     korisnik_id,
-    ulica_id,
-    drzava_id,
-    grad_id,
-    opstina_id,
-    lokacija_id,
+    ulica_id_3,
+    drzava_id_3,
+    grad_id_3,
+    opstina_id_3,
+    lokacija_id_3,
     'Prostran porodični dom sa baštom',
     'Petar Nikolic',
     '+381 61 555 8888',
@@ -398,11 +449,11 @@ BEGIN
     vrsta_id,
     CURRENT_DATE,
     korisnik_id,
-    ulica_id,
-    drzava_id,
-    grad_id,
-    opstina_id,
-    lokacija_id,
+    ulica_id_4,
+    drzava_id_4,
+    grad_id_4,
+    opstina_id_4,
+    lokacija_id_4,
     'Komforan studio apartman',
     'Jovana Markovic',
     '+381 62 777 9999',
@@ -485,11 +536,11 @@ BEGIN
     vrsta_id,
     CURRENT_DATE,
     korisnik_id,
-    ulica_id,
-    drzava_id,
-    grad_id,
-    opstina_id,
-    lokacija_id,
+    ulica_id_5,
+    drzava_id_5,
+    grad_id_5,
+    opstina_id_5,
+    lokacija_id_5,
     'Ekskluzivni penthouse sa terasom',
     'Milos Stojanovic',
     '+381 63 111 2222',
