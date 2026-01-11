@@ -260,7 +260,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
         { data: vrsteData },
         { data: drzaveData },
         { data: grejanjaData },
-        { data: investitoriData }
+        { data: investitoriData, error: investitoriError }
       ] = await Promise.all([
         supabase.from('vrstaobjekta').select('*').order('opis'),
         supabase.from('drzava').select('*').order('opis'),
@@ -268,10 +268,15 @@ export default function PonudaForm({ onClose, onSuccess }) {
         supabase.from('investitor').select('*').order('opis')
       ])
 
+      // Ako ima grešku sa investitor tabelom, loguj je ali ne prekidaj učitavanje
+      if (investitoriError) {
+        console.warn('⚠️ Greška pri učitavanju investitora (možda RLS problem):', investitoriError)
+      }
+
       setVrsteObjekata(vrsteData || [])
       setDrzave(drzaveData || [])
       setGrejanja(grejanjaData || [])
-      setInvestitori(investitoriData || [])
+      setInvestitori(investitoriData || []) // Može biti prazan array ako ima RLS problem
     } catch (error) {
       console.error('Greška pri učitavanju lookup podataka:', error)
     }
@@ -427,6 +432,15 @@ export default function PonudaForm({ onClose, onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
+    // DEBUG: Proveri da li se poziva slučajno
+    console.log('🔴 handleSubmit pozvan!', {
+      target: e.target,
+      currentTarget: e.currentTarget,
+      type: e.type,
+      stack: new Error().stack
+    })
+    
     setError('')
     setLoading(true)
 
@@ -1234,29 +1248,6 @@ export default function PonudaForm({ onClose, onSuccess }) {
             </div>
           </section>
 
-          {/* Fotografije */}
-          <section>
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <Upload className="w-5 h-5" />
-              Fotografije
-            </h3>
-            <div 
-              onClick={(e) => {
-                // Zaustavi propagaciju svih klikova unutar PhotoUpload komponente
-                e.stopPropagation()
-              }}
-              onKeyDown={(e) => {
-                // Spreči submit na Enter key
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  e.stopPropagation()
-                }
-              }}
-            >
-              <PhotoUpload photos={photos} onPhotosChange={setPhotos} />
-            </div>
-          </section>
-
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
               {error}
@@ -1281,6 +1272,17 @@ export default function PonudaForm({ onClose, onSuccess }) {
             </button>
           </div>
         </form>
+
+        {/* Fotografije - IZVUČENO VAN FORM ELEMENTA da spreči slučajni submit */}
+        <div className="p-4 sm:p-6 border-t border-gray-200">
+          <section>
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <Upload className="w-5 h-5" />
+              Fotografije
+            </h3>
+            <PhotoUpload photos={photos} onPhotosChange={setPhotos} />
+          </section>
+        </div>
       </div>
     </div>
   )
