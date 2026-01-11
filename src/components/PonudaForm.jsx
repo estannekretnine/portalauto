@@ -155,25 +155,75 @@ export default function PonudaForm({ onClose, onSuccess }) {
 
   useEffect(() => {
     if (formData.iddrzava) {
-      loadGradovi(formData.iddrzava)
+      loadGradovi(parseInt(formData.iddrzava))
+      // Resetuj zavisne dropdown-ove
+      setFormData(prev => ({
+        ...prev,
+        idgrada: '',
+        idopstina: '',
+        idlokacija: '',
+        idulica: ''
+      }))
+      setGradovi([])
+      setOpstine([])
+      setLokacije([])
+      setUlice([])
+    } else {
+      setGradovi([])
+      setOpstine([])
+      setLokacije([])
+      setUlice([])
     }
   }, [formData.iddrzava])
 
   useEffect(() => {
     if (formData.idgrada) {
-      loadOpstine(formData.idgrada)
+      loadOpstine(parseInt(formData.idgrada))
+      // Resetuj zavisne dropdown-ove
+      setFormData(prev => ({
+        ...prev,
+        idopstina: '',
+        idlokacija: '',
+        idulica: ''
+      }))
+      setOpstine([])
+      setLokacije([])
+      setUlice([])
+    } else {
+      setOpstine([])
+      setLokacije([])
+      setUlice([])
     }
   }, [formData.idgrada])
 
   useEffect(() => {
     if (formData.idopstina) {
-      loadLokacije(formData.idopstina)
+      loadLokacije(parseInt(formData.idopstina))
+      // Resetuj zavisne dropdown-ove
+      setFormData(prev => ({
+        ...prev,
+        idlokacija: '',
+        idulica: ''
+      }))
+      setLokacije([])
+      setUlice([])
+    } else {
+      setLokacije([])
+      setUlice([])
     }
   }, [formData.idopstina])
 
   useEffect(() => {
     if (formData.idlokacija) {
-      loadUlice(formData.idlokacija)
+      loadUlice(parseInt(formData.idlokacija))
+      // Resetuj zavisne dropdown-ove
+      setFormData(prev => ({
+        ...prev,
+        idulica: ''
+      }))
+      setUlice([])
+    } else {
+      setUlice([])
     }
   }, [formData.idlokacija])
 
@@ -202,53 +252,101 @@ export default function PonudaForm({ onClose, onSuccess }) {
 
   const loadGradovi = async (iddrzava) => {
     try {
-      const { data } = await supabase
+      if (!iddrzava) {
+        setGradovi([])
+        return
+      }
+      const { data, error } = await supabase
         .from('grad')
         .select('*')
-        .eq('iddrzava', iddrzava)
+        .eq('iddrzava', parseInt(iddrzava))
         .order('opis')
+      
+      if (error) {
+        console.error('Greška pri učitavanju gradova:', error)
+        setGradovi([])
+        return
+      }
+      
       setGradovi(data || [])
     } catch (error) {
       console.error('Greška pri učitavanju gradova:', error)
+      setGradovi([])
     }
   }
 
   const loadOpstine = async (idgrada) => {
     try {
-      const { data } = await supabase
+      if (!idgrada) {
+        setOpstine([])
+        return
+      }
+      const { data, error } = await supabase
         .from('opstina')
         .select('*')
-        .eq('idgrad', idgrada)
+        .eq('idgrad', parseInt(idgrada))
         .order('opis')
+      
+      if (error) {
+        console.error('Greška pri učitavanju opština:', error)
+        setOpstine([])
+        return
+      }
+      
       setOpstine(data || [])
     } catch (error) {
       console.error('Greška pri učitavanju opština:', error)
+      setOpstine([])
     }
   }
 
   const loadLokacije = async (idopstina) => {
     try {
-      const { data } = await supabase
+      if (!idopstina) {
+        setLokacije([])
+        return
+      }
+      const { data, error } = await supabase
         .from('lokacija')
         .select('*')
-        .eq('idopstina', idopstina)
+        .eq('idopstina', parseInt(idopstina))
         .order('opis')
+      
+      if (error) {
+        console.error('Greška pri učitavanju lokacija:', error)
+        setLokacije([])
+        return
+      }
+      
       setLokacije(data || [])
     } catch (error) {
       console.error('Greška pri učitavanju lokacija:', error)
+      setLokacije([])
     }
   }
 
   const loadUlice = async (idlokacija) => {
     try {
-      const { data } = await supabase
+      if (!idlokacija) {
+        setUlice([])
+        return
+      }
+      const { data, error } = await supabase
         .from('ulica')
         .select('*')
-        .eq('idlokacija', idlokacija)
+        .eq('idlokacija', parseInt(idlokacija))
         .order('opis')
+      
+      if (error) {
+        console.error('Greška pri učitavanju ulica:', error)
+        setUlice([])
+        return
+      }
+      
       setUlice(data || [])
     } catch (error) {
       console.error('Greška pri učitavanju ulica:', error)
+      setUlice([])
     }
   }
 
