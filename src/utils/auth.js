@@ -143,6 +143,13 @@ export const login = async (email, password) => {
     // Čuvamo korisnika u localStorage
     localStorage.setItem('user', JSON.stringify(korisnik))
     
+    // Postavi timestamp za login - koristi se za generisanje nove motivacione poruke
+    localStorage.setItem('login_timestamp', Date.now().toString())
+    
+    // Obriši sessionStorage za motivacionu poruku da se generiše nova
+    sessionStorage.removeItem('dashboard_motivacija')
+    sessionStorage.removeItem('dashboard_motivacija_timestamp')
+    
     return { data: korisnik, error: null }
   } catch (error) {
     console.error('❌ Login error:', error)

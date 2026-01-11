@@ -38,18 +38,24 @@ export default function WelcomeDashboard() {
   const [motivacionaPoruka, setMotivacionaPoruka] = useState('')
 
   useEffect(() => {
-    // Proveri da li već postoji poruka u sessionStorage
+    // Proveri timestamp logina iz localStorage (postavlja se pri svakom loginu)
+    const loginTimestamp = localStorage.getItem('login_timestamp')
     const savedPoruka = sessionStorage.getItem('dashboard_motivacija')
+    const savedTimestamp = sessionStorage.getItem('dashboard_motivacija_timestamp')
     
-    if (savedPoruka) {
-      setMotivacionaPoruka(savedPoruka)
-    } else {
+    // Ako nema poruke u sessionStorage ili ako je timestamp različit (novi login), generiši novu poruku
+    if (!savedPoruka || !savedTimestamp || savedTimestamp !== loginTimestamp) {
       // Generiši novu random poruku
       const randomIndex = Math.floor(Math.random() * motivacionePoruke.length)
       const novaPoruka = motivacionePoruke[randomIndex]
       setMotivacionaPoruka(novaPoruka)
-      // Sačuvaj u sessionStorage
+      
+      // Sačuvaj poruku i timestamp u sessionStorage
       sessionStorage.setItem('dashboard_motivacija', novaPoruka)
+      sessionStorage.setItem('dashboard_motivacija_timestamp', loginTimestamp || Date.now().toString())
+    } else {
+      // Koristi postojeću poruku iz ove sesije
+      setMotivacionaPoruka(savedPoruka)
     }
   }, [])
 
