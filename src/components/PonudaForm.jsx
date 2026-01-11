@@ -74,6 +74,14 @@ export default function PonudaForm({ onClose, onSuccess }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   
+  // DEBUG: Proveri da li se onClose/onSuccess pozivaju negde drugde
+  useEffect(() => {
+    console.log('🔵 PonudaForm montiran, onClose:', typeof onClose, 'onSuccess:', typeof onSuccess)
+    return () => {
+      console.log('🔴 PonudaForm unmount-ovan')
+    }
+  }, [])
+  
   // Osnovne informacije
   const [formData, setFormData] = useState({
     idvrstaobjekta: '',
@@ -605,6 +613,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
       }
 
       // Zatvori formu i osveži listu samo nakon uspešnog čuvanja
+      console.log('✅ Uspešno sačuvano, zatvaram formu...')
       onSuccess()
       onClose()
     } catch (err) {
@@ -623,14 +632,34 @@ export default function PonudaForm({ onClose, onSuccess }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl my-auto max-h-[95vh] overflow-y-auto">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto"
+      onClick={(e) => {
+        // Zatvori formu samo ako se klikne na backdrop (tamni deo), ne na formu
+        if (e.target === e.currentTarget) {
+          console.log('🖱️ Klik na backdrop, zatvaram formu')
+          onClose()
+        }
+      }}
+    >
+      <div 
+        className="bg-white rounded-lg shadow-xl w-full max-w-6xl my-auto max-h-[95vh] overflow-y-auto"
+        onClick={(e) => {
+          // Zaustavi propagaciju klikova unutar forme
+          e.stopPropagation()
+        }}
+      >
         <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex justify-between items-center z-10">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
             Dodaj novu ponudu
           </h2>
           <button
-            onClick={onClose}
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              console.log('❌ X dugme kliknuto, zatvaram formu')
+              onClose()
+            }}
             className="text-gray-400 hover:text-gray-600 transition-colors"
           >
             <X className="w-6 h-6" />
@@ -1257,7 +1286,11 @@ export default function PonudaForm({ onClose, onSuccess }) {
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
             <button
               type="button"
-              onClick={onClose}
+              onClick={(e) => {
+                e.stopPropagation()
+                console.log('🚫 Otkaži dugme kliknuto, zatvaram formu')
+                onClose()
+              }}
               className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Otkaži

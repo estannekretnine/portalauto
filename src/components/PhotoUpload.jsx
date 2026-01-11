@@ -5,6 +5,7 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
   const [dragActive, setDragActive] = useState(false)
 
   const handleFiles = (files) => {
+    console.log('📸 handleFiles pozvan, broj fajlova:', files.length)
     const fileArray = Array.from(files)
     const maxRedosled = photos.length > 0 ? Math.max(...photos.map(p => p.redosled || 0)) : 0
     const newPhotos = fileArray.map((file, index) => ({
@@ -16,6 +17,7 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
       glavna: photos.length === 0 && index === 0 // Prva fotografija je glavna ako nema postojećih
     }))
     
+    console.log('📸 Dodajem fotografije, ukupno:', photos.length + newPhotos.length)
     onPhotosChange([...photos, ...newPhotos])
   }
 
@@ -73,10 +75,12 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
   }
 
   const toggleGlavna = (id) => {
+    console.log('⭐ toggleGlavna pozvan za ID:', id)
     const updatedPhotos = photos.map(photo => ({
       ...photo,
       glavna: photo.id === id ? !photo.glavna : false // Samo jedna može biti glavna
     }))
+    console.log('⭐ Ažurirane fotografije:', updatedPhotos.map(p => ({ id: p.id, glavna: p.glavna })))
     onPhotosChange(updatedPhotos)
   }
 
