@@ -116,13 +116,13 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 transform ${
+        className={`fixed lg:static inset-y-0 left-0 z-40 ${collapsed ? 'w-16' : 'w-64'} bg-white border-r border-gray-200 transform ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } transition-transform duration-200 ease-in-out h-screen`}
+        } transition-all duration-200 ease-in-out h-screen`}
         aria-label="Glavna navigacija"
       >
         <div className="flex flex-col h-full">
-          <div className={`p-4 sm:p-6 border-b border-gray-200 ${collapsed ? 'px-2' : ''}`}>
+          <div className={`p-4 sm:p-6 border-b border-gray-200 ${collapsed ? 'px-2 flex justify-center' : ''}`}>
             {!collapsed && (
               <>
                 <h2 className="text-base sm:text-lg font-bold text-gray-800">Navigacija</h2>
@@ -143,21 +143,22 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
                   <li key={item.id}>
                     <button
                       onClick={() => handleMenuItemClick(item.id)}
-                      className={`w-full flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition duration-150 text-sm sm:text-base ${
+                      className={`w-full flex items-center ${collapsed ? 'justify-center' : 'justify-between'} gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition duration-150 text-sm sm:text-base ${
                         isActive
                           ? 'bg-indigo-50 text-indigo-700 font-medium'
                           : 'text-gray-700 hover:bg-gray-100'
                       }`}
                       aria-current={isActive ? 'page' : undefined}
                       aria-label={`Navigiraj na ${item.label}`}
+                      title={collapsed ? item.label : undefined}
                       aria-expanded={item.hasSubmenu ? isExpanded : undefined}
                       type="button"
                     >
-                      <div className="flex items-center gap-2 sm:gap-3">
+                      <div className={`flex items-center ${collapsed ? 'justify-center' : ''} gap-2 sm:gap-3`}>
                         <Icon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" aria-hidden="true" />
-                        <span className="truncate">{item.label}</span>
+                        {!collapsed && <span className="truncate">{item.label}</span>}
                       </div>
-                      {item.hasSubmenu && (
+                      {!collapsed && item.hasSubmenu && (
                         isExpanded ? (
                           <ChevronDown className="w-4 h-4" aria-hidden="true" />
                         ) : (
@@ -178,20 +179,21 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
                             <li key={subItem.id}>
                               <button
                                 onClick={() => handleSubItemClick(subItem.id, hasSubmenu)}
-                                className={`w-full flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-lg transition duration-150 text-sm sm:text-base ${
+                                className={`w-full flex items-center ${collapsed ? 'justify-center' : 'justify-between'} gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-lg transition duration-150 text-sm sm:text-base ${
                                   isSubItemActive
                                     ? 'bg-indigo-100 text-indigo-700 font-medium'
                                     : 'text-gray-600 hover:bg-gray-50'
                                 }`}
                                 aria-current={isSubItemActive ? 'page' : undefined}
+                                title={collapsed ? subItem.label : undefined}
                                 aria-expanded={hasSubmenu ? isSubItemExpanded : undefined}
                                 type="button"
                               >
-                                <div className="flex items-center gap-2 sm:gap-3">
+                                <div className={`flex items-center ${collapsed ? 'justify-center' : ''} gap-2 sm:gap-3`}>
                                   <SubIcon className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
-                                  <span>{subItem.label}</span>
+                                  {!collapsed && <span>{subItem.label}</span>}
                                 </div>
-                                {hasSubmenu && (
+                                {!collapsed && hasSubmenu && (
                                   isSubItemExpanded ? (
                                     <ChevronDown className="w-4 h-4" aria-hidden="true" />
                                   ) : (
@@ -205,15 +207,16 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
                                     <li key={lokalitetSubItem.id}>
                                       <button
                                         onClick={() => handleLokalitetSubItemClick(lokalitetSubItem.id)}
-                                        className={`w-full text-left px-3 sm:px-4 py-2 rounded-lg transition duration-150 text-sm sm:text-base ${
+                                        className={`w-full ${collapsed ? 'text-center' : 'text-left'} px-3 sm:px-4 py-2 rounded-lg transition duration-150 text-sm sm:text-base ${
                                           activeModule === lokalitetSubItem.id
                                             ? 'bg-indigo-100 text-indigo-700 font-medium'
                                             : 'text-gray-600 hover:bg-gray-50'
                                         }`}
                                         aria-current={activeModule === lokalitetSubItem.id ? 'page' : undefined}
+                                        title={collapsed ? lokalitetSubItem.label : undefined}
                                         type="button"
                                       >
-                                        {lokalitetSubItem.label}
+                                        {!collapsed && lokalitetSubItem.label}
                                       </button>
                                     </li>
                                   ))}
