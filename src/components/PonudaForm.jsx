@@ -1041,9 +1041,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
               </div>
 
               {/* Ulica + Broj ulice + Latitude + Longitude - desna strana (1/2 širine) */}
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {/* Ulica - autocomplete za pretragu, ispod Status */}
-                <div data-ulica-autocomplete className="col-span-1">
+                <div data-ulica-autocomplete>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Ulica <span className="text-red-500">*</span>
                   </label>
@@ -1148,8 +1148,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   </div>
                 </div>
 
-                {/* Broj ulice, Latitude, Longitude - 3 polja, ukupna širina kao Ulica (3 kolone = 1 kolona) */}
-                <div className="col-span-3 grid grid-cols-3 gap-2">
+                {/* Broj ulice, Latitude, Longitude - 3 polja, ukupna širina kao Ulica (1/2 desne strane) */}
+                <div className="grid grid-cols-3 gap-2">
                   {/* Broj ulice */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
