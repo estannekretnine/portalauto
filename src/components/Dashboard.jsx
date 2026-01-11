@@ -12,10 +12,11 @@ import OpstinaModule from './lokalitet/OpstinaModule'
 import LokacijaModule from './lokalitet/LokacijaModule'
 import UlicaModule from './lokalitet/UlicaModule'
 import PonudeModule from './PonudeModule'
+import WelcomeDashboard from './WelcomeDashboard'
 import { LogOut, Menu } from 'lucide-react'
 
 export default function Dashboard() {
-  const [activeModule, setActiveModule] = useState('vrstaobjekta')
+  const [activeModule, setActiveModule] = useState(null)
   const [user, setUser] = useState(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const navigate = useNavigate()
@@ -84,6 +85,7 @@ export default function Dashboard() {
         </header>
 
         <main className="flex-1 p-3 sm:p-4 lg:p-6 xl:p-8 overflow-auto">
+          {!activeModule && <WelcomeDashboard />}
           {activeModule === 'ponude' && <PonudeModule />}
           {activeModule === 'vrstaobjekta' && <VrstaObjektaModule />}
           {activeModule === 'lokalitet-drzava' && <DrzavaModule />}
