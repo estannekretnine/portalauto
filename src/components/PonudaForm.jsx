@@ -939,7 +939,25 @@ export default function PonudaForm({ onClose, onSuccess }) {
                       type="text"
                       value={ulicaSearchTerm}
                       onChange={(e) => {
-                        setUlicaSearchTerm(e.target.value)
+                        const value = e.target.value
+                        setUlicaSearchTerm(value)
+                        
+                        // Ako je ulica već odabrana, ekstraktuj broj ulice iz teksta
+                        if (formData.idulica && value.trim()) {
+                          const selectedUlica = sveUliceSaRelacijama.find(u => u.id === parseInt(formData.idulica))
+                          if (selectedUlica) {
+                            const nazivUlice = selectedUlica.opis
+                            // Ako tekst počinje sa nazivom ulice, ostatak je broj
+                            if (value.startsWith(nazivUlice)) {
+                              const brojPart = value.substring(nazivUlice.length).trim()
+                              setFormData(prev => ({ ...prev, brojulice: brojPart }))
+                            } else {
+                              // Ako tekst ne počinje sa nazivom ulice, korisnik kuca novi tekst za pretragu
+                              setFormData(prev => ({ ...prev, idulica: '', brojulice: '' }))
+                            }
+                          }
+                        }
+                        
                         setShowUlicaDropdown(true)
                       }}
                       onFocus={() => {
