@@ -1,7 +1,7 @@
 import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
-const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
+const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = false }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMaticniPodaciOpen, setIsMaticniPodaciOpen] = useState(false)
   const [isLokalitetOpen, setIsLokalitetOpen] = useState(false)
@@ -122,10 +122,14 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
         aria-label="Glavna navigacija"
       >
         <div className="flex flex-col h-full">
-          <div className="p-4 sm:p-6 border-b border-gray-200">
-            <h2 className="text-base sm:text-lg font-bold text-gray-800">Navigacija</h2>
-            {user && (
-              <p className="text-xs sm:text-sm text-gray-600 mt-1 truncate">{user.naziv || user.email}</p>
+          <div className={`p-4 sm:p-6 border-b border-gray-200 ${collapsed ? 'px-2' : ''}`}>
+            {!collapsed && (
+              <>
+                <h2 className="text-base sm:text-lg font-bold text-gray-800">Navigacija</h2>
+                {user && (
+                  <p className="text-xs sm:text-sm text-gray-600 mt-1 truncate">{user.naziv || user.email}</p>
+                )}
+              </>
             )}
           </div>
           <nav className="flex-1 p-3 sm:p-4 overflow-y-auto" aria-label="Glavni meni">
@@ -161,7 +165,7 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
                         )
                       )}
                     </button>
-                    {item.hasSubmenu && isExpanded && (
+                    {!collapsed && item.hasSubmenu && isExpanded && (
                       <ul className="ml-6 sm:ml-8 mt-2 space-y-1">
                         {item.subItems.map((subItem) => {
                           const SubIcon = subItem.icon
@@ -195,7 +199,7 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user }) => {
                                   )
                                 )}
                               </button>
-                              {hasSubmenu && isSubItemExpanded && subItem.subItems && (
+                              {!collapsed && hasSubmenu && isSubItemExpanded && subItem.subItems && (
                                 <ul className="ml-4 sm:ml-6 mt-1 space-y-1">
                                   {subItem.subItems.map((lokalitetSubItem) => (
                                     <li key={lokalitetSubItem.id}>

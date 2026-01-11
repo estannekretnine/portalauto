@@ -12,7 +12,7 @@ import GradModule from './lokalitet/GradModule'
 import OpstinaModule from './lokalitet/OpstinaModule'
 import LokacijaModule from './lokalitet/LokacijaModule'
 import UlicaModule from './lokalitet/UlicaModule'
-import { LogOut } from 'lucide-react'
+import { LogOut, Menu, X } from 'lucide-react'
 
 export default function Dashboard() {
   const [activeModule, setActiveModule] = useState('ponude')
