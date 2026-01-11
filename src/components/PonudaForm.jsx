@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../utils/supabase'
 import { getCurrentUser } from '../utils/auth'
 import PhotoUpload from './PhotoUpload'
-import { Save, X, Upload, Building2, MapPin, DollarSign, Ruler, Info } from 'lucide-react'
+import { Save, X, Upload, Building2, MapPin, DollarSign, Ruler, Info, Search, ChevronDown } from 'lucide-react'
 
 // Definicija polja po vrstama objekata
 const FIELD_DEFINITIONS = {
@@ -90,6 +90,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
     idopstina: '',
     idlokacija: '',
     idulica: '',
+    brojulice: '',
     naslovaoglasa: '',
     kontaktosoba: '',
     brojtelefona: '',
@@ -171,13 +172,66 @@ export default function PonudaForm({ onClose, onSuccess }) {
   const [ulice, setUlice] = useState([])
   const [grejanja, setGrejanja] = useState([])
   const [investitori, setInvestitori] = useState([])
+  
+  // Autocomplete za ulice
+  const [ulicaSearchTerm, setUlicaSearchTerm] = useState('')
+  const [filteredUlice, setFilteredUlice] = useState([])
+  const [showUlicaDropdown, setShowUlicaDropdown] = useState(false)
+  const [sveUliceSaRelacijama, setSveUliceSaRelacijama] = useState([])
 
   // Selektovana vrsta objekta
   const [selectedVrstaObjekta, setSelectedVrstaObjekta] = useState(null)
 
   useEffect(() => {
     loadLookupData()
+    loadSveUliceSaRelacijama() // Učitaj sve ulice sa relacijama za autocomplete
   }, [])
+  
+  // Zatvori dropdown kada se klikne van njega
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('[data-ulica-autocomplete]')) {
+        setShowUlicaDropdown(false)
+      }
+    }
+    
+    if (showUlicaDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showUlicaDropdown])
+  
+  // Postavi tekst odabrane ulice kada se promeni formData.idulica
+  useEffect(() => {
+    if (formData.idulica && sveUliceSaRelacijama.length > 0) {
+      const selectedUlica = sveUliceSaRelacijama.find(u => u.id === parseInt(formData.idulica))
+      if (selectedUlica && ulicaSearchTerm !== selectedUlica.opis) {
+        setUlicaSearchTerm(selectedUlica.opis)
+      }
+    } else if (!formData.idulica && ulicaSearchTerm) {
+      // Resetuj ako nije odabrana ulica
+      setUlicaSearchTerm('')
+    }
+  }, [formData.idulica, sveUliceSaRelacijama])
+  
+  useEffect(() => {
+    // Filtriraj ulice na osnovu search term-a
+    if (ulicaSearchTerm.trim() === '') {
+      setFilteredUlice([])
+      setShowUlicaDropdown(false)
+      return
+    }
+    
+    const filtered = sveUliceSaRelacijama.filter(ulica => 
+      ulica.opis.toLowerCase().includes(ulicaSearchTerm.toLowerCase()) ||
+      ulica.lokacija?.opis?.toLowerCase().includes(ulicaSearchTerm.toLowerCase()) ||
+      ulica.opstina?.opis?.toLowerCase().includes(ulicaSearchTerm.toLowerCase()) ||
+      ulica.grad?.opis?.toLowerCase().includes(ulicaSearchTerm.toLowerCase())
+    )
+    
+    setFilteredUlice(filtered.slice(0, 10)) // Maksimum 10 rezultata
+    setShowUlicaDropdown(filtered.length > 0)
+  }, [ulicaSearchTerm, sveUliceSaRelacijama])
 
   useEffect(() => {
     if (formData.idvrstaobjekta) {
@@ -398,6 +452,108 @@ export default function PonudaForm({ onClose, onSuccess }) {
     }
   }
 
+  // Učitaj sve ulice sa relacijama za autocomplete
+  const loadSveUliceSaRelacijama = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('ulica')
+        .select(`
+          id,
+          opis,
+          idlokacija,
+          lokacija:lokacija!ulica_idlokacija_fkey (
+            id,
+            opis,
+            idopstina,
+            opstina:opstina!lokacija_idopstina_fkey (
+              id,
+              opis,
+              idgrad,
+              grad:grad!opstina_idgrad_fkey (
+                id,
+                opis,
+                iddrzave,
+                drzava:drzava!grad_iddrzave_fkey (
+                  id,
+                  opis
+                )
+              )
+            )
+          )
+        `)
+        .order('opis')
+      
+      if (error) {
+        console.error('Greška pri učitavanju ulica sa relacijama:', error)
+        setSveUliceSaRelacijama([])
+        return
+      }
+      
+      // Transformiši podatke za lakši pristup
+      const transformedData = (data || []).map(ulica => ({
+        id: ulica.id,
+        opis: ulica.opis,
+        idlokacija: ulica.idlokacija,
+        lokacija: ulica.lokacija ? {
+          id: ulica.lokacija.id,
+          opis: ulica.lokacija.opis,
+          idopstina: ulica.lokacija.idopstina,
+          opstina: ulica.lokacija.opstina ? {
+            id: ulica.lokacija.opstina.id,
+            opis: ulica.lokacija.opstina.opis,
+            idgrad: ulica.lokacija.opstina.idgrad,
+            grad: ulica.lokacija.opstina.grad ? {
+              id: ulica.lokacija.opstina.grad.id,
+              opis: ulica.lokacija.opstina.grad.opis,
+              iddrzave: ulica.lokacija.opstina.grad.iddrzave,
+              drzava: ulica.lokacija.opstina.grad.drzava
+            } : null
+          } : null
+        } : null
+      }))
+      
+      setSveUliceSaRelacijama(transformedData)
+    } catch (error) {
+      console.error('Greška pri učitavanju ulica sa relacijama:', error)
+      setSveUliceSaRelacijama([])
+    }
+  }
+
+  // Handler za odabir ulice iz autocomplete-a
+  const handleUlicaSelect = (ulica) => {
+    if (!ulica || !ulica.lokacija) return
+    
+    const lokacija = ulica.lokacija
+    const opstina = lokacija.opstina
+    const grad = opstina?.grad
+    const drzava = grad?.drzava
+    
+    // Popuni sva polja
+    setFormData(prev => ({
+      ...prev,
+      iddrzava: drzava?.id?.toString() || '',
+      idgrada: grad?.id?.toString() || '',
+      idopstina: opstina?.id?.toString() || '',
+      idlokacija: lokacija.id.toString(),
+      idulica: ulica.id.toString()
+    }))
+    
+    // Postavi tekst za prikaz
+    setUlicaSearchTerm(ulica.opis)
+    setShowUlicaDropdown(false)
+    
+    // Učitaj zavisne podatke ako treba
+    if (drzava?.id) {
+      loadGradovi(drzava.id)
+    }
+    if (grad?.id) {
+      loadOpstine(grad.id)
+    }
+    if (opstina?.id) {
+      loadLokacije(opstina.id)
+    }
+  }
+
   const getVisibleFields = () => {
     const allFields = FIELD_DEFINITIONS.all || []
     if (!selectedVrstaObjekta) return allFields
@@ -542,6 +698,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
       if (formData.idopstina) ponudaData.idopstina = parseInt(formData.idopstina)
       if (formData.idlokacija) ponudaData.idlokacija = parseInt(formData.idlokacija)
       if (formData.idulica) ponudaData.idulica = parseInt(formData.idulica)
+      if (formData.brojulice) ponudaData.brojulice = formData.brojulice.trim()
 
       // JSONB detalji - struktura
       const detaljiArray = []
@@ -729,88 +886,137 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 </select>
               </div>
 
+              {/* Autocomplete za ulice - ovo automatski popunjava sva polja */}
+              <div className="md:col-span-2" data-ulica-autocomplete>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Ulica *
+                </label>
+                <div className="relative">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      value={ulicaSearchTerm}
+                      onChange={(e) => {
+                        setUlicaSearchTerm(e.target.value)
+                        setShowUlicaDropdown(true)
+                      }}
+                      onFocus={() => {
+                        if (filteredUlice.length > 0 || ulicaSearchTerm.trim() !== '') {
+                          setShowUlicaDropdown(true)
+                        }
+                      }}
+                      placeholder="Kucajte naziv ulice za pretragu..."
+                      className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    />
+                    {ulicaSearchTerm && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setUlicaSearchTerm('')
+                          setFormData(prev => ({
+                            ...prev,
+                            iddrzava: '',
+                            idgrada: '',
+                            idopstina: '',
+                            idlokacija: '',
+                            idulica: '',
+                            brojulice: ''
+                          }))
+                          setShowUlicaDropdown(false)
+                        }}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  
+                  {/* Dropdown sa rezultatima */}
+                  {showUlicaDropdown && filteredUlice.length > 0 && (
+                    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      {filteredUlice.map((ulica) => {
+                        const lokacija = ulica.lokacija
+                        const opstina = lokacija?.opstina
+                        const grad = opstina?.grad
+                        const drzava = grad?.drzava
+                        const fullPath = [
+                          drzava?.opis,
+                          grad?.opis,
+                          opstina?.opis,
+                          lokacija?.opis,
+                          ulica.opis
+                        ].filter(Boolean).join(', ')
+                        
+                        return (
+                          <button
+                            key={ulica.id}
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              handleUlicaSelect(ulica)
+                            }}
+                            className="w-full text-left px-4 py-3 hover:bg-indigo-50 border-b border-gray-100 last:border-b-0 transition-colors"
+                          >
+                            <div className="font-medium text-gray-900">{ulica.opis}</div>
+                            <div className="text-sm text-gray-500 truncate">{fullPath}</div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Read-only polja - automatski popunjava se izborom ulice */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Država
                 </label>
-                <select
-                  value={formData.iddrzava}
-                  onChange={(e) => handleFieldChange('iddrzava', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                >
-                  <option value="">Izaberite državu</option>
-                  {drzave.map(drzava => (
-                    <option key={drzava.id} value={drzava.id}>{drzava.opis}</option>
-                  ))}
-                </select>
+                <input
+                  type="text"
+                  value={drzave.find(d => d.id === parseInt(formData.iddrzava))?.opis || ''}
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
+                />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Grad
                 </label>
-                <select
-                  value={formData.idgrada}
-                  onChange={(e) => handleFieldChange('idgrada', e.target.value)}
-                  disabled={!formData.iddrzava}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-100"
-                >
-                  <option value="">Izaberite grad</option>
-                  {gradovi.map(grad => (
-                    <option key={grad.id} value={grad.id}>{grad.opis}</option>
-                  ))}
-                </select>
+                <input
+                  type="text"
+                  value={gradovi.find(g => g.id === parseInt(formData.idgrada))?.opis || ''}
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
+                />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Opština
                 </label>
-                <select
-                  value={formData.idopstina}
-                  onChange={(e) => handleFieldChange('idopstina', e.target.value)}
-                  disabled={!formData.idgrada}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-100"
-                >
-                  <option value="">Izaberite opštinu</option>
-                  {opstine.map(opstina => (
-                    <option key={opstina.id} value={opstina.id}>{opstina.opis}</option>
-                  ))}
-                </select>
+                <input
+                  type="text"
+                  value={opstine.find(o => o.id === parseInt(formData.idopstina))?.opis || ''}
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
+                />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Lokacija
                 </label>
-                <select
-                  value={formData.idlokacija}
-                  onChange={(e) => handleFieldChange('idlokacija', e.target.value)}
-                  disabled={!formData.idopstina}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-100"
-                >
-                  <option value="">Izaberite lokaciju</option>
-                  {lokacije.map(lokacija => (
-                    <option key={lokacija.id} value={lokacija.id}>{lokacija.opis}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Ulica
-                </label>
-                <select
-                  value={formData.idulica}
-                  onChange={(e) => handleFieldChange('idulica', e.target.value)}
-                  disabled={!formData.idlokacija}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-100"
-                >
-                  <option value="">Izaberite ulicu</option>
-                  {ulice.map(ulica => (
-                    <option key={ulica.id} value={ulica.id}>{ulica.opis}</option>
-                  ))}
-                </select>
+                <input
+                  type="text"
+                  value={lokacije.find(l => l.id === parseInt(formData.idlokacija))?.opis || ''}
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
+                />
               </div>
 
               {fieldsBySection.osnovne.map(field => (
