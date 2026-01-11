@@ -190,6 +190,11 @@ export default function PonudeModule() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters])
 
+  // Resetuj na prvu stranicu kada se filteri promene
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filters])
+
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }))
   }
@@ -246,11 +251,6 @@ export default function PonudeModule() {
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
   const paginatedPonude = ponude.slice(startIndex, endIndex)
-
-  // Resetuj na prvu stranicu kada se filteri promene
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [filters])
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
