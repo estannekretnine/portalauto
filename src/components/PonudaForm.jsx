@@ -203,6 +203,19 @@ export default function PonudaForm({ onClose, onSuccess }) {
     loadSveUliceSaRelacijama() // Učitaj sve ulice sa relacijama za autocomplete
   }, [])
   
+  // Osveži mapu kada se modal otvori
+  useEffect(() => {
+    if (showMapModal && mapInstanceRef.current) {
+      // Osveži mapu nakon što se DOM renderuje
+      const timer = setTimeout(() => {
+        if (mapInstanceRef.current && typeof mapInstanceRef.current.invalidateSize === 'function') {
+          mapInstanceRef.current.invalidateSize()
+        }
+      }, 200)
+      return () => clearTimeout(timer)
+    }
+  }, [showMapModal])
+  
   // Zatvori dropdown kada se klikne van njega
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -1379,22 +1392,12 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Latitude
                 </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={formData.latitude || ''}
-                    onChange={(e) => handleFieldChange('latitude', e.target.value)}
-                    className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleShowLocationOnMap}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-indigo-600 p-1"
-                    title="Prikaži lokaciju na mapi"
-                  >
-                    <Search className="w-5 h-5" />
-                  </button>
-                </div>
+                <input
+                  type="text"
+                  value={formData.latitude || ''}
+                  onChange={(e) => handleFieldChange('latitude', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
               </div>
 
               <div>
