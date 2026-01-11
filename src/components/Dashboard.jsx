@@ -17,6 +17,7 @@ import { LogOut, Menu, X } from 'lucide-react'
 export default function Dashboard() {
   const [activeModule, setActiveModule] = useState('ponude')
   const [user, setUser] = useState(null)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
