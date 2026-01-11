@@ -3,6 +3,9 @@ import { supabase } from '../utils/supabase'
 import { getCurrentUser } from '../utils/auth'
 import PhotoUpload from './PhotoUpload'
 import { Save, X, Upload, Building2, MapPin, DollarSign, Ruler, Info, Search, ChevronDown } from 'lucide-react'
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 
 // Definicija polja po vrstama objekata
 const FIELD_DEFINITIONS = {
@@ -600,6 +603,99 @@ export default function PonudaForm({ onClose, onSuccess }) {
     setTimeout(() => {
       isSelectingUlicaRef.current = false
     }, 200)
+  }
+
+  // Funkcija za primenu nasumičnog pomeranja koordinata (100-500m) za zaštitu privatnosti
+  const applyPrivacyOffset = (lat, lng) => {
+    // Random ugao (0-360 stepeni)
+    const angle = Math.random() * 2 * Math.PI
+    // Random rastojanje (100-500 metara)
+    const distance = 100 + Math.random() * 400
+    
+    // Konverzija metara u stepene (približno)
+    // 1 stepen latitude ≈ 111,320 metara
+    // 1 stepen longitude ≈ 111,320 * cos(latitude) metara
+    const latOffset = (distance * Math.cos(angle)) / 111320
+    const lngOffset = (distance * Math.sin(angle)) / (111320 * Math.cos(lat * Math.PI / 180))
+    
+    return {
+      lat: parseFloat(lat) + latOffset,
+      lng: parseFloat(lng) + lngOffset
+    }
+  }
+  
+  // Funkcija za geokodiranje adrese u koordinate
+  const geocodeAddress = async (ulica, brojulice, lokacija, opstina, grad, drzava) => {
+    try {
+      // Kreiraj adresu string
+      const addressParts = []
+      if (ulica) addressParts.push(ulica)
+      if (brojulice) addressParts.push(brojulice)
+      if (lokacija) addressParts.push(lokacija)
+      if (opstina) addressParts.push(opstina)
+      if (grad) addressParts.push(grad)
+      if (drzava) addressParts.push(drzava)
+      
+      const address = addressParts.join(', ')
+      if (!address.trim()) return null
+      
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`,
+        {
+          headers: {
+            'User-Agent': 'RealEstateApp/1.0'
+          }
+        }
+      )
+      const data = await response.json()
+      
+      if (data && data.length > 0) {
+        const result = data[0]
+        // Primena nasumičnog pomeranja za zaštitu privatnosti
+        const offsetCoords = applyPrivacyOffset(result.lat, result.lon)
+        return offsetCoords
+      }
+      return null
+    } catch (error) {
+      console.error('Greška pri geokodiranju adrese:', error)
+      return null
+    }
+  }
+  
+  // Funkcija za automatsko prikazivanje lokacije na mapi
+  const handleShowLocationOnMap = async () => {
+    if (!formData.idulica) {
+      alert('Molimo prvo izaberite ulicu')
+      return
+    }
+    
+    const selectedUlica = sveUliceSaRelacijama.find(u => u.id === parseInt(formData.idulica))
+    if (!selectedUlica || !selectedUlica.lokacija) {
+      alert('Nije moguće prikazati lokaciju. Proverite da li je ulica pravilno odabrana.')
+      return
+    }
+    
+    const lokacija = selectedUlica.lokacija
+    const opstina = lokacija?.opstina
+    const grad = opstina?.grad
+    const drzava = grad?.drzava
+    
+    const coords = await geocodeAddress(
+      selectedUlica.opis,
+      formData.brojulice || '',
+      lokacija?.opis || '',
+      opstina?.opis || '',
+      grad?.opis || '',
+      drzava?.opis || ''
+    )
+    
+    if (coords) {
+      setMapCenter([coords.lat, coords.lng])
+      setMarkerPosition([coords.lat, coords.lng])
+      setShowMapModal(true)
+    } else {
+      alert('Nije moguće pronaći lokaciju na mapi. Pokušajte ručno da kliknete na mapu.')
+    }
   }
 
   const getVisibleFields = () => {
@@ -1253,115 +1349,48 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Lokacija na mapi
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    id="map-search"
-                    placeholder="Pretražite adresu na mapi (npr. Beograd, Knez Mihailova 1)"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    onKeyDown={async (e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        const searchTerm = e.target.value.trim()
-                        if (!searchTerm) return
-                        
-                        try {
-                          const response = await fetch(
-                            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchTerm)}&limit=1`,
-                            {
-                              headers: {
-                                'User-Agent': 'RealEstateApp/1.0'
-                              }
-                            }
-                          )
-                          const data = await response.json()
-                          
-                          if (data && data.length > 0) {
-                            const result = data[0]
-                            handleFieldChange('latitude', result.lat)
-                            handleFieldChange('longitude', result.lon)
-                            e.target.value = result.display_name
-                          } else {
-                            alert('Adresa nije pronađena. Pokušajte sa drugim pojmom.')
-                          }
-                        } catch (error) {
-                          console.error('Greška pri pretrazi adrese:', error)
-                          alert('Greška pri pretrazi adrese. Pokušajte ponovo.')
-                        }
-                      }
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      const input = document.getElementById('map-search')
-                      const searchTerm = input.value.trim()
-                      if (!searchTerm) {
-                        alert('Unesite adresu za pretragu')
-                        return
-                      }
-                      
-                      try {
-                        const response = await fetch(
-                          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchTerm)}&limit=1`,
-                          {
-                            headers: {
-                              'User-Agent': 'RealEstateApp/1.0'
-                            }
-                          }
-                        )
-                        const data = await response.json()
-                        
-                        if (data && data.length > 0) {
-                          const result = data[0]
-                          handleFieldChange('latitude', result.lat)
-                          handleFieldChange('longitude', result.lon)
-                          input.value = result.display_name
-                        } else {
-                          alert('Adresa nije pronađena. Pokušajte sa drugim pojmom.')
-                        }
-                      } catch (error) {
-                        console.error('Greška pri pretrazi adrese:', error)
-                        alert('Greška pri pretrazi adrese. Pokušajte ponovo.')
-                      }
-                    }}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 flex items-center gap-2"
-                  >
-                    <MapPin className="w-4 h-4" />
-                    Pretraži
-                  </button>
-                </div>
-                <p className="mt-1 text-xs text-gray-500">
-                  Unesite adresu i kliknite "Pretraži" ili pritisnite Enter da biste automatski popunili Latitude i Longitude
-                </p>
-              </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Latitude
                 </label>
-                <input
-                  type="text"
-                  value={formData.latitude || ''}
-                  onChange={(e) => handleFieldChange('latitude', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={formData.latitude || ''}
+                    onChange={(e) => handleFieldChange('latitude', e.target.value)}
+                    className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleShowLocationOnMap}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-indigo-600 p-1"
+                    title="Prikaži lokaciju na mapi"
+                  >
+                    <Search className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Longitude
                 </label>
-                <input
-                  type="text"
-                  value={formData.longitude || ''}
-                  onChange={(e) => handleFieldChange('longitude', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={formData.longitude || ''}
+                    onChange={(e) => handleFieldChange('longitude', e.target.value)}
+                    className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleShowLocationOnMap}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-indigo-600 p-1"
+                    title="Prikaži lokaciju na mapi"
+                  >
+                    <Search className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
 
               <div>
