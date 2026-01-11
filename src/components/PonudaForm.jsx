@@ -1676,6 +1676,78 @@ export default function PonudaForm({ onClose, onSuccess }) {
           </section>
         </div>
       </div>
+      
+      {/* Modal sa mapom */}
+      {showMapModal && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowMapModal(false)
+            }
+          }}
+        >
+          <div 
+            className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-800">Izaberite lokaciju na mapi</h3>
+              <button
+                type="button"
+                onClick={() => setShowMapModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="flex-1 relative" style={{ height: '500px', minHeight: '400px' }}>
+              <MapContainer
+                center={mapCenter}
+                zoom={15}
+                style={{ height: '100%', width: '100%' }}
+                key={markerPosition ? `${markerPosition[0]}-${markerPosition[1]}` : 'map'}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                <MapClickHandler
+                  onMapClick={(lat, lng) => {
+                    const offsetCoords = applyPrivacyOffset(lat, lng)
+                    setMarkerPosition([offsetCoords.lat, offsetCoords.lng])
+                    handleFieldChange('latitude', offsetCoords.lat.toFixed(7))
+                    handleFieldChange('longitude', offsetCoords.lng.toFixed(7))
+                    setMapCenter([offsetCoords.lat, offsetCoords.lng])
+                  }}
+                />
+                {markerPosition && (
+                  <Marker position={markerPosition} />
+                )}
+              </MapContainer>
+            </div>
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowMapModal(false)}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+              >
+                Zatvori
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
+}
+
+// Komponenta za rukovanje klikom na mapu
+function MapClickHandler({ onMapClick }) {
+  useMapEvents({
+    click: (e) => {
+      onMapClick(e.latlng.lat, e.latlng.lng)
+    },
+  })
+  return null
 }
