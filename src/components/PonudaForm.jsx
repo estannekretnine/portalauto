@@ -187,6 +187,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
   const [showMapModal, setShowMapModal] = useState(false)
   const [mapCenter, setMapCenter] = useState([44.7866, 20.4489]) // Default: Beograd
   const [markerPosition, setMarkerPosition] = useState(null)
+  const mapInstanceRef = useRef(null)
   
   // Fix za Leaflet ikonice
   useEffect(() => {
