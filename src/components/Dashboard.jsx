@@ -52,10 +52,11 @@ export default function Dashboard() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors border border-gray-300 bg-white shadow-sm"
                   title={sidebarCollapsed ? 'Proširi navigaciju' : 'Smanji navigaciju'}
+                  aria-label={sidebarCollapsed ? 'Proširi navigaciju' : 'Smanji navigaciju'}
                 >
-                  <Menu className="w-5 h-5" />
+                  <Menu className="w-5 h-5 text-gray-700" />
                 </button>
                 <h1 className="text-lg sm:text-2xl font-bold text-gray-800">Agencija za Nekretnine</h1>
               </div>
