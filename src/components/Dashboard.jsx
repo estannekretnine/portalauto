@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { getCurrentUser, logout } from '../utils/auth'
 import { useNavigate } from 'react-router-dom'
 import Sidebar from './Sidebar'
-import PonudeModule from './PonudeModule'
 import VrstaObjektaModule from './VrstaObjektaModule'
 import GrejanjeModule from './GrejanjeModule'
 import InvestitorModule from './InvestitorModule'
@@ -83,7 +82,6 @@ export default function Dashboard() {
         </header>
 
         <main className="flex-1 p-3 sm:p-4 lg:p-6 xl:p-8 overflow-auto">
-          {activeModule === 'ponude' && <PonudeModule />}
           {activeModule === 'vrstaobjekta' && <VrstaObjektaModule />}
           {activeModule === 'lokalitet-drzava' && <DrzavaModule />}
           {activeModule === 'lokalitet-grad' && <GradModule />}
