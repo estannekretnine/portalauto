@@ -278,8 +278,8 @@ export default function KorisniciModule() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+    <div className="h-full flex flex-col space-y-4 sm:space-y-6">
+      <div className="flex-shrink-0 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
         <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Korisnici</h2>
         <button
           onClick={handleAdd}
@@ -292,7 +292,7 @@ export default function KorisniciModule() {
       </div>
 
       {korisnici.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-12 text-center">
+        <div className="flex-shrink-0 bg-white rounded-lg shadow p-12 text-center">
           <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-600 text-lg mb-2">Nema korisnika</p>
           <p className="text-gray-500 mb-4">Dodajte prvog korisnika</p>
@@ -304,10 +304,10 @@ export default function KorisniciModule() {
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="flex-1 min-h-0 bg-white rounded-lg shadow overflow-hidden flex flex-col">
           {/* Filter input - prikazuje se samo kada je sortColumn postavljen */}
           {sortColumn && (
-            <div className="p-3 sm:p-4 border-b border-gray-200 bg-gray-50">
+            <div className="flex-shrink-0 p-3 sm:p-4 border-b border-gray-200 bg-gray-50">
               <div className="flex items-center gap-2">
                 <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
                 <input
@@ -330,7 +330,7 @@ export default function KorisniciModule() {
             </div>
           )}
           {/* Desktop Table View */}
-          <div className="hidden md:block overflow-x-auto">
+          <div className="flex-1 min-h-0 hidden md:block overflow-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -511,7 +511,7 @@ export default function KorisniciModule() {
           </div>
           
           {/* Mobile Card View */}
-          <div className="md:hidden divide-y divide-gray-200">
+          <div className="flex-1 min-h-0 md:hidden overflow-auto divide-y divide-gray-200">
             {filteredAndSortedData.map((korisnik) => (
               <div key={korisnik.id} className="p-4 hover:bg-gray-50">
                 <div className="space-y-2 mb-3">
