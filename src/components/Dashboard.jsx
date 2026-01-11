@@ -14,7 +14,7 @@ import UlicaModule from './lokalitet/UlicaModule'
 import { LogOut, Menu } from 'lucide-react'
 
 export default function Dashboard() {
-  const [activeModule, setActiveModule] = useState('ponude')
+  const [activeModule, setActiveModule] = useState('vrstaobjekta')
   const [user, setUser] = useState(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const navigate = useNavigate()
