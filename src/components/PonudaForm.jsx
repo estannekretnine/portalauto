@@ -1273,28 +1273,49 @@ export default function PonudaForm({ onClose, onSuccess }) {
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {fieldsBySection.tehnicke.map(field => (
-                  <div key={field.key}>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {field.label}
-                    </label>
-                    {field.type === 'textarea' ? (
-                      <textarea
-                        value={formData[field.key] || ''}
-                        onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y"
-                        rows="3"
-                      />
-                    ) : (
-                      <input
-                        type={field.type}
-                        value={formData[field.key] || ''}
-                        onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                      />
-                    )}
-                  </div>
-                ))}
+                {fieldsBySection.tehnicke.map(field => {
+                  // Generiši opcije za strukturu od 0.5 do 15.0 sa korakom 0.5
+                  const strukturaOptions = []
+                  if (field.key === 'struktura') {
+                    for (let i = 0.5; i <= 15.0; i += 0.5) {
+                      strukturaOptions.push(i.toFixed(1))
+                    }
+                  }
+
+                  return (
+                    <div key={field.key}>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {field.label}
+                      </label>
+                      {field.key === 'struktura' ? (
+                        <select
+                          value={formData[field.key] || ''}
+                          onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        >
+                          <option value="">Izaberite strukturu</option>
+                          {strukturaOptions.map(option => (
+                            <option key={option} value={option}>{option}</option>
+                          ))}
+                        </select>
+                      ) : field.type === 'textarea' ? (
+                        <textarea
+                          value={formData[field.key] || ''}
+                          onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y"
+                          rows="3"
+                        />
+                      ) : (
+                        <input
+                          type={field.type}
+                          value={formData[field.key] || ''}
+                          onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        />
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             </section>
           )}

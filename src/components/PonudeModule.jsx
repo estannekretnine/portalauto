@@ -372,7 +372,7 @@ export default function PonudeModule() {
             {/* Struktura od */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Struktura od (m²)
+                Struktura od
               </label>
               <input
                 type="number"
@@ -387,7 +387,7 @@ export default function PonudeModule() {
             {/* Struktura do */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Struktura do (m²)
+                Struktura do
               </label>
               <input
                 type="number"
@@ -523,7 +523,7 @@ export default function PonudeModule() {
                     Kvadratura (m²)
                   </th>
                   <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Struktura (m²)
+                    Struktura
                   </th>
                   <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Cena
@@ -558,7 +558,7 @@ export default function PonudeModule() {
                       {ponuda.kvadratura ? `${ponuda.kvadratura} m²` : '-'}
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {ponuda.struktura ? `${ponuda.struktura} m²` : '-'}
+                      {ponuda.struktura ? parseFloat(ponuda.struktura).toFixed(1) : '-'}
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {formatCena(ponuda.cena)}
