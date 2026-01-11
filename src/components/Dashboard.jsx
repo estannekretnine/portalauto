@@ -42,13 +42,23 @@ export default function Dashboard() {
         activeModule={activeModule} 
         setActiveModule={setActiveModule}
         user={user}
+        collapsed={sidebarCollapsed}
       />
       
       <div className="flex-1 flex flex-col lg:ml-0">
         <header className="bg-white shadow-sm border-b border-gray-200">
           <div className="px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-              <h1 className="text-lg sm:text-2xl font-bold text-gray-800">Agencija za Nekretnine</h1>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  title={sidebarCollapsed ? 'Proširi navigaciju' : 'Smanji navigaciju'}
+                >
+                  {sidebarCollapsed ? <Menu className="w-5 h-5" /> : <X className="w-5 h-5" />}
+                </button>
+                <h1 className="text-lg sm:text-2xl font-bold text-gray-800">Agencija za Nekretnine</h1>
+              </div>
               <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
                 {isAdmin && (
                   <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">
