@@ -258,23 +258,53 @@ export default function PonudaForm({ onClose, onSuccess }) {
       }
       
       const drzavaId = parseInt(iddrzava)
+      console.log('🔍 Učitavanje gradova za državu ID:', drzavaId, 'Tip:', typeof drzavaId)
       
-      // Učitaj gradove gde je iddrzave jednak sa selektovanom državom (grad.iddrzave = drzava.id)
-      const { data, error } = await supabase
+      // Prvo učitaj sve gradove da vidimo strukturu
+      const { data: allGradovi, error: allError } = await supabase
+        .from('grad')
+        .select('*')
+        .limit(5)
+      
+      console.log('📋 Primer gradova iz baze (prvih 5):', allGradovi)
+      if (allError) {
+        console.error('❌ Greška pri učitavanju svih gradova:', allError)
+      }
+      
+      // Probaj sa iddrzave
+      const { data: data1, error: error1 } = await supabase
         .from('grad')
         .select('id, opis, iddrzave')
         .eq('iddrzave', drzavaId)
         .order('opis')
       
-      if (error) {
-        console.error('Greška pri učitavanju gradova:', error)
-        setGradovi([])
+      console.log('🔍 Rezultat sa iddrzave:', { data: data1, error: error1 })
+      
+      // Ako ne radi, probaj sa iddrzava
+      if (error1 || !data1 || data1.length === 0) {
+        console.log('⚠️ Probajem sa iddrzava...')
+        const { data: data2, error: error2 } = await supabase
+          .from('grad')
+          .select('id, opis, iddrzava')
+          .eq('iddrzava', drzavaId)
+          .order('opis')
+        
+        console.log('🔍 Rezultat sa iddrzava:', { data: data2, error: error2 })
+        
+        if (error2) {
+          console.error('❌ Greška pri učitavanju gradova:', error2)
+          setGradovi([])
+          return
+        }
+        
+        setGradovi(data2 || [])
         return
       }
       
-      setGradovi(data || [])
+      console.log('✅ Učitani gradovi:', data1)
+      setGradovi(data1 || [])
     } catch (error) {
-      console.error('Greška pri učitavanju gradova:', error)
+      console.error('❌ Greška pri učitavanju gradova:', error)
       setGradovi([])
     }
   }
