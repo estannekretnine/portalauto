@@ -349,7 +349,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
         supabase.from('vrstaobjekta').select('*').order('opis'),
         supabase.from('drzava').select('*').order('opis'),
         supabase.from('grejanje').select('*').order('opis'),
-        supabase.from('investitor').select('*').order('opis')
+        supabase.from('investitor').select('*').order('naziv')
       ])
 
       // Ako ima grešku sa investitor tabelom, loguj je ali ne prekidaj učitavanje
