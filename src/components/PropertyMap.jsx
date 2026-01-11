@@ -26,6 +26,8 @@ L.Icon.Default.mergeOptions({
  *   Poziva se kada se dobije lokacija iz Nominatim-a ili kada korisnik klikne na mapu.
  */
 export default function PropertyMap({ address, onLocationChange }) {
+  console.log('🗺️ PropertyMap render, address:', address)
+  
   const [position, setPosition] = useState(null) // { lat: number, lng: number } | null
   const [isGeocoding, setIsGeocoding] = useState(false)
   const [error, setError] = useState('')
@@ -44,7 +46,9 @@ export default function PropertyMap({ address, onLocationChange }) {
       .map(v => (typeof v === 'string' ? v.trim() : ''))
       .filter(Boolean)
 
-    return parts.join(', ')
+    const result = parts.join(', ')
+    console.log('🗺️ PropertyMap query:', result)
+    return result
   }, [address?.drzava, address?.grad, address?.opstina, address?.ulica, address?.broj])
 
   // Default centar (Beograd) — mapa uvek treba da se vidi i bez rezultata
@@ -77,8 +81,11 @@ export default function PropertyMap({ address, onLocationChange }) {
       try {
         setIsGeocoding(true)
         setError('')
+        console.log('🗺️ PropertyMap: Počinjem geokodiranje za query:', query)
 
         const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`
+        console.log('🗺️ PropertyMap: Nominatim URL:', url)
+        
         const res = await fetch(url, {
           method: 'GET',
           signal: controller.signal,
@@ -87,31 +94,49 @@ export default function PropertyMap({ address, onLocationChange }) {
           },
         })
 
+        console.log('🗺️ PropertyMap: Nominatim response status:', res.status, res.ok)
+
         if (!res.ok) {
           throw new Error(`Nominatim greška: ${res.status}`)
         }
 
         const data = await res.json()
+        console.log('🗺️ PropertyMap: Nominatim response data:', data)
+        
         const first = Array.isArray(data) && data.length > 0 ? data[0] : null
+        console.log('🗺️ PropertyMap: Prvi rezultat:', first)
 
         if (first?.lat && first?.lon) {
           const next = { lat: parseFloat(first.lat), lng: parseFloat(first.lon) }
+          console.log('🗺️ PropertyMap: Parsirane koordinate:', next)
+          
           if (!Number.isNaN(next.lat) && !Number.isNaN(next.lng)) {
             setPosition(next)
+            console.log('🗺️ PropertyMap: Postavljam position:', next)
             if (typeof onLocationChange === 'function') {
+              console.log('🗺️ PropertyMap: Pozivam onLocationChange:', next)
               onLocationChange(next)
+            } else {
+              console.warn('🗺️ PropertyMap: onLocationChange nije funkcija!')
             }
+          } else {
+            console.warn('🗺️ PropertyMap: Koordinate su NaN!', next)
           }
         } else {
           // Ako nema rezultata, ne brišemo poslednju validnu lokaciju (marker ostaje gde je bio)
+          console.warn('🗺️ PropertyMap: Nije pronađena lokacija za query:', query)
           setError('Nije pronađena lokacija za unetu adresu.')
         }
       } catch (e) {
-        if (e?.name === 'AbortError') return
-        console.error('Greška pri geokodiranju:', e)
+        if (e?.name === 'AbortError') {
+          console.log('🗺️ PropertyMap: Request abort-ovan')
+          return
+        }
+        console.error('🗺️ PropertyMap: Greška pri geokodiranju:', e)
         setError(e?.message || 'Greška pri geokodiranju')
       } finally {
         setIsGeocoding(false)
+        console.log('🗺️ PropertyMap: Geokodiranje završeno')
       }
     }, 750)
 
@@ -131,9 +156,13 @@ export default function PropertyMap({ address, onLocationChange }) {
     useMapEvents({
       click(e) {
         const next = { lat: e.latlng.lat, lng: e.latlng.lng }
+        console.log('🗺️ PropertyMap: Klik na mapu:', next)
         setPosition(next)
         if (typeof onLocationChange === 'function') {
+          console.log('🗺️ PropertyMap: Pozivam onLocationChange sa klikom:', next)
           onLocationChange(next)
+        } else {
+          console.warn('🗺️ PropertyMap: onLocationChange nije funkcija pri kliku!')
         }
       },
     })
@@ -150,12 +179,18 @@ export default function PropertyMap({ address, onLocationChange }) {
     return null
   }
 
+  const mapCenter = [position?.lat ?? defaultCenter.lat, position?.lng ?? defaultCenter.lng]
+  const mapZoom = position ? 15 : 12
+  
+  console.log('🗺️ PropertyMap: Render sa center:', mapCenter, 'zoom:', mapZoom, 'position:', position)
+
   return (
     <div className="w-full">
       <div className="rounded-lg overflow-hidden border border-gray-200 bg-white">
         <MapContainer
-          center={[position?.lat ?? defaultCenter.lat, position?.lng ?? defaultCenter.lng]}
-          zoom={position ? 15 : 12}
+          key={`map-${mapCenter[0]}-${mapCenter[1]}`}
+          center={mapCenter}
+          zoom={mapZoom}
           scrollWheelZoom
           style={{ height: 360, width: '100%' }}
         >
