@@ -994,7 +994,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
               </div>
             </div>
 
-            {/* Lokalitet ispod Vrsta objekta, Ulica ispod Status */}
+            {/* Lokalitet ispod Vrsta objekta, Ulica ispod Status sa Broj ulice/Latitude/Longitude */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               {/* Lokalitet - read-only polje, ispod Vrsta objekta */}
               <div>
