@@ -521,12 +521,30 @@ export default function PonudaForm({ onClose, onSuccess }) {
 
   // Handler za odabir ulice iz autocomplete-a
   const handleUlicaSelect = (ulica) => {
-    if (!ulica || !ulica.lokacija) return
+    console.log('🛣️ handleUlicaSelect pozvan sa ulicom:', ulica)
+    
+    if (!ulica) {
+      console.error('❌ Ulica nije definisana')
+      return
+    }
+    
+    if (!ulica.lokacija) {
+      console.error('❌ Ulica nema lokaciju:', ulica)
+      return
+    }
     
     const lokacija = ulica.lokacija
-    const opstina = lokacija.opstina
+    const opstina = lokacija?.opstina
     const grad = opstina?.grad
     const drzava = grad?.drzava
+    
+    console.log('🛣️ Relacije:', {
+      ulica: ulica.opis,
+      lokacija: lokacija?.opis,
+      opstina: opstina?.opis,
+      grad: grad?.opis,
+      drzava: drzava?.opis
+    })
     
     // Popuni sva polja
     setFormData(prev => ({
@@ -534,11 +552,12 @@ export default function PonudaForm({ onClose, onSuccess }) {
       iddrzava: drzava?.id?.toString() || '',
       idgrada: grad?.id?.toString() || '',
       idopstina: opstina?.id?.toString() || '',
-      idlokacija: lokacija.id.toString(),
+      idlokacija: lokacija?.id?.toString() || '',
       idulica: ulica.id.toString()
     }))
     
-    // Postavi tekst za prikaz
+    // Postavi tekst za prikaz - OVO JE VAŽNO
+    console.log('🛣️ Postavljam ulicaSearchTerm na:', ulica.opis)
     setUlicaSearchTerm(ulica.opis)
     setShowUlicaDropdown(false)
     
@@ -956,12 +975,15 @@ export default function PonudaForm({ onClose, onSuccess }) {
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
+                              console.log('🖱️ Klik na ulicu u dropdown-u:', ulica.opis)
                               handleUlicaSelect(ulica)
                             }}
                             className="w-full text-left px-4 py-3 hover:bg-indigo-50 border-b border-gray-100 last:border-b-0 transition-colors"
                           >
                             <div className="font-medium text-gray-900">{ulica.opis}</div>
-                            <div className="text-sm text-gray-500 truncate">{fullPath}</div>
+                            {fullPath && (
+                              <div className="text-sm text-gray-500 truncate">{fullPath}</div>
+                            )}
                           </button>
                         )
                       })}
