@@ -32,39 +32,30 @@ function SEOUpdater() {
 }
 
 function App() {
-  const [showIntro, setShowIntro] = useState(true)
-
   useEffect(() => {
     // Inicijalizuj SEO pri učitavanju aplikacije
     initSEO()
   }, [])
 
-  const handleIntroComplete = () => {
-    setShowIntro(false)
-  }
-
   return (
     <Router>
       <SEOUpdater />
-      {showIntro && <Intro onComplete={handleIntroComplete} />}
-      {!showIntro && (
-        <Routes>
-          <Route
-            path="/"
-            element={
-              isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Login />
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      )}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Login />
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
     </Router>
   )
 }
