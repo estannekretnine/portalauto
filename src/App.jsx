@@ -1,9 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { isAuthenticated } from './utils/auth'
 import Login from './components/Login'
 import Dashboard from './components/Dashboard'
-import Intro from './components/Intro'
 import { initSEO, updateTitle, updateDescription, updateCanonical, updateOGUrl } from './utils/seo'
 import './index.css'
 
