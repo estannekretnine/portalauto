@@ -178,7 +178,12 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                     </div>
                   )}
                   <button
-                    onClick={() => removePhoto(photo.id)}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      removePhoto(photo.id)
+                    }}
                     className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                   >
                     <X className="w-4 h-4" />
@@ -188,7 +193,12 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                 <div className="flex-1 space-y-3">
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => toggleGlavna(photo.id)}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        toggleGlavna(photo.id)
+                      }}
                       className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm transition-colors ${
                         photo.glavna
                           ? 'bg-yellow-100 text-yellow-700 border border-yellow-300'
@@ -201,14 +211,24 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                     
                     <div className="flex items-center gap-1">
                       <button
-                        onClick={() => movePhoto(photo.id, 'up')}
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          movePhoto(photo.id, 'up')
+                        }}
                         disabled={index === 0}
                         className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <ArrowUp className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => movePhoto(photo.id, 'down')}
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          movePhoto(photo.id, 'down')
+                        }}
                         disabled={index === photos.length - 1}
                         className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -253,9 +273,15 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                       type="file"
                       accept="image/*"
                       onChange={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
                         if (e.target.files && e.target.files[0]) {
                           updatePhoto(photo.id, e.target.files[0])
                         }
+                        e.target.value = '' // Reset input
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation()
                       }}
                       className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                     />
