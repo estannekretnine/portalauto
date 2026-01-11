@@ -991,7 +991,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 </select>
               </div>
 
-              {/* Autocomplete za ulice - levo polje */}
+              {/* Ulica - autocomplete za pretragu */}
               <div data-ulica-autocomplete>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Ulica <span className="text-red-500">*</span>
@@ -1091,23 +1091,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 </div>
               </div>
 
-              {/* Broj ulice - desno polje pored ulice */}
+              {/* Lokalitet - read-only polje, ista širina kao Ulica */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Broj ulice
-                </label>
-                <input
-                  type="text"
-                  value={formData.brojulice || ''}
-                  onChange={(e) => handleFieldChange('brojulice', e.target.value)}
-                  placeholder="npr. 15, 15A, 15-17..."
-                  disabled={!formData.idulica}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                />
-              </div>
-
-              {/* Lokalitet - jedno polje sa svim informacijama ispod ulice (uključujući ulicu) */}
-              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Lokalitet
                 </label>
@@ -1174,6 +1159,57 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   )}
                 </div>
               ))}
+            </div>
+
+            {/* Broj ulice, Latitude, Longitude - svi u jednom redu, svako 1/3 širine */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Broj ulice
+                </label>
+                <input
+                  type="text"
+                  value={formData.brojulice || ''}
+                  onChange={(e) => handleFieldChange('brojulice', e.target.value)}
+                  placeholder="npr. 15, 15A, 15-17..."
+                  disabled={!formData.idulica}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Latitude
+                </label>
+                <input
+                  type="text"
+                  value={formData.latitude || ''}
+                  onChange={(e) => handleFieldChange('latitude', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Longitude
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={formData.longitude || ''}
+                    onChange={(e) => handleFieldChange('longitude', e.target.value)}
+                    className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleShowLocationOnMap}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-indigo-600 p-1"
+                    title="Prikaži lokaciju na mapi"
+                  >
+                    <Search className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -1331,40 +1367,6 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   onChange={(e) => handleFieldChange('godinagradnje', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Latitude
-                </label>
-                <input
-                  type="text"
-                  value={formData.latitude || ''}
-                  onChange={(e) => handleFieldChange('latitude', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Longitude
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={formData.longitude || ''}
-                    onChange={(e) => handleFieldChange('longitude', e.target.value)}
-                    className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleShowLocationOnMap}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-indigo-600 p-1"
-                    title="Prikaži lokaciju na mapi"
-                  >
-                    <Search className="w-5 h-5" />
-                  </button>
-                </div>
               </div>
 
               <div>
