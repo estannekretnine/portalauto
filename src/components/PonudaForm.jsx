@@ -201,18 +201,25 @@ export default function PonudaForm({ onClose, onSuccess }) {
     }
   }, [showUlicaDropdown])
   
-  // Postavi tekst odabrane ulice kada se promeni formData.idulica
+  // Postavi tekst odabrane ulice kada se promeni formData.idulica (ali ne resetuj ako je već postavljen)
   useEffect(() => {
     if (formData.idulica && sveUliceSaRelacijama.length > 0) {
       const selectedUlica = sveUliceSaRelacijama.find(u => u.id === parseInt(formData.idulica))
-      if (selectedUlica && ulicaSearchTerm !== selectedUlica.opis) {
-        setUlicaSearchTerm(selectedUlica.opis)
+      if (selectedUlica) {
+        // Kombinuj naziv ulice i broj ulice ako postoji
+        const displayText = formData.brojulice 
+          ? `${selectedUlica.opis} ${formData.brojulice}` 
+          : selectedUlica.opis
+        if (ulicaSearchTerm !== displayText) {
+          setUlicaSearchTerm(displayText)
+        }
       }
-    } else if (!formData.idulica && ulicaSearchTerm) {
-      // Resetuj ako nije odabrana ulica
+    } else if (!formData.idulica && ulicaSearchTerm && !ulicaSearchTerm.trim().includes(',')) {
+      // Resetuj samo ako nije odabrana ulica i ako search term nije deo pretrage
       setUlicaSearchTerm('')
     }
-  }, [formData.idulica, sveUliceSaRelacijama])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.idulica, formData.brojulice, sveUliceSaRelacijama])
   
   useEffect(() => {
     // Filtriraj ulice na osnovu search term-a
@@ -558,7 +565,14 @@ export default function PonudaForm({ onClose, onSuccess }) {
       drzava: drzava?.opis
     })
     
-    // Popuni sva polja
+    // Postavi tekst za prikaz PRVO - koristi postojajući broj ulice ako postoji
+    const currentBrojUlice = formData.brojulice || ''
+    const displayText = currentBrojUlice ? `${ulica.opis} ${currentBrojUlice}` : ulica.opis
+    console.log('🛣️ Postavljam ulicaSearchTerm na:', displayText)
+    setUlicaSearchTerm(displayText)
+    setShowUlicaDropdown(false)
+    
+    // Popuni sva polja SINHRONO
     setFormData(prev => ({
       ...prev,
       iddrzava: drzava?.id?.toString() || '',
@@ -566,12 +580,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
       idopstina: opstina?.id?.toString() || '',
       idlokacija: lokacija?.id?.toString() || '',
       idulica: ulica.id.toString()
+      // brojulice ostaje isti ako već postoji
     }))
-    
-    // Postavi tekst za prikaz - OVO JE VAŽNO
-    console.log('🛣️ Postavljam ulicaSearchTerm na:', ulica.opis)
-    setUlicaSearchTerm(ulica.opis)
-    setShowUlicaDropdown(false)
     
     // Učitaj zavisne podatke ako treba
     if (drzava?.id) {
@@ -920,7 +930,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
               {/* Autocomplete za ulice - ovo automatski popunjava sva polja */}
               <div className="md:col-span-2" data-ulica-autocomplete>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Ulica *
+                  Ulica i broj *
                 </label>
                 <div className="relative">
                   <div className="relative">
@@ -1053,20 +1063,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 />
               </div>
 
-              {/* Broj ulice - može se uneti nakon odabira ulice */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Broj ulice
-                </label>
-                <input
-                  type="text"
-                  value={formData.brojulice || ''}
-                  onChange={(e) => handleFieldChange('brojulice', e.target.value)}
-                  placeholder="npr. 15, 15A, 15-17..."
-                  disabled={!formData.idulica}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                />
-              </div>
+              {/* Broj ulice se unosi direktno u polje za ulicu - nema posebnog polja */}
+              {/* Polje je sakriveno jer se broj unosi direktno u input za ulicu */}
 
               {fieldsBySection.osnovne.map(field => (
                 <div key={field.key}>
