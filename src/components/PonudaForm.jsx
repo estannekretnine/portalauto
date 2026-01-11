@@ -490,27 +490,39 @@ export default function PonudaForm({ onClose, onSuccess }) {
       }
       
       // Transformiši podatke za lakši pristup
-      const transformedData = (data || []).map(ulica => ({
-        id: ulica.id,
-        opis: ulica.opis,
-        idlokacija: ulica.idlokacija,
-        lokacija: ulica.lokacija ? {
-          id: ulica.lokacija.id,
-          opis: ulica.lokacija.opis,
-          idopstina: ulica.lokacija.idopstina,
-          opstina: ulica.lokacija.opstina ? {
-            id: ulica.lokacija.opstina.id,
-            opis: ulica.lokacija.opstina.opis,
-            idgrad: ulica.lokacija.opstina.idgrad,
-            grad: ulica.lokacija.opstina.grad ? {
-              id: ulica.lokacija.opstina.grad.id,
-              opis: ulica.lokacija.opstina.grad.opis,
-              iddrzave: ulica.lokacija.opstina.grad.iddrzave,
-              drzava: ulica.lokacija.opstina.grad.drzava
+      const transformedData = (data || []).map(ulica => {
+        const lokacija = ulica.lokacija
+        const opstina = lokacija?.opstina
+        const grad = opstina?.grad
+        const drzava = grad?.drzava
+        
+        return {
+          id: ulica.id,
+          opis: ulica.opis,
+          idlokacija: ulica.idlokacija,
+          lokacija: lokacija ? {
+            id: lokacija.id,
+            opis: lokacija.opis,
+            idopstina: lokacija.idopstina,
+            opstina: opstina ? {
+              id: opstina.id,
+              opis: opstina.opis,
+              idgrad: opstina.idgrad,
+              grad: grad ? {
+                id: grad.id,
+                opis: grad.opis,
+                iddrzave: grad.iddrzave,
+                drzava: drzava
+              } : null
             } : null
           } : null
-        } : null
-      }))
+        }
+      })
+      
+      console.log('🛣️ Učitane ulice sa relacijama:', transformedData.length, 'ulica')
+      if (transformedData.length > 0) {
+        console.log('🛣️ Prva ulica kao primer:', transformedData[0])
+      }
       
       setSveUliceSaRelacijama(transformedData)
     } catch (error) {
