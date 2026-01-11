@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../utils/supabase'
 import { getCurrentUser } from '../utils/auth'
 import PhotoUpload from './PhotoUpload'
@@ -233,7 +233,13 @@ export default function PonudaForm({ onClose, onSuccess }) {
     }
   }, [formData.idvrstaobjekta, vrsteObjekata])
 
+  // Ref za praćenje da li je selektovanje ulice u toku (da ne resetujemo useEffect-ovima)
+  const isSelectingUlicaRef = useRef(false)
+
   useEffect(() => {
+    // Ne resetuj ako je u toku selektovanje ulice
+    if (isSelectingUlicaRef.current) return
+    
     if (formData.iddrzava) {
       // Resetuj zavisne dropdown-ove
       setFormData(prev => ({
@@ -257,6 +263,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
   }, [formData.iddrzava])
 
   useEffect(() => {
+    // Ne resetuj ako je u toku selektovanje ulice
+    if (isSelectingUlicaRef.current) return
+    
     if (formData.idgrada) {
       loadOpstine(parseInt(formData.idgrada))
       // Resetuj zavisne dropdown-ove
@@ -277,6 +286,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
   }, [formData.idgrada])
 
   useEffect(() => {
+    // Ne resetuj ako je u toku selektovanje ulice
+    if (isSelectingUlicaRef.current) return
+    
     if (formData.idopstina) {
       loadLokacije(parseInt(formData.idopstina))
       // Resetuj zavisne dropdown-ove
@@ -294,6 +306,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
   }, [formData.idopstina])
 
   useEffect(() => {
+    // Ne resetuj ako je u toku selektovanje ulice
+    if (isSelectingUlicaRef.current) return
+    
     if (formData.idlokacija) {
       loadUlice(parseInt(formData.idlokacija))
       // Resetuj zavisne dropdown-ove
@@ -555,6 +570,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
     // Očisti input polje za pretragu (ostaje prazno)
     setUlicaSearchTerm('')
     
+    // Postavi flag da je u toku selektovanje (spreči useEffect-ove da resetuju)
+    isSelectingUlicaRef.current = true
+    
     // Popuni sva polja - brojulice ostaje isti ako već postoji
     setFormData(prev => ({
       ...prev,
@@ -566,7 +584,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
       // brojulice ostaje isti ako već postoji - ne resetuj ga
     }))
     
-    // Učitaj zavisne podatke ako treba
+    // Učitaj zavisne podatke ako treba (da bi state-ovi bili popunjeni)
+    // Ovo se poziva da bi state-ovi gradovi, opstine, lokacije bili popunjeni
     if (drzava?.id) {
       loadGradovi(drzava.id)
     }
@@ -576,6 +595,11 @@ export default function PonudaForm({ onClose, onSuccess }) {
     if (opstina?.id) {
       loadLokacije(opstina.id)
     }
+    
+    // Resetuj flag nakon što se useEffect-ovi izvrše (React će ih izvršiti u sledećem render ciklusu)
+    setTimeout(() => {
+      isSelectingUlicaRef.current = false
+    }, 200)
   }
 
   const getVisibleFields = () => {
@@ -1033,12 +1057,33 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 <input
                   type="text"
                   value={(() => {
+                    // Koristi podatke direktno iz sveUliceSaRelacijama jer već ima sve relacije
+                    if (formData.idulica && sveUliceSaRelacijama.length > 0) {
+                      const selectedUlica = sveUliceSaRelacijama.find(u => u.id === parseInt(formData.idulica))
+                      if (selectedUlica && selectedUlica.lokacija) {
+                        const lokacija = selectedUlica.lokacija
+                        const opstina = lokacija?.opstina
+                        const grad = opstina?.grad
+                        const drzava = grad?.drzava
+                        
+                        const lokalitetParts = [
+                          drzava?.opis,
+                          grad?.opis,
+                          opstina?.opis,
+                          lokacija?.opis,
+                          selectedUlica.opis
+                        ].filter(Boolean)
+                        
+                        return lokalitetParts.length > 0 ? lokalitetParts.join(', ') : ''
+                      }
+                    }
+                    
+                    // Fallback: ako lookup mapovi već imaju podatke, koristi ih
                     const lokalitetParts = [
                       drzave.find(d => d.id === parseInt(formData.iddrzava))?.opis,
                       gradovi.find(g => g.id === parseInt(formData.idgrada))?.opis,
                       opstine.find(o => o.id === parseInt(formData.idopstina))?.opis,
                       lokacije.find(l => l.id === parseInt(formData.idlokacija))?.opis,
-                      // Dodaj naziv ulice ako je odabrana
                       formData.idulica ? sveUliceSaRelacijama.find(u => u.id === parseInt(formData.idulica))?.opis : null
                     ].filter(Boolean)
                     return lokalitetParts.length > 0 ? lokalitetParts.join(', ') : ''
