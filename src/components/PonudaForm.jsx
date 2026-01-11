@@ -679,14 +679,21 @@ export default function PonudaForm({ onClose, onSuccess }) {
   
   // Funkcija za automatsko prikazivanje lokacije na mapi
   const handleShowLocationOnMap = async () => {
+    // Otvori modal uvek - čak i ako geocoding ne uspe
+    setShowMapModal(true)
+    
     if (!formData.idulica) {
-      alert('Molimo prvo izaberite ulicu')
+      // Ako nije izabrana ulica, prikaži default lokaciju (Beograd)
+      setMapCenter([44.7866, 20.4489])
+      setMarkerPosition(null)
       return
     }
     
     const selectedUlica = sveUliceSaRelacijama.find(u => u.id === parseInt(formData.idulica))
     if (!selectedUlica || !selectedUlica.lokacija) {
-      alert('Nije moguće prikazati lokaciju. Proverite da li je ulica pravilno odabrana.')
+      // Ako ulica nije pravilno odabrana, prikaži default lokaciju
+      setMapCenter([44.7866, 20.4489])
+      setMarkerPosition(null)
       return
     }
     
@@ -695,6 +702,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
     const grad = opstina?.grad
     const drzava = grad?.drzava
     
+    // Pokušaj geokodiranje
     const coords = await geocodeAddress(
       selectedUlica.opis,
       formData.brojulice || '',
@@ -705,11 +713,14 @@ export default function PonudaForm({ onClose, onSuccess }) {
     )
     
     if (coords) {
+      // Ako je geocoding uspeo, prikaži lokaciju
       setMapCenter([coords.lat, coords.lng])
       setMarkerPosition([coords.lat, coords.lng])
-      setShowMapModal(true)
     } else {
-      alert('Nije moguće pronaći lokaciju na mapi. Pokušajte ručno da kliknete na mapu.')
+      // Ako geocoding ne uspe, prikaži default lokaciju (Beograd) i omogući korisniku da klikne na mapu
+      setMapCenter([44.7866, 20.4489])
+      setMarkerPosition(null)
+      // Ne prikazuj alert - samo otvori mapu
     }
   }
 
