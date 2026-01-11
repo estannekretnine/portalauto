@@ -4,6 +4,7 @@ import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, DollarS
 import PonudaForm from './PonudaForm'
 
 export default function PonudeModule() {
+  console.log('🔵 PonudeModule montiran')
   const [ponude, setPonude] = useState([])
   const [vrsteObjekata, setVrsteObjekata] = useState([])
   const [lokacije, setLokacije] = useState([])
@@ -60,6 +61,7 @@ export default function PonudeModule() {
 
   const loadPonude = async () => {
     try {
+      console.log('📊 PonudeModule: Početak učitavanja ponuda')
       setLoading(true)
       
       // Kreiraj query za osnovne podatke
@@ -226,12 +228,15 @@ export default function PonudeModule() {
   }
 
   if (loading) {
+    console.log('⏳ PonudeModule: Loading state - true')
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-xl text-gray-600">Učitavanje ponuda...</div>
       </div>
     )
   }
+  
+  console.log('✅ PonudeModule: Loading complete, ponude count:', ponude.length)
 
   const handleAddPonuda = () => {
     setShowForm(true)
