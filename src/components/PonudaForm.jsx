@@ -994,9 +994,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
               </div>
             </div>
 
-            {/* Lokalitet, Broj ulice, Latitude, Longitude - 4 polja u istom redu */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-              {/* Lokalitet - read-only polje */}
+            {/* Lokalitet ispod Vrsta objekta, Ulica ispod Status */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              {/* Lokalitet - read-only polje, ispod Vrsta objekta */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Lokalitet
@@ -1040,6 +1040,115 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 />
               </div>
 
+              {/* Ulica - autocomplete za pretragu, ispod Status */}
+              <div data-ulica-autocomplete>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Ulica <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      value={ulicaSearchTerm}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        setUlicaSearchTerm(value)
+                        
+                        // Ako tekst ne odgovara nazivu odabrane ulice, resetuj odabir
+                        if (formData.idulica && value.trim()) {
+                          const selectedUlica = sveUliceSaRelacijama.find(u => u.id === parseInt(formData.idulica))
+                          if (selectedUlica && value !== selectedUlica.opis && !value.startsWith(selectedUlica.opis)) {
+                            // Korisnik menja tekst - resetuj odabir
+                            setFormData(prev => ({ ...prev, idulica: '', brojulice: '' }))
+                          }
+                        }
+                        
+                        setShowUlicaDropdown(true)
+                      }}
+                      onFocus={() => {
+                        if (filteredUlice.length > 0 || ulicaSearchTerm.trim() !== '') {
+                          setShowUlicaDropdown(true)
+                        }
+                      }}
+                      placeholder="Kucajte naziv ulice za pretragu..."
+                      className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    />
+                    {ulicaSearchTerm && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setUlicaSearchTerm('')
+                          setFormData(prev => ({
+                            ...prev,
+                            iddrzava: '',
+                            idgrada: '',
+                            idopstina: '',
+                            idlokacija: '',
+                            idulica: '',
+                            brojulice: ''
+                          }))
+                          setShowUlicaDropdown(false)
+                        }}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  
+                  {/* Dropdown sa rezultatima */}
+                  {showUlicaDropdown && filteredUlice.length > 0 && (
+                    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      {filteredUlice.map((ulica) => {
+                        const lokacija = ulica.lokacija
+                        const opstina = lokacija?.opstina
+                        const grad = opstina?.grad
+                        const drzava = grad?.drzava
+                        const fullPath = [
+                          drzava?.opis,
+                          grad?.opis,
+                          opstina?.opis,
+                          lokacija?.opis,
+                          ulica.opis
+                        ].filter(Boolean).join(', ')
+                        
+                        return (
+                          <button
+                            key={ulica.id}
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              console.log('🖱️ Klik na ulicu u dropdown-u:', ulica.opis)
+                              handleUlicaSelect(ulica)
+                              // Osiguraj zatvaranje dropdown-a
+                              setShowUlicaDropdown(false)
+                              // Fokusiraj na polje Broj ulice
+                              setTimeout(() => {
+                                if (brojUliceInputRef.current) {
+                                  brojUliceInputRef.current.focus()
+                                }
+                              }, 100)
+                            }}
+                            className="w-full text-left px-4 py-3 hover:bg-indigo-50 border-b border-gray-100 last:border-b-0 transition-colors"
+                          >
+                            <div className="font-medium text-gray-900">{ulica.opis}</div>
+                            {fullPath && (
+                              <div className="text-sm text-gray-500 truncate">{fullPath}</div>
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Broj ulice, Latitude, Longitude - 3 polja u istom redu */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
               {/* Broj ulice */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1091,112 +1200,6 @@ export default function PonudaForm({ onClose, onSuccess }) {
                     <Search className="w-5 h-5" />
                   </button>
                 </div>
-              </div>
-            </div>
-
-            {/* Ulica - autocomplete za pretragu - ispod prvog reda */}
-            <div data-ulica-autocomplete className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Ulica <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    value={ulicaSearchTerm}
-                    onChange={(e) => {
-                      const value = e.target.value
-                      setUlicaSearchTerm(value)
-                      
-                      // Ako tekst ne odgovara nazivu odabrane ulice, resetuj odabir
-                      if (formData.idulica && value.trim()) {
-                        const selectedUlica = sveUliceSaRelacijama.find(u => u.id === parseInt(formData.idulica))
-                        if (selectedUlica && value !== selectedUlica.opis && !value.startsWith(selectedUlica.opis)) {
-                          // Korisnik menja tekst - resetuj odabir
-                          setFormData(prev => ({ ...prev, idulica: '', brojulice: '' }))
-                        }
-                      }
-                      
-                      setShowUlicaDropdown(true)
-                    }}
-                    onFocus={() => {
-                      if (filteredUlice.length > 0 || ulicaSearchTerm.trim() !== '') {
-                        setShowUlicaDropdown(true)
-                      }
-                    }}
-                    placeholder="Kucajte naziv ulice za pretragu..."
-                    className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  />
-                  {ulicaSearchTerm && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setUlicaSearchTerm('')
-                        setFormData(prev => ({
-                          ...prev,
-                          iddrzava: '',
-                          idgrada: '',
-                          idopstina: '',
-                          idlokacija: '',
-                          idulica: '',
-                          brojulice: ''
-                        }))
-                        setShowUlicaDropdown(false)
-                      }}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-                
-                {/* Dropdown sa rezultatima */}
-                {showUlicaDropdown && filteredUlice.length > 0 && (
-                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                    {filteredUlice.map((ulica) => {
-                      const lokacija = ulica.lokacija
-                      const opstina = lokacija?.opstina
-                      const grad = opstina?.grad
-                      const drzava = grad?.drzava
-                      const fullPath = [
-                        drzava?.opis,
-                        grad?.opis,
-                        opstina?.opis,
-                        lokacija?.opis,
-                        ulica.opis
-                      ].filter(Boolean).join(', ')
-                      
-                      return (
-                        <button
-                          key={ulica.id}
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            console.log('🖱️ Klik na ulicu u dropdown-u:', ulica.opis)
-                            handleUlicaSelect(ulica)
-                            // Osiguraj zatvaranje dropdown-a
-                            setShowUlicaDropdown(false)
-                            // Fokusiraj na polje Broj ulice
-                            setTimeout(() => {
-                              if (brojUliceInputRef.current) {
-                                brojUliceInputRef.current.focus()
-                              }
-                            }, 100)
-                          }}
-                          className="w-full text-left px-4 py-3 hover:bg-indigo-50 border-b border-gray-100 last:border-b-0 transition-colors"
-                        >
-                          <div className="font-medium text-gray-900">{ulica.opis}</div>
-                          {fullPath && (
-                            <div className="text-sm text-gray-500 truncate">{fullPath}</div>
-                          )}
-                        </button>
-                      )
-                    })}
-                  </div>
-                )}
               </div>
             </div>
 
