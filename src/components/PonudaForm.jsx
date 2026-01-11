@@ -12,8 +12,6 @@ const FIELD_DEFINITIONS = {
     { key: 'cena', label: 'Cena (RSD)', type: 'number', required: true, section: 'osnovne' },
     { key: 'kvadratura', label: 'Kvadratura (m²)', type: 'number', section: 'osnovne' },
     { key: 'opis', label: 'Opis', type: 'textarea', section: 'osnovne' },
-    { key: 'kontaktosoba', label: 'Kontakt osoba', type: 'text', section: 'osnovne' },
-    { key: 'brojtelefona', label: 'Broj telefona', type: 'text', section: 'osnovne' },
   ],
   // Polja specifična za određene vrste objekata
   stan: [
@@ -21,6 +19,7 @@ const FIELD_DEFINITIONS = {
     { key: 'spratstana', label: 'Sprat stana', type: 'number', section: 'tehnicke' },
     { key: 'spratnostzgrade', label: 'Spratnost zgrade', type: 'number', section: 'tehnicke' },
     { key: 'sprat', label: 'Sprat', type: 'text', section: 'tehnicke' },
+    { key: 'stsuseljivost', label: 'Useljivost', type: 'checkbox', section: 'tehnicke' },
     { key: 'ststelefon', label: 'Telefon', type: 'checkbox', section: 'opremljenost' },
     { key: 'stslift', label: 'Lift', type: 'checkbox', section: 'opremljenost' },
     { key: 'stsuknjizen', label: 'Uknižen', type: 'checkbox', section: 'opremljenost' },
@@ -28,6 +27,9 @@ const FIELD_DEFINITIONS = {
     { key: 'ststoplavoda', label: 'Topla voda', type: 'checkbox', section: 'opremljenost' },
     { key: 'stsinterfon', label: 'Interfon', type: 'checkbox', section: 'opremljenost' },
     { key: 'stszasebno', label: 'Zasebno', type: 'checkbox', section: 'opremljenost' },
+    { key: 'tststerasa', label: 'Terasa', type: 'checkbox', section: 'opremljenost' },
+    { key: 'stslodja', label: 'Lođa', type: 'checkbox', section: 'opremljenost' },
+    { key: 'stsfb', label: 'FB', type: 'checkbox', section: 'opremljenost' },
   ],
   plac: [
     { key: 'kvadraturaizugovora', label: 'Kvadratura iz ugovora (m²)', type: 'number', section: 'tehnicke' },
@@ -39,16 +41,20 @@ const FIELD_DEFINITIONS = {
     { key: 'struktura', label: 'Struktura', type: 'number', section: 'tehnicke' },
     { key: 'spratnostzgrade', label: 'Spratnost', type: 'number', section: 'tehnicke' },
     { key: 'etaze', label: 'Etaže', type: 'text', section: 'tehnicke' },
+    { key: 'stsuseljivost', label: 'Useljivost', type: 'checkbox', section: 'tehnicke' },
     { key: 'stspodrum', label: 'Podrum', type: 'checkbox', section: 'opremljenost' },
     { key: 'stsimagarazu', label: 'Ima garažu', type: 'checkbox', section: 'opremljenost' },
     { key: 'stsimaparking', label: 'Ima parking', type: 'checkbox', section: 'opremljenost' },
     { key: 'stsdvamokracvora', label: 'Dva mokraćvora', type: 'checkbox', section: 'opremljenost' },
+    { key: 'stsdupleks', label: 'Dupleks', type: 'checkbox', section: 'opremljenost' },
+    { key: 'tststerasa', label: 'Terasa', type: 'checkbox', section: 'opremljenost' },
   ],
   poslovni: [
     { key: 'struktura', label: 'Struktura', type: 'number', section: 'tehnicke' },
     { key: 'sprat', label: 'Sprat', type: 'text', section: 'tehnicke' },
     { key: 'opissekretarice', label: 'Opis sekretarice', type: 'textarea', section: 'tehnicke' },
     { key: 'prostorije', label: 'Prostorije', type: 'text', section: 'tehnicke' },
+    { key: 'stssalonac', label: 'Salonac', type: 'checkbox', section: 'opremljenost' },
   ],
 }
 
@@ -105,6 +111,19 @@ export default function PonudaForm({ onClose, onSuccess }) {
     stsdvamokracvora: false,
     stslegalizacija: false,
     stszasticen: false,
+    stsuseljivost: false,
+    stsnovogradnja: false,
+    stssalonac: false,
+    stsdupleks: false,
+    stssivafaza: false,
+    stsuizgradnji: false,
+    stsekskluziva: false,
+    stshitnaprodaja: false,
+    stslux: false,
+    stszainvestiranje: false,
+    tststerasa: false,
+    stslodja: false,
+    stsfb: false,
     // Dodatna polja
     ari: '',
     etaze: '',
@@ -114,6 +133,11 @@ export default function PonudaForm({ onClose, onSuccess }) {
     longitude: '',
     videolink: '',
     internenapomene: '',
+    dokumentacija: '',
+    link: '',
+    vidljivostnasajtu: '',
+    nivoenergetskeefikasnosti: '',
+    '3dture': '',
   })
 
   // JSONB detalji
@@ -459,11 +483,29 @@ export default function PonudaForm({ onClose, onSuccess }) {
         stsdvamokracvora: formData.stsdvamokracvora,
         stslegalizacija: formData.stslegalizacija,
         stszasticen: formData.stszasticen,
+        stsuseljivost: formData.stsuseljivost,
+        stsnovogradnja: formData.stsnovogradnja,
+        stssalonac: formData.stssalonac,
+        stsdupleks: formData.stsdupleks,
+        stssivafaza: formData.stssivafaza,
+        stsuizgradnji: formData.stsuizgradnji,
+        stsekskluziva: formData.stsekskluziva,
+        stshitnaprodaja: formData.stshitnaprodaja,
+        stslux: formData.stslux,
+        stszainvestiranje: formData.stszainvestiranje,
+        tststerasa: formData.tststerasa,
+        stslodja: formData.stslodja,
+        stsfb: formData.stsfb,
         // Dodatna polja
         ari: formData.ari ? parseFloat(formData.ari) : null,
         etaze: formData.etaze || null,
         opissekretarice: formData.opissekretarice || null,
         prostorije: formData.prostorije || null,
+        dokumentacija: formData.dokumentacija || null,
+        link: formData.link || null,
+        vidljivostnasajtu: formData.vidljivostnasajtu || null,
+        nivoenergetskeefikasnosti: formData.nivoenergetskeefikasnosti || null,
+        '3dture': formData['3dture'] || null,
       }
 
       // Lokacija podaci
@@ -795,6 +837,30 @@ export default function PonudaForm({ onClose, onSuccess }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Kontakt osoba
+                </label>
+                <input
+                  type="text"
+                  value={formData.kontaktosoba || ''}
+                  onChange={(e) => handleFieldChange('kontaktosoba', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Broj telefona
+                </label>
+                <input
+                  type="text"
+                  value={formData.brojtelefona || ''}
+                  onChange={(e) => handleFieldChange('brojtelefona', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Grejanje
                 </label>
                 <select
@@ -873,6 +939,66 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Dokumentacija
+                </label>
+                <input
+                  type="text"
+                  value={formData.dokumentacija || ''}
+                  onChange={(e) => handleFieldChange('dokumentacija', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Link
+                </label>
+                <input
+                  type="text"
+                  value={formData.link || ''}
+                  onChange={(e) => handleFieldChange('link', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Vidljivost na sajtu
+                </label>
+                <input
+                  type="text"
+                  value={formData.vidljivostnasajtu || ''}
+                  onChange={(e) => handleFieldChange('vidljivostnasajtu', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nivo energetske efikasnosti
+                </label>
+                <input
+                  type="text"
+                  value={formData.nivoenergetskeefikasnosti || ''}
+                  onChange={(e) => handleFieldChange('nivoenergetskeefikasnosti', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  3D ture
+                </label>
+                <input
+                  type="text"
+                  value={formData['3dture'] || ''}
+                  onChange={(e) => handleFieldChange('3dture', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Interne napomene
@@ -883,6 +1009,117 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y"
                   rows="3"
                 />
+              </div>
+            </div>
+          </section>
+
+          {/* Status i dodatne opcije */}
+          <section className="border-b border-gray-200 pb-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Status i dodatne opcije</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="stsnovogradnja"
+                  checked={formData.stsnovogradnja || false}
+                  onChange={(e) => handleFieldChange('stsnovogradnja', e.target.checked)}
+                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                />
+                <label htmlFor="stsnovogradnja" className="ml-2 text-sm text-gray-700">
+                  Novogradnja
+                </label>
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="stssalonac"
+                  checked={formData.stssalonac || false}
+                  onChange={(e) => handleFieldChange('stssalonac', e.target.checked)}
+                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                />
+                <label htmlFor="stssalonac" className="ml-2 text-sm text-gray-700">
+                  Salonac
+                </label>
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="stssivafaza"
+                  checked={formData.stssivafaza || false}
+                  onChange={(e) => handleFieldChange('stssivafaza', e.target.checked)}
+                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                />
+                <label htmlFor="stssivafaza" className="ml-2 text-sm text-gray-700">
+                  Siva faza
+                </label>
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="stsuizgradnji"
+                  checked={formData.stsuizgradnji || false}
+                  onChange={(e) => handleFieldChange('stsuizgradnji', e.target.checked)}
+                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                />
+                <label htmlFor="stsuizgradnji" className="ml-2 text-sm text-gray-700">
+                  U izgradnji
+                </label>
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="stsekskluziva"
+                  checked={formData.stsekskluziva || false}
+                  onChange={(e) => handleFieldChange('stsekskluziva', e.target.checked)}
+                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                />
+                <label htmlFor="stsekskluziva" className="ml-2 text-sm text-gray-700">
+                  Ekskluziva
+                </label>
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="stshitnaprodaja"
+                  checked={formData.stshitnaprodaja || false}
+                  onChange={(e) => handleFieldChange('stshitnaprodaja', e.target.checked)}
+                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                />
+                <label htmlFor="stshitnaprodaja" className="ml-2 text-sm text-gray-700">
+                  Hitna prodaja
+                </label>
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="stslux"
+                  checked={formData.stslux || false}
+                  onChange={(e) => handleFieldChange('stslux', e.target.checked)}
+                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                />
+                <label htmlFor="stslux" className="ml-2 text-sm text-gray-700">
+                  Lux
+                </label>
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="stszainvestiranje"
+                  checked={formData.stszainvestiranje || false}
+                  onChange={(e) => handleFieldChange('stszainvestiranje', e.target.checked)}
+                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                />
+                <label htmlFor="stszainvestiranje" className="ml-2 text-sm text-gray-700">
+                  Za investiranje
+                </label>
               </div>
             </div>
           </section>
