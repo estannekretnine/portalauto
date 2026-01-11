@@ -14,11 +14,11 @@ const FIELD_DEFINITIONS = {
     { key: 'naslovaoglasa', label: 'Naslov oglasa', type: 'text', required: true, section: 'osnovne' },
     { key: 'cena', label: 'Cena (€)', type: 'number', required: true, section: 'osnovne' },
     { key: 'kvadratura', label: 'Kvadratura (m²)', type: 'number', section: 'osnovne' },
+    { key: 'struktura', label: 'Struktura', type: 'number', section: 'tehnicke' },
     { key: 'opis', label: 'Opis', type: 'textarea', section: 'osnovne' },
   ],
   // Polja specifična za određene vrste objekata
   stan: [
-    { key: 'struktura', label: 'Struktura', type: 'number', section: 'tehnicke' },
     { key: 'spratstana', label: 'Sprat stana', type: 'number', section: 'tehnicke' },
     { key: 'spratnostzgrade', label: 'Spratnost zgrade', type: 'number', section: 'tehnicke' },
     { key: 'sprat', label: 'Sprat', type: 'text', section: 'tehnicke' },
@@ -41,7 +41,6 @@ const FIELD_DEFINITIONS = {
     { key: 'stszasticen', label: 'Zaštićen', type: 'checkbox', section: 'tehnicke' },
   ],
   kuca: [
-    { key: 'struktura', label: 'Struktura', type: 'number', section: 'tehnicke' },
     { key: 'spratnostzgrade', label: 'Spratnost', type: 'number', section: 'tehnicke' },
     { key: 'etaze', label: 'Etaže', type: 'text', section: 'tehnicke' },
     { key: 'stsuseljivost', label: 'Useljivost', type: 'checkbox', section: 'tehnicke' },
@@ -53,7 +52,6 @@ const FIELD_DEFINITIONS = {
     { key: 'tststerasa', label: 'Terasa', type: 'checkbox', section: 'opremljenost' },
   ],
   poslovni: [
-    { key: 'struktura', label: 'Struktura', type: 'number', section: 'tehnicke' },
     { key: 'sprat', label: 'Sprat', type: 'text', section: 'tehnicke' },
     { key: 'opissekretarice', label: 'Opis sekretarice', type: 'textarea', section: 'tehnicke' },
     { key: 'prostorije', label: 'Prostorije', type: 'text', section: 'tehnicke' },
