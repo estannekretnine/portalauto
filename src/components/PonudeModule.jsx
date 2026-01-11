@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
-import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, DollarSign, Plus } from 'lucide-react'
+import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, DollarSign, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
 import PonudaForm from './PonudaForm'
 
 export default function PonudeModule() {
@@ -12,6 +12,8 @@ export default function PonudeModule() {
   const [viewMode, setViewMode] = useState('table') // 'table' ili 'grid'
   const [showFilters, setShowFilters] = useState(false)
   const [showForm, setShowForm] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
   const [filters, setFilters] = useState({
     idvrstaobjekta: '',
     kvadraturaOd: '',
@@ -537,7 +539,7 @@ export default function PonudeModule() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {ponude.map((ponuda) => (
+                {paginatedPonude.map((ponuda) => (
                   <tr key={ponuda.id} className="hover:bg-gray-50">
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {ponuda.id}
@@ -580,11 +582,60 @@ export default function PonudeModule() {
               </tbody>
             </table>
           </div>
+          
+          {/* Paginacija i ukupan broj */}
+          <div className="bg-white px-4 py-3 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-700">Prikaži:</span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value))
+                  setCurrentPage(1)
+                }}
+                className="px-2 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="p-2 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                aria-label="Prethodna stranica"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              
+              <span className="text-sm text-gray-700">
+                Stranica {currentPage} od {totalPages || 1}
+              </span>
+              
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages || totalPages === 0}
+                className="p-2 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                aria-label="Sledeća stranica"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="text-sm text-gray-700 font-medium">
+              Ukupno: {totalPonude} nekretnina
+            </div>
+          </div>
         </div>
       ) : (
         /* Web portal grid prikaz */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-          {ponude.map((ponuda) => (
+        <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            {paginatedPonude.map((ponuda) => (
             <div
               key={ponuda.id}
               className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden"
@@ -641,6 +692,55 @@ export default function PonudeModule() {
               </div>
             </div>
           ))}
+          </div>
+          
+          {/* Paginacija i ukupan broj */}
+          <div className="bg-white rounded-lg shadow mt-4 px-4 py-3 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-700">Prikaži:</span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value))
+                  setCurrentPage(1)
+                }}
+                className="px-2 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="p-2 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                aria-label="Prethodna stranica"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              
+              <span className="text-sm text-gray-700">
+                Stranica {currentPage} od {totalPages || 1}
+              </span>
+              
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages || totalPages === 0}
+                className="p-2 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                aria-label="Sledeća stranica"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="text-sm text-gray-700 font-medium">
+              Ukupno: {totalPonude} nekretnina
+            </div>
+          </div>
         </div>
       )}
 
