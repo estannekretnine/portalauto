@@ -3,9 +3,7 @@ import { supabase } from '../utils/supabase'
 import { getCurrentUser } from '../utils/auth'
 import PhotoUpload from './PhotoUpload'
 import { Save, X, Upload, Building2, MapPin, DollarSign, Ruler, Info, Search, ChevronDown } from 'lucide-react'
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
+import PropertyMap from './PropertyMap'
 
 // Definicija polja po vrstama objekata
 const FIELD_DEFINITIONS = {
@@ -183,47 +181,11 @@ export default function PonudaForm({ onClose, onSuccess }) {
   
   // State za mapu
   const [showMapModal, setShowMapModal] = useState(false)
-  const [mapCenter, setMapCenter] = useState([44.7866, 20.4489]) // Default: Beograd
-  const [markerPosition, setMarkerPosition] = useState(null)
-  const mapInstanceRef = useRef(null)
-  
-  // Fix za Leaflet ikonice
-  useEffect(() => {
-    delete (L.Icon.Default.prototype)._getIconUrl
-    L.Icon.Default.mergeOptions({
-      iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-    })
-  }, [])
 
   useEffect(() => {
     loadLookupData()
     loadSveUliceSaRelacijama() // Učitaj sve ulice sa relacijama za autocomplete
   }, [])
-  
-  // Osveži mapu kada se modal otvori
-  useEffect(() => {
-    if (showMapModal) {
-      // Osveži mapu nakon što se DOM renderuje i modal postane vidljiv
-      const timer1 = setTimeout(() => {
-        if (mapInstanceRef.current && typeof mapInstanceRef.current.invalidateSize === 'function') {
-          mapInstanceRef.current.invalidateSize()
-        }
-      }, 100)
-      
-      const timer2 = setTimeout(() => {
-        if (mapInstanceRef.current && typeof mapInstanceRef.current.invalidateSize === 'function') {
-          mapInstanceRef.current.invalidateSize()
-        }
-      }, 500)
-      
-      return () => {
-        clearTimeout(timer1)
-        clearTimeout(timer2)
-      }
-    }
-  }, [showMapModal])
   
   // Zatvori dropdown kada se klikne van njega
   useEffect(() => {
@@ -661,62 +623,21 @@ export default function PonudaForm({ onClose, onSuccess }) {
     }
   }
   
-  // Funkcija za geokodiranje adrese u koordinate
-  const geocodeAddress = async (ulica, brojulice, lokacija, opstina, grad, drzava) => {
-    try {
-      // Kreiraj adresu string
-      const addressParts = []
-      if (ulica) addressParts.push(ulica)
-      if (brojulice) addressParts.push(brojulice)
-      if (lokacija) addressParts.push(lokacija)
-      if (opstina) addressParts.push(opstina)
-      if (grad) addressParts.push(grad)
-      if (drzava) addressParts.push(drzava)
-      
-      const address = addressParts.join(', ')
-      if (!address.trim()) return null
-      
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`,
-        {
-          headers: {
-            'User-Agent': 'RealEstateApp/1.0'
-          }
-        }
-      )
-      const data = await response.json()
-      
-      if (data && data.length > 0) {
-        const result = data[0]
-        // Primena nasumičnog pomeranja za zaštitu privatnosti
-        const offsetCoords = applyPrivacyOffset(result.lat, result.lon)
-        return offsetCoords
-      }
-      return null
-    } catch (error) {
-      console.error('Greška pri geokodiranju adrese:', error)
-      return null
-    }
+  // Funkcija za automatsko prikazivanje lokacije na mapi
+  const handleShowLocationOnMap = () => {
+    // Otvori modal - PropertyMap će se pobrinuti za geokodiranje
+    setShowMapModal(true)
   }
   
-  // Funkcija za automatsko prikazivanje lokacije na mapi
-  const handleShowLocationOnMap = async () => {
-    // Otvori modal uvek - čak i ako geocoding ne uspe
-    setShowMapModal(true)
-    
+  // Pripremi address objekat za PropertyMap
+  const getAddressForMap = () => {
     if (!formData.idulica) {
-      // Ako nije izabrana ulica, prikaži default lokaciju (Beograd)
-      setMapCenter([44.7866, 20.4489])
-      setMarkerPosition(null)
-      return
+      return { drzava: '', grad: '', opstina: '', ulica: '', broj: '' }
     }
     
     const selectedUlica = sveUliceSaRelacijama.find(u => u.id === parseInt(formData.idulica))
     if (!selectedUlica || !selectedUlica.lokacija) {
-      // Ako ulica nije pravilno odabrana, prikaži default lokaciju
-      setMapCenter([44.7866, 20.4489])
-      setMarkerPosition(null)
-      return
+      return { drzava: '', grad: '', opstina: '', ulica: '', broj: '' }
     }
     
     const lokacija = selectedUlica.lokacija
@@ -724,26 +645,20 @@ export default function PonudaForm({ onClose, onSuccess }) {
     const grad = opstina?.grad
     const drzava = grad?.drzava
     
-    // Pokušaj geokodiranje
-    const coords = await geocodeAddress(
-      selectedUlica.opis,
-      formData.brojulice || '',
-      lokacija?.opis || '',
-      opstina?.opis || '',
-      grad?.opis || '',
-      drzava?.opis || ''
-    )
-    
-    if (coords) {
-      // Ako je geocoding uspeo, prikaži lokaciju
-      setMapCenter([coords.lat, coords.lng])
-      setMarkerPosition([coords.lat, coords.lng])
-    } else {
-      // Ako geocoding ne uspe, prikaži default lokaciju (Beograd) i omogući korisniku da klikne na mapu
-      setMapCenter([44.7866, 20.4489])
-      setMarkerPosition(null)
-      // Ne prikazuj alert - samo otvori mapu
+    return {
+      drzava: drzava?.opis || '',
+      grad: grad?.opis || '',
+      opstina: opstina?.opis || '',
+      ulica: selectedUlica.opis || '',
+      broj: formData.brojulice || ''
     }
+  }
+  
+  // Handler za promenu lokacije sa mape (sa privacy offset)
+  const handleMapLocationChange = ({ lat, lng }) => {
+    const offsetCoords = applyPrivacyOffset(lat, lng)
+    handleFieldChange('latitude', offsetCoords.lat.toFixed(7))
+    handleFieldChange('longitude', offsetCoords.lng.toFixed(7))
   }
 
   const getVisibleFields = () => {
@@ -1760,37 +1675,11 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <div className="flex-1 relative" style={{ height: '500px', minHeight: '400px' }}>
-              <MapContainer
-                center={mapCenter}
-                zoom={15}
-                style={{ height: '100%', width: '100%', zIndex: 0 }}
-                scrollWheelZoom={true}
-                whenCreated={(mapInstance) => {
-                  mapInstanceRef.current = mapInstance
-                  // Osveži mapu nakon što se inicijalizuje
-                  setTimeout(() => {
-                    mapInstance.invalidateSize()
-                  }, 100)
-                }}
-              >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                />
-                <MapClickHandler
-                  onMapClick={(lat, lng) => {
-                    const offsetCoords = applyPrivacyOffset(lat, lng)
-                    setMarkerPosition([offsetCoords.lat, offsetCoords.lng])
-                    handleFieldChange('latitude', offsetCoords.lat.toFixed(7))
-                    handleFieldChange('longitude', offsetCoords.lng.toFixed(7))
-                    setMapCenter([offsetCoords.lat, offsetCoords.lng])
-                  }}
-                />
-                {markerPosition && (
-                  <Marker position={markerPosition} />
-                )}
-              </MapContainer>
+            <div className="flex-1 relative p-6" style={{ minHeight: '400px' }}>
+              <PropertyMap
+                address={getAddressForMap()}
+                onLocationChange={handleMapLocationChange}
+              />
             </div>
             <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
               <button
@@ -1806,14 +1695,4 @@ export default function PonudaForm({ onClose, onSuccess }) {
       )}
     </div>
   )
-}
-
-// Komponenta za rukovanje klikom na mapu
-function MapClickHandler({ onMapClick }) {
-  useMapEvents({
-    click: (e) => {
-      onMapClick(e.latlng.lat, e.latlng.lng)
-    },
-  })
-  return null
 }
