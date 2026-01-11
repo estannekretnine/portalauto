@@ -138,6 +138,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
     vidljivostnasajtu: '',
     nivoenergetskeefikasnosti: '',
     '3dture': '',
+    stsvertikalahorizontala: false,
+    stsrazlogbrisanja: '',
+    datumbrisanja: null,
   })
 
   // JSONB detalji
@@ -506,6 +509,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
         vidljivostnasajtu: formData.vidljivostnasajtu || null,
         nivoenergetskeefikasnosti: formData.nivoenergetskeefikasnosti || null,
         '3dture': formData['3dture'] || null,
+        stsvertikalahorizontala: formData.stsvertikalahorizontala,
+        stsrazlogbrisanja: formData.stsrazlogbrisanja || null,
+        datumbrisanja: formData.datumbrisanja || null,
       }
 
       // Lokacija podaci
@@ -1130,6 +1136,54 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 <label htmlFor="stszainvestiranje" className="ml-2 text-sm text-gray-700">
                   Za investiranje
                 </label>
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="stsvertikalahorizontala"
+                  checked={formData.stsvertikalahorizontala || false}
+                  onChange={(e) => handleFieldChange('stsvertikalahorizontala', e.target.checked)}
+                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                />
+                <label htmlFor="stsvertikalahorizontala" className="ml-2 text-sm text-gray-700">
+                  Vertikala/Horizontala
+                </label>
+              </div>
+            </div>
+          </section>
+
+          {/* Dodatna polja za brisanje (opciono) */}
+          <section className="border-b border-gray-200 pb-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Dodatne opcije</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Razlog brisanja
+                </label>
+                <input
+                  type="text"
+                  value={formData.stsrazlogbrisanja || ''}
+                  onChange={(e) => handleFieldChange('stsrazlogbrisanja', e.target.value)}
+                  placeholder="Razlog brisanja (ako je ponuda obrisana)"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Datum brisanja
+                </label>
+                <input
+                  type="datetime-local"
+                  value={formData.datumbrisanja ? new Date(formData.datumbrisanja).toISOString().slice(0, 16) : ''}
+                  onChange={(e) => {
+                    const value = e.target.value ? new Date(e.target.value).toISOString() : null
+                    handleFieldChange('datumbrisanja', value)
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
               </div>
             </div>
           </section>
