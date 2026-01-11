@@ -258,30 +258,12 @@ export default function PonudaForm({ onClose, onSuccess }) {
       }
       
       const drzavaId = parseInt(iddrzava)
-      console.log('Učitavanje gradova za državu ID:', drzavaId, 'Tip:', typeof drzavaId)
       
-      // Prvo proveri da li postoji država
-      const { data: drzavaCheck } = await supabase
-        .from('drzava')
-        .select('id, opis')
-        .eq('id', drzavaId)
-        .single()
-      
-      console.log('Provera države:', drzavaCheck)
-      
-      // Učitaj sve gradove da vidimo šta imamo
-      const { data: allGradovi } = await supabase
-        .from('grad')
-        .select('id, opis, iddrzava')
-        .order('opis')
-      
-      console.log('Svi gradovi u bazi:', allGradovi)
-      
-      // Sada učitaj gradove za izabranu državu
+      // Učitaj gradove gde je iddrzave jednak sa selektovanom državom (grad.iddrzave = drzava.id)
       const { data, error } = await supabase
         .from('grad')
-        .select('id, opis, iddrzava')
-        .eq('iddrzava', drzavaId)
+        .select('id, opis, iddrzave')
+        .eq('iddrzave', drzavaId)
         .order('opis')
       
       if (error) {
@@ -290,7 +272,6 @@ export default function PonudaForm({ onClose, onSuccess }) {
         return
       }
       
-      console.log('Učitani gradovi za državu', drzavaId, ':', data)
       setGradovi(data || [])
     } catch (error) {
       console.error('Greška pri učitavanju gradova:', error)
