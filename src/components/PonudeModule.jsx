@@ -240,6 +240,25 @@ export default function PonudeModule() {
   
   console.log('✅ PonudeModule: Loading complete, ponude count:', ponude.length)
 
+  // Paginacija
+  const totalPonude = ponude.length
+  const totalPages = Math.ceil(totalPonude / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedPonude = ponude.slice(startIndex, endIndex)
+
+  // Resetuj na prvu stranicu kada se filteri promene
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filters])
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
   const handleAddPonuda = () => {
     setShowForm(true)
   }
