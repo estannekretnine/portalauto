@@ -30,7 +30,8 @@ export default function Dashboard() {
 
   const handleLogout = () => {
     logout()
-    navigate('/')
+    // Redirekcija na početnu stranicu - koristi window.location za potpuno reset
+    window.location.href = 'https://portalauto.vercel.app/'
   }
 
   const isAdmin = user?.email === 'admin@example.com'
