@@ -1347,7 +1347,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 >
                   <option value="">Izaberite investitora</option>
                   {investitori.map(investitor => (
-                    <option key={investitor.id} value={investitor.id}>{investitor.opis}</option>
+                    <option key={investitor.id} value={investitor.id}>{investitor.naziv}</option>
                   ))}
                 </select>
               </div>
