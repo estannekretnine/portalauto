@@ -205,14 +205,24 @@ export default function PonudaForm({ onClose, onSuccess }) {
   
   // Osveži mapu kada se modal otvori
   useEffect(() => {
-    if (showMapModal && mapInstanceRef.current) {
-      // Osveži mapu nakon što se DOM renderuje
-      const timer = setTimeout(() => {
+    if (showMapModal) {
+      // Osveži mapu nakon što se DOM renderuje i modal postane vidljiv
+      const timer1 = setTimeout(() => {
         if (mapInstanceRef.current && typeof mapInstanceRef.current.invalidateSize === 'function') {
           mapInstanceRef.current.invalidateSize()
         }
-      }, 200)
-      return () => clearTimeout(timer)
+      }, 100)
+      
+      const timer2 = setTimeout(() => {
+        if (mapInstanceRef.current && typeof mapInstanceRef.current.invalidateSize === 'function') {
+          mapInstanceRef.current.invalidateSize()
+        }
+      }, 500)
+      
+      return () => {
+        clearTimeout(timer1)
+        clearTimeout(timer2)
+      }
     }
   }, [showMapModal])
   
