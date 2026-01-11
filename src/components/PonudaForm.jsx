@@ -1010,6 +1010,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
                               e.stopPropagation()
                               console.log('🖱️ Klik na ulicu u dropdown-u:', ulica.opis)
                               handleUlicaSelect(ulica)
+                              // Osiguraj zatvaranje dropdown-a
+                              setShowUlicaDropdown(false)
                             }}
                             className="w-full text-left px-4 py-3 hover:bg-indigo-50 border-b border-gray-100 last:border-b-0 transition-colors"
                           >
@@ -1025,55 +1027,6 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 </div>
               </div>
 
-              {/* Read-only polja - automatski popunjava se izborom ulice */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Država
-                </label>
-                <input
-                  type="text"
-                  value={drzave.find(d => d.id === parseInt(formData.iddrzava))?.opis || ''}
-                  readOnly
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Grad
-                </label>
-                <input
-                  type="text"
-                  value={gradovi.find(g => g.id === parseInt(formData.idgrada))?.opis || ''}
-                  readOnly
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Opština
-                </label>
-                <input
-                  type="text"
-                  value={opstine.find(o => o.id === parseInt(formData.idopstina))?.opis || ''}
-                  readOnly
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Lokacija
-                </label>
-                <input
-                  type="text"
-                  value={lokacije.find(l => l.id === parseInt(formData.idlokacija))?.opis || ''}
-                  readOnly
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
-                />
-              </div>
-
               {/* Broj ulice - desno polje pored ulice */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1086,6 +1039,27 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   placeholder="npr. 15, 15A, 15-17..."
                   disabled={!formData.idulica}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                />
+              </div>
+
+              {/* Lokalitet - jedno polje sa svim informacijama ispod ulice */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Lokalitet
+                </label>
+                <input
+                  type="text"
+                  value={(() => {
+                    const lokalitetParts = [
+                      drzave.find(d => d.id === parseInt(formData.iddrzava))?.opis,
+                      gradovi.find(g => g.id === parseInt(formData.idgrada))?.opis,
+                      opstine.find(o => o.id === parseInt(formData.idopstina))?.opis,
+                      lokacije.find(l => l.id === parseInt(formData.idlokacija))?.opis
+                    ].filter(Boolean)
+                    return lokalitetParts.length > 0 ? lokalitetParts.join(', ') : ''
+                  })()}
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
                 />
               </div>
 
