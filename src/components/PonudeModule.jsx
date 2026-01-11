@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
-import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, DollarSign } from 'lucide-react'
+import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, DollarSign, Plus } from 'lucide-react'
+import PonudaForm from './PonudaForm'
 
 export default function PonudeModule() {
   const [ponude, setPonude] = useState([])
@@ -9,6 +10,7 @@ export default function PonudeModule() {
   const [loading, setLoading] = useState(true)
   const [viewMode, setViewMode] = useState('table') // 'table' ili 'grid'
   const [showFilters, setShowFilters] = useState(false)
+  const [showForm, setShowForm] = useState(false)
   const [filters, setFilters] = useState({
     idvrstaobjekta: '',
     kvadraturaOd: '',
@@ -231,12 +233,29 @@ export default function PonudeModule() {
     )
   }
 
+  const handleAddPonuda = () => {
+    setShowForm(true)
+  }
+
+  const handleFormSuccess = () => {
+    setShowForm(false)
+    loadPonude()
+  }
+
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header sa filter i view toggle */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
         <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Ponude</h2>
         <div className="flex items-center gap-2 w-full sm:w-auto">
+          <button
+            onClick={handleAddPonuda}
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm sm:text-base"
+          >
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="hidden sm:inline">Dodaj ponudu</span>
+            <span className="sm:hidden">Dodaj</span>
+          </button>
           <button
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors text-sm sm:text-base ${
@@ -618,6 +637,14 @@ export default function PonudeModule() {
             </div>
           ))}
         </div>
+      )}
+
+      {/* Forma za dodavanje nove ponude */}
+      {showForm && (
+        <PonudaForm
+          onClose={() => setShowForm(false)}
+          onSuccess={handleFormSuccess}
+        />
       )}
     </div>
   )
