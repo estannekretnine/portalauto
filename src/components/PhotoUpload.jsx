@@ -118,7 +118,21 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div 
+      className="space-y-4"
+      data-photo-upload="true"
+      onClick={(e) => {
+        // Zaustavi propagaciju svih klikova unutar PhotoUpload komponente
+        e.stopPropagation()
+      }}
+      onKeyDown={(e) => {
+        // Spreči submit na Enter key
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          e.stopPropagation()
+        }
+      }}
+    >
       <div
         className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
           dragActive

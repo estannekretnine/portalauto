@@ -628,7 +628,20 @@ export default function PonudaForm({ onClose, onSuccess }) {
           className="p-4 sm:p-6 space-y-6"
           onClick={(e) => {
             // Spreči automatski submit forme kada se klikne na elemente unutar forme
-            if (e.target.type === 'file' || e.target.closest('label[for="photo-upload"]')) {
+            const target = e.target
+            const isButton = target.tagName === 'BUTTON' && target.type === 'button'
+            const isFileInput = target.type === 'file'
+            const isPhotoUploadArea = target.closest('[data-photo-upload]')
+            const isLabel = target.closest('label[for="photo-upload"]')
+            
+            if (isButton || isFileInput || isPhotoUploadArea || isLabel) {
+              e.stopPropagation()
+            }
+          }}
+          onKeyDown={(e) => {
+            // Spreči submit na Enter key ako je fokus na PhotoUpload komponenti
+            if (e.key === 'Enter' && e.target.closest('[data-photo-upload]')) {
+              e.preventDefault()
               e.stopPropagation()
             }
           }}
@@ -1227,7 +1240,21 @@ export default function PonudaForm({ onClose, onSuccess }) {
               <Upload className="w-5 h-5" />
               Fotografije
             </h3>
-            <PhotoUpload photos={photos} onPhotosChange={setPhotos} />
+            <div 
+              onClick={(e) => {
+                // Zaustavi propagaciju svih klikova unutar PhotoUpload komponente
+                e.stopPropagation()
+              }}
+              onKeyDown={(e) => {
+                // Spreči submit na Enter key
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  e.stopPropagation()
+                }
+              }}
+            >
+              <PhotoUpload photos={photos} onPhotosChange={setPhotos} />
+            </div>
           </section>
 
           {error && (
