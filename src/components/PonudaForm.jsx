@@ -182,6 +182,21 @@ export default function PonudaForm({ onClose, onSuccess }) {
 
   // Selektovana vrsta objekta
   const [selectedVrstaObjekta, setSelectedVrstaObjekta] = useState(null)
+  
+  // State za mapu
+  const [showMapModal, setShowMapModal] = useState(false)
+  const [mapCenter, setMapCenter] = useState([44.7866, 20.4489]) // Default: Beograd
+  const [markerPosition, setMarkerPosition] = useState(null)
+  
+  // Fix za Leaflet ikonice
+  useEffect(() => {
+    delete (L.Icon.Default.prototype)._getIconUrl
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+    })
+  }, [])
 
   useEffect(() => {
     loadLookupData()
