@@ -1747,6 +1747,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 style={{ height: '100%', width: '100%', zIndex: 0 }}
                 scrollWheelZoom={true}
                 whenCreated={(mapInstance) => {
+                  mapInstanceRef.current = mapInstance
                   // Osveži mapu nakon što se inicijalizuje
                   setTimeout(() => {
                     mapInstance.invalidateSize()
