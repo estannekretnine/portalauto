@@ -9,7 +9,7 @@ const FIELD_DEFINITIONS = {
   // Polja koja se prikazuju za sve vrste objekata
   all: [
     { key: 'naslovaoglasa', label: 'Naslov oglasa', type: 'text', required: true, section: 'osnovne' },
-    { key: 'cena', label: 'Cena (RSD)', type: 'number', required: true, section: 'osnovne' },
+    { key: 'cena', label: 'Cena (€)', type: 'number', required: true, section: 'osnovne' },
     { key: 'kvadratura', label: 'Kvadratura (m²)', type: 'number', section: 'osnovne' },
     { key: 'opis', label: 'Opis', type: 'textarea', section: 'osnovne' },
   ],
@@ -148,8 +148,6 @@ export default function PonudaForm({ onClose, onSuccess }) {
     nivoenergetskeefikasnosti: '',
     '3dture': '',
     stsvertikalahorizontala: false,
-    stsrazlogbrisanja: '',
-    datumbrisanja: null,
   })
 
   // JSONB detalji
@@ -339,8 +337,10 @@ export default function PonudaForm({ onClose, onSuccess }) {
       // Ako ima grešku sa investitor tabelom, loguj je ali ne prekidaj učitavanje
       if (investitoriError) {
         console.warn('⚠️ Greška pri učitavanju investitora (možda RLS problem):', investitoriError)
+        console.warn('Investitori error details:', JSON.stringify(investitoriError, null, 2))
       }
 
+      console.log('📊 Učitani investitori:', investitoriData)
       setVrsteObjekata(vrsteData || [])
       setDrzave(drzaveData || [])
       setGrejanja(grejanjaData || [])
@@ -736,8 +736,6 @@ export default function PonudaForm({ onClose, onSuccess }) {
         nivoenergetskeefikasnosti: formData.nivoenergetskeefikasnosti || null,
         '3dture': formData['3dture'] || null,
         stsvertikalahorizontala: formData.stsvertikalahorizontala,
-        stsrazlogbrisanja: formData.stsrazlogbrisanja || null,
-        datumbrisanja: formData.datumbrisanja || null,
       }
 
       // Lokacija podaci
@@ -904,7 +902,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Vrsta objekta *
+                  Vrsta objekta <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.idvrstaobjekta}
@@ -921,7 +919,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Status *
+                  Status <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.stsrentaprodaja}
@@ -937,7 +935,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
               {/* Autocomplete za ulice - levo polje */}
               <div data-ulica-autocomplete>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Ulica *
+                  Ulica <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <div className="relative">
@@ -1096,7 +1094,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
               {fieldsBySection.osnovne.map(field => (
                 <div key={field.key}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {field.label} {field.required && '*'}
+                    {field.label} {field.required && <span className="text-red-500">*</span>}
                   </label>
                   {field.type === 'textarea' ? (
                     <textarea
@@ -1253,6 +1251,93 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   onChange={(e) => handleFieldChange('godinagradnje', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Lokacija na mapi
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    id="map-search"
+                    placeholder="Pretražite adresu na mapi (npr. Beograd, Knez Mihailova 1)"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    onKeyDown={async (e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        const searchTerm = e.target.value.trim()
+                        if (!searchTerm) return
+                        
+                        try {
+                          const response = await fetch(
+                            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchTerm)}&limit=1`,
+                            {
+                              headers: {
+                                'User-Agent': 'RealEstateApp/1.0'
+                              }
+                            }
+                          )
+                          const data = await response.json()
+                          
+                          if (data && data.length > 0) {
+                            const result = data[0]
+                            handleFieldChange('latitude', result.lat)
+                            handleFieldChange('longitude', result.lon)
+                            e.target.value = result.display_name
+                          } else {
+                            alert('Adresa nije pronađena. Pokušajte sa drugim pojmom.')
+                          }
+                        } catch (error) {
+                          console.error('Greška pri pretrazi adrese:', error)
+                          alert('Greška pri pretrazi adrese. Pokušajte ponovo.')
+                        }
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const input = document.getElementById('map-search')
+                      const searchTerm = input.value.trim()
+                      if (!searchTerm) {
+                        alert('Unesite adresu za pretragu')
+                        return
+                      }
+                      
+                      try {
+                        const response = await fetch(
+                          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchTerm)}&limit=1`,
+                          {
+                            headers: {
+                              'User-Agent': 'RealEstateApp/1.0'
+                            }
+                          }
+                        )
+                        const data = await response.json()
+                        
+                        if (data && data.length > 0) {
+                          const result = data[0]
+                          handleFieldChange('latitude', result.lat)
+                          handleFieldChange('longitude', result.lon)
+                          input.value = result.display_name
+                        } else {
+                          alert('Adresa nije pronađena. Pokušajte sa drugim pojmom.')
+                        }
+                      } catch (error) {
+                        console.error('Greška pri pretrazi adrese:', error)
+                        alert('Greška pri pretrazi adrese. Pokušajte ponovo.')
+                      }
+                    }}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 flex items-center gap-2"
+                  >
+                    <MapPin className="w-4 h-4" />
+                    Pretraži
+                  </button>
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  Unesite adresu i kliknite "Pretraži" ili pritisnite Enter da biste automatski popunili Latitude i Longitude
+                </p>
               </div>
 
               <div>
@@ -1485,41 +1570,6 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 <label htmlFor="stsvertikalahorizontala" className="ml-2 text-sm text-gray-700">
                   Vertikala/Horizontala
                 </label>
-              </div>
-            </div>
-          </section>
-
-          {/* Dodatna polja za brisanje (opciono) */}
-          <section className="border-b border-gray-200 pb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Dodatne opcije</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Razlog brisanja
-                </label>
-                <input
-                  type="text"
-                  value={formData.stsrazlogbrisanja || ''}
-                  onChange={(e) => handleFieldChange('stsrazlogbrisanja', e.target.value)}
-                  placeholder="Razlog brisanja (ako je ponuda obrisana)"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Datum brisanja
-                </label>
-                <input
-                  type="datetime-local"
-                  value={formData.datumbrisanja ? new Date(formData.datumbrisanja).toISOString().slice(0, 16) : ''}
-                  onChange={(e) => {
-                    const value = e.target.value ? new Date(e.target.value).toISOString() : null
-                    handleFieldChange('datumbrisanja', value)
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
               </div>
             </div>
           </section>
