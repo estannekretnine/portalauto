@@ -201,27 +201,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
     }
   }, [showUlicaDropdown])
   
-  // Postavi naziv ulice kada se promeni formData.idulica (SAMO naziv ulice, bez broja)
-  useEffect(() => {
-    if (formData.idulica && sveUliceSaRelacijama.length > 0) {
-      const selectedUlica = sveUliceSaRelacijama.find(u => u.id === parseInt(formData.idulica))
-      if (selectedUlica) {
-        // Postavi SAMO naziv ulice (bez broja)
-        const nazivUlice = selectedUlica.opis
-        // Postavi samo ako trenutni ulicaSearchTerm NIJE naziv ulice (da se ne resetuje pri editovanju)
-        if (ulicaSearchTerm !== nazivUlice && !ulicaSearchTerm.startsWith(nazivUlice + ' ')) {
-          setUlicaSearchTerm(nazivUlice)
-        }
-      }
-    } else if (!formData.idulica && ulicaSearchTerm) {
-      // Resetuj samo ako nije odabrana ulica i korisnik nije u procesu pretrage
-      // Ne resetuj ako korisnik aktivno kuca
-      if (showUlicaDropdown === false) {
-        setUlicaSearchTerm('')
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.idulica, sveUliceSaRelacijama])
+  // Uklonjen useEffect koji je resetovao ulicaSearchTerm
+  // Input polje za ulicu ostaje prazno nakon selektovanja (koristi se samo za pretragu)
+  // Odabrana ulica se prikazuje u polju Lokalitet
   
   useEffect(() => {
     // Filtriraj ulice na osnovu search term-a
@@ -567,12 +549,13 @@ export default function PonudaForm({ onClose, onSuccess }) {
       drzava: drzava?.opis
     })
     
-    // Postavi naziv ulice PRVO - SAMO naziv, bez broja (broj ide u posebno polje)
-    console.log('🛣️ Postavljam ulicaSearchTerm na:', ulica.opis)
-    setUlicaSearchTerm(ulica.opis)
+    // Zatvori dropdown PRVO
     setShowUlicaDropdown(false)
     
-    // Popuni sva polja SINHRONO - brojulice ostaje isti ako već postoji
+    // Očisti input polje za pretragu (ostaje prazno)
+    setUlicaSearchTerm('')
+    
+    // Popuni sva polja - brojulice ostaje isti ako već postoji
     setFormData(prev => ({
       ...prev,
       iddrzava: drzava?.id?.toString() || '',
@@ -1042,7 +1025,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 />
               </div>
 
-              {/* Lokalitet - jedno polje sa svim informacijama ispod ulice */}
+              {/* Lokalitet - jedno polje sa svim informacijama ispod ulice (uključujući ulicu) */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Lokalitet
@@ -1054,7 +1037,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
                       drzave.find(d => d.id === parseInt(formData.iddrzava))?.opis,
                       gradovi.find(g => g.id === parseInt(formData.idgrada))?.opis,
                       opstine.find(o => o.id === parseInt(formData.idopstina))?.opis,
-                      lokacije.find(l => l.id === parseInt(formData.idlokacija))?.opis
+                      lokacije.find(l => l.id === parseInt(formData.idlokacija))?.opis,
+                      // Dodaj naziv ulice ako je odabrana
+                      formData.idulica ? sveUliceSaRelacijama.find(u => u.id === parseInt(formData.idulica))?.opis : null
                     ].filter(Boolean)
                     return lokalitetParts.length > 0 ? lokalitetParts.join(', ') : ''
                   })()}
