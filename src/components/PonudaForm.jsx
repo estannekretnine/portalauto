@@ -584,6 +584,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
         if (photosError) throw photosError
       }
 
+      // Zatvori formu i osveži listu samo nakon uspešnog čuvanja
       onSuccess()
       onClose()
     } catch (err) {
@@ -616,7 +617,16 @@ export default function PonudaForm({ onClose, onSuccess }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-6">
+        <form 
+          onSubmit={handleSubmit} 
+          className="p-4 sm:p-6 space-y-6"
+          onClick={(e) => {
+            // Spreči automatski submit forme kada se klikne na elemente unutar forme
+            if (e.target.type === 'file' || e.target.closest('label[for="photo-upload"]')) {
+              e.stopPropagation()
+            }
+          }}
+        >
           {/* Osnovne informacije */}
           <section className="border-b border-gray-200 pb-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">

@@ -40,9 +40,13 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
   }
 
   const handleInputChange = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
     if (e.target.files && e.target.files.length > 0) {
       handleFiles(e.target.files)
     }
+    // Resetuj input da bi mogao da se ponovo izabere isti fajl
+    e.target.value = ''
   }
 
   const removePhoto = (id) => {
@@ -137,6 +141,10 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
         <label
           htmlFor="photo-upload"
           className="cursor-pointer flex flex-col items-center"
+          onClick={(e) => {
+            // Spreči da se forma submit-uje ako se klikne na label
+            e.stopPropagation()
+          }}
         >
           <Upload className="w-12 h-12 text-gray-400 mb-4" />
           <p className="text-gray-600 mb-2">
