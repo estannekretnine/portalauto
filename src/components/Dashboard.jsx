@@ -56,7 +56,7 @@ export default function Dashboard() {
                   className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                   title={sidebarCollapsed ? 'Proširi navigaciju' : 'Smanji navigaciju'}
                 >
-                  {sidebarCollapsed ? <Menu className="w-5 h-5" /> : <X className="w-5 h-5" />}
+                  <Menu className="w-5 h-5" />
                 </button>
                 <h1 className="text-lg sm:text-2xl font-bold text-gray-800">Agencija za Nekretnine</h1>
               </div>
