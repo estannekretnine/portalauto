@@ -1019,6 +1019,21 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 />
               </div>
 
+              {/* Broj ulice - može se uneti nakon odabira ulice */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Broj ulice
+                </label>
+                <input
+                  type="text"
+                  value={formData.brojulice || ''}
+                  onChange={(e) => handleFieldChange('brojulice', e.target.value)}
+                  placeholder="npr. 15, 15A, 15-17..."
+                  disabled={!formData.idulica}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                />
+              </div>
+
               {fieldsBySection.osnovne.map(field => (
                 <div key={field.key}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
