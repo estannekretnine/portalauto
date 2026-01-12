@@ -74,13 +74,14 @@ export default function PropertyMap({ address, latitude, longitude, onLocationCh
   // Default centar (Beograd) — mapa uvek treba da se vidi i bez rezultata
   const defaultCenter = useMemo(() => ({ lat: 44.7866, lng: 20.4489 }), [])
 
-  // Ažuriraj poziciju kada se initialPosition promeni
+  // Ažuriraj poziciju kada se initialPosition promeni (samo ako korisnik nije ručno kliknuo)
   useEffect(() => {
-    if (initialPosition && !userSelectedPosition) {
+    if (initialPosition) {
       setPosition(initialPosition)
-      setUserSelectedPosition(true)
+      setUserSelectedPosition(true) // Postavi flag da su koordinate već postavljene
+      console.log('🗺️ PropertyMap: Postavljena initialPosition:', initialPosition)
     }
-  }, [initialPosition])
+  }, [initialPosition?.lat, initialPosition?.lng])
   
   useEffect(() => {
     // Ako je korisnik ručno izabrao poziciju ili su koordinate već postavljene, ne geokodiraj ponovo
