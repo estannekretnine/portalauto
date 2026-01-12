@@ -94,6 +94,16 @@ export default function PropertyMap({ address, latitude, longitude, onLocationCh
     }
   }, [initialPosition?.lat, initialPosition?.lng])
   
+  // Resetuj userSelectedPositionRef kada se query promeni (nova adresa = novi geokodiranje)
+  useEffect(() => {
+    if (query && query.length >= 3) {
+      // Ako postoji novi query, resetuj flag da omogućiš geokodiranje
+      userSelectedPositionRef.current = false
+      setUserSelectedPosition(false)
+      console.log('🗺️ PropertyMap: Query promenjen, resetujem userSelectedPosition flag')
+    }
+  }, [query])
+
   useEffect(() => {
     // Ako je korisnik ručno kliknuo na mapu, ne geokodiraj ponovo na osnovu adrese
     if (userSelectedPositionRef.current) {
