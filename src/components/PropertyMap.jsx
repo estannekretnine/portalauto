@@ -95,15 +95,9 @@ export default function PropertyMap({ address, latitude, longitude, onLocationCh
   }, [initialPosition?.lat, initialPosition?.lng])
   
   useEffect(() => {
-    // Ako je korisnik ručno izabrao poziciju (klik na mapu), ne geokodiraj ponovo
-    if (userSelectedPosition) {
-      console.log('🗺️ PropertyMap: Korisnik je izabrao poziciju, preskačem geokodiranje')
-      return
-    }
-    
-    // Ako su koordinate već postavljene, ne geokodiraj
-    if (initialPosition) {
-      console.log('🗺️ PropertyMap: Koordinate su već postavljene, preskačem geokodiranje')
+    // Ako je korisnik ručno kliknuo na mapu, ne geokodiraj ponovo na osnovu adrese
+    if (userSelectedPositionRef.current) {
+      console.log('🗺️ PropertyMap: Korisnik je kliknuo na mapu, preskačem geokodiranje na osnovu adrese')
       return
     }
 
