@@ -16,7 +16,7 @@
   }
 
   .rotate-gold {
-    animation: rotateBackAndForth 15s ease-in-out infinite;
+    animation: rotateBackAndForth 15s linear infinite;
   }
 }
 
