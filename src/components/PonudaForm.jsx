@@ -791,23 +791,21 @@ export default function PonudaForm({ onClose, onSuccess }) {
     handleFieldChange('cena', parsedValue)
   }
 
+  // State za formatirani prikaz cene
+  const [formattedCena, setFormattedCena] = useState('')
+
   // Handler za formatiranje cene pri izlasku sa polja
   const handleCenaBlur = () => {
     if (formData.cena) {
-      const formatted = formatCena(formData.cena)
-      handleFieldChange('cena', parseCena(formatted)) // Sačuvaj parsiranu vrednost
-      // Prikaži formatiranu vrednost u input-u kroz state
-      setTimeout(() => {
-        const input = document.querySelector('input[type="number"][step="0.001"]')
-        if (input && input.value === formData.cena) {
-          // Ako je input još uvek fokusiran, ne menjaj
-          if (document.activeElement !== input) {
-            // Formatiraj prikaz
-          }
-        }
-      }, 0)
+      const parsed = parseCena(formData.cena)
+      const formatted = formatCena(parsed)
+      setFormattedCena(formatted)
+      handleFieldChange('cena', parsed) // Sačuvaj parsiranu vrednost
+      previousCenaRef.current = parsed ? parseFloat(parsed) : null
+    } else {
+      setFormattedCena('')
+      previousCenaRef.current = null
     }
-    previousCenaRef.current = formData.cena ? parseFloat(formData.cena) : null
   }
 
   // Handleri za metapodaci
@@ -1458,9 +1456,19 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   ) : field.key === 'cena' ? (
                     <input
                       type="text"
-                      value={formData.cena ? formatCena(formData.cena) : ''}
-                      onChange={(e) => handleCenaChange(e.target.value)}
+                      value={formattedCena || (formData.cena ? formatCena(formData.cena) : '')}
+                      onChange={(e) => {
+                        const parsed = parseCena(e.target.value)
+                        handleCenaChange(parsed)
+                        setFormattedCena(e.target.value) // Prikaži ono što korisnik kuca
+                      }}
                       onBlur={handleCenaBlur}
+                      onFocus={() => {
+                        // Pri izlasku sa fokusa, prikaži formatiranu vrednost
+                        if (formData.cena) {
+                          setFormattedCena(formatCena(formData.cena))
+                        }
+                      }}
                       required={field.required}
                       placeholder="0.000"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -1858,10 +1866,10 @@ export default function PonudaForm({ onClose, onSuccess }) {
               {[
                 { id: 'vlasnici', label: 'Vlasnici', icon: Users },
                 { id: 'eop', label: 'EOP', icon: FileText },
-                { id: 'realizacija', label: 'Realizacija', icon: Receipt },
                 { id: 'troskovi', label: 'Troškovi', icon: Wallet },
                 { id: 'zastupnik', label: 'Zastupnik', icon: UserCheck },
-                { id: 'ai', label: 'Karakteristike', icon: Brain }
+                { id: 'ai', label: 'Karakteristike', icon: Brain },
+                { id: 'realizacija', label: 'Realizacija', icon: Receipt }
               ].map(tab => (
                 <button
                   key={tab.id}
