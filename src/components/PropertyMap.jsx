@@ -192,17 +192,67 @@ export default function PropertyMap({ address, latitude, longitude, onLocationCh
     }
   }, [query, onLocationChange, userSelectedPosition, initialPosition])
 
+  // Reverse geocoding funkcija
+  const reverseGeocode = async (lat, lng) => {
+    try {
+      setIsReverseGeocoding(true)
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
+      console.log('🗺️ PropertyMap: Reverse geocoding URL:', url)
+      
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+        },
+      })
+      
+      if (!res.ok) {
+        throw new Error(`Reverse geocoding greška: ${res.status}`)
+      }
+      
+      const data = await res.json()
+      console.log('🗺️ PropertyMap: Reverse geocoding response:', data)
+      
+      if (data?.address) {
+        const addr = data.address
+        const parts = [
+          addr.road || addr.street,
+          addr.house_number,
+          addr.postcode,
+          addr.city || addr.town || addr.village,
+          addr.country
+        ].filter(Boolean)
+        
+        const addressString = parts.join(', ')
+        console.log('🗺️ PropertyMap: Reverse geocoded address:', addressString)
+        return addressString
+      }
+      
+      return ''
+    } catch (e) {
+      console.error('🗺️ PropertyMap: Greška pri reverse geocoding-u:', e)
+      return ''
+    } finally {
+      setIsReverseGeocoding(false)
+    }
+  }
+
   function MapClickHandler() {
     useMapEvents({
-      click(e) {
+      async click(e) {
         const next = { lat: e.latlng.lat, lng: e.latlng.lng }
         console.log('🗺️ PropertyMap: Klik na mapu:', next)
         setUserSelectedPosition(true) // Označi da je korisnik ručno izabrao poziciju
         setPosition(next)
         setError('') // Očisti greške
+        
+        // Reverse geocoding za tačnu adresu
+        const addressString = await reverseGeocode(next.lat, next.lng)
+        setReverseGeocodedAddress(addressString)
+        
         if (typeof onLocationChange === 'function') {
-          console.log('🗺️ PropertyMap: Pozivam onLocationChange sa klikom:', next)
-          onLocationChange(next)
+          console.log('🗺️ PropertyMap: Pozivam onLocationChange sa klikom:', next, 'address:', addressString)
+          onLocationChange({ ...next, address: addressString })
         } else {
           console.warn('🗺️ PropertyMap: onLocationChange nije funkcija pri kliku!')
         }
