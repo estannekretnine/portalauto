@@ -298,22 +298,24 @@ export default function PropertyMap({ address, latitude, longitude, onLocationCh
         </MapContainer>
       </div>
 
-      <div className="mt-2 flex flex-col gap-1">
-        {reverseGeocodedAddress && (
-          <div className="text-xs text-green-700 bg-green-50 p-2 rounded border border-green-200">
-            <span className="font-medium">Tačna adresa:</span> {reverseGeocodedAddress}
-          </div>
-        )}
-        {query && !reverseGeocodedAddress && (
+      <div className="mt-2 flex flex-col gap-2">
+        {query && (
           <div className="text-xs text-gray-600">
-            Adresa: <span className="font-medium">{query}</span>
+            <span className="font-medium">Uneta adresa:</span> {query}
             {isGeocoding && <span className="ml-2 text-gray-500">(tražim lokaciju...)</span>}
           </div>
         )}
-        {error && <div className="text-xs text-red-600">{error}</div>}
-        {isReverseGeocoding && (
-          <div className="text-xs text-gray-500">Tražim tačnu adresu...</div>
+        {reverseGeocodedAddress && (
+          <div className="text-xs text-green-700 bg-green-50 p-2 rounded border border-green-200">
+            <span className="font-medium">Tačna lokacija:</span> {reverseGeocodedAddress}
+          </div>
         )}
+        {isReverseGeocoding && (
+          <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded border border-blue-200">
+            Tražim tačnu adresu...
+          </div>
+        )}
+        {error && <div className="text-xs text-red-600 bg-red-50 p-2 rounded border border-red-200">{error}</div>}
       </div>
     </div>
   )
