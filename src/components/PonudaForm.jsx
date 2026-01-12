@@ -1703,6 +1703,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
             <div className="flex-1 relative p-6" style={{ minHeight: '400px' }}>
               <PropertyMap
                 address={getAddressForMap()}
+                latitude={formData.latitude}
+                longitude={formData.longitude}
                 onLocationChange={handleMapLocationChange}
               />
             </div>

@@ -22,16 +22,35 @@ L.Icon.Default.mergeOptions({
  * Props:
  * - address: { drzava, grad, opstina, ulica, broj }
  *   Sve vrednosti su string ili prazno/undefined/null. Komponenta spaja adresu u upit za geokodiranje.
- * - onLocationChange: ({ lat, lng }) => void
+ * - latitude: string | number | null | undefined
+ *   Početna latitude vrednost. Ako je postavljena, koristi se umesto geokodiranja.
+ * - longitude: string | number | null | undefined
+ *   Početna longitude vrednost. Ako je postavljena, koristi se umesto geokodiranja.
+ * - onLocationChange: ({ lat, lng, address?: string }) => void
  *   Poziva se kada se dobije lokacija iz Nominatim-a ili kada korisnik klikne na mapu.
+ *   Kada korisnik klikne, poziva se sa reverse geocoded adresom.
  */
-export default function PropertyMap({ address, onLocationChange }) {
-  console.log('🗺️ PropertyMap render, address:', address)
+export default function PropertyMap({ address, latitude, longitude, onLocationChange }) {
+  console.log('🗺️ PropertyMap render, address:', address, 'latitude:', latitude, 'longitude:', longitude)
   
-  const [position, setPosition] = useState(null) // { lat: number, lng: number } | null
+  // Ako su koordinate već postavljene, koristi ih kao početnu poziciju
+  const initialPosition = useMemo(() => {
+    if (latitude && longitude) {
+      const lat = parseFloat(latitude)
+      const lng = parseFloat(longitude)
+      if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+        return { lat, lng }
+      }
+    }
+    return null
+  }, [latitude, longitude])
+  
+  const [position, setPosition] = useState(initialPosition) // { lat: number, lng: number } | null
   const [isGeocoding, setIsGeocoding] = useState(false)
+  const [isReverseGeocoding, setIsReverseGeocoding] = useState(false)
   const [error, setError] = useState('')
-  const [userSelectedPosition, setUserSelectedPosition] = useState(false) // Flag da li je korisnik ručno izabrao poziciju
+  const [reverseGeocodedAddress, setReverseGeocodedAddress] = useState('')
+  const [userSelectedPosition, setUserSelectedPosition] = useState(!!initialPosition) // Flag da li je korisnik ručno izabrao poziciju ili su koordinate već postavljene
 
   const abortRef = useRef(null)
   const debounceRef = useRef(null)
@@ -55,9 +74,22 @@ export default function PropertyMap({ address, onLocationChange }) {
   // Default centar (Beograd) — mapa uvek treba da se vidi i bez rezultata
   const defaultCenter = useMemo(() => ({ lat: 44.7866, lng: 20.4489 }), [])
 
+  // Ažuriraj poziciju kada se initialPosition promeni
   useEffect(() => {
-    // Ako je korisnik ručno izabrao poziciju, ne geokodiraj ponovo
-    if (userSelectedPosition) {
+    if (initialPosition && !userSelectedPosition) {
+      setPosition(initialPosition)
+      setUserSelectedPosition(true)
+    }
+  }, [initialPosition])
+  
+  useEffect(() => {
+    // Ako je korisnik ručno izabrao poziciju ili su koordinate već postavljene, ne geokodiraj ponovo
+    if (userSelectedPosition && initialPosition) {
+      console.log('🗺️ PropertyMap: Koordinate su već postavljene, preskačem geokodiranje')
+      return
+    }
+    
+    if (userSelectedPosition && !initialPosition) {
       console.log('🗺️ PropertyMap: Korisnik je ručno izabrao poziciju, preskačem geokodiranje')
       return
     }
@@ -157,7 +189,7 @@ export default function PropertyMap({ address, onLocationChange }) {
         abortRef.current = null
       }
     }
-  }, [query, onLocationChange, userSelectedPosition])
+  }, [query, onLocationChange, userSelectedPosition, initialPosition])
 
   function MapClickHandler() {
     useMapEvents({
@@ -216,13 +248,21 @@ export default function PropertyMap({ address, onLocationChange }) {
       </div>
 
       <div className="mt-2 flex flex-col gap-1">
-        {query && (
+        {reverseGeocodedAddress && (
+          <div className="text-xs text-green-700 bg-green-50 p-2 rounded border border-green-200">
+            <span className="font-medium">Tačna adresa:</span> {reverseGeocodedAddress}
+          </div>
+        )}
+        {query && !reverseGeocodedAddress && (
           <div className="text-xs text-gray-600">
             Adresa: <span className="font-medium">{query}</span>
             {isGeocoding && <span className="ml-2 text-gray-500">(tražim lokaciju...)</span>}
           </div>
         )}
         {error && <div className="text-xs text-red-600">{error}</div>}
+        {isReverseGeocoding && (
+          <div className="text-xs text-gray-500">Tražim tačnu adresu...</div>
+        )}
       </div>
     </div>
   )
