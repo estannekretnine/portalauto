@@ -31,6 +31,7 @@ export default function PropertyMap({ address, onLocationChange }) {
   const [position, setPosition] = useState(null) // { lat: number, lng: number } | null
   const [isGeocoding, setIsGeocoding] = useState(false)
   const [error, setError] = useState('')
+  const [userSelectedPosition, setUserSelectedPosition] = useState(false) // Flag da li je korisnik ručno izabrao poziciju
 
   const abortRef = useRef(null)
   const debounceRef = useRef(null)
@@ -55,6 +56,12 @@ export default function PropertyMap({ address, onLocationChange }) {
   const defaultCenter = useMemo(() => ({ lat: 44.7866, lng: 20.4489 }), [])
 
   useEffect(() => {
+    // Ako je korisnik ručno izabrao poziciju, ne geokodiraj ponovo
+    if (userSelectedPosition) {
+      console.log('🗺️ PropertyMap: Korisnik je ručno izabrao poziciju, preskačem geokodiranje')
+      return
+    }
+
     // Očisti prethodni debounce timer
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
@@ -150,14 +157,16 @@ export default function PropertyMap({ address, onLocationChange }) {
         abortRef.current = null
       }
     }
-  }, [query, onLocationChange])
+  }, [query, onLocationChange, userSelectedPosition])
 
   function MapClickHandler() {
     useMapEvents({
       click(e) {
         const next = { lat: e.latlng.lat, lng: e.latlng.lng }
         console.log('🗺️ PropertyMap: Klik na mapu:', next)
+        setUserSelectedPosition(true) // Označi da je korisnik ručno izabrao poziciju
         setPosition(next)
+        setError('') // Očisti greške
         if (typeof onLocationChange === 'function') {
           console.log('🗺️ PropertyMap: Pozivam onLocationChange sa klikom:', next)
           onLocationChange(next)
