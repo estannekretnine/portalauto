@@ -2,20 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-@keyframes rotateBackAndForth {
-  0% {
-    transform: rotate(0deg);
+@layer utilities {
+  @keyframes rotateBackAndForth {
+    0% {
+      transform: rotate(0deg);
+    }
+    50% {
+      transform: rotate(360deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
   }
-  50% {
-    transform: rotate(360deg);
-  }
-  100% {
-    transform: rotate(0deg);
-  }
-}
 
-.rotate-gold {
-  animation: rotateBackAndForth 4s ease-in-out infinite;
+  .rotate-gold {
+    animation: rotateBackAndForth 4s ease-in-out infinite;
+  }
 }
 
 body {
