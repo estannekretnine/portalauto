@@ -705,11 +705,20 @@ export default function PonudaForm({ onClose, onSuccess }) {
     }
   }
   
-  // Handler za promenu lokacije sa mape (sa privacy offset)
-  const handleMapLocationChange = ({ lat, lng }) => {
-    const offsetCoords = applyPrivacyOffset(lat, lng)
-    handleFieldChange('latitude', offsetCoords.lat.toFixed(7))
-    handleFieldChange('longitude', offsetCoords.lng.toFixed(7))
+  // Handler za promenu lokacije sa mape
+  // Ako postoji 'address' u callback-u, znači da je korisnik ručno kliknuo na mapu - primeni offset
+  // Ako nema 'address', znači da je geokodiranje adrese - ne primenjuj offset
+  const handleMapLocationChange = ({ lat, lng, address }) => {
+    if (address) {
+      // Korisnik je ručno kliknuo na mapu - primeni privacy offset
+      const offsetCoords = applyPrivacyOffset(lat, lng)
+      handleFieldChange('latitude', offsetCoords.lat.toFixed(7))
+      handleFieldChange('longitude', offsetCoords.lng.toFixed(7))
+    } else {
+      // Geokodiranje adrese - koristi tačne koordinate bez offset-a
+      handleFieldChange('latitude', lat.toFixed(7))
+      handleFieldChange('longitude', lng.toFixed(7))
+    }
   }
 
   const getVisibleFields = () => {
