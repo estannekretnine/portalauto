@@ -1,15 +1,10 @@
-﻿import { useEffect, useMemo, useRef, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { Upload, X, Image as ImageIcon, Star, ArrowUp, ArrowDown } from 'lucide-react'
 
 export default function PhotoUpload({ photos = [], onPhotosChange }) {
   const [dragActive, setDragActive] = useState(false)
   const [previewSegment, setPreviewSegment] = useState(null)
   const [photoHoverSegment, setPhotoHoverSegment] = useState(null)
-  const [activePhotoId, setActivePhotoId] = useState(null)
-  const [skicaLoaded, setSkicaLoaded] = useState(false)
-  const [skicaError, setSkicaError] = useState('')
-
-  const skicaRef = useRef(null)
 
   const handleFiles = (files) => {
     const fileArray = Array.from(files)
@@ -132,65 +127,6 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
     onPhotosChange(updatedPhotos)
   }
 
-  useEffect(() => {
-    if (photos.length === 0) {
-      setActivePhotoId(null)
-      return
-    }
-
-    if (activePhotoId && photos.some(photo => photo.id === activePhotoId)) {
-      return
-    }
-
-    setActivePhotoId(photos[0].id)
-  }, [photos, activePhotoId])
-
-  const appendPhotoCoordinate = (photoId, point) => {
-    const updatedPhotos = photos.map(photo => {
-      if (photo.id !== photoId) return photo
-      const coords = photo.skica_coords ? photo.skica_coords.split(';').filter(Boolean) : []
-      return {
-        ...photo,
-        skica_coords: [...coords, point].join(';')
-      }
-    })
-    onPhotosChange(updatedPhotos)
-  }
-
-  const removePhotoCoordinate = (photoId, index) => {
-    const updatedPhotos = photos.map(photo => {
-      if (photo.id !== photoId) return photo
-      const coords = photo.skica_coords ? photo.skica_coords.split(';').filter(Boolean) : []
-      coords.splice(index, 1)
-      return {
-        ...photo,
-        skica_coords: coords.join(';')
-      }
-    })
-    onPhotosChange(updatedPhotos)
-  }
-
-  const handleSkicaClick = (event) => {
-    if (!skicaRef.current || !activePhotoId) return
-    const rect = skicaRef.current.getBoundingClientRect()
-    const offsetX = event.clientX - rect.left
-    const offsetY = event.clientY - rect.top
-    if (offsetX < 0 || offsetY < 0 || offsetX > rect.width || offsetY > rect.height) return
-
-    const normalizedX = (offsetX / rect.width).toFixed(4)
-    const normalizedY = (offsetY / rect.height).toFixed(4)
-    appendPhotoCoordinate(activePhotoId, `${normalizedX},${normalizedY}`)
-  }
-
-  const handleSkicaLoad = () => {
-    setSkicaLoaded(true)
-    setSkicaError('')
-  }
-
-  const handleSkicaError = () => {
-    setSkicaError('Nije moguće učitati skicu. Dodaj `public/skica.png`.')
-  }
-
   const getSegmentLabel = (value) => {
     const trimmed = (value || '').trim()
     return trimmed || 'Nepovezano'
@@ -232,11 +168,6 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
     ? (segmentsSummary.find(segment => segment.name === previewSegment)?.photos || [])
     : []
   const activeSegment = previewSegment || photoHoverSegment
-  const activePhoto = photos.find(photo => photo.id === activePhotoId) || null
-  const activePhotoCoords = activePhoto?.skica_coords
-    ? activePhoto.skica_coords.split(';').filter(Boolean)
-    : []
-  const activePhotoLabel = activePhoto ? getSegmentLabel(activePhoto.skica_segment) : 'Nepovezano'
 
   return (
     <div 
@@ -347,62 +278,6 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
               </div>
             )}
           </div>
-        {activePhoto && (
-          <div className="border border-indigo-200 rounded-lg bg-white shadow-sm p-4 space-y-3">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-              <div>
-                <p className="text-sm font-semibold text-gray-700">
-                  Skica: {activePhotoLabel}
-                </p>
-                <p className="text-xs text-gray-500">
-                  Klikni na skicu da sačuvaš koordinate ({activePhotoCoords.length} tačaka)
-                </p>
-              </div>
-              <span className="text-xs text-indigo-500">
-                Aktivan foto: {activePhotoId}
-              </span>
-            </div>
-            <div className="relative border border-gray-200 rounded-md overflow-hidden bg-gray-100">
-              <img
-                ref={skicaRef}
-                src="/skica.png"
-                alt="Skica objekta"
-                className="w-full h-64 object-contain cursor-crosshair select-none"
-                onClick={handleSkicaClick}
-                onLoad={handleSkicaLoad}
-                onError={handleSkicaError}
-                draggable={false}
-              />
-              {!skicaLoaded && !skicaError && (
-                <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-500">
-                  Učitavam skicu...
-                </div>
-              )}
-              {skicaError && (
-                <div className="absolute inset-0 flex items-center justify-center text-xs text-red-500 bg-white/70">
-                  {skicaError}
-                </div>
-              )}
-            </div>
-            <div className="space-y-2">
-              {activePhotoCoords.length === 0 && (
-                <div className="text-xs text-gray-500">Nema beleženih koordinata još.</div>
-              )}
-              {activePhotoCoords.map((coord, idx) => (
-                <div key={`${coord}-${idx}`} className="flex items-center justify-between text-xs text-gray-700 px-2 py-1 border border-gray-100 rounded">
-                  <span>{idx + 1}. {coord}</span>
-                  <button
-                    type="button"
-                    onClick={() => removePhotoCoordinate(activePhoto.id, idx)}
-                    className="text-indigo-600 hover:text-indigo-800"
-                  >
-                    Ukloni
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
           {photos
             .sort((a, b) => (a.redosled || 0) - (b.redosled || 0))
             .map((photo, index) => {
@@ -475,7 +350,7 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                           <span className="text-sm text-gray-700">Skica</span>
                         </label>
                         
-                      <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1">
                           <button
                             type="button"
                             onClick={(e) => {
@@ -501,23 +376,6 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                             <ArrowDown className="w-4 h-4" />
                           </button>
                         </div>
-                      <div>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            setActivePhotoId(photo.id)
-                          }}
-                          className={`px-3 py-1 rounded-lg text-xs font-semibold border ${
-                            activePhotoId === photo.id
-                              ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                              : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
-                          }`}
-                        >
-                          {activePhotoId === photo.id ? 'Aktivan za skicu' : 'Postavi za skicu'}
-                        </button>
-                      </div>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
