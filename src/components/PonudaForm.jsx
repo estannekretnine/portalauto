@@ -1972,15 +1972,20 @@ export default function PonudaForm({ onClose, onSuccess }) {
                         />
                         <div>
                           <label className="block text-xs text-gray-600 mb-1">Datum rođenja</label>
-                          <input
-                            type="date"
-                            value={vlasnik.datum_rodjenja || ''}
-                            onChange={(e) => {
-                              const dateValue = e.target.value || ''
-                              handleVlasnikChange(index, 'datum_rodjenja', dateValue)
-                            }}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                          />
+                          <div className="date-input-placeholder relative">
+                            <input
+                              type="date"
+                              value={vlasnik.datum_rodjenja || ''}
+                              onChange={(e) => {
+                                const dateValue = e.target.value || ''
+                                handleVlasnikChange(index, 'datum_rodjenja', dateValue)
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm relative z-10 bg-transparent"
+                            />
+                            {!vlasnik.datum_rodjenja && (
+                              <span className="date-placeholder-text">Datum rođenja</span>
+                            )}
+                          </div>
                         </div>
                         <input
                           type="text"
