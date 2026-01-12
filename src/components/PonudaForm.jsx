@@ -2023,16 +2023,12 @@ export default function PonudaForm({ onClose, onSuccess }) {
                         <div>
                           <label className="block text-xs text-gray-600 mb-1">Datum rođenja</label>
                           <input
-                            type="text"
-                            value={formatDatum(vlasnik.datum_rodjenja)}
+                            type="date"
+                            value={vlasnik.datum_rodjenja || ''}
                             onChange={(e) => {
-                              handleDatumInput(e.target.value, (formatted) => {
-                                const parsed = parseDatum(formatted)
-                                handleVlasnikChange(index, 'datum_rodjenja', parsed)
-                              })
+                              const dateValue = e.target.value || ''
+                              handleVlasnikChange(index, 'datum_rodjenja', dateValue)
                             }}
-                            placeholder="dd.mm.yyyy"
-                            maxLength={10}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                           />
                         </div>
@@ -2111,32 +2107,18 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   <div>
                     <label className="block text-sm text-gray-600 mb-1">Datum ugovora</label>
                     <input
-                      type="text"
-                      value={formatDatum(metapodaci.eop.datum_ugovora)}
-                      onChange={(e) => {
-                        handleDatumInput(e.target.value, (formatted) => {
-                          const parsed = parseDatum(formatted)
-                          handleEopChange('datum_ugovora', parsed)
-                        })
-                      }}
-                      placeholder="dd.mm.yyyy"
-                      maxLength={10}
+                      type="date"
+                      value={metapodaci.eop.datum_ugovora}
+                      onChange={(e) => handleEopChange('datum_ugovora', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                     />
                   </div>
                   <div>
                     <label className="block text-sm text-gray-600 mb-1">Datum isteka</label>
                     <input
-                      type="text"
-                      value={formatDatum(metapodaci.eop.datum_istice)}
-                      onChange={(e) => {
-                        handleDatumInput(e.target.value, (formatted) => {
-                          const parsed = parseDatum(formatted)
-                          handleEopChange('datum_istice', parsed)
-                        })
-                      }}
-                      placeholder="dd.mm.yyyy"
-                      maxLength={10}
+                      type="date"
+                      value={metapodaci.eop.datum_istice}
+                      onChange={(e) => handleEopChange('datum_istice', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                     />
                   </div>
@@ -2177,16 +2159,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   <div>
                     <label className="block text-sm text-gray-600 mb-1">Datum zaključenja</label>
                     <input
-                      type="text"
-                      value={formatDatum(metapodaci.realizacija.datum_zakljucenja)}
-                      onChange={(e) => {
-                        handleDatumInput(e.target.value, (formatted) => {
-                          const parsed = parseDatum(formatted)
-                          handleRealizacijaChange('datum_zakljucenja', parsed)
-                        })
-                      }}
-                      placeholder="dd.mm.yyyy"
-                      maxLength={10}
+                      type="date"
+                      value={metapodaci.realizacija.datum_zakljucenja}
+                      onChange={(e) => handleRealizacijaChange('datum_zakljucenja', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                     />
                   </div>
@@ -2305,16 +2280,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   <div>
                     <label className="block text-sm text-gray-600 mb-1">Datum</label>
                     <input
-                      type="text"
-                      value={formatDatum(metapodaci.zastupnik.datum)}
-                      onChange={(e) => {
-                        handleDatumInput(e.target.value, (formatted) => {
-                          const parsed = parseDatum(formatted)
-                          handleZastupnikChange('datum', parsed)
-                        })
-                      }}
-                      placeholder="dd.mm.yyyy"
-                      maxLength={10}
+                      type="date"
+                      value={metapodaci.zastupnik.datum}
+                      onChange={(e) => handleZastupnikChange('datum', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                     />
                   </div>
