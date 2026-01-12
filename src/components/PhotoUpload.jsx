@@ -13,7 +13,8 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
       url: URL.createObjectURL(file),
       opis: '',
       redosled: maxRedosled + index + 1,
-      glavna: photos.length === 0 && index === 0 // Prva fotografija je glavna ako nema postoje─çih
+      glavna: photos.length === 0 && index === 0, // Prva fotografija je glavna ako nema postojećih
+      stsskica: false // Podrazumevano nije skica
     }))
     
     onPhotosChange([...photos, ...newPhotos])
@@ -75,8 +76,15 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
   const toggleGlavna = (id) => {
     const updatedPhotos = photos.map(photo => ({
       ...photo,
-      glavna: photo.id === id ? !photo.glavna : false // Samo jedna mo┼╛e biti glavna
+      glavna: photo.id === id ? !photo.glavna : false // Samo jedna može biti glavna
     }))
+    onPhotosChange(updatedPhotos)
+  }
+
+  const toggleStsskica = (id) => {
+    const updatedPhotos = photos.map(photo => 
+      photo.id === id ? { ...photo, stsskica: !photo.stsskica } : photo
+    )
     onPhotosChange(updatedPhotos)
   }
 
@@ -205,7 +213,7 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                 </div>
                 
                 <div className="flex-1 space-y-3">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <button
                       type="button"
                       onClick={(e) => {
@@ -222,6 +230,22 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                       <Star className={`w-4 h-4 ${photo.glavna ? 'fill-current' : ''}`} />
                       {photo.glavna ? 'Glavna' : 'Postavi kao glavnu'}
                     </button>
+                    
+                    <label className="flex items-center gap-2 px-3 py-1 rounded-lg text-sm border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={photo.stsskica || false}
+                        onChange={(e) => {
+                          e.stopPropagation()
+                          toggleStsskica(photo.id)
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                        }}
+                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                      />
+                      <span className="text-sm text-gray-700">Skica</span>
+                    </label>
                     
                     <div className="flex items-center gap-1">
                       <button

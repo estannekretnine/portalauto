@@ -864,7 +864,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
               url: url,
               opis: photo.opis || null,
               redosled: photo.redosled || null,
-              glavna: photo.glavna || false
+              glavna: photo.glavna || false,
+              stsskica: photo.stsskica || false
             }
           })
         )
