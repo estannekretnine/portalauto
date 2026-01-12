@@ -898,17 +898,66 @@ export default function PonudaForm({ onClose, onSuccess }) {
       const normalizedPhone = normalizePhone(phone)
       console.log('📞 Phone search: Searching for normalized phone:', normalizedPhone, 'Original:', phone)
       
-      // Koristi jednostavniji pattern - pretraži bilo koji deo telefona
-      // Ukloni + i razmake iz pattern-a za pretragu
-      const searchPattern = `%${normalizedPhone}%`
-      console.log('📞 Phone search: Using pattern:', searchPattern)
+      // Generiši različite varijante telefona za pretragu
+      const variants = []
       
-      // Prvo učitaj osnovne podatke bez relacija
-      const { data: ponudeData, error } = await supabase
-        .from('ponuda')
-        .select('id, naslovaoglasa, cena, brojtelefona, brojulice, idvrstaobjekta, iddrzava, idgrada, idopstina, idlokacija, idulica')
-        .ilike('brojtelefona', searchPattern)
-        .limit(10)
+      // 1. Originalni normalizovani (npr. 381638676663)
+      variants.push(`%${normalizedPhone}%`)
+      
+      // 2. Bez 381 na početku (npr. 638676663)
+      if (normalizedPhone.startsWith('381') && normalizedPhone.length > 3) {
+        const without381 = normalizedPhone.slice(3)
+        variants.push(`%${without381}%`)
+        // 3. Sa 0 na početku (npr. 0638676663)
+        variants.push(`%0${without381}%`)
+      }
+      
+      // 4. Sa + na početku (npr. +381638676663)
+      variants.push(`%+${normalizedPhone}%`)
+      
+      // 5. Sa razmacima (npr. +381 63 867 6663)
+      if (normalizedPhone.startsWith('381') && normalizedPhone.length > 3) {
+        const digits = normalizedPhone.slice(3)
+        if (digits.length >= 9) {
+          const formatted = `+381 ${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5)}`
+          variants.push(`%${formatted}%`)
+        }
+      }
+      
+      console.log('📞 Phone search: Using patterns:', variants)
+      
+      // Izvrši više query-ja paralelno sa različitim pattern-ima
+      const queries = variants.map(pattern => 
+        supabase
+          .from('ponuda')
+          .select('id, naslovaoglasa, cena, brojtelefona, brojulice, idvrstaobjekta, iddrzava, idgrada, idopstina, idlokacija, idulica')
+          .ilike('brojtelefona', pattern)
+          .limit(10)
+      )
+      
+      const results = await Promise.all(queries)
+      
+      // Kombinuj rezultate i ukloni duplikate po ID-u
+      const allPonude = []
+      const seenIds = new Set()
+      
+      for (const result of results) {
+        if (result.error) {
+          console.error('📞 Phone search error in one query:', result.error)
+          continue
+        }
+        if (result.data) {
+          for (const ponuda of result.data) {
+            if (!seenIds.has(ponuda.id)) {
+              seenIds.add(ponuda.id)
+              allPonude.push(ponuda)
+            }
+          }
+        }
+      }
+      
+      const ponudeData = allPonude.slice(0, 10) // Limitiraj na 10 rezultata
+      const error = results.find(r => r.error)?.error || null
 
       if (error) {
         console.error('📞 Phone search error:', error)
