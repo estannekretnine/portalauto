@@ -1974,9 +1974,11 @@ export default function PonudaForm({ onClose, onSuccess }) {
                           <label className="block text-xs text-gray-600 mb-1">Datum rođenja</label>
                           <input
                             type="date"
-                            value={vlasnik.datum_rodjenja}
-                            onChange={(e) => handleVlasnikChange(index, 'datum_rodjenja', e.target.value)}
-                            placeholder="Datum rođenja"
+                            value={vlasnik.datum_rodjenja || ''}
+                            onChange={(e) => {
+                              const dateValue = e.target.value || ''
+                              handleVlasnikChange(index, 'datum_rodjenja', dateValue)
+                            }}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                           />
                         </div>
