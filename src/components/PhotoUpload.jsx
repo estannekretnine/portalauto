@@ -1,8 +1,10 @@
-﻿import { useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { Upload, X, Image as ImageIcon, Star, ArrowUp, ArrowDown } from 'lucide-react'
 
 export default function PhotoUpload({ photos = [], onPhotosChange }) {
   const [dragActive, setDragActive] = useState(false)
+  const [previewSegment, setPreviewSegment] = useState(null)
+  const [photoHoverSegment, setPhotoHoverSegment] = useState(null)
 
   const handleFiles = (files) => {
     const fileArray = Array.from(files)
@@ -125,6 +127,48 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
     onPhotosChange(updatedPhotos)
   }
 
+  const getSegmentLabel = (value) => {
+    const trimmed = (value || '').trim()
+    return trimmed || 'Nepovezano'
+  }
+
+  const segmentsSummary = useMemo(() => {
+    const summary = new Map()
+    photos.forEach(photo => {
+      const label = getSegmentLabel(photo.skica_segment)
+      if (!summary.has(label)) {
+        summary.set(label, { name: label, photos: [] })
+      }
+      summary.get(label).photos.push(photo)
+    })
+    return Array.from(summary.values())
+  }, [photos])
+
+  const segmentOptions = useMemo(() => {
+    const names = segmentsSummary.map(segment => segment.name)
+    return Array.from(new Set(names))
+  }, [segmentsSummary])
+
+  const updatePhotoSegment = (id, segment) => {
+    const trimmed = segment ? segment.trim() : ''
+    const updatedPhotos = photos.map(photo =>
+      photo.id === id ? { ...photo, skica_segment: trimmed } : photo
+    )
+    onPhotosChange(updatedPhotos)
+  }
+
+  const updatePhotoCoords = (id, coords) => {
+    const updatedPhotos = photos.map(photo =>
+      photo.id === id ? { ...photo, skica_coords: coords } : photo
+    )
+    onPhotosChange(updatedPhotos)
+  }
+
+  const previewPhotos = previewSegment
+    ? (segmentsSummary.find(segment => segment.name === previewSegment)?.photos || [])
+    : []
+  const activeSegment = previewSegment || photoHoverSegment
+
   return (
     <div 
       className="space-y-4"
@@ -180,154 +224,244 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
 
       {photos.length > 0 && (
         <div className="space-y-4">
+          <div className="border border-gray-200 rounded-lg bg-white shadow-sm p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-gray-700">Segmenti skice</p>
+              <span className="text-xs text-gray-500">Hover da vidiš povezane fotke</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {segmentsSummary.map(segment => {
+                const isActive = activeSegment === segment.name
+                const previewPhoto = segment.photos[0]
+                return (
+                  <button
+                    key={segment.name}
+                    type="button"
+                    onMouseEnter={() => setPreviewSegment(segment.name)}
+                    onMouseLeave={() => setPreviewSegment(null)}
+                    className={`relative w-full text-left rounded-lg border p-3 transition ${isActive ? 'border-indigo-500 bg-white shadow-lg' : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-white'}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900 truncate">{segment.name}</p>
+                        <p className="text-xs text-gray-500">{segment.photos.length} fotografija</p>
+                        {previewPhoto?.skica_coords && (
+                          <p className="text-[10px] text-gray-400">Koord: {previewPhoto.skica_coords}</p>
+                        )}
+                      </div>
+                      {previewPhoto?.url ? (
+                        <img
+                          src={previewPhoto.url}
+                          alt={segment.name}
+                          className="h-12 w-12 rounded-md object-cover border border-gray-200"
+                        />
+                      ) : (
+                        <div className="h-12 w-12 rounded-md border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
+                          nema
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+            {previewPhotos.length > 0 && (
+              <div className="border border-gray-200 rounded-lg bg-gray-50 p-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {previewPhotos.slice(0, 6).map(photo => (
+                  <img
+                    key={photo.id}
+                    src={photo.url}
+                    alt={photo.opis || 'Preview'}
+                    className="h-20 w-full object-cover rounded"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
           {photos
             .sort((a, b) => (a.redosled || 0) - (b.redosled || 0))
-            .map((photo, index) => (
-            <div
-              key={photo.id}
-              className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm"
-            >
-              <div className="flex gap-4">
-                <div className="relative flex-shrink-0">
-                  <img
-                    src={photo.url}
-                    alt="Preview"
-                    className="w-32 h-32 object-cover rounded-lg"
-                  />
-                  {photo.glavna && (
-                    <div className="absolute top-2 left-2 bg-yellow-400 text-white rounded-full p-1">
-                      <Star className="w-4 h-4 fill-current" />
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      removePhoto(photo.id)
-                    }}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-                
-                <div className="flex-1 space-y-3">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        toggleGlavna(photo.id)
-                      }}
-                      className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm transition-colors ${
-                        photo.glavna
-                          ? 'bg-yellow-100 text-yellow-700 border border-yellow-300'
-                          : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
-                      }`}
-                    >
-                      <Star className={`w-4 h-4 ${photo.glavna ? 'fill-current' : ''}`} />
-                      {photo.glavna ? 'Glavna' : 'Postavi kao glavnu'}
-                    </button>
-                    
-                    <label className="flex items-center gap-2 px-3 py-1 rounded-lg text-sm border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={photo.stsskica || false}
-                        onChange={(e) => {
-                          e.stopPropagation()
-                          toggleStsskica(photo.id)
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                        }}
-                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+            .map((photo, index) => {
+              const photoSegmentName = getSegmentLabel(photo.skica_segment)
+              const isPhotoActive = activeSegment === photoSegmentName
+              return (
+                <div
+                  key={photo.id}
+                  onMouseEnter={() => setPhotoHoverSegment(photoSegmentName)}
+                  onMouseLeave={() => setPhotoHoverSegment(null)}
+                  className={`border rounded-lg p-4 bg-white shadow-sm transition ${isPhotoActive ? 'border-indigo-500 shadow-lg' : 'border-gray-200'}`}
+                >
+                  <div className="flex gap-4">
+                    <div className="relative flex-shrink-0">
+                      <img
+                        src={photo.url}
+                        alt="Preview"
+                        className="w-32 h-32 object-cover rounded-lg"
                       />
-                      <span className="text-sm text-gray-700">Skica</span>
-                    </label>
-                    
-                    <div className="flex items-center gap-1">
+                      {photo.glavna && (
+                        <div className="absolute top-2 left-2 bg-yellow-400 text-white rounded-full p-1">
+                          <Star className="w-4 h-4 fill-current" />
+                        </div>
+                      )}
                       <button
                         type="button"
                         onClick={(e) => {
                           e.preventDefault()
                           e.stopPropagation()
-                          movePhoto(photo.id, 'up')
+                          removePhoto(photo.id)
                         }}
-                        disabled={index === 0}
-                        className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                       >
-                        <ArrowUp className="w-4 h-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          movePhoto(photo.id, 'down')
-                        }}
-                        disabled={index === photos.length - 1}
-                        className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <ArrowDown className="w-4 h-4" />
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
-                  </div>
+                    
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            toggleGlavna(photo.id)
+                          }}
+                          className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm transition-colors ${
+                            photo.glavna
+                              ? 'bg-yellow-100 text-yellow-700 border border-yellow-300'
+                              : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
+                          }`}
+                        >
+                          <Star className={`w-4 h-4 ${photo.glavna ? 'fill-current' : ''}`} />
+                          {photo.glavna ? 'Glavna' : 'Postavi kao glavnu'}
+                        </button>
+                        
+                        <label className="flex items-center gap-2 px-3 py-1 rounded-lg text-sm border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer transition-colors">
+                          <input
+                            type="checkbox"
+                            checked={photo.stsskica || false}
+                            onChange={(e) => {
+                              e.stopPropagation()
+                              toggleStsskica(photo.id)
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                            }}
+                            className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                          />
+                          <span className="text-sm text-gray-700">Skica</span>
+                        </label>
+                        
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              movePhoto(photo.id, 'up')
+                            }}
+                            disabled={index === 0}
+                            className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <ArrowUp className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              movePhoto(photo.id, 'down')
+                            }}
+                            disabled={index === photos.length - 1}
+                            className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <ArrowDown className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Opis:
+                          </label>
+                          <textarea
+                            value={photo.opis || ''}
+                            onChange={(e) => updatePhotoDescription(photo.id, e.target.value)}
+                            placeholder="Unesite opis fotografije..."
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                            rows="2"
+                          />
+                        </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Opis:
-                      </label>
-                      <textarea
-                        value={photo.opis || ''}
-                        onChange={(e) => updatePhotoDescription(photo.id, e.target.value)}
-                        placeholder="Unesite opis fotografije..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
-                        rows="2"
-                      />
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Redosled:
+                          </label>
+                          <input
+                            type="number"
+                            value={photo.redosled || ''}
+                            onChange={(e) => updatePhotoRedosled(photo.id, e.target.value)}
+                            placeholder="Redosled prikaza"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Segment skice
+                          </label>
+                          <input
+                            type="text"
+                            list="skica-segment-options"
+                            value={photo.skica_segment || ''}
+                            onChange={(e) => updatePhotoSegment(photo.id, e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            placeholder="npr. Kuhinja, Dnevna soba"
+                          />
+                          <datalist id="skica-segment-options">
+                            {segmentOptions.map(option => (
+                              <option key={option} value={option} />
+                            ))}
+                          </datalist>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Koordinate segmenta
+                          </label>
+                          <input
+                            type="text"
+                            value={photo.skica_coords || ''}
+                            onChange={(e) => updatePhotoCoords(photo.id, e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            placeholder="npr. 120,230;150,260"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Zameni fotografiju:
+                        </label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            if (e.target.files && e.target.files[0]) {
+                              updatePhoto(photo.id, e.target.files[0])
+                            }
+                            e.target.value = '' // Reset input
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                          }}
+                          className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                        />
+                      </div>
                     </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Redosled:
-                      </label>
-                      <input
-                        type="number"
-                        value={photo.redosled || ''}
-                        onChange={(e) => updatePhotoRedosled(photo.id, e.target.value)}
-                        placeholder="Redosled prikaza"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Zameni fotografiju:
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        if (e.target.files && e.target.files[0]) {
-                          updatePhoto(photo.id, e.target.files[0])
-                        }
-                        e.target.value = '' // Reset input
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                      }}
-                      className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                    />
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              )
+            })}
         </div>
       )}
     </div>
