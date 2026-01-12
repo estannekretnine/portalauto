@@ -196,7 +196,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
       rad_od_kuce: false, pet_friendly: 0, nivo_buke: '', osuncanost: ''
     },
     ekologija: {
-      pogled: '', indeks_vazduha: '', energetski_razred: ''
+      pogled: [], indeks_vazduha: '', energetski_razred: ''
     },
     mikrolokacija: {
       mirna_ulica: false, skola_minuta: 0, ev_punjac_metara: 0
@@ -848,6 +848,19 @@ export default function PonudaForm({ onClose, onSuccess }) {
     }))
   }
 
+  const handlePogledToggle = (pogledValue) => {
+    setAiKarakteristike(prev => {
+      const currentPogled = Array.isArray(prev.ekologija.pogled) ? prev.ekologija.pogled : []
+      const newPogled = currentPogled.includes(pogledValue)
+        ? currentPogled.filter(p => p !== pogledValue)
+        : [...currentPogled, pogledValue]
+      return {
+        ...prev,
+        ekologija: { ...prev.ekologija, pogled: newPogled }
+      }
+    })
+  }
+
   const handleAiMikrolokacijaChange = (field, value) => {
     setAiKarakteristike(prev => ({
       ...prev,
@@ -1402,6 +1415,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   ) : (
                     <input
                       type={field.type}
+                      step={field.key === 'cena' ? '0.001' : undefined}
                       value={formData[field.key] || ''}
                       onChange={(e) => field.key === 'cena' ? handleCenaChange(e.target.value) : handleFieldChange(field.key, e.target.value)}
                       onBlur={field.key === 'cena' ? () => { previousCenaRef.current = formData.cena ? parseFloat(formData.cena) : null } : undefined}
@@ -1796,7 +1810,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 { id: 'realizacija', label: 'Realizacija', icon: Receipt },
                 { id: 'troskovi', label: 'Troškovi', icon: Wallet },
                 { id: 'zastupnik', label: 'Zastupnik', icon: UserCheck },
-                { id: 'ai', label: 'AI Karakteristike', icon: Brain }
+                { id: 'ai', label: 'Karakteristike', icon: Brain }
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -2259,19 +2273,32 @@ export default function PonudaForm({ onClose, onSuccess }) {
                     <h4 className="font-medium text-gray-700 mb-3">Ekologija</h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm text-gray-600 mb-1">Pogled</label>
-                        <select
-                          value={aiKarakteristike.ekologija.pogled}
-                          onChange={(e) => handleAiEkologijaChange('pogled', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                        >
-                          <option value="">Izaberite</option>
-                          <option value="park">Park</option>
-                          <option value="ulica">Ulica</option>
-                          <option value="dvoriste">Dvorište</option>
-                          <option value="reka">Reka</option>
-                          <option value="panorama">Panorama</option>
-                        </select>
+                        <label className="block text-sm text-gray-600 mb-2">Pogled</label>
+                        <div className="space-y-2">
+                          {[
+                            { value: 'park', label: 'Park' },
+                            { value: 'ulica', label: 'Ulica' },
+                            { value: 'dvoriste', label: 'Dvorište' },
+                            { value: 'reka', label: 'Reka' },
+                            { value: 'panorama', label: 'Panorama' }
+                          ].map(option => {
+                            const currentPogled = Array.isArray(aiKarakteristike.ekologija.pogled) 
+                              ? aiKarakteristike.ekologija.pogled 
+                              : []
+                            const isChecked = currentPogled.includes(option.value)
+                            return (
+                              <label key={option.value} className="flex items-center gap-2 text-sm cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onChange={() => handlePogledToggle(option.value)}
+                                  className="rounded border-gray-300"
+                                />
+                                {option.label}
+                              </label>
+                            )
+                          })}
+                        </div>
                       </div>
                       <div>
                         <label className="block text-sm text-gray-600 mb-1">Indeks vazduha</label>
