@@ -862,12 +862,12 @@ export default function PonudaForm({ onClose, onSuccess }) {
               datumpromene: new Date().toISOString(),
               idponude: ponuda.id,
               url: url,
-              opis: photo.opis || null,
-              redosled: photo.redosled || null,
-              glavna: photo.glavna || false,
-              stsskica: photo.stsskica || false,
-              skica_segment: photo.skica_segment || null,
-              skica_coords: photo.skica_coords || null
+            opis: photo.opis || null,
+            redosled: photo.redosled || null,
+            glavna: photo.glavna || false,
+            stsskica: photo.stsskica || false,
+            skica_segment: photo.skica_segment || null,
+            skica_coords: photo.skica_coords || null
             }
           })
         )
