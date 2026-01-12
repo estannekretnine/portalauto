@@ -5,18 +5,18 @@
 @layer utilities {
   @keyframes rotateBackAndForth {
     0% {
-      transform: rotate(0deg);
+      transform: rotateY(0deg);
     }
     50% {
-      transform: rotate(360deg);
+      transform: rotateY(360deg);
     }
     100% {
-      transform: rotate(0deg);
+      transform: rotateY(0deg);
     }
   }
 
   .rotate-gold {
-    animation: rotateBackAndForth 4s ease-in-out infinite;
+    animation: rotateBackAndForth 8s ease-in-out infinite;
   }
 }
 
