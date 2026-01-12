@@ -7,7 +7,7 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
   const [photoHoverSegment, setPhotoHoverSegment] = useState(null)
   const [currentSketch, setCurrentSketch] = useState('Skica1')
 
-  const sketchOptions = ['Skica1', 'Skica2', 'Skica3']
+  const sketchOptions = ['Skica1', 'Skica2', 'Skica3', 'Skica4', 'Skica5']
 
   const handleFiles = (files) => {
     const fileArray = Array.from(files)
@@ -246,28 +246,39 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
       {photos.length > 0 && (
         <div className="space-y-4">
           <div className="border border-gray-200 rounded-lg bg-white shadow-sm p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-gray-700">Segmenti skice</p>
-              <span className="text-xs text-gray-500">Hover da vidiš povezane fotke</span>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <label className="text-xs text-gray-500">
-                Trenutna skica
-                <input
-                  list="skica-options"
-                  value={currentSketch}
-                  onChange={(e) => setCurrentSketch(e.target.value)}
-                  className="mt-1 block w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
-              </label>
-              <datalist id="skica-options">
-                {sketchOptions.map(option => (
-                  <option key={option} value={option} />
-                ))}
-              </datalist>
-              <p className="text-xs text-gray-500 md:col-span-2">
-                Za svaki segment (fotografija) se koordinate čuvaju sa prefiksom naziva skice, npr. <code>Skica1:0.12,0.27</code>.
-              </p>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-gray-700">Segmenti skice</p>
+                <span className="text-xs text-gray-500">Izaberi skicu koju povezuješ sa foto</span>
+              </div>
+              <div className="flex flex-col gap-1 text-xs text-gray-500">
+                <label className="flex flex-col gap-1">
+                  Izaberi skicu
+                  <div className="flex gap-2">
+                    <input
+                      list="skica-options"
+                      value={currentSketch}
+                      onChange={(e) => setCurrentSketch(e.target.value)}
+                      className="block w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nextIndex = (sketchOptions.indexOf(currentSketch) + 1) % sketchOptions.length
+                        setCurrentSketch(sketchOptions[nextIndex])
+                      }}
+                      className="px-2 py-1 rounded-md bg-indigo-50 text-indigo-700 text-xs font-semibold border border-indigo-200"
+                    >
+                      Sledeća
+                    </button>
+                  </div>
+                </label>
+                <datalist id="skica-options">
+                  {sketchOptions.map(option => (
+                    <option key={option} value={option} />
+                  ))}
+                </datalist>
+              </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {segmentsSummary.map(segment => {
