@@ -235,6 +235,21 @@ export default function PonudaForm({ onClose, onSuccess }) {
     loadLookupData()
     loadSveUliceSaRelacijama() // Učitaj sve ulice sa relacijama za autocomplete
   }, [])
+
+  // Zatvori phone dropdown kada se klikne van njega
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (phoneInputRef.current && !phoneInputRef.current.contains(event.target) && 
+          !event.target.closest('[data-phone-dropdown]')) {
+        setShowPhoneDropdown(false)
+      }
+    }
+    
+    if (showPhoneDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showPhoneDropdown])
   
   // Zatvori dropdown kada se klikne van njega
   useEffect(() => {
@@ -818,6 +833,133 @@ export default function PonudaForm({ onClose, onSuccess }) {
     onChangeCallback(formatted)
   }
 
+  // Formatiranje međunarodnog telefona (+381 XX XXX XXXX)
+  const formatPhone = (value) => {
+    if (!value) return ''
+    
+    // Ukloni sve što nije broj ili +
+    let cleaned = value.replace(/[^\d+]/g, '')
+    
+    // Ako ne počinje sa +, dodaj +381 ako je srpski broj
+    if (!cleaned.startsWith('+')) {
+      // Ako počinje sa 0, zameni sa +381
+      if (cleaned.startsWith('0')) {
+        cleaned = '+381' + cleaned.slice(1)
+      } else if (cleaned.startsWith('381')) {
+        cleaned = '+' + cleaned
+      } else if (cleaned.length > 0 && !cleaned.startsWith('+')) {
+        // Ako je samo lokalni broj, dodaj +381
+        cleaned = '+381' + cleaned
+      }
+    }
+    
+    // Formatiraj: +381 XX XXX XXXX
+    if (cleaned.startsWith('+381')) {
+      const digits = cleaned.slice(4).replace(/\D/g, '')
+      if (digits.length === 0) return '+381'
+      if (digits.length <= 2) return `+381 ${digits}`
+      if (digits.length <= 5) return `+381 ${digits.slice(0, 2)} ${digits.slice(2)}`
+      return `+381 ${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5, 9)}`
+    }
+    
+    // Za druge međunarodne formate, samo dodaj razmake
+    if (cleaned.startsWith('+')) {
+      const digits = cleaned.slice(1).replace(/\D/g, '')
+      return '+' + digits
+    }
+    
+    return cleaned
+  }
+
+  // Normalizacija telefona za pretragu (ukloni razmake, crtice)
+  const normalizePhone = (phone) => {
+    if (!phone) return ''
+    return phone.replace(/[\s\-\(\)]/g, '')
+  }
+
+  // Pretraga ponuda po telefonu
+  const searchPonudaByPhone = async (phone) => {
+    if (!phone || phone.length < 3) {
+      setPhoneSearchResults([])
+      setShowPhoneDropdown(false)
+      return
+    }
+
+    setIsSearchingPhone(true)
+    try {
+      const normalizedPhone = normalizePhone(phone)
+      const searchPattern = `%${normalizedPhone}%`
+      
+      const { data, error } = await supabase
+        .from('ponuda')
+        .select(`
+          id,
+          naslovaoglasa,
+          cena,
+          brojtelefona,
+          brojulice,
+          vrstaobjekta:vrstaobjekta(id, opis),
+          drzava:drzava(id, opis),
+          grad:grad(id, opis),
+          opstina:opstina(id, opis),
+          lokacija:lokacija(id, opis),
+          ulica:ulica(id, opis)
+        `)
+        .ilike('brojtelefona', searchPattern)
+        .limit(10)
+
+      if (error) {
+        console.error('Greška pri pretrazi ponuda:', error)
+        setPhoneSearchResults([])
+        setShowPhoneDropdown(false)
+        return
+      }
+
+      if (data && data.length > 0) {
+        setPhoneSearchResults(data)
+        setShowPhoneDropdown(true)
+      } else {
+        setPhoneSearchResults([])
+        setShowPhoneDropdown(false)
+      }
+    } catch (err) {
+      console.error('Greška pri pretrazi:', err)
+      setPhoneSearchResults([])
+      setShowPhoneDropdown(false)
+    } finally {
+      setIsSearchingPhone(false)
+    }
+  }
+
+  // Handler za promenu telefona
+  const handlePhoneChange = (value) => {
+    const formatted = formatPhone(value)
+    handleFieldChange('brojtelefona', formatted)
+  }
+
+  // Handler za blur telefona (pretraga)
+  const handlePhoneBlur = () => {
+    if (formData.brojtelefona) {
+      searchPonudaByPhone(formData.brojtelefona)
+    } else {
+      setPhoneSearchResults([])
+      setShowPhoneDropdown(false)
+    }
+  }
+
+  // Formatiranje adrese za prikaz
+  const formatAddress = (ponuda) => {
+    const parts = [
+      ponuda.ulica?.opis,
+      ponuda.brojulice,
+      ponuda.lokacija?.opis,
+      ponuda.opstina?.opis,
+      ponuda.grad?.opis,
+      ponuda.drzava?.opis
+    ].filter(Boolean)
+    return parts.join(', ') || 'N/A'
+  }
+
   // Handler za promenu cene sa automatskom istorijom
   const handleCenaChange = (newCena) => {
     const parsedValue = parseCena(newCena)
@@ -843,6 +985,12 @@ export default function PonudaForm({ onClose, onSuccess }) {
 
   // State za formatirani prikaz cene
   const [formattedCena, setFormattedCena] = useState('')
+
+  // State za pretragu telefona
+  const [phoneSearchResults, setPhoneSearchResults] = useState([])
+  const [isSearchingPhone, setIsSearchingPhone] = useState(false)
+  const [showPhoneDropdown, setShowPhoneDropdown] = useState(false)
+  const phoneInputRef = useRef(null)
 
   // Handler za formatiranje cene pri izlasku sa polja
   const handleCenaBlur = () => {
@@ -1638,16 +1786,79 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 />
               </div>
 
-              <div>
+              <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Broj telefona
                 </label>
-                <input
-                  type="text"
-                  value={formData.brojtelefona || ''}
-                  onChange={(e) => handleFieldChange('brojtelefona', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
+                <div className="relative">
+                  <input
+                    ref={phoneInputRef}
+                    type="text"
+                    value={formData.brojtelefona || ''}
+                    onChange={(e) => handlePhoneChange(e.target.value)}
+                    onBlur={handlePhoneBlur}
+                    onFocus={() => {
+                      if (phoneSearchResults.length > 0) {
+                        setShowPhoneDropdown(true)
+                      }
+                    }}
+                    placeholder="+381 XX XXX XXXX"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                  {isSearchingPhone && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600"></div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Dropdown sa rezultatima pretrage */}
+                {showPhoneDropdown && phoneSearchResults.length > 0 && (
+                  <div data-phone-dropdown className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto">
+                    <div className="p-2 text-xs font-semibold text-gray-600 border-b border-gray-200">
+                      Pronađene ponude ({phoneSearchResults.length})
+                    </div>
+                    {phoneSearchResults.map((ponuda) => (
+                      <div
+                        key={ponuda.id}
+                        className="p-3 hover:bg-indigo-50 border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          // Možeš dodati navigaciju ili otvaranje ponude ovde
+                          console.log('Klik na ponudu:', ponuda.id)
+                          setShowPhoneDropdown(false)
+                        }}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm text-gray-900 truncate">
+                              {ponuda.vrstaobjekta?.opis || 'N/A'}
+                            </div>
+                            <div className="text-xs text-gray-600 mt-1">
+                              {formatAddress(ponuda)}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1">
+                              {ponuda.naslovaoglasa || 'Bez naslova'}
+                            </div>
+                          </div>
+                          <div className="flex-shrink-0 text-right">
+                            <div className="font-semibold text-sm text-indigo-600">
+                              {ponuda.cena 
+                                ? new Intl.NumberFormat('sr-RS', {
+                                    style: 'currency',
+                                    currency: 'EUR',
+                                    minimumFractionDigits: 0
+                                  }).format(ponuda.cena)
+                                : '-'
+                              }
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div>
