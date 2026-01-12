@@ -745,9 +745,33 @@ export default function PonudaForm({ onClose, onSuccess }) {
     }))
   }
 
+  // Formatiranje cene sa zarezom na tri mesta
+  const formatCena = (value) => {
+    if (!value) return ''
+    // Ukloni sve što nije broj ili tačka
+    const cleaned = value.toString().replace(/[^\d.]/g, '')
+    const parts = cleaned.split('.')
+    const integerPart = parts[0] || '0'
+    const decimalPart = parts[1] || ''
+    
+    // Formatiraj integer deo sa zarezom na tri mesta
+    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    
+    // Vrati sa decimalnim delom (maksimum 3 decimale)
+    return decimalPart ? `${formattedInteger}.${decimalPart.substring(0, 3)}` : formattedInteger
+  }
+
+  // Parsiranje formatirane cene nazad u broj
+  const parseCena = (formattedValue) => {
+    if (!formattedValue) return ''
+    // Ukloni zareze i zadrži samo brojeve i tačku
+    return formattedValue.toString().replace(/,/g, '')
+  }
+
   // Handler za promenu cene sa automatskom istorijom
   const handleCenaChange = (newCena) => {
-    const parsedCena = newCena ? parseFloat(newCena) : null
+    const parsedValue = parseCena(newCena)
+    const parsedCena = parsedValue ? parseFloat(parsedValue) : null
     
     // Ako se cena promenila i prethodna cena postoji, dodaj u istoriju
     if (previousCenaRef.current !== null && previousCenaRef.current !== parsedCena && previousCenaRef.current > 0) {
@@ -763,8 +787,27 @@ export default function PonudaForm({ onClose, onSuccess }) {
     // Ažuriraj prethodnu cenu
     previousCenaRef.current = parsedCena
     
-    // Ažuriraj formData
-    handleFieldChange('cena', newCena)
+    // Ažuriraj formData sa parsiranom vrednošću (bez zareza)
+    handleFieldChange('cena', parsedValue)
+  }
+
+  // Handler za formatiranje cene pri izlasku sa polja
+  const handleCenaBlur = () => {
+    if (formData.cena) {
+      const formatted = formatCena(formData.cena)
+      handleFieldChange('cena', parseCena(formatted)) // Sačuvaj parsiranu vrednost
+      // Prikaži formatiranu vrednost u input-u kroz state
+      setTimeout(() => {
+        const input = document.querySelector('input[type="number"][step="0.001"]')
+        if (input && input.value === formData.cena) {
+          // Ako je input još uvek fokusiran, ne menjaj
+          if (document.activeElement !== input) {
+            // Formatiraj prikaz
+          }
+        }
+      }, 0)
+    }
+    previousCenaRef.current = formData.cena ? parseFloat(formData.cena) : null
   }
 
   // Handleri za metapodaci
@@ -1412,13 +1455,21 @@ export default function PonudaForm({ onClose, onSuccess }) {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y"
                       rows="3"
                     />
+                  ) : field.key === 'cena' ? (
+                    <input
+                      type="text"
+                      value={formData.cena ? formatCena(formData.cena) : ''}
+                      onChange={(e) => handleCenaChange(e.target.value)}
+                      onBlur={handleCenaBlur}
+                      required={field.required}
+                      placeholder="0.000"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    />
                   ) : (
                     <input
                       type={field.type}
-                      step={field.key === 'cena' ? '0.001' : undefined}
                       value={formData[field.key] || ''}
-                      onChange={(e) => field.key === 'cena' ? handleCenaChange(e.target.value) : handleFieldChange(field.key, e.target.value)}
-                      onBlur={field.key === 'cena' ? () => { previousCenaRef.current = formData.cena ? parseFloat(formData.cena) : null } : undefined}
+                      onChange={(e) => handleFieldChange(field.key, e.target.value)}
                       required={field.required}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                     />
@@ -1911,12 +1962,15 @@ export default function PonudaForm({ onClose, onSuccess }) {
                           placeholder="Mesto rođenja"
                           className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
                         />
-                        <input
-                          type="date"
-                          value={vlasnik.datum_rodjenja}
-                          onChange={(e) => handleVlasnikChange(index, 'datum_rodjenja', e.target.value)}
-                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                        />
+                        <div>
+                          <label className="block text-xs text-gray-600 mb-1">Datum rođenja</label>
+                          <input
+                            type="date"
+                            value={vlasnik.datum_rodjenja}
+                            onChange={(e) => handleVlasnikChange(index, 'datum_rodjenja', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                          />
+                        </div>
                         <input
                           type="text"
                           value={vlasnik.poreklo_imovine}
