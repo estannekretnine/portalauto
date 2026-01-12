@@ -229,7 +229,7 @@ export default function PonudeModule() {
     if (!cena) return '-'
     return new Intl.NumberFormat('sr-RS', {
       style: 'currency',
-      currency: 'RSD',
+      currency: 'EUR',
       minimumFractionDigits: 0
     }).format(cena)
   }
