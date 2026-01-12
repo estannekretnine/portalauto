@@ -231,6 +231,12 @@ export default function PonudaForm({ onClose, onSuccess }) {
   // State za mapu
   const [showMapModal, setShowMapModal] = useState(false)
 
+  // State za pretragu telefona (mora biti pre useEffect-a koji ga koristi)
+  const [phoneSearchResults, setPhoneSearchResults] = useState([])
+  const [isSearchingPhone, setIsSearchingPhone] = useState(false)
+  const [showPhoneDropdown, setShowPhoneDropdown] = useState(false)
+  const phoneInputRef = useRef(null)
+
   useEffect(() => {
     loadLookupData()
     loadSveUliceSaRelacijama() // Učitaj sve ulice sa relacijama za autocomplete
@@ -985,12 +991,6 @@ export default function PonudaForm({ onClose, onSuccess }) {
 
   // State za formatirani prikaz cene
   const [formattedCena, setFormattedCena] = useState('')
-
-  // State za pretragu telefona
-  const [phoneSearchResults, setPhoneSearchResults] = useState([])
-  const [isSearchingPhone, setIsSearchingPhone] = useState(false)
-  const [showPhoneDropdown, setShowPhoneDropdown] = useState(false)
-  const phoneInputRef = useRef(null)
 
   // Handler za formatiranje cene pri izlasku sa polja
   const handleCenaBlur = () => {
