@@ -50,11 +50,11 @@ export default function PropertyMap({ address, latitude, longitude, onLocationCh
   const [isReverseGeocoding, setIsReverseGeocoding] = useState(false)
   const [error, setError] = useState('')
   const [reverseGeocodedAddress, setReverseGeocodedAddress] = useState('')
-  const [userSelectedPosition, setUserSelectedPosition] = useState(!!initialPosition) // Flag da li je korisnik ručno izabrao poziciju ili su koordinate već postavljene
+  const [userSelectedPosition, setUserSelectedPosition] = useState(false) // Flag da li je korisnik ručno izabrao poziciju (klik na mapu)
 
   const abortRef = useRef(null)
   const debounceRef = useRef(null)
-  const userSelectedPositionRef = useRef(!!initialPosition) // Ref da pratimo da li je korisnik ručno kliknuo
+  const userSelectedPositionRef = useRef(false) // Ref da pratimo da li je korisnik ručno kliknuo na mapu
 
   const query = useMemo(() => {
     const parts = [
