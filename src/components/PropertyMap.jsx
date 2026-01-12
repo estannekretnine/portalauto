@@ -54,6 +54,7 @@ export default function PropertyMap({ address, latitude, longitude, onLocationCh
 
   const abortRef = useRef(null)
   const debounceRef = useRef(null)
+  const userSelectedPositionRef = useRef(!!initialPosition) // Ref da pratimo da li je korisnik ručno kliknuo
 
   const query = useMemo(() => {
     const parts = [
@@ -76,9 +77,10 @@ export default function PropertyMap({ address, latitude, longitude, onLocationCh
 
   // Ažuriraj poziciju kada se initialPosition promeni (samo ako korisnik nije ručno kliknuo)
   useEffect(() => {
-    if (initialPosition && !userSelectedPosition) {
+    if (initialPosition && !userSelectedPositionRef.current) {
       setPosition(initialPosition)
       setUserSelectedPosition(true) // Postavi flag da su koordinate već postavljene
+      userSelectedPositionRef.current = true // Postavi ref
       console.log('🗺️ PropertyMap: Postavljena initialPosition:', initialPosition)
     }
   }, [initialPosition?.lat, initialPosition?.lng])
@@ -243,8 +245,9 @@ export default function PropertyMap({ address, latitude, longitude, onLocationCh
       async click(e) {
         const next = { lat: e.latlng.lat, lng: e.latlng.lng }
         console.log('🗺️ PropertyMap: Klik na mapu:', next)
+        userSelectedPositionRef.current = true // Postavi ref pre svega
         setUserSelectedPosition(true) // Označi da je korisnik ručno izabrao poziciju
-        setPosition(next)
+        setPosition(next) // Postavi poziciju na kliknutu lokaciju
         setError('') // Očisti greške
         
         // Reverse geocoding za tačnu adresu
