@@ -896,21 +896,10 @@ export default function PonudaForm({ onClose, onSuccess }) {
       const normalizedPhone = normalizePhone(phone)
       const searchPattern = `%${normalizedPhone}%`
       
-      const { data, error } = await supabase
+      // Prvo učitaj osnovne podatke bez relacija
+      const { data: ponudeData, error } = await supabase
         .from('ponuda')
-        .select(`
-          id,
-          naslovaoglasa,
-          cena,
-          brojtelefona,
-          brojulice,
-          vrstaobjekta:vrstaobjekta(id, opis),
-          drzava:drzava(id, opis),
-          grad:grad(id, opis),
-          opstina:opstina(id, opis),
-          lokacija:lokacija(id, opis),
-          ulica:ulica(id, opis)
-        `)
+        .select('id, naslovaoglasa, cena, brojtelefona, brojulice, idvrstaobjekta, iddrzava, idgrada, idopstina, idlokacija, idulica')
         .ilike('brojtelefona', searchPattern)
         .limit(10)
 
@@ -921,13 +910,50 @@ export default function PonudaForm({ onClose, onSuccess }) {
         return
       }
 
-      if (data && data.length > 0) {
-        setPhoneSearchResults(data)
-        setShowPhoneDropdown(true)
-      } else {
+      if (!ponudeData || ponudeData.length === 0) {
         setPhoneSearchResults([])
         setShowPhoneDropdown(false)
+        return
       }
+
+      // Učitaj relacione podatke odvojeno
+      const vrstaIds = [...new Set(ponudeData.map(p => p.idvrstaobjekta).filter(Boolean))]
+      const drzavaIds = [...new Set(ponudeData.map(p => p.iddrzava).filter(Boolean))]
+      const gradIds = [...new Set(ponudeData.map(p => p.idgrada).filter(Boolean))]
+      const opstinaIds = [...new Set(ponudeData.map(p => p.idopstina).filter(Boolean))]
+      const lokacijaIds = [...new Set(ponudeData.map(p => p.idlokacija).filter(Boolean))]
+      const ulicaIds = [...new Set(ponudeData.map(p => p.idulica).filter(Boolean))]
+
+      const [vrsteResult, drzaveResult, gradoviResult, opstineResult, lokacijeResult, uliceResult] = await Promise.all([
+        vrstaIds.length > 0 ? supabase.from('vrstaobjekta').select('id, opis').in('id', vrstaIds) : Promise.resolve({ data: [] }),
+        drzavaIds.length > 0 ? supabase.from('drzava').select('id, opis').in('id', drzavaIds) : Promise.resolve({ data: [] }),
+        gradIds.length > 0 ? supabase.from('grad').select('id, opis').in('id', gradIds) : Promise.resolve({ data: [] }),
+        opstinaIds.length > 0 ? supabase.from('opstina').select('id, opis').in('id', opstinaIds) : Promise.resolve({ data: [] }),
+        lokacijaIds.length > 0 ? supabase.from('lokacija').select('id, opis').in('id', lokacijaIds) : Promise.resolve({ data: [] }),
+        ulicaIds.length > 0 ? supabase.from('ulica').select('id, opis').in('id', ulicaIds) : Promise.resolve({ data: [] })
+      ])
+
+      // Kreiraj lookup mape
+      const vrsteMap = new Map((vrsteResult.data || []).map(v => [v.id, v]))
+      const drzaveMap = new Map((drzaveResult.data || []).map(d => [d.id, d]))
+      const gradoviMap = new Map((gradoviResult.data || []).map(g => [g.id, g]))
+      const opstineMap = new Map((opstineResult.data || []).map(o => [o.id, o]))
+      const lokacijeMap = new Map((lokacijeResult.data || []).map(l => [l.id, l]))
+      const uliceMap = new Map((uliceResult.data || []).map(u => [u.id, u]))
+
+      // Mapiraj ponude sa relacijama
+      const ponudeSaRelacijama = ponudeData.map(ponuda => ({
+        ...ponuda,
+        vrstaobjekta: ponuda.idvrstaobjekta ? vrsteMap.get(ponuda.idvrstaobjekta) || null : null,
+        drzava: ponuda.iddrzava ? drzaveMap.get(ponuda.iddrzava) || null : null,
+        grad: ponuda.idgrada ? gradoviMap.get(ponuda.idgrada) || null : null,
+        opstina: ponuda.idopstina ? opstineMap.get(ponuda.idopstina) || null : null,
+        lokacija: ponuda.idlokacija ? lokacijeMap.get(ponuda.idlokacija) || null : null,
+        ulica: ponuda.idulica ? uliceMap.get(ponuda.idulica) || null : null
+      }))
+
+      setPhoneSearchResults(ponudeSaRelacijama)
+      setShowPhoneDropdown(true)
     } catch (err) {
       console.error('Greška pri pretrazi:', err)
       setPhoneSearchResults([])
