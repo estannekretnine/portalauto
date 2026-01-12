@@ -877,15 +877,17 @@ export default function PonudaForm({ onClose, onSuccess }) {
     return cleaned
   }
 
-  // Normalizacija telefona za pretragu (ukloni razmake, crtice)
+  // Normalizacija telefona za pretragu (ukloni razmake, crtice, +)
   const normalizePhone = (phone) => {
     if (!phone) return ''
-    return phone.replace(/[\s\-\(\)]/g, '')
+    // Ukloni sve što nije broj
+    return phone.replace(/[^\d]/g, '')
   }
 
   // Pretraga ponuda po telefonu
   const searchPonudaByPhone = async (phone) => {
     if (!phone || phone.length < 3) {
+      console.log('📞 Phone search: Phone too short or empty')
       setPhoneSearchResults([])
       setShowPhoneDropdown(false)
       return
@@ -894,7 +896,12 @@ export default function PonudaForm({ onClose, onSuccess }) {
     setIsSearchingPhone(true)
     try {
       const normalizedPhone = normalizePhone(phone)
+      console.log('📞 Phone search: Searching for normalized phone:', normalizedPhone, 'Original:', phone)
+      
+      // Koristi jednostavniji pattern - pretraži bilo koji deo telefona
+      // Ukloni + i razmake iz pattern-a za pretragu
       const searchPattern = `%${normalizedPhone}%`
+      console.log('📞 Phone search: Using pattern:', searchPattern)
       
       // Prvo učitaj osnovne podatke bez relacija
       const { data: ponudeData, error } = await supabase
@@ -904,13 +911,16 @@ export default function PonudaForm({ onClose, onSuccess }) {
         .limit(10)
 
       if (error) {
-        console.error('Greška pri pretrazi ponuda:', error)
+        console.error('📞 Phone search error:', error)
         setPhoneSearchResults([])
         setShowPhoneDropdown(false)
         return
       }
 
+      console.log('📞 Phone search results:', ponudeData?.length || 0, 'ponuda found')
+
       if (!ponudeData || ponudeData.length === 0) {
+        console.log('📞 Phone search: No results found')
         setPhoneSearchResults([])
         setShowPhoneDropdown(false)
         return
@@ -952,6 +962,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
         ulica: ponuda.idulica ? uliceMap.get(ponuda.idulica) || null : null
       }))
 
+      console.log('📞 Phone search: Setting results:', ponudeSaRelacijama.length)
       setPhoneSearchResults(ponudeSaRelacijama)
       setShowPhoneDropdown(true)
     } catch (err) {
@@ -963,17 +974,34 @@ export default function PonudaForm({ onClose, onSuccess }) {
     }
   }
 
+  // Debounce ref za pretragu tokom unosa
+  const phoneSearchDebounceRef = useRef(null)
+
   // Handler za promenu telefona
   const handlePhoneChange = (value) => {
     const formatted = formatPhone(value)
     handleFieldChange('brojtelefona', formatted)
+    
+    // Debounced pretraga tokom unosa (nakon 1 sekunde)
+    if (phoneSearchDebounceRef.current) {
+      clearTimeout(phoneSearchDebounceRef.current)
+    }
+    
+    phoneSearchDebounceRef.current = setTimeout(() => {
+      if (formatted && formatted.length >= 3) {
+        console.log('📞 Phone change: Triggering search after debounce')
+        searchPonudaByPhone(formatted)
+      }
+    }, 1000)
   }
 
   // Handler za blur telefona (pretraga)
   const handlePhoneBlur = () => {
+    console.log('📞 Phone blur triggered, phone value:', formData.brojtelefona)
     if (formData.brojtelefona) {
       searchPonudaByPhone(formData.brojtelefona)
     } else {
+      console.log('📞 Phone blur: No phone value, hiding dropdown')
       setPhoneSearchResults([])
       setShowPhoneDropdown(false)
     }
