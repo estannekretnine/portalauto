@@ -76,7 +76,7 @@ export default function PropertyMap({ address, latitude, longitude, onLocationCh
 
   // Ažuriraj poziciju kada se initialPosition promeni (samo ako korisnik nije ručno kliknuo)
   useEffect(() => {
-    if (initialPosition) {
+    if (initialPosition && !userSelectedPosition) {
       setPosition(initialPosition)
       setUserSelectedPosition(true) // Postavi flag da su koordinate već postavljene
       console.log('🗺️ PropertyMap: Postavljena initialPosition:', initialPosition)
@@ -84,14 +84,15 @@ export default function PropertyMap({ address, latitude, longitude, onLocationCh
   }, [initialPosition?.lat, initialPosition?.lng])
   
   useEffect(() => {
-    // Ako je korisnik ručno izabrao poziciju ili su koordinate već postavljene, ne geokodiraj ponovo
-    if (userSelectedPosition && initialPosition) {
-      console.log('🗺️ PropertyMap: Koordinate su već postavljene, preskačem geokodiranje')
+    // Ako je korisnik ručno izabrao poziciju (klik na mapu), ne geokodiraj ponovo
+    if (userSelectedPosition) {
+      console.log('🗺️ PropertyMap: Korisnik je izabrao poziciju, preskačem geokodiranje')
       return
     }
     
-    if (userSelectedPosition && !initialPosition) {
-      console.log('🗺️ PropertyMap: Korisnik je ručno izabrao poziciju, preskačem geokodiranje')
+    // Ako su koordinate već postavljene, ne geokodiraj
+    if (initialPosition) {
+      console.log('🗺️ PropertyMap: Koordinate su već postavljene, preskačem geokodiranje')
       return
     }
 
