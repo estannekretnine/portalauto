@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../utils/supabase'
 import { getCurrentUser } from '../utils/auth'
 import PhotoUpload from './PhotoUpload'
-import { Save, X, Upload, Building2, MapPin, DollarSign, Ruler, Info, Search, ChevronDown } from 'lucide-react'
+import { Save, X, Upload, Building2, MapPin, DollarSign, Ruler, Info, Search, ChevronDown, Users, FileText, Receipt, Wallet, UserCheck, Brain, Plus, Trash2 } from 'lucide-react'
 import PropertyMap from './PropertyMap'
 
 // Definicija polja po vrstama objekata
@@ -156,6 +156,55 @@ export default function PonudaForm({ onClose, onSuccess }) {
     opremljenost: {},
     ai: {}
   })
+
+  // Aktivni tab za metapodatke
+  const [activeMetaTab, setActiveMetaTab] = useState('vlasnici')
+
+  // JSONB metapodaci
+  const [metapodaci, setMetapodaci] = useState({
+    vlasnici: [{
+      ime: '', prezime: '', adresa: '', jmbg: '', email: '', tel: '',
+      ident_isprava: '', lk: '', pib: '', id_drzava: '', sts_lice: '',
+      poreklo_imovine: '', sumnja_pranje_novca: false, mesto_rodjenja: '',
+      datum_rodjenja: '', sts_rezident: true, stvarnivlasnikstranke: true,
+      datum_zadnje_provere: '', finalnakategorizacija: ''
+    }],
+    istorija_cene: [],
+    eop: {
+      sts_ugovor_potpisan: false, datum_ugovora: '', datum_istice: '',
+      katastarska_parceka: '', kat_opstina: ''
+    },
+    realizacija: {
+      zakljucen: false, datum_zakljucenja: '', kupoprodajna_cena: 0,
+      provizija: 0, primedba: '', namena_transakcije: ''
+    },
+    troskovi: {
+      infostan: 0, kablovska: 0, struja: 0, telefon: 0, internet: 0, odrzavanje: 0, ostalo: 0
+    },
+    zastupnik: {
+      ime: '', prezime: '', adresa: '', opstina: '', lk: '', datum: '', mesto: ''
+    }
+  })
+
+  // JSONB ai_karakteristike
+  const [aiKarakteristike, setAiKarakteristike] = useState({
+    opremljenost: {
+      sts_internet: false, sts_kablovska: false, sts_frizider: false, sts_sporet: false,
+      sts_vesmasina: false, sts_tv: false, sts_telefon: false, klima: false, sudomasina: false
+    },
+    zivotni_stil: {
+      rad_od_kuce: false, pet_friendly: 0, nivo_buke: '', osuncanost: ''
+    },
+    ekologija: {
+      pogled: '', indeks_vazduha: '', energetski_razred: ''
+    },
+    mikrolokacija: {
+      mirna_ulica: false, skola_minuta: 0, ev_punjac_metara: 0
+    }
+  })
+
+  // Praćenje prethodne cene za automatsku istoriju
+  const previousCenaRef = useRef(null)
 
   // Fotografije
   const [photos, setPhotos] = useState([])
@@ -687,6 +736,116 @@ export default function PonudaForm({ onClose, onSuccess }) {
     }))
   }
 
+  // Handler za promenu cene sa automatskom istorijom
+  const handleCenaChange = (newCena) => {
+    const parsedCena = newCena ? parseFloat(newCena) : null
+    
+    // Ako se cena promenila i prethodna cena postoji, dodaj u istoriju
+    if (previousCenaRef.current !== null && previousCenaRef.current !== parsedCena && previousCenaRef.current > 0) {
+      setMetapodaci(prev => ({
+        ...prev,
+        istorija_cene: [
+          ...prev.istorija_cene,
+          { datum: new Date().toISOString().split('T')[0], cena: previousCenaRef.current }
+        ]
+      }))
+    }
+    
+    // Ažuriraj prethodnu cenu
+    previousCenaRef.current = parsedCena
+    
+    // Ažuriraj formData
+    handleFieldChange('cena', newCena)
+  }
+
+  // Handleri za metapodaci
+  const handleVlasnikChange = (index, field, value) => {
+    setMetapodaci(prev => {
+      const newVlasnici = [...prev.vlasnici]
+      newVlasnici[index] = { ...newVlasnici[index], [field]: value }
+      return { ...prev, vlasnici: newVlasnici }
+    })
+  }
+
+  const addVlasnik = () => {
+    setMetapodaci(prev => ({
+      ...prev,
+      vlasnici: [...prev.vlasnici, {
+        ime: '', prezime: '', adresa: '', jmbg: '', email: '', tel: '',
+        ident_isprava: '', lk: '', pib: '', id_drzava: '', sts_lice: '',
+        poreklo_imovine: '', sumnja_pranje_novca: false, mesto_rodjenja: '',
+        datum_rodjenja: '', sts_rezident: true, stvarnivlasnikstranke: true,
+        datum_zadnje_provere: '', finalnakategorizacija: ''
+      }]
+    }))
+  }
+
+  const removeVlasnik = (index) => {
+    if (metapodaci.vlasnici.length > 1) {
+      setMetapodaci(prev => ({
+        ...prev,
+        vlasnici: prev.vlasnici.filter((_, i) => i !== index)
+      }))
+    }
+  }
+
+  const handleEopChange = (field, value) => {
+    setMetapodaci(prev => ({
+      ...prev,
+      eop: { ...prev.eop, [field]: value }
+    }))
+  }
+
+  const handleRealizacijaChange = (field, value) => {
+    setMetapodaci(prev => ({
+      ...prev,
+      realizacija: { ...prev.realizacija, [field]: value }
+    }))
+  }
+
+  const handleTroskoviChange = (field, value) => {
+    setMetapodaci(prev => ({
+      ...prev,
+      troskovi: { ...prev.troskovi, [field]: parseFloat(value) || 0 }
+    }))
+  }
+
+  const handleZastupnikChange = (field, value) => {
+    setMetapodaci(prev => ({
+      ...prev,
+      zastupnik: { ...prev.zastupnik, [field]: value }
+    }))
+  }
+
+  // Handleri za AI karakteristike
+  const handleAiOpremljenostChange = (field, value) => {
+    setAiKarakteristike(prev => ({
+      ...prev,
+      opremljenost: { ...prev.opremljenost, [field]: value }
+    }))
+  }
+
+  const handleAiZivotniStilChange = (field, value) => {
+    setAiKarakteristike(prev => ({
+      ...prev,
+      zivotni_stil: { ...prev.zivotni_stil, [field]: value }
+    }))
+  }
+
+  const handleAiEkologijaChange = (field, value) => {
+    setAiKarakteristike(prev => ({
+      ...prev,
+      ekologija: { ...prev.ekologija, [field]: value }
+    }))
+  }
+
+  const handleAiMikrolokacijaChange = (field, value) => {
+    setAiKarakteristike(prev => ({
+      ...prev,
+      mikrolokacija: { ...prev.mikrolokacija, [field]: value }
+    }))
+  }
+
   const convertFileToBase64 = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader()
@@ -826,11 +985,18 @@ export default function PonudaForm({ onClose, onSuccess }) {
         ponudaData.detalji = detaljiArray
       }
 
+      // JSONB metapodaci
+      ponudaData.metapodaci = metapodaci
+
+      // JSONB ai_karakteristike
+      ponudaData.ai_karakteristike = aiKarakteristike
+
       // Generisanje vektora iz opisa i detalja
       const vectorText = [
         formData.naslovaoglasa,
         formData.opis,
-        JSON.stringify(detalji)
+        JSON.stringify(detalji),
+        JSON.stringify(aiKarakteristike)
       ].filter(Boolean).join(' ')
       
       const vector = await generateVector(vectorText)
@@ -1228,7 +1394,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
                     <input
                       type={field.type}
                       value={formData[field.key] || ''}
-                      onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                      onChange={(e) => field.key === 'cena' ? handleCenaChange(e.target.value) : handleFieldChange(field.key, e.target.value)}
+                      onBlur={field.key === 'cena' ? () => { previousCenaRef.current = formData.cena ? parseFloat(formData.cena) : null } : undefined}
                       required={field.required}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                     />
@@ -1605,37 +1772,584 @@ export default function PonudaForm({ onClose, onSuccess }) {
             </div>
           </section>
 
-          {/* JSONB Detalji - AI i ostalo */}
+          {/* METAPODACI - Tabovi */}
           <section className="border-b border-gray-200 pb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">AI i dodatni detalji</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  AI opis (za pretragu)
-                </label>
-                <textarea
-                  value={detalji.ai?.opis || ''}
-                  onChange={(e) => handleDetaljiChange('ai', 'opis', e.target.value)}
-                  placeholder="Dodatni opis za AI pretragu..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y"
-                  rows="3"
-                />
-              </div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <FileText className="w-5 h-5" />
+              Metapodaci i AI karakteristike
+            </h3>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  AI ključne reči
-                </label>
-                <input
-                  type="text"
-                  value={detalji.ai?.kljucneReci || ''}
-                  onChange={(e) => handleDetaljiChange('ai', 'kljucneReci', e.target.value)}
-                  placeholder="Ključne reči odvojene zarezom..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
-              </div>
+            {/* Tab navigacija */}
+            <div className="flex flex-wrap gap-2 mb-4 border-b border-gray-200">
+              {[
+                { id: 'vlasnici', label: 'Vlasnici', icon: Users },
+                { id: 'eop', label: 'EOP', icon: FileText },
+                { id: 'realizacija', label: 'Realizacija', icon: Receipt },
+                { id: 'troskovi', label: 'Troškovi', icon: Wallet },
+                { id: 'zastupnik', label: 'Zastupnik', icon: UserCheck },
+                { id: 'ai', label: 'AI Karakteristike', icon: Brain }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveMetaTab(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+                    activeMetaTab === tab.id
+                      ? 'bg-indigo-100 text-indigo-700 border-b-2 border-indigo-600'
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                  }`}
+                >
+                  <tab.icon className="w-4 h-4" />
+                  {tab.label}
+                </button>
+              ))}
             </div>
+
+            {/* Tab sadržaj */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              {/* VLASNICI TAB */}
+              {activeMetaTab === 'vlasnici' && (
+                <div className="space-y-4">
+                  {metapodaci.vlasnici.map((vlasnik, index) => (
+                    <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
+                      <div className="flex justify-between items-center mb-3">
+                        <h4 className="font-medium text-gray-800">Vlasnik {index + 1}</h4>
+                        {metapodaci.vlasnici.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeVlasnik(index)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <input
+                          type="text"
+                          value={vlasnik.ime}
+                          onChange={(e) => handleVlasnikChange(index, 'ime', e.target.value)}
+                          placeholder="Ime"
+                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                        <input
+                          type="text"
+                          value={vlasnik.prezime}
+                          onChange={(e) => handleVlasnikChange(index, 'prezime', e.target.value)}
+                          placeholder="Prezime"
+                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                        <input
+                          type="text"
+                          value={vlasnik.jmbg}
+                          onChange={(e) => handleVlasnikChange(index, 'jmbg', e.target.value)}
+                          placeholder="JMBG"
+                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                        <input
+                          type="email"
+                          value={vlasnik.email}
+                          onChange={(e) => handleVlasnikChange(index, 'email', e.target.value)}
+                          placeholder="Email"
+                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                        <input
+                          type="text"
+                          value={vlasnik.tel}
+                          onChange={(e) => handleVlasnikChange(index, 'tel', e.target.value)}
+                          placeholder="Telefon"
+                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                        <input
+                          type="text"
+                          value={vlasnik.adresa}
+                          onChange={(e) => handleVlasnikChange(index, 'adresa', e.target.value)}
+                          placeholder="Adresa"
+                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                        <input
+                          type="text"
+                          value={vlasnik.lk}
+                          onChange={(e) => handleVlasnikChange(index, 'lk', e.target.value)}
+                          placeholder="Broj LK"
+                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                        <input
+                          type="text"
+                          value={vlasnik.pib}
+                          onChange={(e) => handleVlasnikChange(index, 'pib', e.target.value)}
+                          placeholder="PIB"
+                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                        <input
+                          type="text"
+                          value={vlasnik.mesto_rodjenja}
+                          onChange={(e) => handleVlasnikChange(index, 'mesto_rodjenja', e.target.value)}
+                          placeholder="Mesto rođenja"
+                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                        <input
+                          type="date"
+                          value={vlasnik.datum_rodjenja}
+                          onChange={(e) => handleVlasnikChange(index, 'datum_rodjenja', e.target.value)}
+                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                        <input
+                          type="text"
+                          value={vlasnik.poreklo_imovine}
+                          onChange={(e) => handleVlasnikChange(index, 'poreklo_imovine', e.target.value)}
+                          placeholder="Poreklo imovine"
+                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                        <select
+                          value={vlasnik.sts_lice}
+                          onChange={(e) => handleVlasnikChange(index, 'sts_lice', e.target.value)}
+                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        >
+                          <option value="">Status lica</option>
+                          <option value="fizicko">Fizičko lice</option>
+                          <option value="pravno">Pravno lice</option>
+                        </select>
+                      </div>
+                      <div className="flex flex-wrap gap-4 mt-3">
+                        <label className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={vlasnik.sts_rezident}
+                            onChange={(e) => handleVlasnikChange(index, 'sts_rezident', e.target.checked)}
+                            className="rounded border-gray-300"
+                          />
+                          Rezident
+                        </label>
+                        <label className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={vlasnik.stvarnivlasnikstranke}
+                            onChange={(e) => handleVlasnikChange(index, 'stvarnivlasnikstranke', e.target.checked)}
+                            className="rounded border-gray-300"
+                          />
+                          Stvarni vlasnik stranke
+                        </label>
+                        <label className="flex items-center gap-2 text-sm text-red-600">
+                          <input
+                            type="checkbox"
+                            checked={vlasnik.sumnja_pranje_novca}
+                            onChange={(e) => handleVlasnikChange(index, 'sumnja_pranje_novca', e.target.checked)}
+                            className="rounded border-red-300"
+                          />
+                          Sumnja na pranje novca
+                        </label>
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addVlasnik}
+                    className="flex items-center gap-2 px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Dodaj vlasnika
+                  </button>
+                </div>
+              )}
+
+              {/* EOP TAB */}
+              {activeMetaTab === 'eop' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={metapodaci.eop.sts_ugovor_potpisan}
+                      onChange={(e) => handleEopChange('sts_ugovor_potpisan', e.target.checked)}
+                      className="rounded border-gray-300"
+                    />
+                    <span className="text-sm text-gray-700">Ugovor potpisan</span>
+                  </label>
+                  <div></div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Datum ugovora</label>
+                    <input
+                      type="date"
+                      value={metapodaci.eop.datum_ugovora}
+                      onChange={(e) => handleEopChange('datum_ugovora', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Datum isteka</label>
+                    <input
+                      type="date"
+                      value={metapodaci.eop.datum_istice}
+                      onChange={(e) => handleEopChange('datum_istice', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Katastarska parcela</label>
+                    <input
+                      type="text"
+                      value={metapodaci.eop.katastarska_parceka}
+                      onChange={(e) => handleEopChange('katastarska_parceka', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Katastarska opština</label>
+                    <input
+                      type="text"
+                      value={metapodaci.eop.kat_opstina}
+                      onChange={(e) => handleEopChange('kat_opstina', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* REALIZACIJA TAB */}
+              {activeMetaTab === 'realizacija' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={metapodaci.realizacija.zakljucen}
+                      onChange={(e) => handleRealizacijaChange('zakljucen', e.target.checked)}
+                      className="rounded border-gray-300"
+                    />
+                    <span className="text-sm text-gray-700">Zaključen</span>
+                  </label>
+                  <div></div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Datum zaključenja</label>
+                    <input
+                      type="date"
+                      value={metapodaci.realizacija.datum_zakljucenja}
+                      onChange={(e) => handleRealizacijaChange('datum_zakljucenja', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Kupoprodajna cena (€)</label>
+                    <input
+                      type="number"
+                      value={metapodaci.realizacija.kupoprodajna_cena}
+                      onChange={(e) => handleRealizacijaChange('kupoprodajna_cena', parseFloat(e.target.value) || 0)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Provizija (€)</label>
+                    <input
+                      type="number"
+                      value={metapodaci.realizacija.provizija}
+                      onChange={(e) => handleRealizacijaChange('provizija', parseFloat(e.target.value) || 0)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Namena transakcije</label>
+                    <input
+                      type="text"
+                      value={metapodaci.realizacija.namena_transakcije}
+                      onChange={(e) => handleRealizacijaChange('namena_transakcije', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm text-gray-600 mb-1">Primedba</label>
+                    <textarea
+                      value={metapodaci.realizacija.primedba}
+                      onChange={(e) => handleRealizacijaChange('primedba', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      rows="2"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* TROŠKOVI TAB */}
+              {activeMetaTab === 'troskovi' && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    { key: 'infostan', label: 'Infostan' },
+                    { key: 'kablovska', label: 'Kablovska' },
+                    { key: 'struja', label: 'Struja' },
+                    { key: 'telefon', label: 'Telefon' },
+                    { key: 'internet', label: 'Internet' },
+                    { key: 'odrzavanje', label: 'Održavanje' },
+                    { key: 'ostalo', label: 'Ostalo' }
+                  ].map(trosak => (
+                    <div key={trosak.key}>
+                      <label className="block text-sm text-gray-600 mb-1">{trosak.label} (€)</label>
+                      <input
+                        type="number"
+                        value={metapodaci.troskovi[trosak.key]}
+                        onChange={(e) => handleTroskoviChange(trosak.key, e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* ZASTUPNIK TAB */}
+              {activeMetaTab === 'zastupnik' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Ime</label>
+                    <input
+                      type="text"
+                      value={metapodaci.zastupnik.ime}
+                      onChange={(e) => handleZastupnikChange('ime', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Prezime</label>
+                    <input
+                      type="text"
+                      value={metapodaci.zastupnik.prezime}
+                      onChange={(e) => handleZastupnikChange('prezime', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Adresa</label>
+                    <input
+                      type="text"
+                      value={metapodaci.zastupnik.adresa}
+                      onChange={(e) => handleZastupnikChange('adresa', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Opština</label>
+                    <input
+                      type="text"
+                      value={metapodaci.zastupnik.opstina}
+                      onChange={(e) => handleZastupnikChange('opstina', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Broj LK</label>
+                    <input
+                      type="text"
+                      value={metapodaci.zastupnik.lk}
+                      onChange={(e) => handleZastupnikChange('lk', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Datum</label>
+                    <input
+                      type="date"
+                      value={metapodaci.zastupnik.datum}
+                      onChange={(e) => handleZastupnikChange('datum', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Mesto</label>
+                    <input
+                      type="text"
+                      value={metapodaci.zastupnik.mesto}
+                      onChange={(e) => handleZastupnikChange('mesto', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* AI KARAKTERISTIKE TAB */}
+              {activeMetaTab === 'ai' && (
+                <div className="space-y-6">
+                  {/* Opremljenost */}
+                  <div>
+                    <h4 className="font-medium text-gray-700 mb-3">Opremljenost</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {[
+                        { key: 'sts_internet', label: 'Internet' },
+                        { key: 'sts_kablovska', label: 'Kablovska' },
+                        { key: 'sts_frizider', label: 'Frižider' },
+                        { key: 'sts_sporet', label: 'Šporet' },
+                        { key: 'sts_vesmasina', label: 'Veš mašina' },
+                        { key: 'sts_tv', label: 'TV' },
+                        { key: 'sts_telefon', label: 'Telefon' },
+                        { key: 'klima', label: 'Klima' },
+                        { key: 'sudomasina', label: 'Sudo mašina' }
+                      ].map(item => (
+                        <label key={item.key} className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={aiKarakteristike.opremljenost[item.key]}
+                            onChange={(e) => handleAiOpremljenostChange(item.key, e.target.checked)}
+                            className="rounded border-gray-300"
+                          />
+                          {item.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Životni stil */}
+                  <div>
+                    <h4 className="font-medium text-gray-700 mb-3">Životni stil</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <label className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={aiKarakteristike.zivotni_stil.rad_od_kuce}
+                          onChange={(e) => handleAiZivotniStilChange('rad_od_kuce', e.target.checked)}
+                          className="rounded border-gray-300"
+                        />
+                        Pogodno za rad od kuće
+                      </label>
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">Pet-friendly (0-5)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="5"
+                          value={aiKarakteristike.zivotni_stil.pet_friendly}
+                          onChange={(e) => handleAiZivotniStilChange('pet_friendly', parseInt(e.target.value) || 0)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">Nivo buke</label>
+                        <select
+                          value={aiKarakteristike.zivotni_stil.nivo_buke}
+                          onChange={(e) => handleAiZivotniStilChange('nivo_buke', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        >
+                          <option value="">Izaberite</option>
+                          <option value="nisko">Nisko</option>
+                          <option value="srednje">Srednje</option>
+                          <option value="visoko">Visoko</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">Osunčanost</label>
+                        <select
+                          value={aiKarakteristike.zivotni_stil.osuncanost}
+                          onChange={(e) => handleAiZivotniStilChange('osuncanost', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        >
+                          <option value="">Izaberite</option>
+                          <option value="slabo">Slabo</option>
+                          <option value="srednje">Srednje</option>
+                          <option value="dobro">Dobro</option>
+                          <option value="odlicno">Odlično</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Ekologija */}
+                  <div>
+                    <h4 className="font-medium text-gray-700 mb-3">Ekologija</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">Pogled</label>
+                        <select
+                          value={aiKarakteristike.ekologija.pogled}
+                          onChange={(e) => handleAiEkologijaChange('pogled', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        >
+                          <option value="">Izaberite</option>
+                          <option value="park">Park</option>
+                          <option value="ulica">Ulica</option>
+                          <option value="dvoriste">Dvorište</option>
+                          <option value="reka">Reka</option>
+                          <option value="panorama">Panorama</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">Indeks vazduha</label>
+                        <select
+                          value={aiKarakteristike.ekologija.indeks_vazduha}
+                          onChange={(e) => handleAiEkologijaChange('indeks_vazduha', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        >
+                          <option value="">Izaberite</option>
+                          <option value="dobar">Dobar</option>
+                          <option value="srednji">Srednji</option>
+                          <option value="los">Loš</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">Energetski razred</label>
+                        <select
+                          value={aiKarakteristike.ekologija.energetski_razred}
+                          onChange={(e) => handleAiEkologijaChange('energetski_razred', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        >
+                          <option value="">Izaberite</option>
+                          <option value="A+">A+</option>
+                          <option value="A">A</option>
+                          <option value="B">B</option>
+                          <option value="C">C</option>
+                          <option value="D">D</option>
+                          <option value="E">E</option>
+                          <option value="F">F</option>
+                          <option value="G">G</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mikrolokacija */}
+                  <div>
+                    <h4 className="font-medium text-gray-700 mb-3">Mikrolokacija</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <label className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={aiKarakteristike.mikrolokacija.mirna_ulica}
+                          onChange={(e) => handleAiMikrolokacijaChange('mirna_ulica', e.target.checked)}
+                          className="rounded border-gray-300"
+                        />
+                        Mirna ulica
+                      </label>
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">Škola (minuta pešice)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={aiKarakteristike.mikrolokacija.skola_minuta}
+                          onChange={(e) => handleAiMikrolokacijaChange('skola_minuta', parseInt(e.target.value) || 0)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">EV punjač (metara)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={aiKarakteristike.mikrolokacija.ev_punjac_metara}
+                          onChange={(e) => handleAiMikrolokacijaChange('ev_punjac_metara', parseInt(e.target.value) || 0)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Istorija cene - prikazuje se ako ima zapisa */}
+            {metapodaci.istorija_cene.length > 0 && (
+              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <h4 className="text-sm font-medium text-yellow-800 mb-2">Istorija cene</h4>
+                <div className="space-y-1">
+                  {metapodaci.istorija_cene.map((zapis, index) => (
+                    <div key={index} className="text-sm text-yellow-700">
+                      {zapis.datum}: {zapis.cena?.toLocaleString('sr-RS')} €
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </section>
 
           {error && (
