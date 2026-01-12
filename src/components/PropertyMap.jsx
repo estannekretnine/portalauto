@@ -82,6 +82,15 @@ export default function PropertyMap({ address, latitude, longitude, onLocationCh
       setUserSelectedPosition(true) // Postavi flag da su koordinate već postavljene
       userSelectedPositionRef.current = true // Postavi ref
       console.log('🗺️ PropertyMap: Postavljena initialPosition:', initialPosition)
+      
+      // Reverse geocoding za postavljene koordinate
+      reverseGeocode(initialPosition.lat, initialPosition.lng).then(addressString => {
+        if (addressString) {
+          setReverseGeocodedAddress(addressString)
+        }
+      }).catch(err => {
+        console.error('🗺️ PropertyMap: Greška pri reverse geocoding-u za initialPosition:', err)
+      })
     }
   }, [initialPosition?.lat, initialPosition?.lng])
   
