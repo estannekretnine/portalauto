@@ -157,8 +157,8 @@ export default function WelcomeDashboard() {
           {/* Ikonica */}
           <div className="flex justify-center mb-6">
             <div className="relative">
-              <div className="absolute inset-0 bg-indigo-200 rounded-full blur-xl opacity-50 animate-pulse"></div>
-              <div className="relative bg-gradient-to-br from-indigo-500 to-blue-600 rounded-full p-6 sm:p-8">
+              <div className="absolute inset-0 bg-amber-200 rounded-full blur-xl opacity-50 animate-pulse"></div>
+              <div className="relative bg-gradient-to-br from-amber-400 to-amber-600 rounded-full p-6 sm:p-8 rotate-gold">
                 <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 text-white" />
               </div>
             </div>
