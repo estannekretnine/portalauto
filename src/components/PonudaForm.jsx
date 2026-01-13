@@ -2354,127 +2354,52 @@ export default function PonudaForm({ onClose, onSuccess }) {
           </section>
 
           {/* Status i dodatne opcije */}
-          <section className="border-b border-gray-200 pb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Status i dodatne opcije</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="stsnovogradnja"
-                  checked={formData.stsnovogradnja || false}
-                  onChange={(e) => handleFieldChange('stsnovogradnja', e.target.checked)}
-                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                />
-                <label htmlFor="stsnovogradnja" className="ml-2 text-sm text-gray-700">
-                  Novogradnja
-                </label>
+          <section className="mb-6">
+            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
+                  <span className="text-lg">🏷️</span>
+              </div>
+                <div>
+                  <h3 className="font-semibold text-slate-800">Status i dodatne opcije</h3>
+                  <p className="text-xs text-slate-500">Oznake i tagovi nekretnine</p>
+              </div>
               </div>
 
-              <div className="flex items-center">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {[
+                  { key: 'stsnovogradnja', label: 'Novogradnja', icon: '🏗️' },
+                  { key: 'stssalonac', label: 'Salonac', icon: '🏠' },
+                  { key: 'stssivafaza', label: 'Siva faza', icon: '🧱' },
+                  { key: 'stsuizgradnji', label: 'U izgradnji', icon: '🚧' },
+                  { key: 'stsekskluziva', label: 'Ekskluziva', icon: '⭐' },
+                  { key: 'stshitnaprodaja', label: 'Hitna prodaja', icon: '🔥' },
+                  { key: 'stslux', label: 'Lux', icon: '💎' },
+                  { key: 'stszainvestiranje', label: 'Za investiranje', icon: '📈' },
+                  { key: 'stsvertikalahorizontala', label: 'Vertikala/Horizontala', icon: '↕️' }
+                ].map(option => (
+                  <label 
+                    key={option.key}
+                    htmlFor={option.key}
+                    className={`flex items-center gap-2 p-3 rounded-xl cursor-pointer transition-all ${
+                      formData[option.key] 
+                        ? 'bg-slate-700 text-white' 
+                        : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
                 <input
                   type="checkbox"
-                  id="stssalonac"
-                  checked={formData.stssalonac || false}
-                  onChange={(e) => handleFieldChange('stssalonac', e.target.checked)}
-                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                />
-                <label htmlFor="stssalonac" className="ml-2 text-sm text-gray-700">
-                  Salonac
+                      id={option.key}
+                      checked={formData[option.key] || false}
+                      onChange={(e) => handleFieldChange(option.key, e.target.checked)}
+                      className="hidden"
+                    />
+                    <span className="text-base">{option.icon}</span>
+                    <span className="text-sm font-medium">{option.label}</span>
                 </label>
+                ))}
               </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="stssivafaza"
-                  checked={formData.stssivafaza || false}
-                  onChange={(e) => handleFieldChange('stssivafaza', e.target.checked)}
-                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                />
-                <label htmlFor="stssivafaza" className="ml-2 text-sm text-gray-700">
-                  Siva faza
-                </label>
               </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="stsuizgradnji"
-                  checked={formData.stsuizgradnji || false}
-                  onChange={(e) => handleFieldChange('stsuizgradnji', e.target.checked)}
-                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                />
-                <label htmlFor="stsuizgradnji" className="ml-2 text-sm text-gray-700">
-                  U izgradnji
-                </label>
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="stsekskluziva"
-                  checked={formData.stsekskluziva || false}
-                  onChange={(e) => handleFieldChange('stsekskluziva', e.target.checked)}
-                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                />
-                <label htmlFor="stsekskluziva" className="ml-2 text-sm text-gray-700">
-                  Ekskluziva
-                </label>
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="stshitnaprodaja"
-                  checked={formData.stshitnaprodaja || false}
-                  onChange={(e) => handleFieldChange('stshitnaprodaja', e.target.checked)}
-                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                />
-                <label htmlFor="stshitnaprodaja" className="ml-2 text-sm text-gray-700">
-                  Hitna prodaja
-                </label>
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="stslux"
-                  checked={formData.stslux || false}
-                  onChange={(e) => handleFieldChange('stslux', e.target.checked)}
-                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                />
-                <label htmlFor="stslux" className="ml-2 text-sm text-gray-700">
-                  Lux
-                </label>
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="stszainvestiranje"
-                  checked={formData.stszainvestiranje || false}
-                  onChange={(e) => handleFieldChange('stszainvestiranje', e.target.checked)}
-                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                />
-                <label htmlFor="stszainvestiranje" className="ml-2 text-sm text-gray-700">
-                  Za investiranje
-                </label>
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="stsvertikalahorizontala"
-                  checked={formData.stsvertikalahorizontala || false}
-                  onChange={(e) => handleFieldChange('stsvertikalahorizontala', e.target.checked)}
-                  className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                />
-                <label htmlFor="stsvertikalahorizontala" className="ml-2 text-sm text-gray-700">
-                  Vertikala/Horizontala
-                </label>
-              </div>
-            </div>
           </section>
 
           {/* Fotografije */}
@@ -2502,7 +2427,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 setPhotos={setPhotos}
                 onPhotosChange={setPhotos}
               />
-            </div>
+              </div>
             )}
           </section>
 
@@ -3024,7 +2949,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                             <input type="number" min="0" value={aiKarakteristike.zivotni_stil[item.key]} onChange={(e) => handleAiZivotniStilChange(item.key, parseInt(e.target.value) || 0)} className="w-full px-1 py-1 border border-gray-200 rounded text-xs text-center" />
                           </div>
                         ))}
-                      </div>
+                    </div>
                   </div>
 
                     {/* KARTICA: Mikrolokacija */}
