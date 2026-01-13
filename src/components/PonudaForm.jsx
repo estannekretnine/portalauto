@@ -1553,9 +1553,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
             <div className="mt-4 space-y-4 bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
             
             {/* Kartica: Tip nekretnine + Datum */}
-            <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-4 border border-indigo-100">
-              <h4 className="font-semibold text-indigo-800 mb-3 flex items-center gap-2">
-                <span className="w-6 h-6 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-xs">🏠</span>
+            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+              <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">🏠</span>
                 Tip nekretnine
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -1598,9 +1598,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
             </div>
 
             {/* Kartica: Lokacija */}
-            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-100">
-              <h4 className="font-semibold text-emerald-800 mb-3 flex items-center gap-2">
-                <span className="w-6 h-6 bg-emerald-600 rounded-lg flex items-center justify-center text-white text-xs">📍</span>
+            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+              <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">📍</span>
                 Lokacija
               </h4>
               
@@ -1803,9 +1803,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
             </div>
 
             {/* Kartica: Cena i Površina */}
-            <div className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl p-4 border border-rose-100">
-              <h4 className="font-semibold text-rose-800 mb-3 flex items-center gap-2">
-                <span className="w-6 h-6 bg-rose-600 rounded-lg flex items-center justify-center text-white text-xs">💰</span>
+            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+              <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">💰</span>
                 Cena i površina
               </h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -1863,9 +1863,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
             </div>
 
             {/* Kartica: Kontakt podaci - na kraju */}
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-100">
-              <h4 className="font-semibold text-amber-800 mb-3 flex items-center gap-2">
-                <span className="w-6 h-6 bg-amber-600 rounded-lg flex items-center justify-center text-white text-xs">📞</span>
+            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+              <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">📞</span>
                 Kontakt podaci
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1962,7 +1962,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
               <button
                 type="button"
                 onClick={() => toggleSection('tehnicke')}
-                className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-violet-700 to-purple-600 rounded-xl shadow-md hover:shadow-lg transition-all"
+                className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl shadow-md hover:shadow-lg transition-all"
               >
                 <h3 className="text-base font-semibold text-white flex items-center gap-2">
                   <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
@@ -2052,7 +2052,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
               <button
                 type="button"
                 onClick={() => toggleSection('opremljenost')}
-                className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-emerald-600 to-teal-500 rounded-xl shadow-md hover:shadow-lg transition-all"
+                className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl shadow-md hover:shadow-lg transition-all"
               >
                 <h3 className="text-base font-semibold text-white flex items-center gap-2">
                   <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
@@ -2128,7 +2128,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
             <button
               type="button"
               onClick={() => toggleSection('dodatne')}
-              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-orange-500 to-amber-500 rounded-xl shadow-md hover:shadow-lg transition-all"
+              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl shadow-md hover:shadow-lg transition-all"
             >
               <h3 className="text-base font-semibold text-white flex items-center gap-2">
                 <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
@@ -2406,7 +2406,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
             <button
               type="button"
               onClick={() => toggleSection('fotografije')}
-              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-pink-500 to-rose-500 rounded-xl shadow-md hover:shadow-lg transition-all"
+              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl shadow-md hover:shadow-lg transition-all"
             >
               <h3 className="text-base font-semibold text-white flex items-center gap-2">
                 <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
@@ -2435,7 +2435,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
             <button
               type="button"
               onClick={() => toggleSection('metapodaci')}
-              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-xl shadow-md hover:shadow-lg transition-all"
+              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl shadow-md hover:shadow-lg transition-all"
             >
               <h3 className="text-base font-semibold text-white flex items-center gap-2">
                 <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
@@ -2847,8 +2847,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
                     
                     {/* KARTICA: Opremljenost */}
                     <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
-                      <h4 className="font-semibold text-indigo-800 mb-3 flex items-center gap-2">
-                        <span className="w-6 h-6 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-xs">🏠</span>
+                      <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                        <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">🏠</span>
                         Opremljenost
                       </h4>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -3160,7 +3160,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              className="px-6 py-2 bg-slate-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
               <Save className="w-4 h-4" />
               {loading ? 'Čuvanje...' : 'Sačuvaj ponudu'}

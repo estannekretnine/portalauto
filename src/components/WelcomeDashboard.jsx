@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Sparkles, Home, Database, Users, ArrowRight } from 'lucide-react'
+import { Sparkles, Home, Database, Users, ArrowRight, Quote } from 'lucide-react'
 
 const motivacionePoruke = [
   {
@@ -128,97 +128,117 @@ export default function WelcomeDashboard() {
   const [motivacionaPoruka, setMotivacionaPoruka] = useState({ sr: '', en: '' })
 
   useEffect(() => {
-    // Proveri timestamp logina iz localStorage (postavlja se pri svakom loginu)
     const loginTimestamp = localStorage.getItem('login_timestamp')
     const savedPorukaIndex = sessionStorage.getItem('dashboard_motivacija_index')
     const savedTimestamp = sessionStorage.getItem('dashboard_motivacija_timestamp')
     
-    // Ako nema poruke u sessionStorage ili ako je timestamp različit (novi login), generiši novu poruku
     if (savedPorukaIndex === null || !savedTimestamp || savedTimestamp !== loginTimestamp) {
-      // Generiši novu random poruku
       const randomIndex = Math.floor(Math.random() * motivacionePoruke.length)
       const novaPoruka = motivacionePoruke[randomIndex]
       setMotivacionaPoruka(novaPoruka)
       
-      // Sačuvaj index poruke i timestamp u sessionStorage
       sessionStorage.setItem('dashboard_motivacija_index', randomIndex.toString())
       sessionStorage.setItem('dashboard_motivacija_timestamp', loginTimestamp || Date.now().toString())
     } else {
-      // Koristi postojeću poruku iz ove sesije
       const index = parseInt(savedPorukaIndex)
       setMotivacionaPoruka(motivacionePoruke[index])
     }
   }, [])
 
   return (
-    <div className="min-h-full flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-blue-50">
-      <div className="max-w-4xl w-full px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-12 lg:p-16 text-center">
-          {/* Ikonica */}
-          <div className="flex justify-center mb-6">
-            <div className="relative">
-              <div className="absolute inset-0 bg-amber-200 rounded-full blur-xl opacity-50 animate-pulse"></div>
-              <div className="relative bg-gradient-to-br from-amber-400 to-amber-600 rounded-full p-6 sm:p-8 rotate-gold">
-                <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 text-white" />
-              </div>
-            </div>
+    <div className="min-h-full bg-slate-50">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        
+        {/* Hero sekcija */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl shadow-lg mb-6">
+            <Sparkles className="w-8 h-8 text-white" />
           </div>
-
-          {/* Naslov */}
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800 mb-4">
+          <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-3">
             Dobrodošli u Dashboard
-          </h2>
-          
-          {/* Podnaslov */}
-          <p className="text-lg sm:text-xl text-gray-600 mb-8">
+          </h1>
+          <p className="text-lg text-slate-500 max-w-xl mx-auto">
             Izaberite modul iz menija da počnete sa radom
           </p>
+        </div>
 
-          {/* Motivaciona poruka - srpska verzija */}
+        {/* Motivacione poruke */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-10">
+          {/* Srpska verzija */}
           {motivacionaPoruka.sr && (
-            <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-6 sm:p-8 mb-6 border-l-4 border-indigo-500">
-              <div className="flex items-start gap-4">
-                <Sparkles className="w-6 h-6 text-indigo-500 flex-shrink-0 mt-1" />
-                <p className="text-base sm:text-lg text-gray-700 italic leading-relaxed text-left">
-                  "{motivacionaPoruka.sr}"
-                </p>
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-slate-100 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+              <div className="relative">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Quote className="w-5 h-5 text-slate-600" />
+                  </div>
+                  <div>
+                    <p className="text-slate-600 leading-relaxed italic">
+                      "{motivacionaPoruka.sr}"
+                    </p>
+                    <p className="text-xs text-slate-400 mt-3 font-medium">SRPSKI</p>
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
-          {/* Motivaciona poruka - engleska verzija */}
+          {/* Engleska verzija */}
           {motivacionaPoruka.en && (
-            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 sm:p-8 mb-8 border-l-4 border-blue-500">
-              <div className="flex items-start gap-4">
-                <Sparkles className="w-6 h-6 text-blue-500 flex-shrink-0 mt-1" />
-                <p className="text-base sm:text-lg text-gray-700 italic leading-relaxed text-left">
-                  "{motivacionaPoruka.en}"
-                </p>
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-slate-100 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+              <div className="relative">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Quote className="w-5 h-5 text-slate-600" />
+                  </div>
+                  <div>
+                    <p className="text-slate-600 leading-relaxed italic">
+                      "{motivacionaPoruka.en}"
+                    </p>
+                    <p className="text-xs text-slate-400 mt-3 font-medium">ENGLISH</p>
+                  </div>
+                </div>
               </div>
             </div>
           )}
+        </div>
 
-          {/* Brzi pristup modulima */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
-            <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
-              <Home className="w-8 h-8 text-indigo-600 mx-auto mb-2" />
-              <p className="text-sm font-medium text-gray-700">Ponude</p>
+        {/* Brzi pristup modulima */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <h2 className="text-lg font-semibold text-slate-700 mb-4">Brzi pristup</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="group bg-slate-50 hover:bg-slate-100 rounded-xl p-5 transition-all cursor-pointer border border-transparent hover:border-slate-200">
+              <div className="w-12 h-12 bg-slate-200 group-hover:bg-slate-300 rounded-xl flex items-center justify-center mb-3 transition-colors">
+                <Home className="w-6 h-6 text-slate-600" />
+              </div>
+              <p className="font-medium text-slate-700">Ponude</p>
+              <p className="text-sm text-slate-500 mt-1">Upravljanje nekretninama</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
-              <Database className="w-8 h-8 text-indigo-600 mx-auto mb-2" />
-              <p className="text-sm font-medium text-gray-700">Matični podaci</p>
+            
+            <div className="group bg-slate-50 hover:bg-slate-100 rounded-xl p-5 transition-all cursor-pointer border border-transparent hover:border-slate-200">
+              <div className="w-12 h-12 bg-slate-200 group-hover:bg-slate-300 rounded-xl flex items-center justify-center mb-3 transition-colors">
+                <Database className="w-6 h-6 text-slate-600" />
+              </div>
+              <p className="font-medium text-slate-700">Matični podaci</p>
+              <p className="text-sm text-slate-500 mt-1">Šifarnici i konfiguracija</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
-              <Users className="w-8 h-8 text-indigo-600 mx-auto mb-2" />
-              <p className="text-sm font-medium text-gray-700">Korisnici</p>
+            
+            <div className="group bg-slate-50 hover:bg-slate-100 rounded-xl p-5 transition-all cursor-pointer border border-transparent hover:border-slate-200">
+              <div className="w-12 h-12 bg-slate-200 group-hover:bg-slate-300 rounded-xl flex items-center justify-center mb-3 transition-colors">
+                <Users className="w-6 h-6 text-slate-600" />
+              </div>
+              <p className="font-medium text-slate-700">Korisnici</p>
+              <p className="text-sm text-slate-500 mt-1">Upravljanje korisnicima</p>
             </div>
           </div>
+        </div>
 
-          {/* Call to action */}
-          <div className="mt-8 flex items-center justify-center gap-2 text-indigo-600">
-            <ArrowRight className="w-5 h-5" />
-            <span className="text-sm font-medium">Kliknite na bilo koji modul u meniju da počnete</span>
-          </div>
+        {/* Footer hint */}
+        <div className="mt-8 flex items-center justify-center gap-2 text-slate-400">
+          <ArrowRight className="w-4 h-4" />
+          <span className="text-sm">Kliknite na bilo koji modul u meniju da počnete</span>
         </div>
       </div>
     </div>

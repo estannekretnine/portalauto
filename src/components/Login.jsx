@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { login } from '../utils/auth'
 import { useNavigate } from 'react-router-dom'
+import { Building2, Lock, Mail, ArrowRight } from 'lucide-react'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -12,7 +13,6 @@ export default function Login() {
 
   // Prikaži build info samo u produkciji (na Vercelu)
   useEffect(() => {
-    // Proveri da li smo u produkciji (na Vercelu)
     const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
     
     if (isProduction) {
@@ -26,9 +26,7 @@ export default function Login() {
             setBuildInfo(data)
           }
         })
-        .catch(() => {
-          // Tihi fallback - ne prikazuj grešku
-        })
+        .catch(() => {})
     }
   }, [])
 
@@ -51,65 +49,100 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-3 sm:p-4">
-      <div className="bg-white p-4 sm:p-8 rounded-lg shadow-xl w-full max-w-md">
-        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 text-gray-800">
-          Agencija za Nekretnine
-        </h1>
-        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              placeholder="unesite@email.com"
-            />
+    <div className="min-h-screen flex items-center justify-center bg-slate-900 p-4">
+      {/* Background pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-900 to-slate-900"></div>
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22none%22 fill-rule=%22evenodd%22%3E%3Cg fill=%22%23334155%22 fill-opacity=%220.1%22%3E%3Cpath d=%22M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
+      
+      <div className="relative w-full max-w-md">
+        {/* Logo i naslov */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl shadow-xl mb-4 border border-slate-600">
+            <Building2 className="w-8 h-8 text-white" />
           </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              placeholder="••••••••"
-            />
-          </div>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-              {error}
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+            Agencija za Nekretnine
+          </h1>
+          <p className="text-slate-400 text-sm">
+            Prijavite se na vaš nalog
+          </p>
+        </div>
+
+        {/* Login forma */}
+        <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 border border-slate-700/50">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+                Email adresa
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full pl-11 pr-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all"
+                  placeholder="vas@email.com"
+                />
+              </div>
             </div>
-          )}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-indigo-600 text-white py-2.5 sm:py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
-          >
-            {loading ? 'Prijavljivanje...' : 'Prijavi se'}
-          </button>
-        </form>
-        
-               {/* Build Info - samo u produkciji (na Vercelu) */}
-               {buildInfo && (
-                 <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
-                   <div className="text-xs text-gray-500 text-center space-y-1">
-                     <div>Verzija: {buildInfo.version}</div>
-                     <div>Build: {buildInfo.date}</div>
-                   </div>
-                 </div>
-               )}
+            
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
+                Lozinka
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full pl-11 pr-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-slate-600 to-slate-700 text-white py-3 px-4 rounded-xl hover:from-slate-500 hover:to-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium flex items-center justify-center gap-2 group"
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Prijavljivanje...
+                </>
+              ) : (
+                <>
+                  Prijavi se
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
+            </button>
+          </form>
+        </div>
+
+        {/* Build Info */}
+        {buildInfo && (
+          <div className="mt-6 text-center">
+            <div className="text-xs text-slate-600 space-y-0.5">
+              <div>v{buildInfo.version}</div>
+              <div>{buildInfo.date}</div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
 }
-
