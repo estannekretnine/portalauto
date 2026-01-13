@@ -1532,128 +1532,33 @@ export default function PonudaForm({ onClose, onSuccess }) {
           }}
         >
           {/* Osnovne informacije */}
-          <section className="border-b border-gray-200 pb-6">
+          <section className="mb-6">
             <button
               type="button"
               onClick={() => toggleSection('osnovne')}
-              className="w-full flex items-center justify-between mb-4 hover:bg-gray-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
+              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl shadow-md hover:shadow-lg transition-all"
             >
-              <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                <Info className="w-5 h-5" />
+              <h3 className="text-base font-semibold text-white flex items-center gap-2">
+                <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                  <Info className="w-4 h-4 text-white" />
+                </span>
                 Osnovne informacije
               </h3>
-              <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${openSections.osnovne ? 'transform rotate-180' : ''}`} />
+              <div className={`w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center transition-transform duration-300 ${openSections.osnovne ? 'rotate-180' : ''}`}>
+                <ChevronDown className="w-5 h-5 text-white" />
+              </div>
             </button>
             
             {openSections.osnovne && (
-            <div className="space-y-4">
+            <div className="mt-4 space-y-4 bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
             
-            {/* Kartica: Kontakt i Datum */}
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-100">
-              <h4 className="font-semibold text-amber-800 mb-3 flex items-center gap-2">
-                <span className="w-6 h-6 bg-amber-600 rounded-lg flex items-center justify-center text-white text-xs">📞</span>
-                Kontakt podaci
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">👤 Kontakt osoba</label>
-                  <input
-                    type="text"
-                    value={formData.kontaktosoba || ''}
-                    onChange={(e) => handleFieldChange('kontaktosoba', e.target.value)}
-                    placeholder="Ime i prezime"
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                  />
-                </div>
-                <div className="relative">
-                  <label className="block text-xs font-medium text-gray-600 mb-1">📱 Broj telefona</label>
-                  <div className="relative">
-                    <input
-                      ref={phoneInputRef}
-                      type="text"
-                      value={formData.brojtelefona_linija || ''}
-                      onChange={(e) => handlePhoneChange(e.target.value)}
-                      onBlur={handlePhoneBlur}
-                      onFocus={() => {
-                        if (phoneSearchResults.length > 0) {
-                          setShowPhoneDropdown(true)
-                        }
-                      }}
-                      placeholder="+381 XX XXX XXXX"
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    />
-                    {isSearchingPhone && (
-                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-600"></div>
-                      </div>
-                    )}
-                  </div>
-                  {/* Dropdown sa rezultatima pretrage */}
-                  {showPhoneDropdown && phoneSearchResults.length > 0 && (
-                    <div data-phone-dropdown className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto">
-                      <div className="p-2 text-xs font-semibold text-gray-600 border-b border-gray-200">
-                        Pronađene ponude ({phoneSearchResults.length})
-                      </div>
-                      {phoneSearchResults.map((ponuda) => (
-                        <div
-                          key={ponuda.id}
-                          className="p-3 hover:bg-amber-50 border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            console.log('Klik na ponudu:', ponuda.id)
-                            setShowPhoneDropdown(false)
-                          }}
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium text-sm text-gray-900 truncate">
-                                {ponuda.vrstaobjekta?.opis || 'N/A'}
-                              </div>
-                              <div className="text-xs text-gray-600 mt-1">
-                                {formatAddress(ponuda)}
-                              </div>
-                              <div className="text-xs text-gray-500 mt-1">
-                                {ponuda.naslovaoglasa || 'Bez naslova'}
-                              </div>
-                            </div>
-                            <div className="flex-shrink-0 text-right">
-                              <div className="font-semibold text-sm text-amber-600">
-                                {ponuda.cena 
-                                  ? new Intl.NumberFormat('sr-RS', {
-                                      style: 'currency',
-                                      currency: 'EUR',
-                                      minimumFractionDigits: 0
-                                    }).format(ponuda.cena)
-                                  : '-'
-                                }
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">📅 Datum prijema</label>
-                  <input
-                    type="date"
-                    value={formData.datumprijema || ''}
-                    onChange={(e) => handleFieldChange('datumprijema', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Kartica: Tip nekretnine */}
+            {/* Kartica: Tip nekretnine + Datum */}
             <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-4 border border-indigo-100">
               <h4 className="font-semibold text-indigo-800 mb-3 flex items-center gap-2">
                 <span className="w-6 h-6 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-xs">🏠</span>
                 Tip nekretnine
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">🏢 Vrsta objekta <span className="text-red-500">*</span></label>
                   <select
@@ -1679,6 +1584,15 @@ export default function PonudaForm({ onClose, onSuccess }) {
                     <option value="prodaja">Prodaja</option>
                     <option value="renta">Renta</option>
                   </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">📅 Datum prijema</label>
+                  <input
+                    type="date"
+                    value={formData.datumprijema || ''}
+                    onChange={(e) => handleFieldChange('datumprijema', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
                 </div>
               </div>
             </div>
@@ -1948,27 +1862,121 @@ export default function PonudaForm({ onClose, onSuccess }) {
               </div>
             </div>
 
+            {/* Kartica: Kontakt podaci - na kraju */}
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-100">
+              <h4 className="font-semibold text-amber-800 mb-3 flex items-center gap-2">
+                <span className="w-6 h-6 bg-amber-600 rounded-lg flex items-center justify-center text-white text-xs">📞</span>
+                Kontakt podaci
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">👤 Kontakt osoba</label>
+                  <input
+                    type="text"
+                    value={formData.kontaktosoba || ''}
+                    onChange={(e) => handleFieldChange('kontaktosoba', e.target.value)}
+                    placeholder="Ime i prezime"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
+                <div className="relative">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">📱 Broj telefona</label>
+                  <div className="relative">
+                    <input
+                      ref={phoneInputRef}
+                      type="text"
+                      value={formData.brojtelefona_linija || ''}
+                      onChange={(e) => handlePhoneChange(e.target.value)}
+                      onBlur={handlePhoneBlur}
+                      onFocus={() => {
+                        if (phoneSearchResults.length > 0) {
+                          setShowPhoneDropdown(true)
+                        }
+                      }}
+                      placeholder="+381 XX XXX XXXX"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    />
+                    {isSearchingPhone && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-600"></div>
+                      </div>
+                    )}
+                  </div>
+                  {/* Dropdown sa rezultatima pretrage */}
+                  {showPhoneDropdown && phoneSearchResults.length > 0 && (
+                    <div data-phone-dropdown className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto">
+                      <div className="p-2 text-xs font-semibold text-gray-600 border-b border-gray-200">
+                        Pronađene ponude ({phoneSearchResults.length})
+                      </div>
+                      {phoneSearchResults.map((ponuda) => (
+                        <div
+                          key={ponuda.id}
+                          className="p-3 hover:bg-amber-50 border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            console.log('Klik na ponudu:', ponuda.id)
+                            setShowPhoneDropdown(false)
+                          }}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-sm text-gray-900 truncate">
+                                {ponuda.vrstaobjekta?.opis || 'N/A'}
+                              </div>
+                              <div className="text-xs text-gray-600 mt-1">
+                                {formatAddress(ponuda)}
+                              </div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {ponuda.naslovaoglasa || 'Bez naslova'}
+                              </div>
+                            </div>
+                            <div className="flex-shrink-0 text-right">
+                              <div className="font-semibold text-sm text-amber-600">
+                                {ponuda.cena 
+                                  ? new Intl.NumberFormat('sr-RS', {
+                                      style: 'currency',
+                                      currency: 'EUR',
+                                      minimumFractionDigits: 0
+                                    }).format(ponuda.cena)
+                                  : '-'
+                                }
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             </div>
             )}
           </section>
 
           {/* Tehničke karakteristike */}
           {fieldsBySection.tehnicke.length > 0 && (
-            <section className="border-b border-gray-200 pb-6">
+            <section className="mb-6">
               <button
                 type="button"
                 onClick={() => toggleSection('tehnicke')}
-                className="w-full flex items-center justify-between mb-4 hover:bg-gray-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
+                className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-violet-700 to-purple-600 rounded-xl shadow-md hover:shadow-lg transition-all"
               >
-                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                  <Ruler className="w-5 h-5" />
+                <h3 className="text-base font-semibold text-white flex items-center gap-2">
+                  <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                    <Ruler className="w-4 h-4 text-white" />
+                  </span>
                   Tehničke karakteristike
                 </h3>
-                <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${openSections.tehnicke ? 'transform rotate-180' : ''}`} />
+                <div className={`w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center transition-transform duration-300 ${openSections.tehnicke ? 'rotate-180' : ''}`}>
+                  <ChevronDown className="w-5 h-5 text-white" />
+                </div>
               </button>
               
               {openSections.tehnicke && (
-              <div>
+              <div className="mt-4 bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {fieldsBySection.tehnicke.map(field => {
@@ -2040,21 +2048,25 @@ export default function PonudaForm({ onClose, onSuccess }) {
 
           {/* Opremljenost */}
           {fieldsBySection.opremljenost.length > 0 && (
-            <section className="border-b border-gray-200 pb-6">
+            <section className="mb-6">
               <button
                 type="button"
                 onClick={() => toggleSection('opremljenost')}
-                className="w-full flex items-center justify-between mb-4 hover:bg-gray-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
+                className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-emerald-600 to-teal-500 rounded-xl shadow-md hover:shadow-lg transition-all"
               >
-                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                  <Building2 className="w-5 h-5" />
+                <h3 className="text-base font-semibold text-white flex items-center gap-2">
+                  <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                    <Building2 className="w-4 h-4 text-white" />
+                  </span>
                   Opremljenost
                 </h3>
-                <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${openSections.opremljenost ? 'transform rotate-180' : ''}`} />
+                <div className={`w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center transition-transform duration-300 ${openSections.opremljenost ? 'rotate-180' : ''}`}>
+                  <ChevronDown className="w-5 h-5 text-white" />
+                </div>
               </button>
               
               {openSections.opremljenost && (
-              <div>
+              <div className="mt-4 bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {fieldsBySection.opremljenost.map(field => {
@@ -2112,18 +2124,25 @@ export default function PonudaForm({ onClose, onSuccess }) {
           )}
 
           {/* Dodatna polja */}
-          <section className="border-b border-gray-200 pb-6">
+          <section className="mb-6">
             <button
               type="button"
               onClick={() => toggleSection('dodatne')}
-              className="w-full flex items-center justify-between mb-4 hover:bg-gray-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
+              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-orange-500 to-amber-500 rounded-xl shadow-md hover:shadow-lg transition-all"
             >
-              <h3 className="text-lg font-semibold text-gray-800">Dodatne informacije</h3>
-              <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${openSections.dodatne ? 'transform rotate-180' : ''}`} />
+              <h3 className="text-base font-semibold text-white flex items-center gap-2">
+                <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                  <FileText className="w-4 h-4 text-white" />
+                </span>
+                Dodatne informacije
+              </h3>
+              <div className={`w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center transition-transform duration-300 ${openSections.dodatne ? 'rotate-180' : ''}`}>
+                <ChevronDown className="w-5 h-5 text-white" />
+              </div>
             </button>
             
             {openSections.dodatne && (
-            <div>
+            <div className="mt-4 bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -2383,21 +2402,25 @@ export default function PonudaForm({ onClose, onSuccess }) {
           </section>
 
           {/* Fotografije */}
-          <section className="border-b border-gray-200 pb-6">
+          <section className="mb-6">
             <button
               type="button"
               onClick={() => toggleSection('fotografije')}
-              className="w-full flex items-center justify-between mb-4 hover:bg-gray-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
+              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-pink-500 to-rose-500 rounded-xl shadow-md hover:shadow-lg transition-all"
             >
-              <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                <Upload className="w-5 h-5" />
+              <h3 className="text-base font-semibold text-white flex items-center gap-2">
+                <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                  <Upload className="w-4 h-4 text-white" />
+                </span>
                 Fotografije
               </h3>
-              <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${openSections.fotografije ? 'transform rotate-180' : ''}`} />
+              <div className={`w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center transition-transform duration-300 ${openSections.fotografije ? 'rotate-180' : ''}`}>
+                <ChevronDown className="w-5 h-5 text-white" />
+              </div>
             </button>
             
             {openSections.fotografije && (
-            <div>
+            <div className="mt-4 bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
               <PhotoUpload
                 photos={photos}
                 setPhotos={setPhotos}
@@ -2408,21 +2431,25 @@ export default function PonudaForm({ onClose, onSuccess }) {
           </section>
 
           {/* METAPODACI - Tabovi */}
-          <section className="border-b border-gray-200 pb-6">
+          <section className="mb-6">
             <button
               type="button"
               onClick={() => toggleSection('metapodaci')}
-              className="w-full flex items-center justify-between mb-4 hover:bg-gray-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
+              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-xl shadow-md hover:shadow-lg transition-all"
             >
-              <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                <FileText className="w-5 h-5" />
+              <h3 className="text-base font-semibold text-white flex items-center gap-2">
+                <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                  <Brain className="w-4 h-4 text-white" />
+                </span>
                 Metapodaci i AI karakteristike
               </h3>
-              <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${openSections.metapodaci ? 'transform rotate-180' : ''}`} />
+              <div className={`w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center transition-transform duration-300 ${openSections.metapodaci ? 'rotate-180' : ''}`}>
+                <ChevronDown className="w-5 h-5 text-white" />
+              </div>
             </button>
             
             {openSections.metapodaci && (
-            <div>
+            <div className="mt-4 bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
 
             {/* Tab navigacija */}
             <div className="flex flex-wrap gap-2 mb-4 border-b border-gray-200">
