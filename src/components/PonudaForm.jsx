@@ -1754,9 +1754,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 </div>
 
                 {/* Broj ulice, Latitude, Longitude - prošireno */}
-                <div className="grid grid-cols-12 gap-3">
-                  {/* Broj ulice - 4 kolone */}
-                  <div className="col-span-4">
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
                     <label className="block text-xs font-medium text-slate-600 mb-1.5">🔢 Broj ulice</label>
                     <input
                       ref={brojUliceInputRef}
@@ -1769,8 +1768,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                       className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent disabled:bg-slate-100 disabled:cursor-not-allowed"
                     />
                   </div>
-                  {/* Latitude - 4 kolone */}
-                  <div className="col-span-4">
+                  <div>
                     <label className="block text-xs font-medium text-slate-600 mb-1.5">📍 Latitude</label>
                     <input
                       type="text"
@@ -1780,8 +1778,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                       className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                     />
                   </div>
-                  {/* Longitude - 4 kolone */}
-                  <div className="col-span-4">
+                  <div>
                     <label className="block text-xs font-medium text-slate-600 mb-1.5">📍 Longitude</label>
                     <div className="relative">
                       <input
@@ -1802,6 +1799,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
             </div>
 
