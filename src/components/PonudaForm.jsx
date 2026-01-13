@@ -161,6 +161,23 @@ export default function PonudaForm({ onClose, onSuccess }) {
   // Aktivni tab za metapodatke
   const [activeMetaTab, setActiveMetaTab] = useState('vlasnici')
 
+  // State za otvorene/zatvorene sekcije (accordion)
+  const [openSections, setOpenSections] = useState({
+    osnovne: true,        // Osnovne informacije - otvoreno po defaultu
+    tehnicke: false,      // Tehničke karakteristike - zatvoreno
+    opremljenost: false,  // Opremljenost - zatvoreno
+    dodatne: false,       // Dodatne informacije - zatvoreno
+    fotografije: false,   // Fotografije - zatvoreno
+    metapodaci: false     // Metapodaci - zatvoreno
+  })
+
+  const toggleSection = (section) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }))
+  }
+
   // JSONB metapodaci
   const [metapodaci, setMetapodaci] = useState({
     vlasnici: [{
@@ -1489,10 +1506,20 @@ export default function PonudaForm({ onClose, onSuccess }) {
         >
           {/* Osnovne informacije */}
           <section className="border-b border-gray-200 pb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <Info className="w-5 h-5" />
-              Osnovne informacije
-            </h3>
+            <button
+              type="button"
+              onClick={() => toggleSection('osnovne')}
+              className="w-full flex items-center justify-between mb-4 hover:bg-gray-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
+            >
+              <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                <Info className="w-5 h-5" />
+                Osnovne informacije
+              </h3>
+              <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${openSections.osnovne ? 'transform rotate-180' : ''}`} />
+            </button>
+            
+            {openSections.osnovne && (
+            <div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
@@ -1799,16 +1826,26 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 </div>
               ))}
             </div>
-
+            )}
           </section>
 
           {/* Tehničke karakteristike */}
           {fieldsBySection.tehnicke.length > 0 && (
             <section className="border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <Ruler className="w-5 h-5" />
-                Tehničke karakteristike
-              </h3>
+              <button
+                type="button"
+                onClick={() => toggleSection('tehnicke')}
+                className="w-full flex items-center justify-between mb-4 hover:bg-gray-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
+              >
+                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                  <Ruler className="w-5 h-5" />
+                  Tehničke karakteristike
+                </h3>
+                <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${openSections.tehnicke ? 'transform rotate-180' : ''}`} />
+              </button>
+              
+              {openSections.tehnicke && (
+              <div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {fieldsBySection.tehnicke.map(field => {
@@ -1855,16 +1892,27 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   )
                 })}
               </div>
+              )}
             </section>
           )}
 
           {/* Opremljenost */}
           {fieldsBySection.opremljenost.length > 0 && (
             <section className="border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <Building2 className="w-5 h-5" />
-                Opremljenost
-              </h3>
+              <button
+                type="button"
+                onClick={() => toggleSection('opremljenost')}
+                className="w-full flex items-center justify-between mb-4 hover:bg-gray-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
+              >
+                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                  <Building2 className="w-5 h-5" />
+                  Opremljenost
+                </h3>
+                <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${openSections.opremljenost ? 'transform rotate-180' : ''}`} />
+              </button>
+              
+              {openSections.opremljenost && (
+              <div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {fieldsBySection.opremljenost.map(field => (
@@ -1882,12 +1930,23 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   </div>
                 ))}
               </div>
+              )}
             </section>
           )}
 
           {/* Dodatna polja */}
           <section className="border-b border-gray-200 pb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Dodatne informacije</h3>
+            <button
+              type="button"
+              onClick={() => toggleSection('dodatne')}
+              className="w-full flex items-center justify-between mb-4 hover:bg-gray-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
+            >
+              <h3 className="text-lg font-semibold text-gray-800">Dodatne informacije</h3>
+              <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${openSections.dodatne ? 'transform rotate-180' : ''}`} />
+            </button>
+            
+            {openSections.dodatne && (
+            <div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -2229,14 +2288,50 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 </label>
               </div>
             </div>
+            </div>
+          </section>
+
+          {/* Fotografije */}
+          <section className="border-b border-gray-200 pb-6">
+            <button
+              type="button"
+              onClick={() => toggleSection('fotografije')}
+              className="w-full flex items-center justify-between mb-4 hover:bg-gray-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
+            >
+              <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                <Upload className="w-5 h-5" />
+                Fotografije
+              </h3>
+              <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${openSections.fotografije ? 'transform rotate-180' : ''}`} />
+            </button>
+            
+            {openSections.fotografije && (
+            <div>
+              <PhotoUpload
+                photos={photos}
+                setPhotos={setPhotos}
+                onPhotosChange={setPhotos}
+              />
+            </div>
+            )}
           </section>
 
           {/* METAPODACI - Tabovi */}
           <section className="border-b border-gray-200 pb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <FileText className="w-5 h-5" />
-              Metapodaci i AI karakteristike
-            </h3>
+            <button
+              type="button"
+              onClick={() => toggleSection('metapodaci')}
+              className="w-full flex items-center justify-between mb-4 hover:bg-gray-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
+            >
+              <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                Metapodaci i AI karakteristike
+              </h3>
+              <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${openSections.metapodaci ? 'transform rotate-180' : ''}`} />
+            </button>
+            
+            {openSections.metapodaci && (
+            <div>
 
             {/* Tab navigacija */}
             <div className="flex flex-wrap gap-2 mb-4 border-b border-gray-200">
@@ -2244,8 +2339,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 { id: 'vlasnici', label: 'Vlasnici', icon: Users },
                 { id: 'eop', label: 'EOP', icon: FileText },
                 { id: 'troskovi', label: 'Troškovi', icon: Wallet },
-                { id: 'zastupnik', label: 'Zastupnik', icon: UserCheck },
                 { id: 'ai', label: 'Karakteristike', icon: Brain },
+                { id: 'zastupnik', label: 'Zastupnik', icon: UserCheck },
                 { id: 'realizacija', label: 'Realizacija', icon: Receipt }
               ].map(tab => (
                 <button
@@ -2829,6 +2924,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 </div>
               </div>
             )}
+            </div>
           </section>
 
           {error && (
@@ -2859,17 +2955,6 @@ export default function PonudaForm({ onClose, onSuccess }) {
             </button>
           </div>
         </form>
-
-        {/* Fotografije - IZVUČENO VAN FORM ELEMENTA da spreči slučajni submit */}
-        <div className="p-4 sm:p-6 border-t border-gray-200">
-          <section>
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <Upload className="w-5 h-5" />
-              Fotografije
-            </h3>
-            <PhotoUpload photos={photos} onPhotosChange={setPhotos} />
-          </section>
-        </div>
       </div>
       
       {/* Modal sa mapom */}
