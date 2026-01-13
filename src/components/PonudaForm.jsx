@@ -2361,6 +2361,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                           <option value="">Status lica</option>
                           <option value="fizicko">Fizičko lice</option>
                           <option value="pravno">Pravno lice</option>
+                          <option value="preduzetnik">Preduzetnik</option>
                         </select>
                       </div>
                       <div className="flex flex-wrap gap-4 mt-3">
