@@ -491,64 +491,90 @@ export default function PonudeModule() {
           <p className="text-slate-500">Nema ponuda koje odgovaraju vašim kriterijumima.</p>
         </div>
       ) : viewMode === 'table' ? (
-        /* Table View */
+        /* Table View - Modern Card Style */
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">ID</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Vrsta</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Opština</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Lokacija</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Ulica</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">m²</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Struktura</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Cena</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Tip</th>
+                <tr className="bg-slate-800 text-white">
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">ID</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Vrsta</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Opština</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Lokacija</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Ulica</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">m²</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Struktura</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Cena</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Tip</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {paginatedPonude.map((ponuda) => (
-                  <tr key={ponuda.id} className="hover:bg-slate-50 transition-colors cursor-pointer">
+              <tbody>
+                {paginatedPonude.map((ponuda, index) => (
+                  <tr 
+                    key={ponuda.id} 
+                    className={`
+                      hover:bg-slate-100 transition-all cursor-pointer border-l-4 border-l-transparent hover:border-l-slate-700
+                      ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50/70'}
+                    `}
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-medium text-slate-800">#{ponuda.id}</span>
+                      <span className="inline-flex items-center justify-center w-10 h-7 bg-slate-800 text-white text-xs font-bold rounded-md">
+                        {ponuda.id}
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <Building2 className="w-4 h-4 text-slate-400" />
-                        <span className="text-sm text-slate-700">{ponuda.vrstaobjekta?.opis || '-'}</span>
+                        <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
+                          <Building2 className="w-4 h-4 text-slate-600" />
+                        </div>
+                        <span className="text-sm font-medium text-slate-800">{ponuda.vrstaobjekta?.opis || '-'}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{ponuda.opstina?.opis || '-'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{ponuda.lokacija?.opis || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-slate-700">{ponuda.opstina?.opis || '-'}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="text-sm text-slate-700">{ponuda.lokacija?.opis || '-'}</span>
+                      </div>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{ponuda.ulica?.opis || '-'}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-medium text-slate-700">{ponuda.kvadratura ? `${ponuda.kvadratura}` : '-'}</span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                      {ponuda.struktura ? parseFloat(ponuda.struktura).toFixed(1) : '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-semibold text-slate-800">{formatCena(ponuda.cena)}</span>
+                      <div className="flex items-center gap-1">
+                        <Ruler className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="text-sm font-semibold text-slate-800">{ponuda.kvadratura ? `${ponuda.kvadratura}` : '-'}</span>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium ${
+                      <span className="inline-flex items-center px-2.5 py-1 bg-slate-100 rounded-md text-sm font-medium text-slate-700">
+                        {ponuda.struktura ? parseFloat(ponuda.struktura).toFixed(1) : '-'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-1">
+                        <Euro className="w-4 h-4 text-emerald-600" />
+                        <span className="text-sm font-bold text-slate-900">{ponuda.cena ? new Intl.NumberFormat('sr-RS').format(ponuda.cena) : '-'}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
                         ponuda.stsaktivan
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          : 'bg-slate-100 text-slate-600 border border-slate-200'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-slate-200 text-slate-600'
                       }`}>
+                        <span className={`w-2 h-2 rounded-full ${ponuda.stsaktivan ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
                         {ponuda.stsaktivan ? 'Aktivan' : 'Neaktivan'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium ${
+                      <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold ${
                         ponuda.stsrentaprodaja === 'prodaja'
-                          ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                          : 'bg-amber-50 text-amber-700 border border-amber-200'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-amber-100 text-amber-800'
                       }`}>
-                        {ponuda.stsrentaprodaja === 'prodaja' ? 'Prodaja' : 'Renta'}
+                        {ponuda.stsrentaprodaja === 'prodaja' ? '🏠 Prodaja' : '🔑 Renta'}
                       </span>
                     </td>
                   </tr>
@@ -557,17 +583,17 @@ export default function PonudeModule() {
             </table>
           </div>
           
-          {/* Pagination */}
-          <div className="bg-slate-50 px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+          {/* Pagination - Dark theme to match sidebar */}
+          <div className="bg-slate-800 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-3">
-              <span className="text-sm text-slate-600">Prikaži:</span>
+              <span className="text-sm text-slate-300">Prikaži:</span>
               <select
                 value={itemsPerPage}
                 onChange={(e) => {
                   setItemsPerPage(Number(e.target.value))
                   setCurrentPage(1)
                 }}
-                className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                className="px-3 py-1.5 bg-slate-700 border border-slate-600 text-white rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent"
               >
                 <option value={10}>10</option>
                 <option value={20}>20</option>
@@ -580,26 +606,28 @@ export default function PonudeModule() {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <ChevronLeft className="w-4 h-4 text-slate-600" />
+                <ChevronLeft className="w-4 h-4 text-white" />
               </button>
               
-              <span className="text-sm text-slate-600 px-3">
-                {currentPage} / {totalPages || 1}
-              </span>
+              <div className="flex items-center gap-1 px-3">
+                <span className="text-sm font-bold text-white">{currentPage}</span>
+                <span className="text-slate-400">/</span>
+                <span className="text-sm text-slate-300">{totalPages || 1}</span>
+              </div>
               
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages || totalPages === 0}
-                className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <ChevronRight className="w-4 h-4 text-slate-600" />
+                <ChevronRight className="w-4 h-4 text-white" />
               </button>
             </div>
             
-            <div className="text-sm text-slate-600 font-medium">
-              Ukupno: <span className="text-slate-800">{totalPonude}</span> nekretnina
+            <div className="text-sm text-slate-300 font-medium">
+              Ukupno: <span className="text-white font-bold">{totalPonude}</span> nekretnina
             </div>
           </div>
         </div>
@@ -676,17 +704,17 @@ export default function PonudeModule() {
             ))}
           </div>
           
-          {/* Pagination */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 mt-6 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+          {/* Pagination - Dark theme to match sidebar */}
+          <div className="bg-slate-800 rounded-2xl shadow-sm mt-6 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-3">
-              <span className="text-sm text-slate-600">Prikaži:</span>
+              <span className="text-sm text-slate-300">Prikaži:</span>
               <select
                 value={itemsPerPage}
                 onChange={(e) => {
                   setItemsPerPage(Number(e.target.value))
                   setCurrentPage(1)
                 }}
-                className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                className="px-3 py-1.5 bg-slate-700 border border-slate-600 text-white rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent"
               >
                 <option value={10}>10</option>
                 <option value={20}>20</option>
@@ -699,26 +727,28 @@ export default function PonudeModule() {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <ChevronLeft className="w-4 h-4 text-slate-600" />
+                <ChevronLeft className="w-4 h-4 text-white" />
               </button>
               
-              <span className="text-sm text-slate-600 px-3">
-                {currentPage} / {totalPages || 1}
-              </span>
+              <div className="flex items-center gap-1 px-3">
+                <span className="text-sm font-bold text-white">{currentPage}</span>
+                <span className="text-slate-400">/</span>
+                <span className="text-sm text-slate-300">{totalPages || 1}</span>
+              </div>
               
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages || totalPages === 0}
-                className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <ChevronRight className="w-4 h-4 text-slate-600" />
+                <ChevronRight className="w-4 h-4 text-white" />
               </button>
             </div>
             
-            <div className="text-sm text-slate-600 font-medium">
-              Ukupno: <span className="text-slate-800">{totalPonude}</span> nekretnina
+            <div className="text-sm text-slate-300 font-medium">
+              Ukupno: <span className="text-white font-bold">{totalPonude}</span> nekretnina
             </div>
           </div>
         </div>

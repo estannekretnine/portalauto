@@ -114,7 +114,7 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
       <aside
         className={`fixed lg:static inset-y-0 left-0 z-40 ${collapsed ? 'w-20' : 'w-72'} bg-slate-900 transform ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } transition-all duration-300 ease-in-out h-screen flex flex-col`}
+        } transition-all duration-300 ease-in-out min-h-screen lg:min-h-full flex flex-col`}
         aria-label="Glavna navigacija"
       >
         {/* Header */}
