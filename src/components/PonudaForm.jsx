@@ -1962,7 +1962,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
               <button
                 type="button"
                 onClick={() => toggleSection('tehnicke')}
-                className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl shadow-md hover:shadow-lg transition-all"
+                className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-blue-700 to-blue-600 rounded-xl shadow-md hover:shadow-lg transition-all"
               >
                 <h3 className="text-base font-semibold text-white flex items-center gap-2">
                   <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
@@ -2077,7 +2077,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
               <button
                 type="button"
                 onClick={() => toggleSection('opremljenost')}
-                className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl shadow-md hover:shadow-lg transition-all"
+                className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-blue-700 to-blue-600 rounded-xl shadow-md hover:shadow-lg transition-all"
               >
                 <h3 className="text-base font-semibold text-white flex items-center gap-2">
                   <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
@@ -2185,7 +2185,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
             <button
               type="button"
               onClick={() => toggleSection('dodatne')}
-              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl shadow-md hover:shadow-lg transition-all"
+              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-blue-700 to-blue-600 rounded-xl shadow-md hover:shadow-lg transition-all"
             >
               <h3 className="text-base font-semibold text-white flex items-center gap-2">
                 <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
@@ -2383,7 +2383,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                     htmlFor={option.key}
                     className={`flex items-center gap-2 p-3 rounded-xl cursor-pointer transition-all ${
                       formData[option.key] 
-                        ? 'bg-slate-700 text-white' 
+                        ? 'bg-blue-600 text-white' 
                         : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
                     }`}
                   >
@@ -2407,7 +2407,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
             <button
               type="button"
               onClick={() => toggleSection('fotografije')}
-              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl shadow-md hover:shadow-lg transition-all"
+              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-blue-700 to-blue-600 rounded-xl shadow-md hover:shadow-lg transition-all"
             >
               <h3 className="text-base font-semibold text-white flex items-center gap-2">
                 <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
@@ -2436,7 +2436,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
             <button
               type="button"
               onClick={() => toggleSection('metapodaci')}
-              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl shadow-md hover:shadow-lg transition-all"
+              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-blue-700 to-blue-600 rounded-xl shadow-md hover:shadow-lg transition-all"
             >
               <h3 className="text-base font-semibold text-white flex items-center gap-2">
                 <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
@@ -2573,7 +2573,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   <button
                     type="button"
                     onClick={addVlasnik}
-                    className="flex items-center gap-2 px-5 py-3 bg-slate-700 text-white rounded-xl hover:bg-slate-600 transition-colors shadow-sm"
+                    className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-500 transition-colors shadow-sm"
                   >
                     <Plus className="w-4 h-4" />
                     Dodaj vlasnika
@@ -3120,7 +3120,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-slate-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
               <Save className="w-4 h-4" />
               {loading ? 'Čuvanje...' : 'Sačuvaj ponudu'}
