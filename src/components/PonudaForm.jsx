@@ -1935,41 +1935,54 @@ export default function PonudaForm({ onClose, onSuccess }) {
               <div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {fieldsBySection.opremljenost.map(field => (
-                  <div key={field.key} className="flex items-center">
-                    {field.type === 'select' ? (
-                      <>
-                        <label htmlFor={field.key} className="mr-2 text-sm text-gray-700">
-                          {field.label}:
-                        </label>
-                        <select
-                          id={field.key}
-                          value={formData[field.key] || ''}
-                          onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                          className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-indigo-500 focus:border-indigo-500"
-                        >
-                          <option value="">Izaberi</option>
-                          {field.options?.map(opt => (
-                            <option key={opt} value={opt}>{opt}</option>
-                          ))}
-                        </select>
-                      </>
-                    ) : (
-                      <>
-                        <input
-                          type="checkbox"
-                          id={field.key}
-                          checked={formData[field.key] || false}
-                          onChange={(e) => handleFieldChange(field.key, e.target.checked)}
-                          className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                        />
-                        <label htmlFor={field.key} className="ml-2 text-sm text-gray-700">
-                          {field.label}
-                        </label>
-                      </>
-                    )}
-                  </div>
-                ))}
+                {fieldsBySection.opremljenost.map(field => {
+                  // Sakrij brojtelefona_linija ako ststelefon nije čekiran
+                  if (field.key === 'brojtelefona_linija' && !formData.ststelefon) {
+                    return null
+                  }
+                  
+                  return (
+                    <div key={field.key} className="flex items-center">
+                      {field.type === 'select' ? (
+                        <>
+                          <label htmlFor={field.key} className="mr-2 text-sm text-gray-700">
+                            {field.label}:
+                          </label>
+                          <select
+                            id={field.key}
+                            value={formData[field.key] || ''}
+                            onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                            className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                          >
+                            <option value="">Izaberi</option>
+                            {field.options?.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                        </>
+                      ) : (
+                        <>
+                          <input
+                            type="checkbox"
+                            id={field.key}
+                            checked={formData[field.key] || false}
+                            onChange={(e) => {
+                              handleFieldChange(field.key, e.target.checked)
+                              // Ako se isključi ststelefon, resetuj brojtelefona_linija
+                              if (field.key === 'ststelefon' && !e.target.checked) {
+                                handleFieldChange('brojtelefona_linija', '')
+                              }
+                            }}
+                            className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                          />
+                          <label htmlFor={field.key} className="ml-2 text-sm text-gray-700">
+                            {field.label}
+                          </label>
+                        </>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
               </div>
               )}
