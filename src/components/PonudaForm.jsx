@@ -90,6 +90,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
     idlokacija: '',
     idulica: '',
     brojulice: '',
+    datumprijema: new Date().toISOString().split('T')[0], // Default: tekući datum
     naslovaoglasa: '',
     kontaktosoba: '',
     brojtelefona: '',
@@ -1262,7 +1263,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
         datumpromene: new Date().toISOString(),
         idvrstaobjekta: parseInt(formData.idvrstaobjekta),
         idkorisnika: currentUser.id,
-        datumprijema: new Date().toISOString().split('T')[0],
+        datumprijema: formData.datumprijema || new Date().toISOString().split('T')[0],
         naslovaoglasa: formData.naslovaoglasa,
         kontaktosoba: formData.kontaktosoba || null,
         brojtelefona: formData.brojtelefona || null,
@@ -1493,7 +1494,19 @@ export default function PonudaForm({ onClose, onSuccess }) {
               Osnovne informacije
             </h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Datum prijema
+                </label>
+                <input
+                  type="date"
+                  value={formData.datumprijema || ''}
+                  onChange={(e) => handleFieldChange('datumprijema', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Vrsta objekta <span className="text-red-500">*</span>
