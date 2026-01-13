@@ -1753,51 +1753,56 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   </div>
                 </div>
 
-                {/* Broj ulice, Latitude, Longitude */}
-                <div className="grid grid-cols-3 gap-2">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">🔢 Broj</label>
+                {/* Broj ulice, Latitude, Longitude - prošireno */}
+                <div className="grid grid-cols-12 gap-3">
+                  {/* Broj ulice - 4 kolone */}
+                  <div className="col-span-4">
+                    <label className="block text-xs font-medium text-slate-600 mb-1.5">🔢 Broj ulice</label>
                     <input
                       ref={brojUliceInputRef}
                       type="text"
                       id="brojulice-input"
                       value={formData.brojulice || ''}
                       onChange={(e) => handleFieldChange('brojulice', e.target.value)}
-                      placeholder="15, 15A..."
+                      placeholder="15, 15A, bb..."
                       disabled={!formData.idulica}
-                      className="w-full px-2 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent disabled:bg-slate-100 disabled:cursor-not-allowed"
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">📍 Lat</label>
+                  {/* Latitude - 4 kolone */}
+                  <div className="col-span-4">
+                    <label className="block text-xs font-medium text-slate-600 mb-1.5">📍 Latitude</label>
                     <input
                       type="text"
                       value={formData.latitude || ''}
                       onChange={(e) => handleFieldChange('latitude', e.target.value)}
-                      className="w-full px-2 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      placeholder="44.787197"
+                      className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">📍 Lng</label>
+                  {/* Longitude - 4 kolone */}
+                  <div className="col-span-4">
+                    <label className="block text-xs font-medium text-slate-600 mb-1.5">📍 Longitude</label>
                     <div className="relative">
                       <input
                         type="text"
                         value={formData.longitude || ''}
                         onChange={(e) => handleFieldChange('longitude', e.target.value)}
-                        className="w-full pl-2 pr-8 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        placeholder="20.457273"
+                        className="w-full pl-3 pr-10 py-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                       />
                       <button
                         type="button"
                         onClick={handleShowLocationOnMap}
-                        className="absolute right-1 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-emerald-600 p-0.5"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1.5 rounded-md hover:bg-slate-100 transition-colors"
                         title="Prikaži lokaciju na mapi"
                       >
                         <Search className="w-4 h-4" />
                       </button>
                     </div>
-                    </div>
                   </div>
                 </div>
+              </div>
               </div>
             </div>
 
