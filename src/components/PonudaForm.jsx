@@ -2451,172 +2451,120 @@ export default function PonudaForm({ onClose, onSuccess }) {
             {openSections.metapodaci && (
             <div className="mt-4 bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
 
-            {/* Tab navigacija */}
-            <div className="flex flex-wrap gap-2 mb-4 border-b border-gray-200">
+            {/* Tab navigacija - moderan dizajn */}
+            <div className="flex flex-wrap gap-2 mb-6 p-1 bg-slate-100 rounded-xl">
               {[
-                { id: 'vlasnici', label: 'Vlasnici', icon: Users },
-                { id: 'eop', label: 'EOP', icon: FileText },
-                { id: 'troskovi', label: 'Troškovi', icon: Wallet },
-                { id: 'ai', label: 'Karakteristike', icon: Brain },
-                { id: 'zastupnik', label: 'Zastupnik', icon: UserCheck },
-                { id: 'realizacija', label: 'Realizacija', icon: Receipt }
+                { id: 'vlasnici', label: 'Vlasnici', icon: Users, emoji: '👥' },
+                { id: 'eop', label: 'EOP', icon: FileText, emoji: '📄' },
+                { id: 'troskovi', label: 'Troškovi', icon: Wallet, emoji: '💰' },
+                { id: 'ai', label: 'AI Karakteristike', icon: Brain, emoji: '🤖' },
+                { id: 'zastupnik', label: 'Zastupnik', icon: UserCheck, emoji: '👤' },
+                { id: 'realizacija', label: 'Realizacija', icon: Receipt, emoji: '✅' }
               ].map(tab => (
                 <button
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveMetaTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+                  className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-all ${
                     activeMetaTab === tab.id
-                      ? 'bg-indigo-100 text-indigo-700 border-b-2 border-indigo-600'
-                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                      ? 'bg-white text-slate-800 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
                   }`}
                 >
-                  <tab.icon className="w-4 h-4" />
-                  {tab.label}
+                  <span className="text-base">{tab.emoji}</span>
+                  <span className="hidden sm:inline">{tab.label}</span>
                 </button>
               ))}
             </div>
 
             {/* Tab sadržaj */}
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="bg-slate-50 rounded-xl p-5">
               {/* VLASNICI TAB */}
               {activeMetaTab === 'vlasnici' && (
                 <div className="space-y-4">
                   {metapodaci.vlasnici.map((vlasnik, index) => (
-                    <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
-                      <div className="flex justify-between items-center mb-3">
-                        <h4 className="font-medium text-gray-800">Vlasnik {index + 1}</h4>
+                    <div key={index} className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                      <div className="flex justify-between items-center mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
+                            <span className="text-lg">👤</span>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-slate-800">Vlasnik {index + 1}</h4>
+                            <p className="text-xs text-slate-500">Podaci o vlasniku nekretnine</p>
+                          </div>
+                        </div>
                         {metapodaci.vlasnici.length > 1 && (
                           <button
                             type="button"
                             onClick={() => removeVlasnik(index)}
-                            className="text-red-500 hover:text-red-700"
+                            className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         )}
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <input
-                          type="text"
-                          value={vlasnik.ime}
-                          onChange={(e) => handleVlasnikChange(index, 'ime', e.target.value)}
-                          placeholder="Ime"
-                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                        />
-                        <input
-                          type="text"
-                          value={vlasnik.prezime}
-                          onChange={(e) => handleVlasnikChange(index, 'prezime', e.target.value)}
-                          placeholder="Prezime"
-                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                        />
-                        <input
-                          type="text"
-                          value={vlasnik.jmbg}
-                          onChange={(e) => handleVlasnikChange(index, 'jmbg', e.target.value)}
-                          placeholder="JMBG"
-                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                        />
-                        <input
-                          type="email"
-                          value={vlasnik.email}
-                          onChange={(e) => handleVlasnikChange(index, 'email', e.target.value)}
-                          placeholder="Email"
-                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                        />
-                        <input
-                          type="text"
-                          value={vlasnik.tel}
-                          onChange={(e) => handleVlasnikChange(index, 'tel', e.target.value)}
-                          placeholder="Telefon"
-                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                        />
-                        <input
-                          type="text"
-                          value={vlasnik.adresa}
-                          onChange={(e) => handleVlasnikChange(index, 'adresa', e.target.value)}
-                          placeholder="Adresa"
-                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                        />
-                        <input
-                          type="text"
-                          value={vlasnik.lk}
-                          onChange={(e) => handleVlasnikChange(index, 'lk', e.target.value)}
-                          placeholder="Broj LK"
-                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                        />
-                        <input
-                          type="text"
-                          value={vlasnik.pib}
-                          onChange={(e) => handleVlasnikChange(index, 'pib', e.target.value)}
-                          placeholder="PIB"
-                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                        />
-                        <input
-                          type="text"
-                          value={vlasnik.mesto_rodjenja}
-                          onChange={(e) => handleVlasnikChange(index, 'mesto_rodjenja', e.target.value)}
-                          placeholder="Mesto rođenja"
-                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                        />
-                        <div>
-                          <label className="block text-xs text-gray-600 mb-1">Datum rođenja</label>
-                          <input
-                            type="date"
-                            value={vlasnik.datum_rodjenja || ''}
-                            onChange={(e) => {
-                              const dateValue = e.target.value || ''
-                              handleVlasnikChange(index, 'datum_rodjenja', dateValue)
-                            }}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                          />
+                      
+                      {/* Lični podaci */}
+                      <div className="mb-4">
+                        <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">📋 Lični podaci</p>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <input type="text" value={vlasnik.ime} onChange={(e) => handleVlasnikChange(index, 'ime', e.target.value)} placeholder="Ime" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          <input type="text" value={vlasnik.prezime} onChange={(e) => handleVlasnikChange(index, 'prezime', e.target.value)} placeholder="Prezime" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          <input type="text" value={vlasnik.jmbg} onChange={(e) => handleVlasnikChange(index, 'jmbg', e.target.value)} placeholder="JMBG" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
                         </div>
-                        <input
-                          type="text"
-                          value={vlasnik.poreklo_imovine}
-                          onChange={(e) => handleVlasnikChange(index, 'poreklo_imovine', e.target.value)}
-                          placeholder="Poreklo imovine"
-                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                        />
-                        <select
-                          value={vlasnik.sts_lice}
-                          onChange={(e) => handleVlasnikChange(index, 'sts_lice', e.target.value)}
-                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                        >
-                          <option value="">Status lica</option>
-                          <option value="fizicko">Fizičko lice</option>
-                          <option value="pravno">Pravno lice</option>
-                          <option value="preduzetnik">Preduzetnik</option>
-                        </select>
                       </div>
-                      <div className="flex flex-wrap gap-4 mt-3">
-                        <label className="flex items-center gap-2 text-sm">
-                          <input
-                            type="checkbox"
-                            checked={vlasnik.sts_rezident}
-                            onChange={(e) => handleVlasnikChange(index, 'sts_rezident', e.target.checked)}
-                            className="rounded border-gray-300"
-                          />
-                          Rezident
+
+                      {/* Kontakt */}
+                      <div className="mb-4">
+                        <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">📞 Kontakt</p>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <input type="email" value={vlasnik.email} onChange={(e) => handleVlasnikChange(index, 'email', e.target.value)} placeholder="Email" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          <input type="text" value={vlasnik.tel} onChange={(e) => handleVlasnikChange(index, 'tel', e.target.value)} placeholder="Telefon" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          <input type="text" value={vlasnik.adresa} onChange={(e) => handleVlasnikChange(index, 'adresa', e.target.value)} placeholder="Adresa" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                        </div>
+                      </div>
+
+                      {/* Dokumentacija */}
+                      <div className="mb-4">
+                        <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">🪪 Dokumentacija</p>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                          <input type="text" value={vlasnik.lk} onChange={(e) => handleVlasnikChange(index, 'lk', e.target.value)} placeholder="Broj LK" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          <input type="text" value={vlasnik.pib} onChange={(e) => handleVlasnikChange(index, 'pib', e.target.value)} placeholder="PIB" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          <input type="text" value={vlasnik.mesto_rodjenja} onChange={(e) => handleVlasnikChange(index, 'mesto_rodjenja', e.target.value)} placeholder="Mesto rođenja" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          <div>
+                            <input type="date" value={vlasnik.datum_rodjenja || ''} onChange={(e) => handleVlasnikChange(index, 'datum_rodjenja', e.target.value || '')} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Ostalo */}
+                      <div className="mb-4">
+                        <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">📝 Ostalo</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <input type="text" value={vlasnik.poreklo_imovine} onChange={(e) => handleVlasnikChange(index, 'poreklo_imovine', e.target.value)} placeholder="Poreklo imovine" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          <select value={vlasnik.sts_lice} onChange={(e) => handleVlasnikChange(index, 'sts_lice', e.target.value)} className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent">
+                            <option value="">Status lica</option>
+                            <option value="fizicko">Fizičko lice</option>
+                            <option value="pravno">Pravno lice</option>
+                            <option value="preduzetnik">Preduzetnik</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Status checkboxes */}
+                      <div className="flex flex-wrap gap-3 pt-3 border-t border-slate-100">
+                        <label className="flex items-center gap-2 text-sm bg-slate-50 px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors">
+                          <input type="checkbox" checked={vlasnik.sts_rezident} onChange={(e) => handleVlasnikChange(index, 'sts_rezident', e.target.checked)} className="rounded border-slate-300 text-slate-600" />
+                          <span className="text-slate-700">🏠 Rezident</span>
                         </label>
-                        <label className="flex items-center gap-2 text-sm">
-                          <input
-                            type="checkbox"
-                            checked={vlasnik.stvarnivlasnikstranke}
-                            onChange={(e) => handleVlasnikChange(index, 'stvarnivlasnikstranke', e.target.checked)}
-                            className="rounded border-gray-300"
-                          />
-                          Stvarni vlasnik stranke
+                        <label className="flex items-center gap-2 text-sm bg-slate-50 px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors">
+                          <input type="checkbox" checked={vlasnik.stvarnivlasnikstranke} onChange={(e) => handleVlasnikChange(index, 'stvarnivlasnikstranke', e.target.checked)} className="rounded border-slate-300 text-slate-600" />
+                          <span className="text-slate-700">✓ Stvarni vlasnik stranke</span>
                         </label>
-                        <label className="flex items-center gap-2 text-sm">
-                          <input
-                            type="checkbox"
-                            checked={vlasnik.sumnja_pranje_novca}
-                            onChange={(e) => handleVlasnikChange(index, 'sumnja_pranje_novca', e.target.checked)}
-                            className="rounded border-gray-300"
-                          />
-                          Sumnja na pranje novca
+                        <label className="flex items-center gap-2 text-sm bg-slate-50 px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors">
+                          <input type="checkbox" checked={vlasnik.sumnja_pranje_novca} onChange={(e) => handleVlasnikChange(index, 'sumnja_pranje_novca', e.target.checked)} className="rounded border-slate-300 text-slate-600" />
+                          <span className="text-slate-700">⚠️ Sumnja na pranje novca</span>
                         </label>
                       </div>
                     </div>
@@ -2624,7 +2572,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   <button
                     type="button"
                     onClick={addVlasnik}
-                    className="flex items-center gap-2 px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors"
+                    className="flex items-center gap-2 px-5 py-3 bg-slate-700 text-white rounded-xl hover:bg-slate-600 transition-colors shadow-sm"
                   >
                     <Plus className="w-4 h-4" />
                     Dodaj vlasnika
@@ -2634,207 +2582,218 @@ export default function PonudaForm({ onClose, onSuccess }) {
 
               {/* EOP TAB */}
               {activeMetaTab === 'eop' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={metapodaci.eop.sts_ugovor_potpisan}
-                      onChange={(e) => handleEopChange('sts_ugovor_potpisan', e.target.checked)}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm text-gray-700">Ugovor potpisan</span>
-                  </label>
-                  <div></div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Datum ugovora</label>
-                    <input
-                      type="date"
-                      value={metapodaci.eop.datum_ugovora}
-                      onChange={(e) => handleEopChange('datum_ugovora', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    />
+                <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
+                      <span className="text-lg">📄</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-slate-800">Evidencija o posredovanju</h4>
+                      <p className="text-xs text-slate-500">Ugovor i katastarski podaci</p>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Datum isteka</label>
-                    <input
-                      type="date"
-                      value={metapodaci.eop.datum_istice}
-                      onChange={(e) => handleEopChange('datum_istice', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Katastarska parcela</label>
-                    <input
-                      type="text"
-                      value={metapodaci.eop.katastarska_parceka}
-                      onChange={(e) => handleEopChange('katastarska_parceka', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Katastarska opština</label>
-                    <input
-                      type="text"
-                      value={metapodaci.eop.kat_opstina}
-                      onChange={(e) => handleEopChange('kat_opstina', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    />
+
+                  <div className="space-y-4">
+                    {/* Status ugovora */}
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" checked={metapodaci.eop.sts_ugovor_potpisan} onChange={(e) => handleEopChange('sts_ugovor_potpisan', e.target.checked)} className="rounded border-slate-300 text-slate-600 w-5 h-5" />
+                        <span className="text-sm font-medium text-slate-700">✍️ Ugovor potpisan</span>
+                      </label>
+                    </div>
+
+                    {/* Datumi */}
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">📅 Datumi</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Datum ugovora</label>
+                          <input type="date" value={metapodaci.eop.datum_ugovora} onChange={(e) => handleEopChange('datum_ugovora', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Datum isteka</label>
+                          <input type="date" value={metapodaci.eop.datum_istice} onChange={(e) => handleEopChange('datum_istice', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Katastar */}
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">🗺️ Katastar</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Katastarska parcela</label>
+                          <input type="text" value={metapodaci.eop.katastarska_parceka} onChange={(e) => handleEopChange('katastarska_parceka', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder="Broj parcele" />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Katastarska opština</label>
+                          <input type="text" value={metapodaci.eop.kat_opstina} onChange={(e) => handleEopChange('kat_opstina', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder="Naziv opštine" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* REALIZACIJA TAB */}
               {activeMetaTab === 'realizacija' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={metapodaci.realizacija.zakljucen}
-                      onChange={(e) => handleRealizacijaChange('zakljucen', e.target.checked)}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm text-gray-700">Zaključen</span>
-                  </label>
-                  <div></div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Datum zaključenja</label>
-                    <input
-                      type="date"
-                      value={metapodaci.realizacija.datum_zakljucenja}
-                      onChange={(e) => handleRealizacijaChange('datum_zakljucenja', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    />
+                <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                      <span className="text-lg">✅</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-slate-800">Realizacija</h4>
+                      <p className="text-xs text-slate-500">Podaci o zaključenom poslu</p>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Kupoprodajna cena (€)</label>
-                    <input
-                      type="number"
-                      value={metapodaci.realizacija.kupoprodajna_cena}
-                      onChange={(e) => handleRealizacijaChange('kupoprodajna_cena', parseFloat(e.target.value) || 0)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Provizija (€)</label>
-                    <input
-                      type="number"
-                      value={metapodaci.realizacija.provizija}
-                      onChange={(e) => handleRealizacijaChange('provizija', parseFloat(e.target.value) || 0)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Namena transakcije</label>
-                    <input
-                      type="text"
-                      value={metapodaci.realizacija.namena_transakcije}
-                      onChange={(e) => handleRealizacijaChange('namena_transakcije', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm text-gray-600 mb-1">Primedba</label>
-                    <textarea
-                      value={metapodaci.realizacija.primedba}
-                      onChange={(e) => handleRealizacijaChange('primedba', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                      rows="2"
-                    />
+
+                  <div className="space-y-4">
+                    {/* Status */}
+                    <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-lg">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" checked={metapodaci.realizacija.zakljucen} onChange={(e) => handleRealizacijaChange('zakljucen', e.target.checked)} className="rounded border-emerald-300 text-emerald-600 w-5 h-5" />
+                        <span className="text-sm font-medium text-emerald-700">🎉 Posao zaključen</span>
+                      </label>
+                    </div>
+
+                    {/* Finansije */}
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">💰 Finansije</p>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Datum zaključenja</label>
+                          <input type="date" value={metapodaci.realizacija.datum_zakljucenja} onChange={(e) => handleRealizacijaChange('datum_zakljucenja', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Kupoprodajna cena (€)</label>
+                          <input type="number" value={metapodaci.realizacija.kupoprodajna_cena} onChange={(e) => handleRealizacijaChange('kupoprodajna_cena', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Provizija (€)</label>
+                          <input type="number" value={metapodaci.realizacija.provizija} onChange={(e) => handleRealizacijaChange('provizija', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Detalji */}
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">📝 Detalji</p>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Namena transakcije</label>
+                          <input type="text" value={metapodaci.realizacija.namena_transakcije} onChange={(e) => handleRealizacijaChange('namena_transakcije', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder="Npr. stanovanje, investicija..." />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Primedba</label>
+                          <textarea value={metapodaci.realizacija.primedba} onChange={(e) => handleRealizacijaChange('primedba', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" rows="2" placeholder="Dodatne napomene..." />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* TROŠKOVI TAB */}
               {activeMetaTab === 'troskovi' && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[
-                    { key: 'infostan', label: 'Infostan' },
-                    { key: 'kablovska', label: 'Kablovska' },
-                    { key: 'struja', label: 'Struja' },
-                    { key: 'telefon', label: 'Telefon' },
-                    { key: 'internet', label: 'Internet' },
-                    { key: 'odrzavanje', label: 'Održavanje' },
-                    { key: 'ostalo', label: 'Ostalo' }
-                  ].map(trosak => (
-                    <div key={trosak.key}>
-                      <label className="block text-sm text-gray-600 mb-1">{trosak.label} (€)</label>
-                      <input
-                        type="number"
-                        value={metapodaci.troskovi[trosak.key]}
-                        onChange={(e) => handleTroskoviChange(trosak.key, e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                      />
+                <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+                      <span className="text-lg">💰</span>
                     </div>
-                  ))}
+                    <div>
+                      <h4 className="font-semibold text-slate-800">Mesečni troškovi</h4>
+                      <p className="text-xs text-slate-500">Režijski troškovi nekretnine</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[
+                      { key: 'infostan', label: 'Infostan', icon: '🏢' },
+                      { key: 'kablovska', label: 'Kablovska', icon: '📺' },
+                      { key: 'struja', label: 'Struja', icon: '⚡' },
+                      { key: 'telefon', label: 'Telefon', icon: '📞' },
+                      { key: 'internet', label: 'Internet', icon: '🌐' },
+                      { key: 'odrzavanje', label: 'Održavanje', icon: '🔧' },
+                      { key: 'ostalo', label: 'Ostalo', icon: '📋' }
+                    ].map(trosak => (
+                      <div key={trosak.key} className="bg-slate-50 rounded-xl p-3">
+                        <label className="flex items-center gap-2 text-sm text-slate-600 mb-2">
+                          <span>{trosak.icon}</span>
+                          {trosak.label}
+                        </label>
+                        <div className="relative">
+                          <input type="number" value={metapodaci.troskovi[trosak.key]} onChange={(e) => handleTroskoviChange(trosak.key, e.target.value)} className="w-full px-3 py-2.5 pr-8 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder="0" />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">€</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
               {/* ZASTUPNIK TAB */}
               {activeMetaTab === 'zastupnik' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Ime</label>
-                    <input
-                      type="text"
-                      value={metapodaci.zastupnik.ime}
-                      onChange={(e) => handleZastupnikChange('ime', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    />
+                <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                      <span className="text-lg">👤</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-slate-800">Zastupnik</h4>
+                      <p className="text-xs text-slate-500">Podaci o zastupniku vlasnika</p>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Prezime</label>
-                    <input
-                      type="text"
-                      value={metapodaci.zastupnik.prezime}
-                      onChange={(e) => handleZastupnikChange('prezime', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Adresa</label>
-                    <input
-                      type="text"
-                      value={metapodaci.zastupnik.adresa}
-                      onChange={(e) => handleZastupnikChange('adresa', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Opština</label>
-                    <input
-                      type="text"
-                      value={metapodaci.zastupnik.opstina}
-                      onChange={(e) => handleZastupnikChange('opstina', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Broj LK</label>
-                    <input
-                      type="text"
-                      value={metapodaci.zastupnik.lk}
-                      onChange={(e) => handleZastupnikChange('lk', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Datum</label>
-                    <input
-                      type="date"
-                      value={metapodaci.zastupnik.datum}
-                      onChange={(e) => handleZastupnikChange('datum', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Mesto</label>
-                    <input
-                      type="text"
-                      value={metapodaci.zastupnik.mesto}
-                      onChange={(e) => handleZastupnikChange('mesto', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    />
+
+                  <div className="space-y-4">
+                    {/* Lični podaci */}
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">📋 Lični podaci</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Ime</label>
+                          <input type="text" value={metapodaci.zastupnik.ime} onChange={(e) => handleZastupnikChange('ime', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Prezime</label>
+                          <input type="text" value={metapodaci.zastupnik.prezime} onChange={(e) => handleZastupnikChange('prezime', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Adresa */}
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">📍 Adresa</p>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div className="md:col-span-2">
+                          <label className="block text-sm text-slate-600 mb-1">Adresa</label>
+                          <input type="text" value={metapodaci.zastupnik.adresa} onChange={(e) => handleZastupnikChange('adresa', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Opština</label>
+                          <input type="text" value={metapodaci.zastupnik.opstina} onChange={(e) => handleZastupnikChange('opstina', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Dokumentacija */}
+                    <div>
+                      <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">🪪 Dokumentacija</p>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Broj LK</label>
+                          <input type="text" value={metapodaci.zastupnik.lk} onChange={(e) => handleZastupnikChange('lk', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Datum</label>
+                          <input type="date" value={metapodaci.zastupnik.datum} onChange={(e) => handleZastupnikChange('datum', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Mesto</label>
+                          <input type="text" value={metapodaci.zastupnik.mesto} onChange={(e) => handleZastupnikChange('mesto', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -2846,7 +2805,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     
                     {/* KARTICA: Opremljenost */}
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+                    <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
                       <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
                         <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">🏠</span>
                         Opremljenost
@@ -2887,9 +2846,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
                     </div>
 
                     {/* KARTICA: Bezbednost */}
-                    <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-4 border border-red-100">
-                      <h4 className="font-semibold text-red-800 mb-3 flex items-center gap-2">
-                        <span className="w-6 h-6 bg-red-600 rounded-lg flex items-center justify-center text-white text-xs">🛡️</span>
+                    <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                      <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                        <span className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-base">🛡️</span>
                         Bezbednost
                       </h4>
                       <div className="grid grid-cols-2 gap-2">
@@ -2915,9 +2874,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
                     </div>
 
                     {/* KARTICA: Životni stil */}
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">
-                      <h4 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
-                        <span className="w-6 h-6 bg-green-600 rounded-lg flex items-center justify-center text-white text-xs">🌿</span>
+                    <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                      <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                        <span className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-base">🌿</span>
                         Životni stil
                       </h4>
                       
@@ -2993,9 +2952,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
                     </div>
 
                     {/* KARTICA: Mikrolokacija */}
-                    <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl p-4 border border-purple-100">
-                      <h4 className="font-semibold text-purple-800 mb-3 flex items-center gap-2">
-                        <span className="w-6 h-6 bg-purple-600 rounded-lg flex items-center justify-center text-white text-xs">📍</span>
+                    <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                      <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                        <span className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-base">📍</span>
                         Mikrolokacija
                       </h4>
                       
@@ -3038,9 +2997,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   </div>
 
                   {/* KARTICA: Ekologija - full width */}
-                  <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl p-4 border border-teal-100">
-                    <h4 className="font-semibold text-teal-800 mb-3 flex items-center gap-2">
-                      <span className="w-6 h-6 bg-teal-600 rounded-lg flex items-center justify-center text-white text-xs">🌍</span>
+                  <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                    <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                      <span className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-base">🌍</span>
                       Ekologija & Energija
                     </h4>
                     

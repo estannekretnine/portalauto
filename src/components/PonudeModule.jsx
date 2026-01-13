@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../utils/supabase'
-import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, DollarSign, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, Filter, RotateCcw, Building2, Euro } from 'lucide-react'
 import PonudaForm from './PonudaForm'
 
 export default function PonudeModule() {
@@ -9,7 +9,7 @@ export default function PonudeModule() {
   const [vrsteObjekata, setVrsteObjekata] = useState([])
   const [lokacije, setLokacije] = useState([])
   const [loading, setLoading] = useState(true)
-  const [viewMode, setViewMode] = useState('table') // 'table' ili 'grid'
+  const [viewMode, setViewMode] = useState('table')
   const [showFilters, setShowFilters] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
@@ -66,7 +66,6 @@ export default function PonudeModule() {
       console.log('📊 PonudeModule: Početak učitavanja ponuda')
       setLoading(true)
       
-      // Kreiraj query za osnovne podatke
       let query = supabase
         .from('ponuda')
         .select(`
@@ -82,15 +81,12 @@ export default function PonudeModule() {
           stsrentaprodaja
         `)
 
-      // Aplikuj osnovne filtere
       if (filters.stsaktivan !== null && filters.stsaktivan !== undefined) {
         query = query.eq('stsaktivan', filters.stsaktivan)
       }
       if (filters.stsrentaprodaja) {
         query = query.eq('stsrentaprodaja', filters.stsrentaprodaja)
       }
-
-      // Aplikuj dodatne filtere
       if (filters.idvrstaobjekta) {
         query = query.eq('idvrstaobjekta', filters.idvrstaobjekta)
       }
@@ -120,14 +116,12 @@ export default function PonudeModule() {
 
       if (error) throw error
 
-      // Učitaj sve relacione podatke odjednom (batching za performanse)
       const vrstaIds = [...new Set((data || []).map(p => p.idvrstaobjekta).filter(Boolean))]
       const opstinaIds = [...new Set((data || []).map(p => p.idopstina).filter(Boolean))]
       const lokacijaIds = [...new Set((data || []).map(p => p.idlokacija).filter(Boolean))]
       const ulicaIds = [...new Set((data || []).map(p => p.idulica).filter(Boolean))]
       const ponudaIds = (data || []).map(p => p.id)
 
-      // Učitaj sve relacione podatke paralelno
       const [vrsteResult, opstineResult, lokacijeResult, uliceResult, fotografijeResult] = await Promise.all([
         vrstaIds.length > 0 ? supabase.from('vrstaobjekta').select('id, opis').in('id', vrstaIds) : Promise.resolve({ data: [] }),
         opstinaIds.length > 0 ? supabase.from('opstina').select('id, opis').in('id', opstinaIds) : Promise.resolve({ data: [] }),
@@ -136,14 +130,12 @@ export default function PonudeModule() {
         ponudaIds.length > 0 ? supabase.from('ponudafoto').select('*').in('idponude', ponudaIds) : Promise.resolve({ data: [] })
       ])
 
-      // Kreiraj lookup mape za brže pristupanje
       const vrsteMap = new Map((vrsteResult.data || []).map(v => [v.id, v]))
       const opstineMap = new Map((opstineResult.data || []).map(o => [o.id, o]))
       const lokacijeMap = new Map((lokacijeResult.data || []).map(l => [l.id, l]))
       const uliceMap = new Map((uliceResult.data || []).map(u => [u.id, u]))
       const fotografijeMap = new Map()
       
-      // Grupiši fotografije po ponudama i sortiraj
       if (fotografijeResult.data) {
         fotografijeResult.data.forEach(foto => {
           if (!fotografijeMap.has(foto.idponude)) {
@@ -152,7 +144,6 @@ export default function PonudeModule() {
           fotografijeMap.get(foto.idponude).push(foto)
         })
         
-        // Sortiraj fotografije za svaku ponudu (prvo glavna, zatim po redosledu)
         fotografijeMap.forEach((fotos, ponudaId) => {
           fotos.sort((a, b) => {
             if (a.glavna && !b.glavna) return -1
@@ -162,7 +153,6 @@ export default function PonudeModule() {
         })
       }
 
-      // Mapiraj ponude sa relacijama
       const ponudeSaRelacijama = (data || []).map(ponuda => {
         const fotografijeZaPonudu = fotografijeMap.get(ponuda.id) || []
         
@@ -190,7 +180,6 @@ export default function PonudeModule() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters])
 
-  // Resetuj na prvu stranicu kada se filteri promene
   useEffect(() => {
     setCurrentPage(1)
   }, [filters])
@@ -238,14 +227,16 @@ export default function PonudeModule() {
     console.log('⏳ PonudeModule: Loading state - true')
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-xl text-gray-600">Učitavanje ponuda...</div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin"></div>
+          <p className="text-slate-600 font-medium">Učitavanje ponuda...</p>
+        </div>
       </div>
     )
   }
   
   console.log('✅ PonudeModule: Loading complete, ponude count:', ponude.length)
 
-  // Paginacija
   const totalPonude = ponude.length
   const totalPages = Math.ceil(totalPonude / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -269,38 +260,40 @@ export default function PonudeModule() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Header sa filter i view toggle */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Ponude</h2>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-800">Ponude</h2>
+          <p className="text-slate-500 text-sm mt-1">Upravljanje nekretninama</p>
+        </div>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
           <button
             onClick={handleAddPonuda}
-            className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm sm:text-base"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-800 text-white rounded-xl hover:bg-slate-700 transition-all shadow-sm font-medium"
           >
-            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Dodaj ponudu</span>
             <span className="sm:hidden">Dodaj</span>
           </button>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors text-sm sm:text-base ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all font-medium ${
               showFilters
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                ? 'bg-slate-700 text-white'
+                : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 shadow-sm'
             }`}
           >
-            <Search className="w-4 h-4" />
-            <span className="hidden sm:inline">Pretraga</span>
-            <span className="sm:hidden">Filter</span>
+            <Filter className="w-4 h-4" />
+            <span className="hidden sm:inline">Filteri</span>
           </button>
-          <div className="flex items-center gap-1 bg-white border border-gray-300 rounded-lg p-1">
+          <div className="flex items-center bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
             <button
               onClick={() => setViewMode('table')}
-              className={`p-2 rounded transition-colors ${
+              className={`p-2.5 rounded-lg transition-all ${
                 viewMode === 'table'
-                  ? 'bg-indigo-600 text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-slate-700 text-white shadow-sm'
+                  : 'text-slate-500 hover:bg-slate-100'
               }`}
               title="Tabelarni prikaz"
             >
@@ -308,12 +301,12 @@ export default function PonudeModule() {
             </button>
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 rounded transition-colors ${
+              className={`p-2.5 rounded-lg transition-all ${
                 viewMode === 'grid'
-                  ? 'bg-indigo-600 text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-slate-700 text-white shadow-sm'
+                  : 'text-slate-500 hover:bg-slate-100'
               }`}
-              title="Web portal prikaz"
+              title="Grid prikaz"
             >
               <Grid className="w-4 h-4" />
             </button>
@@ -321,21 +314,30 @@ export default function PonudeModule() {
         </div>
       </div>
 
-      {/* Filter Modal */}
+      {/* Filter Panel */}
       {showFilters && (
-        <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">Pretraga ponuda</h3>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
+                <Search className="w-5 h-5 text-slate-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-slate-800">Pretraga ponuda</h3>
+                <p className="text-slate-500 text-sm">Filtrirajte nekretnine po kriterijumima</p>
+              </div>
+            </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={resetFilters}
-                className="text-sm text-gray-600 hover:text-gray-800"
+                className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-800 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
               >
+                <RotateCcw className="w-4 h-4" />
                 Resetuj
               </button>
               <button
                 onClick={() => setShowFilters(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -343,135 +345,106 @@ export default function PonudeModule() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Vrsta objekta */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Vrsta objekta
-              </label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Vrsta objekta</label>
               <select
                 value={filters.idvrstaobjekta}
                 onChange={(e) => handleFilterChange('idvrstaobjekta', e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all"
               >
                 <option value="">Sve vrste</option>
                 {vrsteObjekata.map(vrsta => (
-                  <option key={vrsta.id} value={vrsta.id}>
-                    {vrsta.opis}
-                  </option>
+                  <option key={vrsta.id} value={vrsta.id}>{vrsta.opis}</option>
                 ))}
               </select>
             </div>
 
-            {/* Kvadratura od */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Kvadratura od (m²)
-              </label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Kvadratura od (m²)</label>
               <input
                 type="number"
                 value={filters.kvadraturaOd}
                 onChange={(e) => handleFilterChange('kvadraturaOd', e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all"
                 placeholder="0"
               />
             </div>
 
-            {/* Kvadratura do */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Kvadratura do (m²)
-              </label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Kvadratura do (m²)</label>
               <input
                 type="number"
                 value={filters.kvadraturaDo}
                 onChange={(e) => handleFilterChange('kvadraturaDo', e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all"
                 placeholder="9999"
               />
             </div>
 
-            {/* Struktura od */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Struktura od
-              </label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Struktura od</label>
               <input
                 type="number"
                 step="0.01"
                 value={filters.strukturaOd}
                 onChange={(e) => handleFilterChange('strukturaOd', e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all"
                 placeholder="0"
               />
             </div>
 
-            {/* Struktura do */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Struktura do
-              </label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Struktura do</label>
               <input
                 type="number"
                 step="0.01"
                 value={filters.strukturaDo}
                 onChange={(e) => handleFilterChange('strukturaDo', e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all"
                 placeholder="9999"
               />
             </div>
 
-            {/* Cena od */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Cena od (RSD)
-              </label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Cena od (EUR)</label>
               <input
                 type="number"
                 value={filters.cenaOd}
                 onChange={(e) => handleFilterChange('cenaOd', e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all"
                 placeholder="0"
               />
             </div>
 
-            {/* Cena do */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Cena do (RSD)
-              </label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Cena do (EUR)</label>
               <input
                 type="number"
                 value={filters.cenaDo}
                 onChange={(e) => handleFilterChange('cenaDo', e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all"
                 placeholder="999999999"
               />
             </div>
 
-            {/* Status aktivan */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Status aktivan
-              </label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Status</label>
               <select
                 value={filters.stsaktivan ? 'true' : 'false'}
                 onChange={(e) => handleFilterChange('stsaktivan', e.target.value === 'true')}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all"
               >
                 <option value="true">Aktivan</option>
                 <option value="false">Neaktivan</option>
               </select>
             </div>
 
-            {/* Rent/Prodaja */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Rent/Prodaja
-              </label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Tip</label>
               <select
                 value={filters.stsrentaprodaja}
                 onChange={(e) => handleFilterChange('stsrentaprodaja', e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all"
               >
                 <option value="prodaja">Prodaja</option>
                 <option value="renta">Renta</option>
@@ -479,122 +452,104 @@ export default function PonudeModule() {
               </select>
             </div>
 
-            {/* Lokacije - Multi-select */}
             <div className="md:col-span-2 lg:col-span-3">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Lokacije (možete izabrati više)
-              </label>
-              <div className="max-h-48 overflow-y-auto border border-gray-300 rounded-lg p-3 space-y-2 bg-white">
+              <label className="block text-sm font-medium text-slate-700 mb-2">Lokacije</label>
+              <div className="max-h-40 overflow-y-auto bg-slate-50 border border-slate-200 rounded-xl p-3">
                 {lokacije.length === 0 ? (
-                  <p className="text-sm text-gray-500">Nema dostupnih lokacija</p>
+                  <p className="text-sm text-slate-500">Nema dostupnih lokacija</p>
                 ) : (
-                  lokacije.map(lokacija => (
-                    <label key={lokacija.id} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={filters.idlokacija?.includes(lokacija.id) || false}
-                        onChange={() => handleLokacijaToggle(lokacija.id)}
-                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <span className="text-sm text-gray-700">{lokacija.opis}</span>
-                    </label>
-                  ))
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                    {lokacije.map(lokacija => (
+                      <label key={lokacija.id} className="flex items-center gap-2 cursor-pointer hover:bg-white p-2 rounded-lg transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={filters.idlokacija?.includes(lokacija.id) || false}
+                          onChange={() => handleLokacijaToggle(lokacija.id)}
+                          className="rounded border-slate-300 text-slate-600 focus:ring-slate-500"
+                        />
+                        <span className="text-sm text-slate-700">{lokacija.opis}</span>
+                      </label>
+                    ))}
+                  </div>
                 )}
               </div>
               {filters.idlokacija && filters.idlokacija.length > 0 && (
-                <p className="text-xs text-gray-500 mt-1">
-                  Izabrano: {filters.idlokacija.length} lokacija
-                </p>
+                <p className="text-xs text-slate-500 mt-2">Izabrano: {filters.idlokacija.length} lokacija</p>
               )}
             </div>
           </div>
         </div>
       )}
 
-      {/* Prikaz ponuda */}
+      {/* Content */}
       {ponude.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-12 text-center">
-          <Home className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 text-lg mb-2">Nema ponuda</p>
-          <p className="text-gray-500">Nema ponuda koje odgovaraju vašim kriterijumima.</p>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-16 text-center">
+          <div className="w-20 h-20 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <Home className="w-10 h-10 text-slate-400" />
+          </div>
+          <p className="text-slate-800 text-xl font-semibold mb-2">Nema ponuda</p>
+          <p className="text-slate-500">Nema ponuda koje odgovaraju vašim kriterijumima.</p>
         </div>
       ) : viewMode === 'table' ? (
-        /* Tabelarni prikaz */
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        /* Table View */
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    ID
-                  </th>
-                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Vrsta objekta
-                  </th>
-                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Opština
-                  </th>
-                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Lokacija
-                  </th>
-                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Ulica
-                  </th>
-                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Kvadratura (m²)
-                  </th>
-                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Struktura
-                  </th>
-                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Cena
-                  </th>
-                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Rent/Prodaja
-                  </th>
+            <table className="min-w-full">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">ID</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Vrsta</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Opština</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Lokacija</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Ulica</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">m²</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Struktura</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Cena</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Tip</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-slate-100">
                 {paginatedPonude.map((ponuda) => (
-                  <tr key={ponuda.id} className="hover:bg-gray-50">
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {ponuda.id}
+                  <tr key={ponuda.id} className="hover:bg-slate-50 transition-colors cursor-pointer">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm font-medium text-slate-800">#{ponuda.id}</span>
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {ponuda.vrstaobjekta?.opis || '-'}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-slate-400" />
+                        <span className="text-sm text-slate-700">{ponuda.vrstaobjekta?.opis || '-'}</span>
+                      </div>
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {ponuda.opstina?.opis || '-'}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{ponuda.opstina?.opis || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{ponuda.lokacija?.opis || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{ponuda.ulica?.opis || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm font-medium text-slate-700">{ponuda.kvadratura ? `${ponuda.kvadratura}` : '-'}</span>
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {ponuda.lokacija?.opis || '-'}
-                    </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {ponuda.ulica?.opis || '-'}
-                    </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {ponuda.kvadratura ? `${ponuda.kvadratura} m²` : '-'}
-                    </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
                       {ponuda.struktura ? parseFloat(ponuda.struktura).toFixed(1) : '-'}
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {formatCena(ponuda.cena)}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm font-semibold text-slate-800">{formatCena(ponuda.cena)}</span>
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium ${
                         ponuda.stsaktivan
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-red-100 text-red-700'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : 'bg-slate-100 text-slate-600 border border-slate-200'
                       }`}>
                         {ponuda.stsaktivan ? 'Aktivan' : 'Neaktivan'}
                       </span>
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {ponuda.stsrentaprodaja === 'prodaja' ? 'Prodaja' : 'Renta'}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium ${
+                        ponuda.stsrentaprodaja === 'prodaja'
+                          ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                          : 'bg-amber-50 text-amber-700 border border-amber-200'
+                      }`}>
+                        {ponuda.stsrentaprodaja === 'prodaja' ? 'Prodaja' : 'Renta'}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -602,17 +557,17 @@ export default function PonudeModule() {
             </table>
           </div>
           
-          {/* Paginacija i ukupan broj */}
-          <div className="bg-white px-4 py-3 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-700">Prikaži:</span>
+          {/* Pagination */}
+          <div className="bg-slate-50 px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-slate-600">Prikaži:</span>
               <select
                 value={itemsPerPage}
                 onChange={(e) => {
                   setItemsPerPage(Number(e.target.value))
                   setCurrentPage(1)
                 }}
-                className="px-2 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent"
               >
                 <option value={10}>10</option>
                 <option value={20}>20</option>
@@ -625,105 +580,113 @@ export default function PonudeModule() {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-2 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                aria-label="Prethodna stranica"
+                className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-4 h-4 text-slate-600" />
               </button>
               
-              <span className="text-sm text-gray-700">
-                Stranica {currentPage} od {totalPages || 1}
+              <span className="text-sm text-slate-600 px-3">
+                {currentPage} / {totalPages || 1}
               </span>
               
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages || totalPages === 0}
-                className="p-2 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                aria-label="Sledeća stranica"
+                className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-4 h-4 text-slate-600" />
               </button>
             </div>
             
-            <div className="text-sm text-gray-700 font-medium">
-              Ukupno: {totalPonude} nekretnina
+            <div className="text-sm text-slate-600 font-medium">
+              Ukupno: <span className="text-slate-800">{totalPonude}</span> nekretnina
             </div>
           </div>
         </div>
       ) : (
-        /* Web portal grid prikaz */
+        /* Grid View */
         <div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {paginatedPonude.map((ponuda) => (
-            <div
-              key={ponuda.id}
-              className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden"
-            >
-              {/* Fotografija */}
-              <div className="relative h-48 bg-gray-200">
-                {ponuda.fotografija?.url ? (
-                  <img
-                    src={ponuda.fotografija.url}
-                    alt={ponuda.fotografija.opis || 'Ponuda'}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23e5e7eb" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="18" fill="%239ca3af" text-anchor="middle" dy=".3em"%3ENema slike%3C/text%3E%3C/svg%3E'
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                    <ImageIcon className="w-16 h-16 text-gray-400" />
-                  </div>
-                )}
-                <div className="absolute top-2 right-2 bg-indigo-600 text-white px-2 py-1 rounded text-xs font-medium">
-                  {formatCena(ponuda.cena)}
-                </div>
-              </div>
-
-              {/* Podaci */}
-              <div className="p-4 space-y-2">
-                <div className="flex items-start gap-2">
-                  <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {ponuda.opstina?.opis || '-'}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {ponuda.lokacija?.opis || '-'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 text-xs text-gray-600">
-                  {ponuda.kvadratura && (
-                    <div className="flex items-center gap-1">
-                      <Ruler className="w-3 h-3" />
-                      <span>{ponuda.kvadratura} m²</span>
+              <div
+                key={ponuda.id}
+                className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-lg hover:border-slate-300 transition-all cursor-pointer group"
+              >
+                {/* Image */}
+                <div className="relative h-48 bg-slate-100 overflow-hidden">
+                  {ponuda.fotografija?.url ? (
+                    <img
+                      src={ponuda.fotografija.url}
+                      alt={ponuda.fotografija.opis || 'Ponuda'}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f1f5f9" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" font-family="Arial" font-size="18" fill="%2394a3b8" text-anchor="middle" dy=".3em"%3ENema slike%3C/text%3E%3C/svg%3E'
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <ImageIcon className="w-16 h-16 text-slate-300" />
                     </div>
                   )}
+                  
+                  {/* Price badge */}
+                  <div className="absolute top-3 right-3 bg-slate-900/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-1">
+                    <Euro className="w-3.5 h-3.5" />
+                    {ponuda.cena ? new Intl.NumberFormat('sr-RS').format(ponuda.cena) : '-'}
+                  </div>
+                  
+                  {/* Type badge */}
+                  <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-xs font-medium ${
+                    ponuda.stsrentaprodaja === 'prodaja'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-amber-500 text-white'
+                  }`}>
+                    {ponuda.stsrentaprodaja === 'prodaja' ? 'Prodaja' : 'Renta'}
+                  </div>
                 </div>
 
-                <div className="pt-2 border-t border-gray-200">
-                  <p className="text-sm font-semibold text-indigo-600">
-                    {formatCena(ponuda.cena)}
-                  </p>
+                {/* Content */}
+                <div className="p-4">
+                  <div className="flex items-start gap-2 mb-3">
+                    <MapPin className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-slate-800 truncate">
+                        {ponuda.lokacija?.opis || ponuda.opstina?.opis || '-'}
+                      </p>
+                      <p className="text-xs text-slate-500 truncate">
+                        {ponuda.ulica?.opis || '-'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 text-sm text-slate-600">
+                    <div className="flex items-center gap-1.5">
+                      <Ruler className="w-4 h-4 text-slate-400" />
+                      <span className="font-medium">{ponuda.kvadratura || '-'} m²</span>
+                    </div>
+                    {ponuda.struktura && (
+                      <div className="flex items-center gap-1.5">
+                        <Building2 className="w-4 h-4 text-slate-400" />
+                        <span>{parseFloat(ponuda.struktura).toFixed(1)}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
           </div>
           
-          {/* Paginacija i ukupan broj */}
-          <div className="bg-white rounded-lg shadow mt-4 px-4 py-3 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-700">Prikaži:</span>
+          {/* Pagination */}
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 mt-6 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-slate-600">Prikaži:</span>
               <select
                 value={itemsPerPage}
                 onChange={(e) => {
                   setItemsPerPage(Number(e.target.value))
                   setCurrentPage(1)
                 }}
-                className="px-2 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent"
               >
                 <option value={10}>10</option>
                 <option value={20}>20</option>
@@ -736,34 +699,32 @@ export default function PonudeModule() {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-2 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                aria-label="Prethodna stranica"
+                className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-4 h-4 text-slate-600" />
               </button>
               
-              <span className="text-sm text-gray-700">
-                Stranica {currentPage} od {totalPages || 1}
+              <span className="text-sm text-slate-600 px-3">
+                {currentPage} / {totalPages || 1}
               </span>
               
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages || totalPages === 0}
-                className="p-2 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                aria-label="Sledeća stranica"
+                className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-4 h-4 text-slate-600" />
               </button>
             </div>
             
-            <div className="text-sm text-gray-700 font-medium">
-              Ukupno: {totalPonude} nekretnina
+            <div className="text-sm text-slate-600 font-medium">
+              Ukupno: <span className="text-slate-800">{totalPonude}</span> nekretnina
             </div>
           </div>
         </div>
       )}
 
-      {/* Forma za dodavanje nove ponude */}
+      {/* Form Modal */}
       {showForm && (
         <PonudaForm
           onClose={() => setShowForm(false)}
