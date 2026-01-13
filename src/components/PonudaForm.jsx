@@ -22,8 +22,9 @@ const FIELD_DEFINITIONS = {
     { key: 'spratstana', label: 'Sprat stana', type: 'number', section: 'tehnicke' },
     { key: 'spratnostzgrade', label: 'Spratnost zgrade', type: 'number', section: 'tehnicke' },
     { key: 'sprat', label: 'Sprat', type: 'text', section: 'tehnicke' },
-    { key: 'stsuseljivost', label: 'Useljivost', type: 'checkbox', section: 'tehnicke' },
+    { key: 'stsuseljivost', label: 'Useljivost', type: 'select', options: ['Odmah', 'Vezano', 'Neuseljiv'], section: 'tehnicke' },
     { key: 'ststelefon', label: 'Telefon', type: 'checkbox', section: 'opremljenost' },
+    { key: 'brojtelefona_linija', label: 'Broj tel. linija', type: 'select', options: ['Nema', '1', '2', '3', '4', '5+'], section: 'opremljenost' },
     { key: 'stslift', label: 'Lift', type: 'checkbox', section: 'opremljenost' },
     { key: 'stsuknjizen', label: 'Uknižen', type: 'checkbox', section: 'opremljenost' },
     { key: 'stspodrum', label: 'Podrum', type: 'checkbox', section: 'opremljenost' },
@@ -41,7 +42,7 @@ const FIELD_DEFINITIONS = {
   kuca: [
     { key: 'spratnostzgrade', label: 'Spratnost', type: 'number', section: 'tehnicke' },
     { key: 'etaze', label: 'Etaže', type: 'text', section: 'tehnicke' },
-    { key: 'stsuseljivost', label: 'Useljivost', type: 'checkbox', section: 'tehnicke' },
+    { key: 'stsuseljivost', label: 'Useljivost', type: 'select', options: ['Odmah', 'Vezano', 'Neuseljiv'], section: 'tehnicke' },
     { key: 'stspodrum', label: 'Podrum', type: 'checkbox', section: 'opremljenost' },
     { key: 'stsimagarazu', label: 'Ima garažu', type: 'checkbox', section: 'opremljenost' },
     { key: 'stsimaparking', label: 'Ima parking', type: 'checkbox', section: 'opremljenost' },
@@ -92,7 +93,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
     datumprijema: new Date().toISOString().split('T')[0], // Default: tekući datum
     naslovaoglasa: '',
     kontaktosoba: '',
-    brojtelefona: '',
+    brojtelefona_linija: '',
     kvadratura: '',
     terasa: '',
     kvadraturaizugovora: '',
@@ -120,7 +121,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
     stsdvamokracvora: false,
     stslegalizacija: false,
     stszasticen: false,
-    stsuseljivost: false,
+    stsuseljivost: '',
     stsnovogradnja: false,
     stssalonac: false,
     stsdupleks: false,
@@ -947,8 +948,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
       const queries = variants.map(pattern => 
         supabase
           .from('ponuda')
-          .select('id, naslovaoglasa, cena, brojtelefona, brojulice, idvrstaobjekta, iddrzava, idgrada, idopstina, idlokacija, idulica')
-          .ilike('brojtelefona', pattern)
+          .select('id, naslovaoglasa, cena, brojtelefona_linija, brojulice, idvrstaobjekta, iddrzava, idgrada, idopstina, idlokacija, idulica')
+          .ilike('brojtelefona_linija', pattern)
           .limit(10)
       )
       
@@ -1046,7 +1047,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
   // Handler za promenu telefona
   const handlePhoneChange = (value) => {
     const formatted = formatPhone(value)
-    handleFieldChange('brojtelefona', formatted)
+    handleFieldChange('brojtelefona_linija', formatted)
     
     // Debounced pretraga tokom unosa (nakon 1 sekunde)
     if (phoneSearchDebounceRef.current) {
@@ -1063,9 +1064,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
 
   // Handler za blur telefona (pretraga)
   const handlePhoneBlur = () => {
-    console.log('📞 Phone blur triggered, phone value:', formData.brojtelefona)
-    if (formData.brojtelefona) {
-      searchPonudaByPhone(formData.brojtelefona)
+    console.log('📞 Phone blur triggered, phone value:', formData.brojtelefona_linija)
+    if (formData.brojtelefona_linija) {
+      searchPonudaByPhone(formData.brojtelefona_linija)
     } else {
       console.log('📞 Phone blur: No phone value, hiding dropdown')
       setPhoneSearchResults([])
@@ -1282,7 +1283,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
         datumprijema: formData.datumprijema || new Date().toISOString().split('T')[0],
         naslovaoglasa: formData.naslovaoglasa,
         kontaktosoba: formData.kontaktosoba || null,
-        brojtelefona: formData.brojtelefona || null,
+        brojtelefona_linija: formData.brojtelefona_linija || null,
         cena: formData.cena ? parseFloat(formData.cena) : null,
         kvadratura: formData.kvadratura ? parseFloat(formData.kvadratura) : null,
         terasa: formData.terasa || null,
@@ -1314,7 +1315,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
         stsdvamokracvora: formData.stsdvamokracvora,
         stslegalizacija: formData.stslegalizacija,
         stszasticen: formData.stszasticen,
-        stsuseljivost: formData.stsuseljivost,
+        stsuseljivost: formData.stsuseljivost || null,
         stsnovogradnja: formData.stsnovogradnja,
         stssalonac: formData.stssalonac,
         stsdupleks: formData.stsdupleks,
@@ -1880,6 +1881,24 @@ export default function PonudaForm({ onClose, onSuccess }) {
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y"
                           rows="3"
                         />
+                      ) : field.type === 'select' ? (
+                        <select
+                          value={formData[field.key] || ''}
+                          onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        >
+                          <option value="">Izaberi</option>
+                          {field.options?.map(opt => (
+                            <option key={opt} value={opt}>{opt}</option>
+                          ))}
+                        </select>
+                      ) : field.type === 'checkbox' ? (
+                        <input
+                          type="checkbox"
+                          checked={formData[field.key] || false}
+                          onChange={(e) => handleFieldChange(field.key, e.target.checked)}
+                          className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                        />
                       ) : (
                         <input
                           type={field.type}
@@ -1918,16 +1937,37 @@ export default function PonudaForm({ onClose, onSuccess }) {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {fieldsBySection.opremljenost.map(field => (
                   <div key={field.key} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id={field.key}
-                      checked={formData[field.key] || false}
-                      onChange={(e) => handleFieldChange(field.key, e.target.checked)}
-                      className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                    />
-                    <label htmlFor={field.key} className="ml-2 text-sm text-gray-700">
-                      {field.label}
-                    </label>
+                    {field.type === 'select' ? (
+                      <>
+                        <label htmlFor={field.key} className="mr-2 text-sm text-gray-700">
+                          {field.label}:
+                        </label>
+                        <select
+                          id={field.key}
+                          value={formData[field.key] || ''}
+                          onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                          className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                          <option value="">Izaberi</option>
+                          {field.options?.map(opt => (
+                            <option key={opt} value={opt}>{opt}</option>
+                          ))}
+                        </select>
+                      </>
+                    ) : (
+                      <>
+                        <input
+                          type="checkbox"
+                          id={field.key}
+                          checked={formData[field.key] || false}
+                          onChange={(e) => handleFieldChange(field.key, e.target.checked)}
+                          className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                        />
+                        <label htmlFor={field.key} className="ml-2 text-sm text-gray-700">
+                          {field.label}
+                        </label>
+                      </>
+                    )}
                   </div>
                 ))}
               </div>
@@ -1971,7 +2011,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   <input
                     ref={phoneInputRef}
                     type="text"
-                    value={formData.brojtelefona || ''}
+                    value={formData.brojtelefona_linija || ''}
                     onChange={(e) => handlePhoneChange(e.target.value)}
                     onBlur={handlePhoneBlur}
                     onFocus={() => {
