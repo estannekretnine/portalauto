@@ -16,6 +16,8 @@ const FIELD_DEFINITIONS = {
     { key: 'kvadraturaizugovora', label: 'Uknjižena kvadratura (m²)', type: 'number', section: 'osnovne' },
     { key: 'struktura', label: 'Struktura', type: 'number', section: 'tehnicke' },
     { key: 'stsuseljivost', label: 'Useljivost', type: 'select', options: ['Odmah', 'Vezano', 'Neuseljiv'], section: 'tehnicke' },
+    { key: 'stsdupleks', label: 'Dupleks', type: 'checkbox', section: 'opremljenost' },
+    { key: 'stsimagarazu', label: 'Ima garažu', type: 'checkbox', section: 'opremljenost' },
     { key: 'opis', label: 'Opis', type: 'textarea', section: 'osnovne' },
   ],
   // Polja specifična za određene vrste objekata
@@ -43,10 +45,8 @@ const FIELD_DEFINITIONS = {
     { key: 'spratnostzgrade', label: 'Spratnost', type: 'number', section: 'tehnicke' },
     { key: 'etaze', label: 'Etaže', type: 'text', section: 'tehnicke' },
     { key: 'stspodrum', label: 'Podrum', type: 'checkbox', section: 'opremljenost' },
-    { key: 'stsimagarazu', label: 'Ima garažu', type: 'checkbox', section: 'opremljenost' },
     { key: 'stsimaparking', label: 'Ima parking', type: 'checkbox', section: 'opremljenost' },
     { key: 'stsdvamokracvora', label: 'Dva mokraćvora', type: 'checkbox', section: 'opremljenost' },
-    { key: 'stsdupleks', label: 'Dupleks', type: 'checkbox', section: 'opremljenost' },
   ],
   poslovni: [
     { key: 'sprat', label: 'Sprat', type: 'text', section: 'tehnicke' },
