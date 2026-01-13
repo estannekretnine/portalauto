@@ -1826,6 +1826,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 </div>
               ))}
             </div>
+            </div>
             )}
           </section>
 
@@ -1892,6 +1893,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   )
                 })}
               </div>
+              </div>
               )}
             </section>
           )}
@@ -1929,6 +1931,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                     </label>
                   </div>
                 ))}
+              </div>
               </div>
               )}
             </section>
@@ -2164,6 +2167,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 />
               </div>
             </div>
+            </div>
+            )}
           </section>
 
           {/* Status i dodatne opcije */}
@@ -2287,7 +2292,6 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   Vertikala/Horizontala
                 </label>
               </div>
-            </div>
             </div>
           </section>
 
@@ -2925,6 +2929,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
               </div>
             )}
             </div>
+            )}
           </section>
 
           {error && (
