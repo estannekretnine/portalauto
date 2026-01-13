@@ -1603,56 +1603,16 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 Lokacija
               </h4>
               
-              {/* Lokalitet - read-only */}
-              <div className="mb-3">
-                <label className="block text-xs font-medium text-gray-600 mb-1">🗺️ Lokalitet (automatski)</label>
-                <input
-                  type="text"
-                  value={(() => {
-                    if (formData.idulica && sveUliceSaRelacijama.length > 0) {
-                      const selectedUlica = sveUliceSaRelacijama.find(u => u.id === parseInt(formData.idulica))
-                      if (selectedUlica && selectedUlica.lokacija) {
-                        const lokacija = selectedUlica.lokacija
-                        const opstina = lokacija?.opstina
-                        const grad = opstina?.grad
-                        const drzava = grad?.drzava
-                        
-                        const lokalitetParts = [
-                          drzava?.opis,
-                          grad?.opis,
-                          opstina?.opis,
-                          lokacija?.opis,
-                          selectedUlica.opis
-                        ].filter(Boolean)
-                        
-                        return lokalitetParts.length > 0 ? lokalitetParts.join(', ') : ''
-                      }
-                    }
-                    
-                    const lokalitetParts = [
-                      drzave.find(d => d.id === parseInt(formData.iddrzava))?.opis,
-                      gradovi.find(g => g.id === parseInt(formData.idgrada))?.opis,
-                      opstine.find(o => o.id === parseInt(formData.idopstina))?.opis,
-                      lokacije.find(l => l.id === parseInt(formData.idlokacija))?.opis,
-                      formData.idulica ? sveUliceSaRelacijama.find(u => u.id === parseInt(formData.idulica))?.opis : null
-                    ].filter(Boolean)
-                    return lokalitetParts.length > 0 ? lokalitetParts.join(', ') : ''
-                  })()}
-                  readOnly
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white/50 text-gray-700 text-sm cursor-not-allowed"
-                />
-              </div>
-              
               <div className="space-y-3">
-
-              {/* Ulica - autocomplete za pretragu - puna širina */}
-              <div data-ulica-autocomplete>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Ulica <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
+                {/* Red 1: Ulica (40%) + Broj (10%) + Latitude (25%) + Longitude (25%) */}
+                <div className="flex gap-3">
+                  {/* Ulica - 40% */}
+                  <div className="w-[40%]" data-ulica-autocomplete>
+                    <label className="block text-xs font-medium text-slate-600 mb-1.5">
+                      🏠 Ulica <span className="text-red-500">*</span>
+                    </label>
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <input
                         type="text"
                         value={ulicaSearchTerm}
@@ -1660,11 +1620,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
                           const value = e.target.value
                           setUlicaSearchTerm(value)
                           
-                          // Ako tekst ne odgovara nazivu odabrane ulice, resetuj odabir
                           if (formData.idulica && value.trim()) {
                             const selectedUlica = sveUliceSaRelacijama.find(u => u.id === parseInt(formData.idulica))
                             if (selectedUlica && value !== selectedUlica.opis && !value.startsWith(selectedUlica.opis)) {
-                              // Korisnik menja tekst - resetuj odabir
                               setFormData(prev => ({ ...prev, idulica: '', brojulice: '' }))
                             }
                           }
@@ -1676,8 +1634,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
                             setShowUlicaDropdown(true)
                           }
                         }}
-                        placeholder="Kucajte naziv ulice za pretragu..."
-                        className="w-full pl-10 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="Kucajte naziv ulice..."
+                        className="w-full pl-9 pr-8 py-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                       />
                       {ulicaSearchTerm && (
                         <button
@@ -1696,77 +1654,74 @@ export default function PonudaForm({ onClose, onSuccess }) {
                             }))
                             setShowUlicaDropdown(false)
                           }}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                         >
                           <X className="w-4 h-4" />
                         </button>
                       )}
+                      
+                      {/* Dropdown sa rezultatima */}
+                      {showUlicaDropdown && filteredUlice.length > 0 && (
+                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                          {filteredUlice.map((ulica) => {
+                            const lokacija = ulica.lokacija
+                            const opstina = lokacija?.opstina
+                            const grad = opstina?.grad
+                            const drzava = grad?.drzava
+                            const fullPath = [
+                              drzava?.opis,
+                              grad?.opis,
+                              opstina?.opis,
+                              lokacija?.opis,
+                              ulica.opis
+                            ].filter(Boolean).join(', ')
+                            
+                            return (
+                              <button
+                                key={ulica.id}
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                  handleUlicaSelect(ulica)
+                                  setShowUlicaDropdown(false)
+                                  setTimeout(() => {
+                                    if (brojUliceInputRef.current) {
+                                      brojUliceInputRef.current.focus()
+                                    }
+                                  }, 100)
+                                }}
+                                className="w-full text-left px-4 py-3 hover:bg-slate-50 border-b border-gray-100 last:border-b-0 transition-colors"
+                              >
+                                <div className="font-medium text-gray-900">{ulica.opis}</div>
+                                {fullPath && (
+                                  <div className="text-sm text-gray-500 truncate">{fullPath}</div>
+                                )}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      )}
                     </div>
-                    
-                    {/* Dropdown sa rezultatima */}
-                    {showUlicaDropdown && filteredUlice.length > 0 && (
-                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                        {filteredUlice.map((ulica) => {
-                          const lokacija = ulica.lokacija
-                          const opstina = lokacija?.opstina
-                          const grad = opstina?.grad
-                          const drzava = grad?.drzava
-                          const fullPath = [
-                            drzava?.opis,
-                            grad?.opis,
-                            opstina?.opis,
-                            lokacija?.opis,
-                            ulica.opis
-                          ].filter(Boolean).join(', ')
-                          
-                          return (
-                            <button
-                              key={ulica.id}
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                                console.log('🖱️ Klik na ulicu u dropdown-u:', ulica.opis)
-                                handleUlicaSelect(ulica)
-                                // Osiguraj zatvaranje dropdown-a
-                                setShowUlicaDropdown(false)
-                                // Fokusiraj na polje Broj ulice
-                                setTimeout(() => {
-                                  if (brojUliceInputRef.current) {
-                                    brojUliceInputRef.current.focus()
-                                  }
-                                }, 100)
-                              }}
-                              className="w-full text-left px-4 py-3 hover:bg-indigo-50 border-b border-gray-100 last:border-b-0 transition-colors"
-                            >
-                              <div className="font-medium text-gray-900">{ulica.opis}</div>
-                              {fullPath && (
-                                <div className="text-sm text-gray-500 truncate">{fullPath}</div>
-                              )}
-                            </button>
-                          )
-                        })}
-                      </div>
-                    )}
                   </div>
-                </div>
 
-                {/* Broj ulice, Latitude, Longitude - prošireno */}
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1.5">🔢 Broj ulice</label>
+                  {/* Broj - 10% */}
+                  <div className="w-[10%]">
+                    <label className="block text-xs font-medium text-slate-600 mb-1.5">🔢 Broj</label>
                     <input
                       ref={brojUliceInputRef}
                       type="text"
                       id="brojulice-input"
                       value={formData.brojulice || ''}
                       onChange={(e) => handleFieldChange('brojulice', e.target.value)}
-                      placeholder="15, 15A, bb..."
+                      placeholder="15A"
                       disabled={!formData.idulica}
-                      className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent disabled:bg-slate-100 disabled:cursor-not-allowed"
+                      className="w-full px-2 py-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent disabled:bg-slate-100 disabled:cursor-not-allowed text-center"
                     />
                   </div>
-                  <div>
+
+                  {/* Latitude - 25% */}
+                  <div className="w-[25%]">
                     <label className="block text-xs font-medium text-slate-600 mb-1.5">📍 Latitude</label>
                     <input
                       type="text"
@@ -1776,7 +1731,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
                       className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                     />
                   </div>
-                  <div>
+
+                  {/* Longitude - 25% */}
+                  <div className="w-[25%]">
                     <label className="block text-xs font-medium text-slate-600 mb-1.5">📍 Longitude</label>
                     <div className="relative">
                       <input
@@ -1784,18 +1741,58 @@ export default function PonudaForm({ onClose, onSuccess }) {
                         value={formData.longitude || ''}
                         onChange={(e) => handleFieldChange('longitude', e.target.value)}
                         placeholder="20.457273"
-                        className="w-full pl-3 pr-10 py-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                        className="w-full pl-3 pr-9 py-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                       />
                       <button
                         type="button"
                         onClick={handleShowLocationOnMap}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1.5 rounded-md hover:bg-slate-100 transition-colors"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1 rounded hover:bg-slate-100 transition-colors"
                         title="Prikaži lokaciju na mapi"
                       >
                         <Search className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
+                </div>
+
+                {/* Red 2: Lokalitet (automatski) - puna širina */}
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-1.5">🗺️ Lokalitet (automatski)</label>
+                  <input
+                    type="text"
+                    value={(() => {
+                      if (formData.idulica && sveUliceSaRelacijama.length > 0) {
+                        const selectedUlica = sveUliceSaRelacijama.find(u => u.id === parseInt(formData.idulica))
+                        if (selectedUlica && selectedUlica.lokacija) {
+                          const lokacija = selectedUlica.lokacija
+                          const opstina = lokacija?.opstina
+                          const grad = opstina?.grad
+                          const drzava = grad?.drzava
+                          
+                          const lokalitetParts = [
+                            drzava?.opis,
+                            grad?.opis,
+                            opstina?.opis,
+                            lokacija?.opis,
+                            selectedUlica.opis
+                          ].filter(Boolean)
+                          
+                          return lokalitetParts.length > 0 ? lokalitetParts.join(', ') : ''
+                        }
+                      }
+                      
+                      const lokalitetParts = [
+                        drzave.find(d => d.id === parseInt(formData.iddrzava))?.opis,
+                        gradovi.find(g => g.id === parseInt(formData.idgrada))?.opis,
+                        opstine.find(o => o.id === parseInt(formData.idopstina))?.opis,
+                        lokacije.find(l => l.id === parseInt(formData.idlokacija))?.opis,
+                        formData.idulica ? sveUliceSaRelacijama.find(u => u.id === parseInt(formData.idulica))?.opis : null
+                      ].filter(Boolean)
+                      return lokalitetParts.length > 0 ? lokalitetParts.join(', ') : ''
+                    })()}
+                    readOnly
+                    className="w-full px-3 py-2.5 border border-slate-200 rounded-lg bg-white/50 text-slate-700 text-sm cursor-not-allowed"
+                  />
                 </div>
               </div>
             </div>
