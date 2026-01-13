@@ -1525,7 +1525,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto"
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto"
       onClick={(e) => {
         // Zatvori formu samo ako se klikne na backdrop (tamni deo), ne na formu
         if (e.target === e.currentTarget) {
@@ -1535,16 +1535,24 @@ export default function PonudaForm({ onClose, onSuccess }) {
       }}
     >
       <div 
-        className="bg-white rounded-lg shadow-xl w-full max-w-6xl my-auto max-h-[95vh] overflow-y-auto"
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-6xl my-auto max-h-[95vh] overflow-y-auto border border-gray-100"
         onClick={(e) => {
           // Zaustavi propagaciju klikova unutar forme
           e.stopPropagation()
         }}
       >
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex justify-between items-center z-10">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
-            Dodaj novu ponudu
-          </h2>
+        <div className="sticky top-0 bg-gradient-to-r from-gray-900 to-black px-6 py-5 flex justify-between items-center z-10 rounded-t-3xl">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/25">
+              <Building2 className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold text-white">
+                Dodaj novu ponudu
+              </h2>
+              <p className="text-gray-400 text-sm">Unesite podatke o nekretnini</p>
+            </div>
+          </div>
           <button
             type="button"
             onClick={(e) => {
@@ -1552,7 +1560,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
               console.log('❌ X dugme kliknuto, zatvaram formu')
               onClose()
             }}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-2.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-all"
           >
             <X className="w-6 h-6" />
           </button>
@@ -1586,16 +1594,16 @@ export default function PonudaForm({ onClose, onSuccess }) {
             <button
               type="button"
               onClick={() => toggleSection('osnovne')}
-              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl shadow-md hover:shadow-lg transition-all"
+              className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-gray-900 to-black rounded-2xl shadow-lg hover:shadow-xl transition-all"
             >
-              <h3 className="text-base font-semibold text-white flex items-center gap-2">
-                <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                  <Info className="w-4 h-4 text-white" />
+              <h3 className="text-base font-bold text-white flex items-center gap-3">
+                <span className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/25">
+                  <Info className="w-5 h-5 text-white" />
                 </span>
               Osnovne informacije
             </h3>
-              <div className={`w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center transition-transform duration-300 ${openSections.osnovne ? 'rotate-180' : ''}`}>
-                <ChevronDown className="w-5 h-5 text-white" />
+              <div className={`w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center transition-transform duration-300 ${openSections.osnovne ? 'rotate-180' : ''}`}>
+                <ChevronDown className="w-5 h-5 text-amber-400" />
               </div>
             </button>
             
@@ -2023,16 +2031,16 @@ export default function PonudaForm({ onClose, onSuccess }) {
               <button
                 type="button"
                 onClick={() => toggleSection('tehnicke')}
-                className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl shadow-md hover:shadow-lg transition-all"
+                className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-gray-900 to-black rounded-2xl shadow-lg hover:shadow-xl transition-all"
               >
-                <h3 className="text-base font-semibold text-white flex items-center gap-2">
-                  <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                    <Ruler className="w-4 h-4 text-white" />
+                <h3 className="text-base font-bold text-white flex items-center gap-3">
+                  <span className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/25">
+                    <Ruler className="w-5 h-5 text-white" />
                   </span>
                   Tehničke karakteristike
                 </h3>
-                <div className={`w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center transition-transform duration-300 ${openSections.tehnicke ? 'rotate-180' : ''}`}>
-                  <ChevronDown className="w-5 h-5 text-white" />
+                <div className={`w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center transition-transform duration-300 ${openSections.tehnicke ? 'rotate-180' : ''}`}>
+                  <ChevronDown className="w-5 h-5 text-amber-400" />
                 </div>
               </button>
               
@@ -2138,16 +2146,16 @@ export default function PonudaForm({ onClose, onSuccess }) {
               <button
                 type="button"
                 onClick={() => toggleSection('opremljenost')}
-                className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl shadow-md hover:shadow-lg transition-all"
+                className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-gray-900 to-black rounded-2xl shadow-lg hover:shadow-xl transition-all"
               >
-                <h3 className="text-base font-semibold text-white flex items-center gap-2">
-                  <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                    <Building2 className="w-4 h-4 text-white" />
+                <h3 className="text-base font-bold text-white flex items-center gap-3">
+                  <span className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/25">
+                    <Building2 className="w-5 h-5 text-white" />
                   </span>
                   Opremljenost
                 </h3>
-                <div className={`w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center transition-transform duration-300 ${openSections.opremljenost ? 'rotate-180' : ''}`}>
-                  <ChevronDown className="w-5 h-5 text-white" />
+                <div className={`w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center transition-transform duration-300 ${openSections.opremljenost ? 'rotate-180' : ''}`}>
+                  <ChevronDown className="w-5 h-5 text-amber-400" />
                 </div>
               </button>
               
@@ -2246,16 +2254,16 @@ export default function PonudaForm({ onClose, onSuccess }) {
             <button
               type="button"
               onClick={() => toggleSection('dodatne')}
-              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl shadow-md hover:shadow-lg transition-all"
+              className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-gray-900 to-black rounded-2xl shadow-lg hover:shadow-xl transition-all"
             >
-              <h3 className="text-base font-semibold text-white flex items-center gap-2">
-                <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                  <FileText className="w-4 h-4 text-white" />
+              <h3 className="text-base font-bold text-white flex items-center gap-3">
+                <span className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/25">
+                  <FileText className="w-5 h-5 text-white" />
                 </span>
                 Dodatne informacije
               </h3>
-              <div className={`w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center transition-transform duration-300 ${openSections.dodatne ? 'rotate-180' : ''}`}>
-                <ChevronDown className="w-5 h-5 text-white" />
+              <div className={`w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center transition-transform duration-300 ${openSections.dodatne ? 'rotate-180' : ''}`}>
+                <ChevronDown className="w-5 h-5 text-amber-400" />
               </div>
             </button>
             
@@ -2416,14 +2424,14 @@ export default function PonudaForm({ onClose, onSuccess }) {
 
           {/* Status i dodatne opcije */}
           <section className="mb-6">
-            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
-                  <span className="text-lg">🏷️</span>
+            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-lg">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/25">
+                  <span className="text-xl">🏷️</span>
               </div>
                 <div>
-                  <h3 className="font-semibold text-slate-800">Status i dodatne opcije</h3>
-                  <p className="text-xs text-slate-500">Oznake i tagovi nekretnine</p>
+                  <h3 className="font-bold text-gray-900 text-lg">Status i dodatne opcije</h3>
+                  <p className="text-sm text-gray-500">Oznake i tagovi nekretnine</p>
               </div>
               </div>
 
@@ -2468,16 +2476,16 @@ export default function PonudaForm({ onClose, onSuccess }) {
             <button
               type="button"
               onClick={() => toggleSection('fotografije')}
-              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl shadow-md hover:shadow-lg transition-all"
+              className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-gray-900 to-black rounded-2xl shadow-lg hover:shadow-xl transition-all"
             >
-              <h3 className="text-base font-semibold text-white flex items-center gap-2">
-                <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                  <Upload className="w-4 h-4 text-white" />
+              <h3 className="text-base font-bold text-white flex items-center gap-3">
+                <span className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/25">
+                  <Upload className="w-5 h-5 text-white" />
                 </span>
                 Fotografije
               </h3>
-              <div className={`w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center transition-transform duration-300 ${openSections.fotografije ? 'rotate-180' : ''}`}>
-                <ChevronDown className="w-5 h-5 text-white" />
+              <div className={`w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center transition-transform duration-300 ${openSections.fotografije ? 'rotate-180' : ''}`}>
+                <ChevronDown className="w-5 h-5 text-amber-400" />
               </div>
             </button>
             
@@ -2497,16 +2505,16 @@ export default function PonudaForm({ onClose, onSuccess }) {
             <button
               type="button"
               onClick={() => toggleSection('metapodaci')}
-              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl shadow-md hover:shadow-lg transition-all"
+              className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-gray-900 to-black rounded-2xl shadow-lg hover:shadow-xl transition-all"
             >
-              <h3 className="text-base font-semibold text-white flex items-center gap-2">
-                <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                  <Brain className="w-4 h-4 text-white" />
+              <h3 className="text-base font-bold text-white flex items-center gap-3">
+                <span className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/25">
+                  <Brain className="w-5 h-5 text-white" />
                 </span>
               Metapodaci i AI karakteristike
             </h3>
-              <div className={`w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center transition-transform duration-300 ${openSections.metapodaci ? 'rotate-180' : ''}`}>
-                <ChevronDown className="w-5 h-5 text-white" />
+              <div className={`w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center transition-transform duration-300 ${openSections.metapodaci ? 'rotate-180' : ''}`}>
+                <ChevronDown className="w-5 h-5 text-amber-400" />
               </div>
             </button>
             
@@ -3123,7 +3131,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
             </div>
           )}
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <div className="flex justify-end gap-4 pt-6 border-t border-gray-100">
             <button
               type="button"
               onClick={(e) => {
@@ -3131,16 +3139,16 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 console.log('🚫 Otkaži dugme kliknuto, zatvaram formu')
                 onClose()
               }}
-              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              className="px-6 py-3 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition-all font-medium"
             >
               Otkaži
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-slate-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              className="px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 font-semibold shadow-lg shadow-amber-500/25"
             >
-              <Save className="w-4 h-4" />
+              <Save className="w-5 h-5" />
               {loading ? 'Čuvanje...' : 'Sačuvaj ponudu'}
             </button>
           </div>
@@ -3150,7 +3158,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
       {/* Modal sa mapom */}
       {showMapModal && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               setShowMapModal(false)
@@ -3158,15 +3166,20 @@ export default function PonudaForm({ onClose, onSuccess }) {
           }}
         >
           <div 
-            className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+            className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-gray-100"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-800">Izaberite lokaciju na mapi</h3>
+            <div className="px-6 py-5 bg-gradient-to-r from-gray-900 to-black flex justify-between items-center rounded-t-3xl">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center">
+                  <MapPin className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="text-lg font-bold text-white">Izaberite lokaciju na mapi</h3>
+              </div>
               <button
                 type="button"
                 onClick={() => setShowMapModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-all"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -3179,11 +3192,11 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 onLocationChange={handleMapLocationChange}
               />
             </div>
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setShowMapModal(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                className="px-5 py-2.5 bg-gray-900 text-white rounded-xl hover:bg-gray-800 font-medium transition-all"
               >
                 Zatvori
               </button>
