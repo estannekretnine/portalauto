@@ -1542,8 +1542,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                   <Info className="w-4 h-4 text-white" />
                 </span>
-                Osnovne informacije
-              </h3>
+              Osnovne informacije
+            </h3>
               <div className={`w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center transition-transform duration-300 ${openSections.osnovne ? 'rotate-180' : ''}`}>
                 <ChevronDown className="w-5 h-5 text-white" />
               </div>
@@ -1559,31 +1559,31 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 Tip nekretnine
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div>
+              <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">🏢 Vrsta objekta <span className="text-red-500">*</span></label>
-                  <select
-                    value={formData.idvrstaobjekta}
-                    onChange={(e) => handleFieldChange('idvrstaobjekta', e.target.value)}
-                    required
+                <select
+                  value={formData.idvrstaobjekta}
+                  onChange={(e) => handleFieldChange('idvrstaobjekta', e.target.value)}
+                  required
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  >
-                    <option value="">Izaberite vrstu objekta</option>
-                    {vrsteObjekata.map(vrsta => (
-                      <option key={vrsta.id} value={vrsta.id}>{vrsta.opis}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
+                >
+                  <option value="">Izaberite vrstu objekta</option>
+                  {vrsteObjekata.map(vrsta => (
+                    <option key={vrsta.id} value={vrsta.id}>{vrsta.opis}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">💼 Status <span className="text-red-500">*</span></label>
-                  <select
-                    value={formData.stsrentaprodaja}
-                    onChange={(e) => handleFieldChange('stsrentaprodaja', e.target.value)}
-                    required
+                <select
+                  value={formData.stsrentaprodaja}
+                  onChange={(e) => handleFieldChange('stsrentaprodaja', e.target.value)}
+                  required
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  >
-                    <option value="prodaja">Prodaja</option>
-                    <option value="renta">Renta</option>
-                  </select>
+                >
+                  <option value="prodaja">Prodaja</option>
+                  <option value="renta">Renta</option>
+                </select>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">📅 Datum prijema</label>
@@ -1796,10 +1796,10 @@ export default function PonudaForm({ onClose, onSuccess }) {
                         <Search className="w-4 h-4" />
                       </button>
                     </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
             </div>
 
             {/* Kartica: Cena i Površina */}
@@ -1809,7 +1809,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 Cena i površina
               </h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {fieldsBySection.osnovne.map(field => (
+              {fieldsBySection.osnovne.map(field => (
                   <div key={field.key} className={field.type === 'textarea' ? 'col-span-2 md:col-span-4' : ''}>
                     <label className="block text-xs font-medium text-gray-600 mb-1">
                       {field.key === 'cena' && '💵 '}
@@ -1818,49 +1818,49 @@ export default function PonudaForm({ onClose, onSuccess }) {
                       {field.key === 'kvadraturaizugovora' && '📋 '}
                       {field.key === 'naslovaoglasa' && '📝 '}
                       {field.key === 'opis' && '📄 '}
-                      {field.label} {field.required && <span className="text-red-500">*</span>}
-                    </label>
-                    {field.type === 'textarea' ? (
-                      <textarea
-                        value={formData[field.key] || ''}
-                        onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                        required={field.required}
+                    {field.label} {field.required && <span className="text-red-500">*</span>}
+                  </label>
+                  {field.type === 'textarea' ? (
+                    <textarea
+                      value={formData[field.key] || ''}
+                      onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                      required={field.required}
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:border-transparent resize-y"
-                        rows="3"
+                      rows="3"
                         placeholder="Unesite opis nekretnine..."
-                      />
-                    ) : field.key === 'cena' ? (
-                      <input
-                        type="text"
-                        value={formattedCena || (formData.cena ? formatCena(formData.cena) : '')}
-                        onChange={(e) => {
-                          const parsed = parseCena(e.target.value)
-                          handleCenaChange(parsed)
+                    />
+                  ) : field.key === 'cena' ? (
+                    <input
+                      type="text"
+                      value={formattedCena || (formData.cena ? formatCena(formData.cena) : '')}
+                      onChange={(e) => {
+                        const parsed = parseCena(e.target.value)
+                        handleCenaChange(parsed)
                           setFormattedCena(e.target.value)
-                        }}
-                        onBlur={handleCenaBlur}
-                        onFocus={() => {
-                          if (formData.cena) {
-                            setFormattedCena(formatCena(formData.cena))
-                          }
-                        }}
-                        required={field.required}
+                      }}
+                      onBlur={handleCenaBlur}
+                      onFocus={() => {
+                        if (formData.cena) {
+                          setFormattedCena(formatCena(formData.cena))
+                        }
+                      }}
+                      required={field.required}
                         placeholder="0.000 €"
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:border-transparent"
-                      />
-                    ) : (
-                      <input
-                        type={field.type}
-                        value={formData[field.key] || ''}
-                        onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                        required={field.required}
+                    />
+                  ) : (
+                    <input
+                      type={field.type}
+                      value={formData[field.key] || ''}
+                      onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                      required={field.required}
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:border-transparent"
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
+                    />
+                  )}
+                </div>
+              ))}
             </div>
+                    </div>
 
             {/* Kartica: Kontakt podaci - na kraju */}
             <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
@@ -1869,88 +1869,88 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 Kontakt podaci
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
+              <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">👤 Kontakt osoba</label>
-                  <input
-                    type="text"
-                    value={formData.kontaktosoba || ''}
-                    onChange={(e) => handleFieldChange('kontaktosoba', e.target.value)}
+                <input
+                  type="text"
+                  value={formData.kontaktosoba || ''}
+                  onChange={(e) => handleFieldChange('kontaktosoba', e.target.value)}
                     placeholder="Ime i prezime"
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                  />
-                </div>
-                <div className="relative">
+                />
+              </div>
+              <div className="relative">
                   <label className="block text-xs font-medium text-gray-600 mb-1">📱 Broj telefona</label>
-                  <div className="relative">
-                    <input
-                      ref={phoneInputRef}
-                      type="text"
+                <div className="relative">
+                  <input
+                    ref={phoneInputRef}
+                    type="text"
                       value={formData.brojtelefona_linija || ''}
-                      onChange={(e) => handlePhoneChange(e.target.value)}
-                      onBlur={handlePhoneBlur}
-                      onFocus={() => {
-                        if (phoneSearchResults.length > 0) {
-                          setShowPhoneDropdown(true)
-                        }
-                      }}
-                      placeholder="+381 XX XXX XXXX"
+                    onChange={(e) => handlePhoneChange(e.target.value)}
+                    onBlur={handlePhoneBlur}
+                    onFocus={() => {
+                      if (phoneSearchResults.length > 0) {
+                        setShowPhoneDropdown(true)
+                      }
+                    }}
+                    placeholder="+381 XX XXX XXXX"
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    />
-                    {isSearchingPhone && (
-                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  />
+                  {isSearchingPhone && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-600"></div>
-                      </div>
-                    )}
-                  </div>
-                  {/* Dropdown sa rezultatima pretrage */}
-                  {showPhoneDropdown && phoneSearchResults.length > 0 && (
-                    <div data-phone-dropdown className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto">
-                      <div className="p-2 text-xs font-semibold text-gray-600 border-b border-gray-200">
-                        Pronađene ponude ({phoneSearchResults.length})
-                      </div>
-                      {phoneSearchResults.map((ponuda) => (
-                        <div
-                          key={ponuda.id}
-                          className="p-3 hover:bg-amber-50 border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            console.log('Klik na ponudu:', ponuda.id)
-                            setShowPhoneDropdown(false)
-                          }}
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium text-sm text-gray-900 truncate">
-                                {ponuda.vrstaobjekta?.opis || 'N/A'}
-                              </div>
-                              <div className="text-xs text-gray-600 mt-1">
-                                {formatAddress(ponuda)}
-                              </div>
-                              <div className="text-xs text-gray-500 mt-1">
-                                {ponuda.naslovaoglasa || 'Bez naslova'}
-                              </div>
-                            </div>
-                            <div className="flex-shrink-0 text-right">
-                              <div className="font-semibold text-sm text-amber-600">
-                                {ponuda.cena 
-                                  ? new Intl.NumberFormat('sr-RS', {
-                                      style: 'currency',
-                                      currency: 'EUR',
-                                      minimumFractionDigits: 0
-                                    }).format(ponuda.cena)
-                                  : '-'
-                                }
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
                     </div>
                   )}
                 </div>
+                {/* Dropdown sa rezultatima pretrage */}
+                {showPhoneDropdown && phoneSearchResults.length > 0 && (
+                  <div data-phone-dropdown className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto">
+                    <div className="p-2 text-xs font-semibold text-gray-600 border-b border-gray-200">
+                      Pronađene ponude ({phoneSearchResults.length})
+                    </div>
+                    {phoneSearchResults.map((ponuda) => (
+                      <div
+                        key={ponuda.id}
+                          className="p-3 hover:bg-amber-50 border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          console.log('Klik na ponudu:', ponuda.id)
+                          setShowPhoneDropdown(false)
+                        }}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm text-gray-900 truncate">
+                              {ponuda.vrstaobjekta?.opis || 'N/A'}
+                            </div>
+                            <div className="text-xs text-gray-600 mt-1">
+                              {formatAddress(ponuda)}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1">
+                              {ponuda.naslovaoglasa || 'Bez naslova'}
+                            </div>
+                          </div>
+                          <div className="flex-shrink-0 text-right">
+                              <div className="font-semibold text-sm text-amber-600">
+                              {ponuda.cena 
+                                ? new Intl.NumberFormat('sr-RS', {
+                                    style: 'currency',
+                                    currency: 'EUR',
+                                    minimumFractionDigits: 0
+                                  }).format(ponuda.cena)
+                                : '-'
+                              }
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                </div>
               </div>
-            </div>
+              </div>
 
             </div>
             )}
@@ -1976,71 +1976,96 @@ export default function PonudaForm({ onClose, onSuccess }) {
               </button>
               
               {openSections.tehnicke && (
-              <div className="mt-4 bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+              <div className="mt-4 bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                {/* Ikone za brzu navigaciju */}
+                <div className="flex flex-wrap gap-2 mb-4 pb-4 border-b border-slate-100">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg text-xs text-slate-600">
+                    <span>📐</span> Dimenzije
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg text-xs text-slate-600">
+                    <span>🏗️</span> Konstrukcija
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg text-xs text-slate-600">
+                    <span>🔧</span> Instalacije
+                  </span>
+                </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {fieldsBySection.tehnicke.map(field => {
-                  // Generiši opcije za strukturu od 0.5 do 15.0 sa korakom 0.5
-                  const strukturaOptions = []
-                  if (field.key === 'struktura') {
-                    for (let i = 0.5; i <= 15.0; i += 0.5) {
-                      strukturaOptions.push(i.toFixed(1))
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {fieldsBySection.tehnicke.map(field => {
+                    const strukturaOptions = []
+                    if (field.key === 'struktura') {
+                      for (let i = 0.5; i <= 15.0; i += 0.5) {
+                        strukturaOptions.push(i.toFixed(1))
+                      }
                     }
-                  }
 
-                  return (
-                    <div key={field.key}>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        {field.label}
-                      </label>
-                      {field.key === 'struktura' ? (
-                        <select
-                          value={formData[field.key] || ''}
-                          onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                        >
-                          <option value="">Izaberite strukturu</option>
-                          {strukturaOptions.map(option => (
-                            <option key={option} value={option}>{option}</option>
-                          ))}
-                        </select>
-                      ) : field.type === 'textarea' ? (
-                        <textarea
-                          value={formData[field.key] || ''}
-                          onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y"
-                          rows="3"
-                        />
-                      ) : field.type === 'select' ? (
-                        <select
-                          value={formData[field.key] || ''}
-                          onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                        >
-                          <option value="">Izaberi</option>
-                          {field.options?.map(opt => (
-                            <option key={opt} value={opt}>{opt}</option>
-                          ))}
-                        </select>
-                      ) : field.type === 'checkbox' ? (
-                        <input
-                          type="checkbox"
-                          checked={formData[field.key] || false}
-                          onChange={(e) => handleFieldChange(field.key, e.target.checked)}
-                          className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                        />
-                      ) : (
-                        <input
-                          type={field.type}
-                          value={formData[field.key] || ''}
-                          onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                        />
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
+                    // Dodaj emoji ikone za polja
+                    const fieldIcons = {
+                      'struktura': '🏠',
+                      'sprat': '🔢',
+                      'spratnost': '🏢',
+                      'stanje': '✨',
+                      'orijentacija': '🧭',
+                      'stsuseljivost': '🚪'
+                    }
+                    const icon = fieldIcons[field.key] || '📋'
+
+                    return (
+                      <div key={field.key} className="bg-slate-50 rounded-xl p-3">
+                        <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+                          <span>{icon}</span>
+                          {field.label}
+                        </label>
+                        {field.key === 'struktura' ? (
+                          <select
+                            value={formData[field.key] || ''}
+                            onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                            className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                          >
+                            <option value="">Izaberite strukturu</option>
+                            {strukturaOptions.map(option => (
+                              <option key={option} value={option}>{option}</option>
+                            ))}
+                          </select>
+                        ) : field.type === 'textarea' ? (
+                          <textarea
+                            value={formData[field.key] || ''}
+                            onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                            className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent resize-y"
+                            rows="3"
+                          />
+                        ) : field.type === 'select' ? (
+                          <select
+                            value={formData[field.key] || ''}
+                            onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                            className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                          >
+                            <option value="">Izaberi</option>
+                            {field.options?.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                        ) : field.type === 'checkbox' ? (
+                          <div className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={formData[field.key] || false}
+                              onChange={(e) => handleFieldChange(field.key, e.target.checked)}
+                              className="h-5 w-5 text-slate-600 border-slate-300 rounded focus:ring-slate-500"
+                            />
+                          </div>
+                        ) : (
+                          <input
+                            type={field.type}
+                            value={formData[field.key] || ''}
+                            onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                            className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                          />
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
               )}
             </section>
@@ -2066,58 +2091,90 @@ export default function PonudaForm({ onClose, onSuccess }) {
               </button>
               
               {openSections.opremljenost && (
-              <div className="mt-4 bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+              <div className="mt-4 bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                {/* Kategorije opreme */}
+                <div className="flex flex-wrap gap-2 mb-4 pb-4 border-b border-slate-100">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg text-xs text-slate-600">
+                    <span>🏠</span> Nameštaj
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg text-xs text-slate-600">
+                    <span>🔌</span> Aparati
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg text-xs text-slate-600">
+                    <span>📡</span> Komunikacije
+                  </span>
+                </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {fieldsBySection.opremljenost.map(field => {
-                  // Sakrij brojtelefona_linija ako ststelefon nije čekiran
-                  if (field.key === 'brojtelefona_linija' && !formData.ststelefon) {
-                    return null
-                  }
-                  
-                  return (
-                    <div key={field.key} className="flex items-center">
-                      {field.type === 'select' ? (
-                        <>
-                          <label htmlFor={field.key} className="mr-2 text-sm text-gray-700">
-                            {field.label}:
-                          </label>
-                          <select
-                            id={field.key}
-                            value={formData[field.key] || ''}
-                            onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                            className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {fieldsBySection.opremljenost.map(field => {
+                    if (field.key === 'brojtelefona_linija' && !formData.ststelefon) {
+                      return null
+                    }
+
+                    // Emoji ikone za opremu
+                    const equipmentIcons = {
+                      'ststelefon': '📞',
+                      'brojtelefona_linija': '📱',
+                      'stsnamesten': '🛋️',
+                      'stskuhinja': '🍳',
+                      'stskupatilo': '🚿',
+                      'stsklima': '❄️',
+                      'ststv': '📺',
+                      'stsinternet': '🌐',
+                      'stsfrizider': '🧊',
+                      'stssporet': '🔥',
+                      'stsvesmasina': '🧺',
+                      'stsmasinazasusenje': '💨',
+                      'stspegla': '👔',
+                      'stsusisivac': '🧹'
+                    }
+                    const icon = equipmentIcons[field.key] || '✓'
+                    
+                    return (
+                      <div key={field.key}>
+                        {field.type === 'select' ? (
+                          <div className="bg-slate-50 rounded-xl p-3">
+                            <label htmlFor={field.key} className="flex items-center gap-2 text-sm text-slate-700 mb-2">
+                              <span>{icon}</span>
+                              {field.label}
+                            </label>
+                            <select
+                              id={field.key}
+                              value={formData[field.key] || ''}
+                              onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                            >
+                              <option value="">Izaberi</option>
+                              {field.options?.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                          </div>
+                        ) : (
+                          <label 
+                            htmlFor={field.key} 
+                            className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors"
                           >
-                            <option value="">Izaberi</option>
-                            {field.options?.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
-                        </>
-                      ) : (
-                        <>
-                          <input
-                            type="checkbox"
-                            id={field.key}
-                            checked={formData[field.key] || false}
-                            onChange={(e) => {
-                              handleFieldChange(field.key, e.target.checked)
-                              // Ako se isključi ststelefon, resetuj brojtelefona_linija
-                              if (field.key === 'ststelefon' && !e.target.checked) {
-                                handleFieldChange('brojtelefona_linija', '')
-                              }
-                            }}
-                            className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                          />
-                          <label htmlFor={field.key} className="ml-2 text-sm text-gray-700">
-                            {field.label}
+                            <input
+                              type="checkbox"
+                              id={field.key}
+                              checked={formData[field.key] || false}
+                              onChange={(e) => {
+                                handleFieldChange(field.key, e.target.checked)
+                                if (field.key === 'ststelefon' && !e.target.checked) {
+                                  handleFieldChange('brojtelefona_linija', '')
+                                }
+                              }}
+                              className="h-5 w-5 text-slate-600 border-slate-300 rounded focus:ring-slate-500"
+                            />
+                            <span className="text-base">{icon}</span>
+                            <span className="text-sm text-slate-700">{field.label}</span>
                           </label>
-                        </>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
               )}
             </section>
@@ -2142,17 +2199,30 @@ export default function PonudaForm({ onClose, onSuccess }) {
             </button>
             
             {openSections.dodatne && (
-            <div className="mt-4 bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+            <div className="mt-4 bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+              {/* Kategorije */}
+              <div className="flex flex-wrap gap-2 mb-4 pb-4 border-b border-slate-100">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg text-xs text-slate-600">
+                  <span>🔥</span> Grejanje
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg text-xs text-slate-600">
+                  <span>🔗</span> Linkovi
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg text-xs text-slate-600">
+                  <span>📝</span> Napomene
+                </span>
+              </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Grejanje
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Grejanje i Investitor */}
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+                    <span>🔥</span> Grejanje
                 </label>
                 <select
                   value={formData.idgrejanje}
                   onChange={(e) => handleFieldChange('idgrejanje', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                 >
                   <option value="">Izaberite grejanje</option>
                   {grejanja.map(grejanje => (
@@ -2161,14 +2231,14 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Investitor
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+                    <span>🏗️</span> Investitor
                 </label>
                 <select
                   value={formData.idinvestitor}
                   onChange={(e) => handleFieldChange('idinvestitor', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                 >
                   <option value="">Izaberite investitora</option>
                   {investitori.map(investitor => (
@@ -2177,99 +2247,105 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Godina gradnje
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+                    <span>📅</span> Godina gradnje
                 </label>
                 <input
                   type="text"
                   value={formData.godinagradnje || ''}
                   onChange={(e) => handleFieldChange('godinagradnje', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                    placeholder="npr. 2020"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Video link
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+                    <span>🎬</span> Video link
                 </label>
                 <input
                   type="text"
                   value={formData.videolink || ''}
                   onChange={(e) => handleFieldChange('videolink', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                    placeholder="https://..."
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Dokumentacija
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+                    <span>📄</span> Dokumentacija
                 </label>
                 <input
                   type="text"
                   value={formData.dokumentacija || ''}
                   onChange={(e) => handleFieldChange('dokumentacija', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Link
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+                    <span>🔗</span> Link
                 </label>
                 <input
                   type="text"
                   value={formData.link || ''}
                   onChange={(e) => handleFieldChange('link', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                    placeholder="https://..."
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Vidljivost na sajtu
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+                    <span>👁️</span> Vidljivost na sajtu
                 </label>
                 <input
                   type="text"
                   value={formData.vidljivostnasajtu || ''}
                   onChange={(e) => handleFieldChange('vidljivostnasajtu', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nivo energetske efikasnosti
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+                    <span>⚡</span> Nivo energetske efikasnosti
                 </label>
                 <input
                   type="text"
                   value={formData.nivoenergetskeefikasnosti || ''}
                   onChange={(e) => handleFieldChange('nivoenergetskeefikasnosti', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                    placeholder="A, B, C..."
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  3D ture
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+                    <span>🎮</span> 3D ture
                 </label>
                 <input
                   type="text"
                   value={formData['3dture'] || ''}
                   onChange={(e) => handleFieldChange('3dture', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                    placeholder="https://..."
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Interne napomene
+                <div className="md:col-span-2 bg-slate-50 rounded-xl p-3">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+                    <span>📝</span> Interne napomene
                 </label>
                 <textarea
                   value={formData.internenapomene || ''}
                   onChange={(e) => handleFieldChange('internenapomene', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y"
+                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent resize-y"
                   rows="3"
+                    placeholder="Napomene vidljive samo agentima..."
                 />
               </div>
             </div>
@@ -2441,8 +2517,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                   <Brain className="w-4 h-4 text-white" />
                 </span>
-                Metapodaci i AI karakteristike
-              </h3>
+              Metapodaci i AI karakteristike
+            </h3>
               <div className={`w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center transition-transform duration-300 ${openSections.metapodaci ? 'rotate-180' : ''}`}>
                 <ChevronDown className="w-5 h-5 text-white" />
               </div>
@@ -2508,7 +2584,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                       {/* Lični podaci */}
                       <div className="mb-4">
                         <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">📋 Lični podaci</p>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                           <input type="text" value={vlasnik.ime} onChange={(e) => handleVlasnikChange(index, 'ime', e.target.value)} placeholder="Ime" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
                           <input type="text" value={vlasnik.prezime} onChange={(e) => handleVlasnikChange(index, 'prezime', e.target.value)} placeholder="Prezime" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
                           <input type="text" value={vlasnik.jmbg} onChange={(e) => handleVlasnikChange(index, 'jmbg', e.target.value)} placeholder="JMBG" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
@@ -2532,9 +2608,9 @@ export default function PonudaForm({ onClose, onSuccess }) {
                           <input type="text" value={vlasnik.lk} onChange={(e) => handleVlasnikChange(index, 'lk', e.target.value)} placeholder="Broj LK" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
                           <input type="text" value={vlasnik.pib} onChange={(e) => handleVlasnikChange(index, 'pib', e.target.value)} placeholder="PIB" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
                           <input type="text" value={vlasnik.mesto_rodjenja} onChange={(e) => handleVlasnikChange(index, 'mesto_rodjenja', e.target.value)} placeholder="Mesto rođenja" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                          <div>
+                        <div>
                             <input type="date" value={vlasnik.datum_rodjenja || ''} onChange={(e) => handleVlasnikChange(index, 'datum_rodjenja', e.target.value || '')} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                          </div>
+                        </div>
                         </div>
                       </div>
 
@@ -2544,12 +2620,12 @@ export default function PonudaForm({ onClose, onSuccess }) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <input type="text" value={vlasnik.poreklo_imovine} onChange={(e) => handleVlasnikChange(index, 'poreklo_imovine', e.target.value)} placeholder="Poreklo imovine" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
                           <select value={vlasnik.sts_lice} onChange={(e) => handleVlasnikChange(index, 'sts_lice', e.target.value)} className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent">
-                            <option value="">Status lica</option>
-                            <option value="fizicko">Fizičko lice</option>
-                            <option value="pravno">Pravno lice</option>
+                          <option value="">Status lica</option>
+                          <option value="fizicko">Fizičko lice</option>
+                          <option value="pravno">Pravno lice</option>
                             <option value="preduzetnik">Preduzetnik</option>
-                          </select>
-                        </div>
+                        </select>
+                      </div>
                       </div>
 
                       {/* Status checkboxes */}
@@ -2599,33 +2675,33 @@ export default function PonudaForm({ onClose, onSuccess }) {
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input type="checkbox" checked={metapodaci.eop.sts_ugovor_potpisan} onChange={(e) => handleEopChange('sts_ugovor_potpisan', e.target.checked)} className="rounded border-slate-300 text-slate-600 w-5 h-5" />
                         <span className="text-sm font-medium text-slate-700">✍️ Ugovor potpisan</span>
-                      </label>
+                  </label>
                     </div>
 
                     {/* Datumi */}
-                    <div>
+                  <div>
                       <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">📅 Datumi</p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                           <label className="block text-sm text-slate-600 mb-1">Datum ugovora</label>
                           <input type="date" value={metapodaci.eop.datum_ugovora} onChange={(e) => handleEopChange('datum_ugovora', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                        </div>
-                        <div>
+                  </div>
+                  <div>
                           <label className="block text-sm text-slate-600 mb-1">Datum isteka</label>
                           <input type="date" value={metapodaci.eop.datum_istice} onChange={(e) => handleEopChange('datum_istice', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                        </div>
+                  </div>
                       </div>
                     </div>
 
                     {/* Katastar */}
-                    <div>
+                  <div>
                       <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">🗺️ Katastar</p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                           <label className="block text-sm text-slate-600 mb-1">Katastarska parcela</label>
                           <input type="text" value={metapodaci.eop.katastarska_parceka} onChange={(e) => handleEopChange('katastarska_parceka', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder="Broj parcele" />
-                        </div>
-                        <div>
+                  </div>
+                  <div>
                           <label className="block text-sm text-slate-600 mb-1">Katastarska opština</label>
                           <input type="text" value={metapodaci.eop.kat_opstina} onChange={(e) => handleEopChange('kat_opstina', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder="Naziv opštine" />
                         </div>
@@ -2654,36 +2730,36 @@ export default function PonudaForm({ onClose, onSuccess }) {
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input type="checkbox" checked={metapodaci.realizacija.zakljucen} onChange={(e) => handleRealizacijaChange('zakljucen', e.target.checked)} className="rounded border-emerald-300 text-emerald-600 w-5 h-5" />
                         <span className="text-sm font-medium text-emerald-700">🎉 Posao zaključen</span>
-                      </label>
+                  </label>
                     </div>
 
                     {/* Finansije */}
-                    <div>
+                  <div>
                       <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">💰 Finansije</p>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div>
                           <label className="block text-sm text-slate-600 mb-1">Datum zaključenja</label>
                           <input type="date" value={metapodaci.realizacija.datum_zakljucenja} onChange={(e) => handleRealizacijaChange('datum_zakljucenja', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                        </div>
-                        <div>
+                  </div>
+                  <div>
                           <label className="block text-sm text-slate-600 mb-1">Kupoprodajna cena (€)</label>
                           <input type="number" value={metapodaci.realizacija.kupoprodajna_cena} onChange={(e) => handleRealizacijaChange('kupoprodajna_cena', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                        </div>
-                        <div>
+                  </div>
+                  <div>
                           <label className="block text-sm text-slate-600 mb-1">Provizija (€)</label>
                           <input type="number" value={metapodaci.realizacija.provizija} onChange={(e) => handleRealizacijaChange('provizija', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                        </div>
+                  </div>
                       </div>
                     </div>
 
                     {/* Detalji */}
-                    <div>
+                  <div>
                       <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">📝 Detalji</p>
                       <div className="space-y-3">
                         <div>
                           <label className="block text-sm text-slate-600 mb-1">Namena transakcije</label>
                           <input type="text" value={metapodaci.realizacija.namena_transakcije} onChange={(e) => handleRealizacijaChange('namena_transakcije', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder="Npr. stanovanje, investicija..." />
-                        </div>
+                  </div>
                         <div>
                           <label className="block text-sm text-slate-600 mb-1">Primedba</label>
                           <textarea value={metapodaci.realizacija.primedba} onChange={(e) => handleRealizacijaChange('primedba', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" rows="2" placeholder="Dodatne napomene..." />
@@ -2716,7 +2792,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                       { key: 'internet', label: 'Internet', icon: '🌐' },
                       { key: 'odrzavanje', label: 'Održavanje', icon: '🔧' },
                       { key: 'ostalo', label: 'Ostalo', icon: '📋' }
-                    ].map(trosak => (
+                  ].map(trosak => (
                       <div key={trosak.key} className="bg-slate-50 rounded-xl p-3">
                         <label className="flex items-center gap-2 text-sm text-slate-600 mb-2">
                           <span>{trosak.icon}</span>
@@ -2726,8 +2802,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
                           <input type="number" value={metapodaci.troskovi[trosak.key]} onChange={(e) => handleTroskoviChange(trosak.key, e.target.value)} className="w-full px-3 py-2.5 pr-8 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder="0" />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">€</span>
                         </div>
-                      </div>
-                    ))}
+                    </div>
+                  ))}
                   </div>
                 </div>
               )}
@@ -2739,52 +2815,52 @@ export default function PonudaForm({ onClose, onSuccess }) {
                     <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
                       <span className="text-lg">👤</span>
                     </div>
-                    <div>
+                  <div>
                       <h4 className="font-semibold text-slate-800">Zastupnik</h4>
                       <p className="text-xs text-slate-500">Podaci o zastupniku vlasnika</p>
-                    </div>
+                  </div>
                   </div>
 
                   <div className="space-y-4">
                     {/* Lični podaci */}
-                    <div>
+                  <div>
                       <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">📋 Lični podaci</p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                           <label className="block text-sm text-slate-600 mb-1">Ime</label>
                           <input type="text" value={metapodaci.zastupnik.ime} onChange={(e) => handleZastupnikChange('ime', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                        </div>
-                        <div>
+                  </div>
+                  <div>
                           <label className="block text-sm text-slate-600 mb-1">Prezime</label>
                           <input type="text" value={metapodaci.zastupnik.prezime} onChange={(e) => handleZastupnikChange('prezime', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                        </div>
+                  </div>
                       </div>
                     </div>
 
                     {/* Adresa */}
-                    <div>
+                  <div>
                       <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">📍 Adresa</p>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div className="md:col-span-2">
                           <label className="block text-sm text-slate-600 mb-1">Adresa</label>
                           <input type="text" value={metapodaci.zastupnik.adresa} onChange={(e) => handleZastupnikChange('adresa', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                        </div>
-                        <div>
+                  </div>
+                  <div>
                           <label className="block text-sm text-slate-600 mb-1">Opština</label>
                           <input type="text" value={metapodaci.zastupnik.opstina} onChange={(e) => handleZastupnikChange('opstina', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                        </div>
+                  </div>
                       </div>
                     </div>
 
                     {/* Dokumentacija */}
-                    <div>
+                  <div>
                       <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">🪪 Dokumentacija</p>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div>
                           <label className="block text-sm text-slate-600 mb-1">Broj LK</label>
                           <input type="text" value={metapodaci.zastupnik.lk} onChange={(e) => handleZastupnikChange('lk', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                        </div>
-                        <div>
+                  </div>
+                  <div>
                           <label className="block text-sm text-slate-600 mb-1">Datum</label>
                           <input type="date" value={metapodaci.zastupnik.datum} onChange={(e) => handleZastupnikChange('datum', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
                         </div>
@@ -2830,20 +2906,20 @@ export default function PonudaForm({ onClose, onSuccess }) {
                           { key: 'sts_alarm', label: 'Alarm', icon: '🚨' },
                           { key: 'sts_video_nadzor', label: 'Video nadzor', icon: '📹' },
                           { key: 'sts_smart_home', label: 'Smart home', icon: '🏠' }
-                        ].map(item => (
+                      ].map(item => (
                           <label key={item.key} className="flex items-center gap-1.5 text-xs bg-white/60 hover:bg-white rounded-lg px-2 py-1.5 cursor-pointer transition-colors">
-                            <input
-                              type="checkbox"
-                              checked={aiKarakteristike.opremljenost[item.key]}
-                              onChange={(e) => handleAiOpremljenostChange(item.key, e.target.checked)}
+                          <input
+                            type="checkbox"
+                            checked={aiKarakteristike.opremljenost[item.key]}
+                            onChange={(e) => handleAiOpremljenostChange(item.key, e.target.checked)}
                               className="rounded border-gray-300 text-indigo-600 w-3.5 h-3.5"
-                            />
+                          />
                             <span>{item.icon}</span>
                             <span className="text-gray-700">{item.label}</span>
-                          </label>
-                        ))}
-                      </div>
+                        </label>
+                      ))}
                     </div>
+                  </div>
 
                     {/* KARTICA: Bezbednost */}
                     <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
@@ -2860,15 +2936,15 @@ export default function PonudaForm({ onClose, onSuccess }) {
                           { key: 'sigurnosna_vrata', label: 'Sigurnosna vrata', icon: '🚪' }
                         ].map(item => (
                           <label key={item.key} className="flex items-center gap-1.5 text-xs bg-white/60 hover:bg-white rounded-lg px-2 py-1.5 cursor-pointer transition-colors">
-                            <input
-                              type="checkbox"
+                        <input
+                          type="checkbox"
                               checked={aiKarakteristike.bezbednost[item.key]}
                               onChange={(e) => handleAiBezbednostChange(item.key, e.target.checked)}
                               className="rounded border-gray-300 text-red-600 w-3.5 h-3.5"
                             />
                             <span>{item.icon}</span>
                             <span className="text-gray-700">{item.label}</span>
-                          </label>
+                      </label>
                         ))}
                       </div>
                     </div>
@@ -2906,30 +2982,30 @@ export default function PonudaForm({ onClose, onSuccess }) {
 
                       {/* Selecti */}
                       <div className="grid grid-cols-3 gap-2 mb-3">
-                        <div>
+                      <div>
                           <label className="block text-xs text-gray-600 mb-1">🐾 Pet-friendly</label>
                           <input type="number" min="0" max="5" value={aiKarakteristike.zivotni_stil.pet_friendly} onChange={(e) => handleAiZivotniStilChange('pet_friendly', parseInt(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs" placeholder="0-5" />
-                        </div>
-                        <div>
+                      </div>
+                      <div>
                           <label className="block text-xs text-gray-600 mb-1">🔊 Buka</label>
                           <select value={aiKarakteristike.zivotni_stil.nivo_buke} onChange={(e) => handleAiZivotniStilChange('nivo_buke', e.target.value)} className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs">
                             <option value="">-</option>
-                            <option value="nisko">Nisko</option>
-                            <option value="srednje">Srednje</option>
-                            <option value="visoko">Visoko</option>
-                          </select>
-                        </div>
-                        <div>
+                          <option value="nisko">Nisko</option>
+                          <option value="srednje">Srednje</option>
+                          <option value="visoko">Visoko</option>
+                        </select>
+                      </div>
+                      <div>
                           <label className="block text-xs text-gray-600 mb-1">☀️ Sunce</label>
                           <select value={aiKarakteristike.zivotni_stil.osuncanost} onChange={(e) => handleAiZivotniStilChange('osuncanost', e.target.value)} className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs">
                             <option value="">-</option>
-                            <option value="slabo">Slabo</option>
-                            <option value="srednje">Srednje</option>
-                            <option value="dobro">Dobro</option>
-                            <option value="odlicno">Odlično</option>
-                          </select>
-                        </div>
+                          <option value="slabo">Slabo</option>
+                          <option value="srednje">Srednje</option>
+                          <option value="dobro">Dobro</option>
+                          <option value="odlicno">Odlično</option>
+                        </select>
                       </div>
+                    </div>
 
                       {/* Blizina */}
                       <div className="text-xs text-gray-500 mb-1">📍 Blizina (min pešice)</div>
@@ -2949,7 +3025,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                           </div>
                         ))}
                       </div>
-                    </div>
+                  </div>
 
                     {/* KARTICA: Mikrolokacija */}
                     <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
@@ -2963,7 +3039,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                           <input type="checkbox" checked={aiKarakteristike.mikrolokacija.mirna_ulica} onChange={(e) => handleAiMikrolokacijaChange('mirna_ulica', e.target.checked)} className="rounded border-gray-300 text-purple-600 w-3.5 h-3.5" />
                           <span>🤫</span><span className="text-gray-700">Mirna ulica</span>
                         </label>
-                        <div>
+                  <div>
                           <label className="block text-xs text-gray-600 mb-1">🅿️ Parking zona</label>
                           <select value={aiKarakteristike.mikrolokacija.parking_zona} onChange={(e) => handleAiMikrolokacijaChange('parking_zona', e.target.value)} className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs">
                             <option value="">-</option>
@@ -3029,33 +3105,33 @@ export default function PonudaForm({ onClose, onSuccess }) {
 
                       {/* Selecti */}
                       <div className="grid grid-cols-2 gap-2">
-                        <div>
+                      <div>
                           <label className="block text-xs text-gray-600 mb-1">💨 Kvalitet vazduha</label>
                           <select value={aiKarakteristike.ekologija.indeks_vazduha} onChange={(e) => handleAiEkologijaChange('indeks_vazduha', e.target.value)} className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs">
                             <option value="">-</option>
                             <option value="dobar">✅ Dobar</option>
                             <option value="srednji">⚠️ Srednji</option>
                             <option value="los">❌ Loš</option>
-                          </select>
-                        </div>
-                        <div>
+                        </select>
+                      </div>
+                      <div>
                           <label className="block text-xs text-gray-600 mb-1">⚡ Energetski razred</label>
                           <select value={aiKarakteristike.ekologija.energetski_razred} onChange={(e) => handleAiEkologijaChange('energetski_razred', e.target.value)} className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs">
                             <option value="">-</option>
-                            <option value="A+">A+</option>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                            <option value="D">D</option>
-                            <option value="E">E</option>
-                            <option value="F">F</option>
-                            <option value="G">G</option>
-                          </select>
-                        </div>
-                      </div>
+                          <option value="A+">A+</option>
+                          <option value="A">A</option>
+                          <option value="B">B</option>
+                          <option value="C">C</option>
+                          <option value="D">D</option>
+                          <option value="E">E</option>
+                          <option value="F">F</option>
+                          <option value="G">G</option>
+                        </select>
+                    </div>
+                  </div>
 
                       {/* Eko opcije */}
-                      <div>
+                  <div>
                         <div className="text-xs text-gray-600 mb-2">♻️ Eko karakteristike</div>
                         <div className="grid grid-cols-2 gap-1.5">
                           {[
@@ -3066,13 +3142,13 @@ export default function PonudaForm({ onClose, onSuccess }) {
                             <label key={item.key} className="flex items-center gap-1 text-xs bg-white/60 hover:bg-white rounded-lg px-2 py-1 cursor-pointer">
                               <input type="checkbox" checked={aiKarakteristike.ekologija[item.key]} onChange={(e) => handleAiEkologijaChange(item.key, e.target.checked)} className="rounded border-gray-300 text-teal-600 w-3 h-3" />
                               <span className="text-gray-700">{item.label}</span>
-                            </label>
+                      </label>
                           ))}
                           <div className="flex items-center gap-1">
                             <span className="text-xs">🌿</span>
                             <input type="number" min="0" max="100" value={aiKarakteristike.ekologija.zelena_povrsina} onChange={(e) => handleAiEkologijaChange('zelena_povrsina', parseInt(e.target.value) || 0)} className="w-16 px-2 py-1 border border-gray-200 rounded text-xs" placeholder="%" />
                             <span className="text-xs text-gray-500">%</span>
-                          </div>
+                      </div>
                         </div>
                       </div>
                     </div>
@@ -3094,7 +3170,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 </div>
               </div>
             )}
-            </div>
+              </div>
             )}
           </section>
 
