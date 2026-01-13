@@ -18,8 +18,6 @@ const FIELD_DEFINITIONS = {
     { key: 'stsuseljivost', label: 'Useljivost', type: 'select', options: ['Odmah', 'Vezano', 'Neuseljiv'], section: 'tehnicke' },
     { key: 'stsdupleks', label: 'Dupleks', type: 'checkbox', section: 'tehnicke' },
     { key: 'stsimagarazu', label: 'Ima garažu', type: 'checkbox', section: 'tehnicke' },
-    // Opremljenost - nivo
-    { key: 'stsopremljen', label: 'Nivo opremljenosti', type: 'select', options: ['Prazan', 'Polunamešten', 'Namešten'], section: 'opremljenost' },
     // Opremljenost - aparati i oprema
     { key: 'stsfrizider', label: 'Frižider', type: 'checkbox', section: 'opremljenost' },
     { key: 'stssporet', label: 'Šporet', type: 'checkbox', section: 'opremljenost' },
@@ -31,6 +29,8 @@ const FIELD_DEFINITIONS = {
     { key: 'stspegla', label: 'Pegla', type: 'checkbox', section: 'opremljenost' },
     { key: 'stsusisivac', label: 'Usisivač', type: 'checkbox', section: 'opremljenost' },
     { key: 'stsfen', label: 'Fen', type: 'checkbox', section: 'opremljenost' },
+    // Nivo opremljenosti - na kraju
+    { key: 'stsopremljen', label: 'Nivo opremljenosti', type: 'select', options: ['Prazan', 'Polunamešten', 'Namešten'], section: 'opremljenost' },
     { key: 'opis', label: 'Opis', type: 'textarea', section: 'osnovne' },
   ],
   // Polja specifična za određene vrste objekata
@@ -1634,10 +1634,10 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   <option value="prodaja">Prodaja</option>
                   <option value="renta">Renta</option>
                 </select>
-                </div>
-                <div>
+              </div>
+              <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">📅 Datum prijema</label>
-                  <input
+                <input
                     type="date"
                     value={formData.datumprijema || ''}
                     onChange={(e) => handleFieldChange('datumprijema', e.target.value)}
@@ -1645,7 +1645,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   />
                 </div>
               </div>
-            </div>
+              </div>
 
             {/* Kartica: Lokacija */}
             <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
@@ -1661,8 +1661,8 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   <div className="w-[40%]" data-ulica-autocomplete>
                     <label className="block text-xs font-medium text-slate-600 mb-1.5">
                       🏠 Ulica <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
+                  </label>
+                  <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <input
                         type="text"
@@ -1710,51 +1710,51 @@ export default function PonudaForm({ onClose, onSuccess }) {
                           <X className="w-4 h-4" />
                         </button>
                       )}
-                      
-                      {/* Dropdown sa rezultatima */}
-                      {showUlicaDropdown && filteredUlice.length > 0 && (
-                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                          {filteredUlice.map((ulica) => {
-                            const lokacija = ulica.lokacija
-                            const opstina = lokacija?.opstina
-                            const grad = opstina?.grad
-                            const drzava = grad?.drzava
-                            const fullPath = [
-                              drzava?.opis,
-                              grad?.opis,
-                              opstina?.opis,
-                              lokacija?.opis,
-                              ulica.opis
-                            ].filter(Boolean).join(', ')
-                            
-                            return (
-                              <button
-                                key={ulica.id}
-                                type="button"
-                                onClick={(e) => {
-                                  e.preventDefault()
-                                  e.stopPropagation()
-                                  handleUlicaSelect(ulica)
-                                  setShowUlicaDropdown(false)
-                                  setTimeout(() => {
-                                    if (brojUliceInputRef.current) {
-                                      brojUliceInputRef.current.focus()
-                                    }
-                                  }, 100)
-                                }}
+                    
+                    {/* Dropdown sa rezultatima */}
+                    {showUlicaDropdown && filteredUlice.length > 0 && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        {filteredUlice.map((ulica) => {
+                          const lokacija = ulica.lokacija
+                          const opstina = lokacija?.opstina
+                          const grad = opstina?.grad
+                          const drzava = grad?.drzava
+                          const fullPath = [
+                            drzava?.opis,
+                            grad?.opis,
+                            opstina?.opis,
+                            lokacija?.opis,
+                            ulica.opis
+                          ].filter(Boolean).join(', ')
+                          
+                          return (
+                            <button
+                              key={ulica.id}
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                handleUlicaSelect(ulica)
+                                setShowUlicaDropdown(false)
+                                setTimeout(() => {
+                                  if (brojUliceInputRef.current) {
+                                    brojUliceInputRef.current.focus()
+                                  }
+                                }, 100)
+                              }}
                                 className="w-full text-left px-4 py-3 hover:bg-slate-50 border-b border-gray-100 last:border-b-0 transition-colors"
-                              >
-                                <div className="font-medium text-gray-900">{ulica.opis}</div>
-                                {fullPath && (
-                                  <div className="text-sm text-gray-500 truncate">{fullPath}</div>
-                                )}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      )}
-                    </div>
+                            >
+                              <div className="font-medium text-gray-900">{ulica.opis}</div>
+                              {fullPath && (
+                                <div className="text-sm text-gray-500 truncate">{fullPath}</div>
+                              )}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )}
                   </div>
+                </div>
 
                   {/* Broj - 10% */}
                   <div className="w-[10%]">
@@ -1908,19 +1908,19 @@ export default function PonudaForm({ onClose, onSuccess }) {
                       required={field.required}
                       placeholder="0"
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:border-transparent"
-                    />
-                  ) : (
-                    <input
-                      type={field.type}
-                      value={formData[field.key] || ''}
-                      onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                        />
+                      ) : (
+                        <input
+                          type={field.type}
+                          value={formData[field.key] || ''}
+                          onChange={(e) => handleFieldChange(field.key, e.target.value)}
                       required={field.required}
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:border-transparent"
                     />
                   )}
-                </div>
-              ))}
-            </div>
+                  </div>
+                ))}
+              </div>
                     </div>
 
             {/* Kartica: Kontakt podaci - na kraju */}

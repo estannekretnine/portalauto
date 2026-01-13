@@ -136,10 +136,10 @@ export default function Login() {
         {/* Build Info */}
         {buildInfo && (
           <div className="mt-6 text-center">
-            <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-800/30 rounded-lg border border-slate-700/30">
-              <span className="text-xs font-medium text-slate-400">v{buildInfo.version}</span>
-              <span className="w-px h-3 bg-slate-700"></span>
-              <span className="text-xs text-slate-500">
+            <div className="inline-flex items-center gap-3 px-4 py-2.5 bg-slate-800/50 rounded-lg border border-slate-700/50">
+              <span className="text-sm font-semibold text-slate-300">v{buildInfo.version}</span>
+              <span className="w-px h-4 bg-slate-600"></span>
+              <span className="text-sm font-medium text-slate-400">
                 {(() => {
                   try {
                     // Koristi timestamp (ISO format) za parsiranje
