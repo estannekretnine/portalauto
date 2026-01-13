@@ -2941,15 +2941,16 @@ export default function PonudaForm({ onClose, onSuccess }) {
                       <div className="text-xs text-gray-500 mb-1">📍 Blizina (min pešice)</div>
                       <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
                         {[
-                          { key: 'blizina_parka', label: '🌳' },
-                          { key: 'blizina_teretane', label: '🏋️' },
-                          { key: 'blizina_prodavnice', label: '🛒' },
-                          { key: 'blizina_apoteke', label: '💊' },
-                          { key: 'blizina_bolnice', label: '🏥' },
-                          { key: 'blizina_autobuske', label: '🚌' }
+                          { key: 'blizina_parka', icon: '🌳', label: 'Park' },
+                          { key: 'blizina_teretane', icon: '🏋️', label: 'Teretana' },
+                          { key: 'blizina_prodavnice', icon: '🛒', label: 'Prodavnica' },
+                          { key: 'blizina_apoteke', icon: '💊', label: 'Apoteka' },
+                          { key: 'blizina_bolnice', icon: '🏥', label: 'Bolnica' },
+                          { key: 'blizina_autobuske', icon: '🚌', label: 'Autobus' }
                         ].map(item => (
                           <div key={item.key} className="text-center">
-                            <div className="text-sm mb-0.5">{item.label}</div>
+                            <div className="text-sm mb-0.5">{item.icon}</div>
+                            <div className="text-[10px] text-gray-500 mb-0.5">{item.label}</div>
                             <input type="number" min="0" value={aiKarakteristike.zivotni_stil[item.key]} onChange={(e) => handleAiZivotniStilChange(item.key, parseInt(e.target.value) || 0)} className="w-full px-1 py-1 border border-gray-200 rounded text-xs text-center" />
                           </div>
                         ))}
@@ -2983,15 +2984,16 @@ export default function PonudaForm({ onClose, onSuccess }) {
                       <div className="text-xs text-gray-500 mb-1">🚶 Udaljenosti (min pešice)</div>
                       <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
                         {[
-                          { key: 'skola_minuta', label: '🏫' },
-                          { key: 'vrtic_minuta', label: '👶' },
-                          { key: 'fakultet_minuta', label: '🎓' },
-                          { key: 'metro_minuta', label: '🚇' },
-                          { key: 'blizina_centra', label: '🏙️' },
-                          { key: 'ev_punjac_metara', label: '⚡' }
+                          { key: 'skola_minuta', icon: '🏫', label: 'Škola' },
+                          { key: 'vrtic_minuta', icon: '👶', label: 'Vrtić' },
+                          { key: 'fakultet_minuta', icon: '🎓', label: 'Fakultet' },
+                          { key: 'metro_minuta', icon: '🚇', label: 'Metro' },
+                          { key: 'blizina_centra', icon: '🏙️', label: 'Centar' },
+                          { key: 'ev_punjac_metara', icon: '⚡', label: 'EV punjač' }
                         ].map(item => (
                           <div key={item.key} className="text-center">
-                            <div className="text-sm mb-0.5">{item.label}</div>
+                            <div className="text-sm mb-0.5">{item.icon}</div>
+                            <div className="text-[10px] text-gray-500 mb-0.5">{item.label}</div>
                             <input type="number" min="0" value={aiKarakteristike.mikrolokacija[item.key]} onChange={(e) => handleAiMikrolokacijaChange(item.key, parseInt(e.target.value) || 0)} className="w-full px-1 py-1 border border-gray-200 rounded text-xs text-center" />
                           </div>
                         ))}
