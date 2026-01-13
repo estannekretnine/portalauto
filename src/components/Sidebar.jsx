@@ -1,4 +1,4 @@
-import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut } from 'lucide-react'
+import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = false }) => {
@@ -98,7 +98,7 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
       {/* Mobile menu button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-3 left-3 z-50 p-2.5 bg-slate-800 text-white rounded-xl shadow-lg hover:bg-slate-700 transition-colors"
+        className="lg:hidden fixed top-3 left-3 z-50 p-2.5 bg-gradient-to-br from-gray-900 to-black text-white rounded-2xl shadow-xl hover:shadow-2xl transition-all border border-white/10"
         aria-label={isMobileMenuOpen ? 'Zatvori meni' : 'Otvori meni'}
         aria-expanded={isMobileMenuOpen}
         type="button"
@@ -112,49 +112,56 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-40 ${collapsed ? 'w-20' : 'w-72'} bg-slate-900 transform ${
+        className={`fixed lg:static inset-y-0 left-0 z-40 ${collapsed ? 'w-20' : 'w-72'} bg-gradient-to-b from-gray-900 via-gray-900 to-black transform ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } transition-all duration-300 ease-in-out min-h-screen lg:min-h-full flex flex-col`}
+        } transition-all duration-300 ease-in-out min-h-screen lg:min-h-full flex flex-col border-r border-white/5`}
         aria-label="Glavna navigacija"
       >
         {/* Header */}
-        <div className={`p-5 ${collapsed ? 'px-3 flex justify-center' : ''}`}>
+        <div className={`p-6 ${collapsed ? 'px-3 flex justify-center' : ''}`}>
           {!collapsed && (
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl flex items-center justify-center shadow-lg">
-                <Building2 className="w-5 h-5 text-white" />
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20">
+                <Building2 className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-white font-bold text-lg">Nekretnine</h2>
-                <p className="text-slate-400 text-xs">Admin Panel</p>
+                <h2 className="text-white font-bold text-xl tracking-tight">EstateFlow</h2>
+                <p className="text-amber-400/80 text-xs font-medium">Premium Panel</p>
               </div>
             </div>
           )}
           {collapsed && (
-            <div className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl flex items-center justify-center shadow-lg">
-              <Building2 className="w-5 h-5 text-white" />
+            <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20">
+              <Building2 className="w-6 h-6 text-white" />
             </div>
           )}
         </div>
 
         {/* User info */}
         {!collapsed && user && (
-          <div className="px-5 pb-4">
-            <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50">
-              <p className="text-white text-sm font-medium truncate">{user.naziv || 'Korisnik'}</p>
-              <p className="text-slate-400 text-xs truncate">{user.email}</p>
+          <div className="px-5 pb-5">
+            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400/20 to-amber-600/20 flex items-center justify-center">
+                  <span className="text-amber-400 font-bold text-sm">{(user.naziv || user.email || 'K')[0].toUpperCase()}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white text-sm font-semibold truncate">{user.naziv || 'Korisnik'}</p>
+                  <p className="text-gray-400 text-xs truncate">{user.email}</p>
+                </div>
+              </div>
             </div>
           </div>
         )}
 
         {/* Divider */}
-        <div className="px-5">
-          <div className="h-px bg-slate-700/50"></div>
+        <div className="px-5 mb-2">
+          <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 overflow-y-auto" aria-label="Glavni meni">
-          <ul className="space-y-1">
+        <nav className="flex-1 px-4 py-2 overflow-y-auto" aria-label="Glavni meni">
+          <ul className="space-y-2">
             {menuItems.map((item) => {
               const Icon = item.icon
               const isActive = activeModule === item.id || (item.hasSubmenu && isMaticniPodaciActive)
@@ -164,10 +171,10 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
                 <li key={item.id}>
                   <button
                     onClick={() => handleMenuItemClick(item.id)}
-                    className={`w-full flex items-center ${collapsed ? 'justify-center' : 'justify-between'} gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                    className={`w-full flex items-center ${collapsed ? 'justify-center' : 'justify-between'} gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 ${
                       isActive
-                        ? 'bg-slate-700 text-white shadow-md'
-                        : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                        ? 'bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-white border border-amber-500/30 shadow-lg shadow-amber-500/10'
+                        : 'text-gray-400 hover:bg-white/5 hover:text-white border border-transparent'
                     }`}
                     aria-current={isActive ? 'page' : undefined}
                     title={collapsed ? item.label : undefined}
@@ -175,13 +182,13 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
                     type="button"
                   >
                     <div className={`flex items-center ${collapsed ? 'justify-center' : ''} gap-3`}>
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isActive ? 'bg-slate-600' : 'bg-slate-800'}`}>
-                        <Icon className="w-4 h-4" aria-hidden="true" />
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${isActive ? 'bg-gradient-to-br from-amber-400 to-amber-600 shadow-md shadow-amber-500/30' : 'bg-white/5'}`}>
+                        <Icon className={`w-4 h-4 ${isActive ? 'text-white' : ''}`} aria-hidden="true" />
                       </div>
                       {!collapsed && <span className="font-medium">{item.label}</span>}
                     </div>
                     {!collapsed && item.hasSubmenu && (
-                      <div className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
+                      <div className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
                         <ChevronDown className="w-4 h-4" aria-hidden="true" />
                       </div>
                     )}
@@ -189,7 +196,7 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
                   
                   {/* Submenu */}
                   {!collapsed && item.hasSubmenu && isExpanded && (
-                    <ul className="mt-1 ml-4 pl-4 border-l border-slate-700 space-y-1">
+                    <ul className="mt-2 ml-5 pl-4 border-l-2 border-amber-500/20 space-y-1">
                       {item.subItems.map((subItem) => {
                         const SubIcon = subItem.icon
                         const hasSubmenu = subItem.hasSubmenu || false
@@ -201,10 +208,10 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
                           <li key={subItem.id}>
                             <button
                               onClick={() => handleSubItemClick(subItem.id, hasSubmenu)}
-                              className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                              className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
                                 isSubItemActive
-                                  ? 'bg-slate-700/50 text-white'
-                                  : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-300'
+                                  ? 'bg-white/10 text-amber-400'
+                                  : 'text-gray-500 hover:bg-white/5 hover:text-gray-300'
                               }`}
                               aria-current={isSubItemActive ? 'page' : undefined}
                               aria-expanded={hasSubmenu ? isSubItemExpanded : undefined}
@@ -212,7 +219,7 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
                             >
                               <div className="flex items-center gap-3">
                                 <SubIcon className="w-4 h-4" aria-hidden="true" />
-                                <span className="text-sm">{subItem.label}</span>
+                                <span className="text-sm font-medium">{subItem.label}</span>
                               </div>
                               {hasSubmenu && (
                                 <div className={`transition-transform duration-200 ${isSubItemExpanded ? 'rotate-180' : ''}`}>
@@ -223,15 +230,15 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
                             
                             {/* Lokalitet submenu */}
                             {hasSubmenu && isSubItemExpanded && subItem.subItems && (
-                              <ul className="mt-1 ml-4 pl-3 border-l border-slate-700/50 space-y-1">
+                              <ul className="mt-1 ml-4 pl-3 border-l border-white/10 space-y-1">
                                 {subItem.subItems.map((lokalitetSubItem) => (
                                   <li key={lokalitetSubItem.id}>
                                     <button
                                       onClick={() => handleLokalitetSubItemClick(lokalitetSubItem.id)}
                                       className={`w-full text-left px-3 py-2 rounded-lg transition-all duration-200 text-sm ${
                                         activeModule === lokalitetSubItem.id
-                                          ? 'bg-slate-700/50 text-white'
-                                          : 'text-slate-500 hover:bg-slate-800/30 hover:text-slate-300'
+                                          ? 'text-amber-400 bg-white/5'
+                                          : 'text-gray-500 hover:bg-white/5 hover:text-gray-300'
                                       }`}
                                       aria-current={activeModule === lokalitetSubItem.id ? 'page' : undefined}
                                       type="button"
@@ -255,10 +262,10 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
 
         {/* Logout button */}
         {onLogout && (
-          <div className="p-4 border-t border-slate-700/50">
+          <div className="p-4 border-t border-white/5">
             <button
               onClick={onLogout}
-              className={`w-full flex items-center ${collapsed ? 'justify-center' : ''} gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all duration-200`}
+              className={`w-full flex items-center ${collapsed ? 'justify-center' : ''} gap-3 px-4 py-3.5 rounded-2xl text-gray-400 hover:bg-red-500/10 hover:text-red-400 border border-transparent hover:border-red-500/20 transition-all duration-300`}
               title={collapsed ? 'Odjavi se' : undefined}
               type="button"
             >
@@ -272,7 +279,7 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
       {/* Overlay for mobile */}
       {isMobileMenuOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-30"
+          className="lg:hidden fixed inset-0 bg-black/80 backdrop-blur-md z-30"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
