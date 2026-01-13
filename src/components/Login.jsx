@@ -136,9 +136,26 @@ export default function Login() {
         {/* Build Info */}
         {buildInfo && (
           <div className="mt-6 text-center">
-            <div className="text-xs text-slate-600 space-y-0.5">
-              <div>v{buildInfo.version}</div>
-              <div>{buildInfo.date}</div>
+            <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-800/30 rounded-lg border border-slate-700/30">
+              <span className="text-xs font-medium text-slate-400">v{buildInfo.version}</span>
+              <span className="w-px h-3 bg-slate-700"></span>
+              <span className="text-xs text-slate-500">
+                {(() => {
+                  try {
+                    const date = new Date(buildInfo.date)
+                    return date.toLocaleDateString('sr-RS', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric'
+                    }) + ' • ' + date.toLocaleTimeString('sr-RS', {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })
+                  } catch {
+                    return buildInfo.date
+                  }
+                })()}
+              </span>
             </div>
           </div>
         )}
