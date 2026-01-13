@@ -240,8 +240,6 @@ export default function PonudaForm({ onClose, onSuccess }) {
     }
   })
 
-  // Praćenje prethodne cene za automatsku istoriju
-  const previousCenaRef = useRef(null)
 
   // Fotografije
   const [photos, setPhotos] = useState([])
@@ -1111,22 +1109,34 @@ export default function PonudaForm({ onClose, onSuccess }) {
     const parsedValue = parseCena(newCena)
     const parsedCena = parsedValue ? parseFloat(parsedValue) : null
     
-    // Ako se cena promenila i prethodna cena postoji, dodaj u istoriju
-    if (previousCenaRef.current !== null && previousCenaRef.current !== parsedCena && previousCenaRef.current > 0) {
-      setMetapodaci(prev => ({
+    // Ažuriraj formData sa parsiranom vrednošću (bez zareza)
+    handleFieldChange('cena', parsedValue)
+  }
+  
+  // Funkcija za dodavanje cene u istoriju (poziva se pri blur-u)
+  const addCenaToHistory = (cena) => {
+    if (!cena || cena <= 0) return
+    
+    const today = new Date().toISOString().split('T')[0]
+    
+    setMetapodaci(prev => {
+      // Proveri da li već postoji zapis sa istom cenom (poslednji zapis)
+      const lastEntry = prev.istorija_cene[prev.istorija_cene.length - 1]
+      
+      // Ako je poslednja cena ista kao nova, ne dodaj duplikat
+      if (lastEntry && lastEntry.cena === cena) {
+        return prev
+      }
+      
+      // Dodaj novu cenu u istoriju
+      return {
         ...prev,
         istorija_cene: [
           ...prev.istorija_cene,
-          { datum: new Date().toISOString().split('T')[0], cena: previousCenaRef.current }
+          { datum: today, cena: cena }
         ]
-      }))
-    }
-    
-    // Ažuriraj prethodnu cenu
-    previousCenaRef.current = parsedCena
-    
-    // Ažuriraj formData sa parsiranom vrednošću (bez zareza)
-    handleFieldChange('cena', parsedValue)
+      }
+    })
   }
 
   // State za formatirani prikaz cene
@@ -1136,13 +1146,17 @@ export default function PonudaForm({ onClose, onSuccess }) {
   const handleCenaBlur = () => {
     if (formData.cena) {
       const parsed = parseCena(formData.cena)
+      const parsedNumber = parsed ? parseFloat(parsed) : null
       const formatted = formatCena(parsed)
       setFormattedCena(formatted)
       handleFieldChange('cena', parsed) // Sačuvaj parsiranu vrednost
-      previousCenaRef.current = parsed ? parseFloat(parsed) : null
+      
+      // Dodaj u istoriju cena ako je validna i različita od poslednje
+      if (parsedNumber && parsedNumber > 0) {
+        addCenaToHistory(parsedNumber)
+      }
     } else {
       setFormattedCena('')
-      previousCenaRef.current = null
     }
   }
 
