@@ -18,6 +18,7 @@ const FIELD_DEFINITIONS = {
     { key: 'stsuseljivost', label: 'Useljivost', type: 'select', options: ['Odmah', 'Vezano', 'Neuseljiv'], section: 'tehnicke' },
     { key: 'stsdupleks', label: 'Dupleks', type: 'checkbox', section: 'opremljenost' },
     { key: 'stsimagarazu', label: 'Ima garažu', type: 'checkbox', section: 'opremljenost' },
+    { key: 'stsopremljen', label: 'Opremljenost', type: 'select', options: ['Prazan', 'Polunamešten', 'Namešten'], section: 'opremljenost' },
     { key: 'opis', label: 'Opis', type: 'textarea', section: 'osnovne' },
   ],
   // Polja specifična za određene vrste objekata
@@ -124,6 +125,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
     stsnovogradnja: false,
     stssalonac: false,
     stsdupleks: false,
+    stsopremljen: '',
     stssivafaza: false,
     stsuizgradnji: false,
     stsekskluziva: false,
@@ -1359,6 +1361,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
         stsnovogradnja: formData.stsnovogradnja,
         stssalonac: formData.stssalonac,
         stsdupleks: formData.stsdupleks,
+        stsopremljen: formData.stsopremljen || null,
         stssivafaza: formData.stssivafaza,
         stsuizgradnji: formData.stsuizgradnji,
         stsekskluziva: formData.stsekskluziva,
