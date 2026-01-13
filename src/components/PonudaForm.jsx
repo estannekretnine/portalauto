@@ -166,7 +166,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
       ime: '', prezime: '', adresa: '', jmbg: '', email: '', tel: '',
       ident_isprava: '', lk: '', pib: '', id_drzava: '', sts_lice: '',
       poreklo_imovine: '', sumnja_pranje_novca: false, mesto_rodjenja: '',
-      datum_rodjenja: '', sts_rezident: true, stvarnivlasnikstranke: true,
+      datum_rodjenja: '', sts_rezident: false, stvarnivlasnikstranke: false,
       datum_zadnje_provere: '', finalnakategorizacija: ''
     }],
     istorija_cene: [],
@@ -1125,7 +1125,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
         ime: '', prezime: '', adresa: '', jmbg: '', email: '', tel: '',
         ident_isprava: '', lk: '', pib: '', id_drzava: '', sts_lice: '',
         poreklo_imovine: '', sumnja_pranje_novca: false, mesto_rodjenja: '',
-        datum_rodjenja: '', sts_rezident: true, stvarnivlasnikstranke: true,
+        datum_rodjenja: '', sts_rezident: false, stvarnivlasnikstranke: false,
         datum_zadnje_provere: '', finalnakategorizacija: ''
       }]
     }))
@@ -2382,12 +2382,12 @@ export default function PonudaForm({ onClose, onSuccess }) {
                           />
                           Stvarni vlasnik stranke
                         </label>
-                        <label className="flex items-center gap-2 text-sm text-red-600">
+                        <label className="flex items-center gap-2 text-sm">
                           <input
                             type="checkbox"
                             checked={vlasnik.sumnja_pranje_novca}
                             onChange={(e) => handleVlasnikChange(index, 'sumnja_pranje_novca', e.target.checked)}
-                            className="rounded border-red-300"
+                            className="rounded border-gray-300"
                           />
                           Sumnja na pranje novca
                         </label>
