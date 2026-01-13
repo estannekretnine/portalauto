@@ -208,16 +208,36 @@ export default function PonudaForm({ onClose, onSuccess }) {
   const [aiKarakteristike, setAiKarakteristike] = useState({
     opremljenost: {
       sts_internet: false, sts_kablovska: false, sts_frizider: false, sts_sporet: false,
-      sts_vesmasina: false, sts_tv: false, klima: false, sudomasina: false
+      sts_vesmasina: false, sts_tv: false, klima: false, sudomasina: false,
+      // Nova polja
+      sts_masina_sudje: false, sts_mikrotalasna: false, sts_pegla: false,
+      sts_usisivac: false, sts_fen: false, sts_grejalica: false,
+      sts_roletne: false, sts_alarm: false, sts_video_nadzor: false, sts_smart_home: false
     },
     zivotni_stil: {
-      rad_od_kuce: false, pet_friendly: 0, nivo_buke: '', osuncanost: ''
+      rad_od_kuce: false, pet_friendly: 0, nivo_buke: '', osuncanost: '',
+      // Nova polja
+      blizina_parka: 0, blizina_teretane: 0, blizina_prodavnice: 0,
+      blizina_apoteke: 0, blizina_bolnice: 0, blizina_autobuske: 0,
+      pusenje_dozvoljeno: false, pogodan_za_decu: false,
+      pogodan_za_studente: false, pogodan_za_penzionere: false
     },
     ekologija: {
-      pogled: [], indeks_vazduha: '', energetski_razred: ''
+      pogled: [], indeks_vazduha: '', energetski_razred: '',
+      // Nova polja
+      solarni_paneli: false, toplotna_pumpa: false,
+      reciklaza: false, zelena_povrsina: 0
     },
     mikrolokacija: {
-      mirna_ulica: false, skola_minuta: 0, ev_punjac_metara: 0
+      mirna_ulica: false, skola_minuta: 0, ev_punjac_metara: 0,
+      // Nova polja
+      vrtic_minuta: 0, fakultet_minuta: 0, metro_minuta: 0,
+      parking_zona: '', blizina_centra: 0
+    },
+    // Nova kategorija
+    bezbednost: {
+      portir: false, video_interfon: false, protivpozarni_sistem: false,
+      osigurana_zgrada: false, sigurnosna_vrata: false
     }
   })
 
@@ -1208,6 +1228,20 @@ export default function PonudaForm({ onClose, onSuccess }) {
     }))
   }
 
+  const handleAiBezbednostChange = (field, value) => {
+    setAiKarakteristike(prev => ({
+      ...prev,
+      bezbednost: { ...prev.bezbednost, [field]: value }
+    }))
+  }
+
+  const handleAiMikrolokacijaChange = (field, value) => {
+    setAiKarakteristike(prev => ({
+      ...prev,
+      mikrolokacija: { ...prev.mikrolokacija, [field]: value }
+    }))
+  }
+
   const handlePogledToggle = (pogledValue) => {
     setAiKarakteristike(prev => {
       const currentPogled = Array.isArray(prev.ekologija.pogled) ? prev.ekologija.pogled : []
@@ -1219,13 +1253,6 @@ export default function PonudaForm({ onClose, onSuccess }) {
         ekologija: { ...prev.ekologija, pogled: newPogled }
       }
     })
-  }
-
-  const handleAiMikrolokacijaChange = (field, value) => {
-    setAiKarakteristike(prev => ({
-      ...prev,
-      mikrolokacija: { ...prev.mikrolokacija, [field]: value }
-    }))
   }
 
   const convertFileToBase64 = (file) => {
@@ -2792,7 +2819,18 @@ export default function PonudaForm({ onClose, onSuccess }) {
                         { key: 'sts_vesmasina', label: 'Veš mašina' },
                         { key: 'sts_tv', label: 'TV' },
                         { key: 'klima', label: 'Klima' },
-                        { key: 'sudomasina', label: 'Sudo mašina' }
+                        { key: 'sudomasina', label: 'Sudo mašina' },
+                        // Nova polja
+                        { key: 'sts_masina_sudje', label: 'Mašina za suđe' },
+                        { key: 'sts_mikrotalasna', label: 'Mikrotalasna' },
+                        { key: 'sts_pegla', label: 'Pegla' },
+                        { key: 'sts_usisivac', label: 'Usisivač' },
+                        { key: 'sts_fen', label: 'Fen za kosu' },
+                        { key: 'sts_grejalica', label: 'Grejalica' },
+                        { key: 'sts_roletne', label: 'Električne roletne' },
+                        { key: 'sts_alarm', label: 'Alarm' },
+                        { key: 'sts_video_nadzor', label: 'Video nadzor' },
+                        { key: 'sts_smart_home', label: 'Smart home' }
                       ].map(item => (
                         <label key={item.key} className="flex items-center gap-2 text-sm">
                           <input
@@ -2858,6 +2896,52 @@ export default function PonudaForm({ onClose, onSuccess }) {
                           <option value="odlicno">Odlično</option>
                         </select>
                       </div>
+                    </div>
+                    
+                    {/* Nova polja - Blizina */}
+                    <h5 className="font-medium text-gray-600 mt-4 mb-2">Blizina (minuta pešice)</h5>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {[
+                        { key: 'blizina_parka', label: 'Park' },
+                        { key: 'blizina_teretane', label: 'Teretana' },
+                        { key: 'blizina_prodavnice', label: 'Prodavnica' },
+                        { key: 'blizina_apoteke', label: 'Apoteka' },
+                        { key: 'blizina_bolnice', label: 'Bolnica' },
+                        { key: 'blizina_autobuske', label: 'Autobuska' }
+                      ].map(item => (
+                        <div key={item.key}>
+                          <label className="block text-sm text-gray-600 mb-1">{item.label}</label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={aiKarakteristike.zivotni_stil[item.key]}
+                            onChange={(e) => handleAiZivotniStilChange(item.key, parseInt(e.target.value) || 0)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                            placeholder="min"
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Nova polja - Pogodnost */}
+                    <h5 className="font-medium text-gray-600 mt-4 mb-2">Pogodnost za</h5>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {[
+                        { key: 'pusenje_dozvoljeno', label: 'Pušenje dozvoljeno' },
+                        { key: 'pogodan_za_decu', label: 'Porodice sa decom' },
+                        { key: 'pogodan_za_studente', label: 'Studente' },
+                        { key: 'pogodan_za_penzionere', label: 'Penzionere' }
+                      ].map(item => (
+                        <label key={item.key} className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={aiKarakteristike.zivotni_stil[item.key]}
+                            onChange={(e) => handleAiZivotniStilChange(item.key, e.target.checked)}
+                            className="rounded border-gray-300"
+                          />
+                          {item.label}
+                        </label>
+                      ))}
                     </div>
                   </div>
 
@@ -2925,6 +3009,38 @@ export default function PonudaForm({ onClose, onSuccess }) {
                         </select>
                       </div>
                     </div>
+                    
+                    {/* Nova polja ekologije */}
+                    <h5 className="font-medium text-gray-600 mt-4 mb-2">Eko karakteristike</h5>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {[
+                        { key: 'solarni_paneli', label: 'Solarni paneli' },
+                        { key: 'toplotna_pumpa', label: 'Toplotna pumpa' },
+                        { key: 'reciklaza', label: 'Reciklaža u blizini' }
+                      ].map(item => (
+                        <label key={item.key} className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={aiKarakteristike.ekologija[item.key]}
+                            onChange={(e) => handleAiEkologijaChange(item.key, e.target.checked)}
+                            className="rounded border-gray-300"
+                          />
+                          {item.label}
+                        </label>
+                      ))}
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">Zelena površina (%)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={aiKarakteristike.ekologija.zelena_povrsina}
+                          onChange={(e) => handleAiEkologijaChange('zelena_povrsina', parseInt(e.target.value) || 0)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                          placeholder="%"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   {/* Mikrolokacija */}
@@ -2960,6 +3076,67 @@ export default function PonudaForm({ onClose, onSuccess }) {
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                         />
                       </div>
+                    </div>
+                    
+                    {/* Nova polja mikrolokacije */}
+                    <h5 className="font-medium text-gray-600 mt-4 mb-2">Dodatne udaljenosti (minuta pešice)</h5>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {[
+                        { key: 'vrtic_minuta', label: 'Vrtić' },
+                        { key: 'fakultet_minuta', label: 'Fakultet' },
+                        { key: 'metro_minuta', label: 'Metro' },
+                        { key: 'blizina_centra', label: 'Centar grada' }
+                      ].map(item => (
+                        <div key={item.key}>
+                          <label className="block text-sm text-gray-600 mb-1">{item.label}</label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={aiKarakteristike.mikrolokacija[item.key]}
+                            onChange={(e) => handleAiMikrolokacijaChange(item.key, parseInt(e.target.value) || 0)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                            placeholder="min"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3">
+                      <label className="block text-sm text-gray-600 mb-1">Parking zona</label>
+                      <select
+                        value={aiKarakteristike.mikrolokacija.parking_zona}
+                        onChange={(e) => handleAiMikrolokacijaChange('parking_zona', e.target.value)}
+                        className="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      >
+                        <option value="">Izaberite</option>
+                        <option value="1">Zona 1</option>
+                        <option value="2">Zona 2</option>
+                        <option value="3">Zona 3</option>
+                        <option value="slobodna">Slobodna zona</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Bezbednost - Nova kategorija */}
+                  <div>
+                    <h4 className="font-medium text-gray-700 mb-3">Bezbednost</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {[
+                        { key: 'portir', label: 'Portir u zgradi' },
+                        { key: 'video_interfon', label: 'Video interfon' },
+                        { key: 'protivpozarni_sistem', label: 'Protivpožarni sistem' },
+                        { key: 'osigurana_zgrada', label: 'Osigurana zgrada' },
+                        { key: 'sigurnosna_vrata', label: 'Sigurnosna vrata' }
+                      ].map(item => (
+                        <label key={item.key} className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={aiKarakteristike.bezbednost[item.key]}
+                            onChange={(e) => handleAiBezbednostChange(item.key, e.target.checked)}
+                            className="rounded border-gray-300"
+                          />
+                          {item.label}
+                        </label>
+                      ))}
                     </div>
                   </div>
                 </div>
