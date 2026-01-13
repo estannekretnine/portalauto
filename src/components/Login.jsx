@@ -142,7 +142,12 @@ export default function Login() {
               <span className="text-xs text-slate-500">
                 {(() => {
                   try {
-                    const date = new Date(buildInfo.date)
+                    // Koristi timestamp (ISO format) za parsiranje
+                    const date = new Date(buildInfo.timestamp)
+                    if (isNaN(date.getTime())) {
+                      // Ako timestamp ne radi, prikaži date direktno
+                      return buildInfo.date || 'N/A'
+                    }
                     return date.toLocaleDateString('sr-RS', {
                       day: '2-digit',
                       month: '2-digit',
@@ -152,7 +157,7 @@ export default function Login() {
                       minute: '2-digit'
                     })
                   } catch {
-                    return buildInfo.date
+                    return buildInfo.date || 'N/A'
                   }
                 })()}
               </span>
