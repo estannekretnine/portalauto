@@ -1857,6 +1857,21 @@ export default function PonudaForm({ onClose, onSuccess }) {
                         placeholder="0.000 €"
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:border-transparent"
                     />
+                  ) : field.key === 'kvadratura' ? (
+                    <input
+                      type="number"
+                      value={formData.kvadratura || ''}
+                      onChange={(e) => handleFieldChange('kvadratura', e.target.value)}
+                      onBlur={(e) => {
+                        // Ako je uknjižena kvadratura prazna, popuni je sa vrednošću kvadrature
+                        if (e.target.value && !formData.kvadraturaizugovora) {
+                          handleFieldChange('kvadraturaizugovora', e.target.value)
+                        }
+                      }}
+                      required={field.required}
+                      placeholder="0"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                    />
                   ) : (
                     <input
                       type={field.type}
