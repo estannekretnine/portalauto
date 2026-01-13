@@ -228,7 +228,7 @@ export default function PonudeModule() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-4">
-                  <div className="w-12 h-12 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin"></div>
           <p className="text-slate-600 font-medium">Učitavanje ponuda...</p>
         </div>
       </div>
@@ -270,7 +270,7 @@ export default function PonudeModule() {
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <button
             onClick={handleAddPonuda}
-            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-500 transition-all shadow-sm font-medium"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-800 text-white rounded-xl hover:bg-slate-700 transition-all shadow-sm font-medium"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Dodaj ponudu</span>
@@ -280,7 +280,7 @@ export default function PonudeModule() {
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all font-medium ${
               showFilters
-                ? 'bg-blue-600 text-white'
+                ? 'bg-slate-700 text-white'
                 : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 shadow-sm'
             }`}
           >
@@ -292,7 +292,7 @@ export default function PonudeModule() {
               onClick={() => setViewMode('table')}
               className={`p-2.5 rounded-lg transition-all ${
                 viewMode === 'table'
-                  ? 'bg-blue-600 text-white shadow-sm'
+                  ? 'bg-slate-700 text-white shadow-sm'
                   : 'text-slate-500 hover:bg-slate-100'
               }`}
               title="Tabelarni prikaz"
@@ -303,7 +303,7 @@ export default function PonudeModule() {
               onClick={() => setViewMode('grid')}
               className={`p-2.5 rounded-lg transition-all ${
                 viewMode === 'grid'
-                  ? 'bg-blue-600 text-white shadow-sm'
+                  ? 'bg-slate-700 text-white shadow-sm'
                   : 'text-slate-500 hover:bg-slate-100'
               }`}
               title="Grid prikaz"
