@@ -15,6 +15,7 @@ const FIELD_DEFINITIONS = {
     { key: 'terasa', label: 'Terasa (m²)', type: 'text', section: 'osnovne' },
     { key: 'kvadraturaizugovora', label: 'Uknjižena kvadratura (m²)', type: 'number', section: 'osnovne' },
     { key: 'struktura', label: 'Struktura', type: 'number', section: 'tehnicke' },
+    { key: 'stsuseljivost', label: 'Useljivost', type: 'select', options: ['Odmah', 'Vezano', 'Neuseljiv'], section: 'tehnicke' },
     { key: 'opis', label: 'Opis', type: 'textarea', section: 'osnovne' },
   ],
   // Polja specifična za određene vrste objekata
@@ -22,7 +23,6 @@ const FIELD_DEFINITIONS = {
     { key: 'spratstana', label: 'Sprat stana', type: 'number', section: 'tehnicke' },
     { key: 'spratnostzgrade', label: 'Spratnost zgrade', type: 'number', section: 'tehnicke' },
     { key: 'sprat', label: 'Sprat', type: 'text', section: 'tehnicke' },
-    { key: 'stsuseljivost', label: 'Useljivost', type: 'select', options: ['Odmah', 'Vezano', 'Neuseljiv'], section: 'tehnicke' },
     { key: 'ststelefon', label: 'Telefon', type: 'checkbox', section: 'opremljenost' },
     { key: 'brojtelefona_linija', label: 'Broj tel. linija', type: 'select', options: ['Nema', '1', '2', '3', '4', '5+'], section: 'opremljenost' },
     { key: 'stslift', label: 'Lift', type: 'checkbox', section: 'opremljenost' },
@@ -42,7 +42,6 @@ const FIELD_DEFINITIONS = {
   kuca: [
     { key: 'spratnostzgrade', label: 'Spratnost', type: 'number', section: 'tehnicke' },
     { key: 'etaze', label: 'Etaže', type: 'text', section: 'tehnicke' },
-    { key: 'stsuseljivost', label: 'Useljivost', type: 'select', options: ['Odmah', 'Vezano', 'Neuseljiv'], section: 'tehnicke' },
     { key: 'stspodrum', label: 'Podrum', type: 'checkbox', section: 'opremljenost' },
     { key: 'stsimagarazu', label: 'Ima garažu', type: 'checkbox', section: 'opremljenost' },
     { key: 'stsimaparking', label: 'Ima parking', type: 'checkbox', section: 'opremljenost' },
