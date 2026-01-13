@@ -1803,7 +1803,6 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   </div>
                 </div>
               </div>
-              </div>
             </div>
 
             {/* Kartica: Cena i Površina */}
