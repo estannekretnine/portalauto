@@ -146,38 +146,38 @@ export default function WelcomeDashboard() {
   }, [])
 
   return (
-    <div className="min-h-full bg-slate-50">
+    <div className="min-h-full">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         
         {/* Hero sekcija */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl shadow-lg mb-6">
-            <Sparkles className="w-8 h-8 text-white" />
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-400 to-amber-600 rounded-3xl shadow-xl shadow-amber-500/25 mb-6">
+            <Sparkles className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-3">
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
             Dobrodošli u Dashboard
           </h1>
-          <p className="text-lg text-slate-500 max-w-xl mx-auto">
+          <p className="text-xl text-gray-500 max-w-xl mx-auto font-light">
             Izaberite modul iz menija da počnete sa radom
           </p>
         </div>
 
         {/* Motivacione poruke */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
           {/* Srpska verzija */}
           {motivacionaPoruka.sr && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-slate-100 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+            <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 relative overflow-hidden group hover:shadow-xl transition-all duration-300">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-amber-100 to-amber-200 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50"></div>
               <div className="relative">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Quote className="w-5 h-5 text-slate-600" />
+                <div className="flex items-start gap-5">
+                  <div className="w-12 h-12 bg-gradient-to-br from-amber-100 to-amber-200 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <Quote className="w-6 h-6 text-amber-700" />
                   </div>
                   <div>
-                    <p className="text-slate-600 leading-relaxed italic">
+                    <p className="text-gray-700 leading-relaxed italic text-lg">
                       "{motivacionaPoruka.sr}"
                     </p>
-                    <p className="text-xs text-slate-400 mt-3 font-medium">SRPSKI</p>
+                    <p className="text-xs text-amber-600 mt-4 font-bold tracking-wider">SRPSKI</p>
                   </div>
                 </div>
               </div>
@@ -186,18 +186,18 @@ export default function WelcomeDashboard() {
 
           {/* Engleska verzija */}
           {motivacionaPoruka.en && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-slate-100 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+            <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 relative overflow-hidden group hover:shadow-xl transition-all duration-300">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50"></div>
               <div className="relative">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Quote className="w-5 h-5 text-slate-600" />
+                <div className="flex items-start gap-5">
+                  <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <Quote className="w-6 h-6 text-gray-600" />
                   </div>
                   <div>
-                    <p className="text-slate-600 leading-relaxed italic">
+                    <p className="text-gray-700 leading-relaxed italic text-lg">
                       "{motivacionaPoruka.en}"
                     </p>
-                    <p className="text-xs text-slate-400 mt-3 font-medium">ENGLISH</p>
+                    <p className="text-xs text-gray-500 mt-4 font-bold tracking-wider">ENGLISH</p>
                   </div>
                 </div>
               </div>
@@ -206,39 +206,39 @@ export default function WelcomeDashboard() {
         </div>
 
         {/* Brzi pristup modulima */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-          <h2 className="text-lg font-semibold text-slate-700 mb-4">Brzi pristup</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="group bg-slate-50 hover:bg-slate-100 rounded-xl p-5 transition-all cursor-pointer border border-transparent hover:border-slate-200">
-              <div className="w-12 h-12 bg-slate-200 group-hover:bg-slate-300 rounded-xl flex items-center justify-center mb-3 transition-colors">
-                <Home className="w-6 h-6 text-slate-600" />
+        <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Brzi pristup</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div className="group bg-gray-50 hover:bg-gradient-to-br hover:from-amber-50 hover:to-amber-100 rounded-2xl p-6 transition-all duration-300 cursor-pointer border border-transparent hover:border-amber-200 hover:shadow-lg">
+              <div className="w-14 h-14 bg-gray-200 group-hover:bg-gradient-to-br group-hover:from-amber-400 group-hover:to-amber-600 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-amber-500/25">
+                <Home className="w-7 h-7 text-gray-600 group-hover:text-white transition-colors" />
               </div>
-              <p className="font-medium text-slate-700">Ponude</p>
-              <p className="text-sm text-slate-500 mt-1">Upravljanje nekretninama</p>
+              <p className="font-bold text-gray-900 text-lg">Ponude</p>
+              <p className="text-sm text-gray-500 mt-1">Upravljanje nekretninama</p>
             </div>
             
-            <div className="group bg-slate-50 hover:bg-slate-100 rounded-xl p-5 transition-all cursor-pointer border border-transparent hover:border-slate-200">
-              <div className="w-12 h-12 bg-slate-200 group-hover:bg-slate-300 rounded-xl flex items-center justify-center mb-3 transition-colors">
-                <Database className="w-6 h-6 text-slate-600" />
+            <div className="group bg-gray-50 hover:bg-gradient-to-br hover:from-amber-50 hover:to-amber-100 rounded-2xl p-6 transition-all duration-300 cursor-pointer border border-transparent hover:border-amber-200 hover:shadow-lg">
+              <div className="w-14 h-14 bg-gray-200 group-hover:bg-gradient-to-br group-hover:from-amber-400 group-hover:to-amber-600 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-amber-500/25">
+                <Database className="w-7 h-7 text-gray-600 group-hover:text-white transition-colors" />
               </div>
-              <p className="font-medium text-slate-700">Matični podaci</p>
-              <p className="text-sm text-slate-500 mt-1">Šifarnici i konfiguracija</p>
+              <p className="font-bold text-gray-900 text-lg">Matični podaci</p>
+              <p className="text-sm text-gray-500 mt-1">Šifarnici i konfiguracija</p>
             </div>
             
-            <div className="group bg-slate-50 hover:bg-slate-100 rounded-xl p-5 transition-all cursor-pointer border border-transparent hover:border-slate-200">
-              <div className="w-12 h-12 bg-slate-200 group-hover:bg-slate-300 rounded-xl flex items-center justify-center mb-3 transition-colors">
-                <Users className="w-6 h-6 text-slate-600" />
+            <div className="group bg-gray-50 hover:bg-gradient-to-br hover:from-amber-50 hover:to-amber-100 rounded-2xl p-6 transition-all duration-300 cursor-pointer border border-transparent hover:border-amber-200 hover:shadow-lg">
+              <div className="w-14 h-14 bg-gray-200 group-hover:bg-gradient-to-br group-hover:from-amber-400 group-hover:to-amber-600 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-amber-500/25">
+                <Users className="w-7 h-7 text-gray-600 group-hover:text-white transition-colors" />
               </div>
-              <p className="font-medium text-slate-700">Korisnici</p>
-              <p className="text-sm text-slate-500 mt-1">Upravljanje korisnicima</p>
+              <p className="font-bold text-gray-900 text-lg">Korisnici</p>
+              <p className="text-sm text-gray-500 mt-1">Upravljanje korisnicima</p>
             </div>
           </div>
         </div>
 
         {/* Footer hint */}
-        <div className="mt-8 flex items-center justify-center gap-2 text-slate-400">
-          <ArrowRight className="w-4 h-4" />
-          <span className="text-sm">Kliknite na bilo koji modul u meniju da počnete</span>
+        <div className="mt-10 flex items-center justify-center gap-3 text-gray-400">
+          <ArrowRight className="w-5 h-5 text-amber-500" />
+          <span className="text-sm font-medium">Kliknite na bilo koji modul u meniju da počnete</span>
         </div>
       </div>
     </div>

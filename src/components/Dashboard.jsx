@@ -13,7 +13,7 @@ import LokacijaModule from './lokalitet/LokacijaModule'
 import UlicaModule from './lokalitet/UlicaModule'
 import PonudeModule from './PonudeModule'
 import WelcomeDashboard from './WelcomeDashboard'
-import { LogOut, Menu } from 'lucide-react'
+import { LogOut, Menu, Building2 } from 'lucide-react'
 
 export default function Dashboard() {
   const [activeModule, setActiveModule] = useState(null)
@@ -39,7 +39,7 @@ export default function Dashboard() {
   const isAdmin = user?.email === 'admin@example.com'
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-100 flex">
       <Sidebar 
         activeModule={activeModule} 
         setActiveModule={setActiveModule}
@@ -48,32 +48,40 @@ export default function Dashboard() {
       />
       
       <div className="flex-1 flex flex-col lg:ml-0">
-        <header className="bg-white shadow-sm border-b border-gray-200">
-          <div className="px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
+        <header className="bg-white shadow-lg border-b border-gray-100">
+          <div className="px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 <button
                   onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors border border-gray-300 bg-white shadow-sm"
+                  className="p-2.5 bg-gradient-to-br from-gray-900 to-black hover:from-gray-800 hover:to-gray-900 rounded-xl transition-all shadow-md hover:shadow-lg border border-white/10"
                   title={sidebarCollapsed ? 'Proširi navigaciju' : 'Smanji navigaciju'}
                   aria-label={sidebarCollapsed ? 'Proširi navigaciju' : 'Smanji navigaciju'}
                 >
-                  <Menu className="w-5 h-5 text-gray-700" />
+                  <Menu className="w-5 h-5 text-white" />
                 </button>
-                <h1 className="text-lg sm:text-2xl font-bold text-gray-800">Agencija za Nekretnine</h1>
+                <div className="flex items-center gap-3">
+                  <div className="hidden sm:flex w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl items-center justify-center shadow-md shadow-amber-500/20">
+                    <Building2 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">EstateFlow</h1>
+                    <p className="text-xs text-gray-500 hidden sm:block">Premium Real Estate Platform</p>
+                  </div>
+                </div>
               </div>
-              <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full sm:w-auto">
                 {isAdmin && (
-                  <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">
+                  <span className="text-xs bg-gradient-to-r from-amber-100 to-amber-200 text-amber-800 px-3 py-1.5 rounded-lg font-semibold border border-amber-300/50">
                     Admin
                   </span>
                 )}
-                <span className="text-xs sm:text-sm text-gray-600 truncate">
+                <span className="text-sm text-gray-600 truncate font-medium">
                   {user?.naziv || user?.email}
                 </span>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors text-sm sm:text-base"
+                  className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all text-sm font-medium border border-transparent hover:border-red-200"
                 >
                   <LogOut className="w-4 h-4" />
                   <span className="hidden sm:inline">Odjavi se</span>
@@ -84,7 +92,7 @@ export default function Dashboard() {
           </div>
         </header>
 
-        <main className="flex-1 p-3 sm:p-4 lg:p-6 xl:p-8 overflow-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
           {!activeModule && <WelcomeDashboard />}
           {activeModule === 'ponude' && <PonudeModule />}
           {activeModule === 'vrstaobjekta' && <VrstaObjektaModule />}
