@@ -163,12 +163,12 @@ export default function PonudaForm({ onClose, onSuccess }) {
 
   // State za otvorene/zatvorene sekcije (accordion)
   const [openSections, setOpenSections] = useState({
-    osnovne: true,        // Osnovne informacije - otvoreno po defaultu
-    tehnicke: false,      // Tehničke karakteristike - zatvoreno
-    opremljenost: false,  // Opremljenost - zatvoreno
-    dodatne: false,       // Dodatne informacije - zatvoreno
-    fotografije: false,   // Fotografije - zatvoreno
-    metapodaci: false     // Metapodaci - zatvoreno
+    osnovne: true,        // Osnovne informacije - otvoreno
+    tehnicke: true,       // Tehničke karakteristike - otvoreno
+    opremljenost: true,   // Opremljenost - otvoreno
+    dodatne: true,        // Dodatne informacije - otvoreno
+    fotografije: true,    // Fotografije - otvoreno
+    metapodaci: true      // Metapodaci - otvoreno
   })
 
   const toggleSection = (section) => {
@@ -1546,65 +1546,156 @@ export default function PonudaForm({ onClose, onSuccess }) {
             </button>
             
             {openSections.osnovne && (
-            <div>
+            <div className="space-y-4">
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Datum prijema
-                </label>
-                <input
-                  type="date"
-                  value={formData.datumprijema || ''}
-                  onChange={(e) => handleFieldChange('datumprijema', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Vrsta objekta <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={formData.idvrstaobjekta}
-                  onChange={(e) => handleFieldChange('idvrstaobjekta', e.target.value)}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                >
-                  <option value="">Izaberite vrstu objekta</option>
-                  {vrsteObjekata.map(vrsta => (
-                    <option key={vrsta.id} value={vrsta.id}>{vrsta.opis}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Status <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={formData.stsrentaprodaja}
-                  onChange={(e) => handleFieldChange('stsrentaprodaja', e.target.value)}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                >
-                  <option value="prodaja">Prodaja</option>
-                  <option value="renta">Renta</option>
-                </select>
+            {/* Kartica: Kontakt i Datum */}
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-100">
+              <h4 className="font-semibold text-amber-800 mb-3 flex items-center gap-2">
+                <span className="w-6 h-6 bg-amber-600 rounded-lg flex items-center justify-center text-white text-xs">📞</span>
+                Kontakt podaci
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">👤 Kontakt osoba</label>
+                  <input
+                    type="text"
+                    value={formData.kontaktosoba || ''}
+                    onChange={(e) => handleFieldChange('kontaktosoba', e.target.value)}
+                    placeholder="Ime i prezime"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
+                <div className="relative">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">📱 Broj telefona</label>
+                  <div className="relative">
+                    <input
+                      ref={phoneInputRef}
+                      type="text"
+                      value={formData.brojtelefona_linija || ''}
+                      onChange={(e) => handlePhoneChange(e.target.value)}
+                      onBlur={handlePhoneBlur}
+                      onFocus={() => {
+                        if (phoneSearchResults.length > 0) {
+                          setShowPhoneDropdown(true)
+                        }
+                      }}
+                      placeholder="+381 XX XXX XXXX"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    />
+                    {isSearchingPhone && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-600"></div>
+                      </div>
+                    )}
+                  </div>
+                  {/* Dropdown sa rezultatima pretrage */}
+                  {showPhoneDropdown && phoneSearchResults.length > 0 && (
+                    <div data-phone-dropdown className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto">
+                      <div className="p-2 text-xs font-semibold text-gray-600 border-b border-gray-200">
+                        Pronađene ponude ({phoneSearchResults.length})
+                      </div>
+                      {phoneSearchResults.map((ponuda) => (
+                        <div
+                          key={ponuda.id}
+                          className="p-3 hover:bg-amber-50 border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            console.log('Klik na ponudu:', ponuda.id)
+                            setShowPhoneDropdown(false)
+                          }}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-sm text-gray-900 truncate">
+                                {ponuda.vrstaobjekta?.opis || 'N/A'}
+                              </div>
+                              <div className="text-xs text-gray-600 mt-1">
+                                {formatAddress(ponuda)}
+                              </div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {ponuda.naslovaoglasa || 'Bez naslova'}
+                              </div>
+                            </div>
+                            <div className="flex-shrink-0 text-right">
+                              <div className="font-semibold text-sm text-amber-600">
+                                {ponuda.cena 
+                                  ? new Intl.NumberFormat('sr-RS', {
+                                      style: 'currency',
+                                      currency: 'EUR',
+                                      minimumFractionDigits: 0
+                                    }).format(ponuda.cena)
+                                  : '-'
+                                }
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">📅 Datum prijema</label>
+                  <input
+                    type="date"
+                    value={formData.datumprijema || ''}
+                    onChange={(e) => handleFieldChange('datumprijema', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Lokalitet ispod Vrsta objekta, Ulica + Broj ulice + Latitude + Longitude ispod Status */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              {/* Lokalitet - read-only polje, ispod Vrsta objekta */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Lokalitet
-                </label>
+            {/* Kartica: Tip nekretnine */}
+            <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-4 border border-indigo-100">
+              <h4 className="font-semibold text-indigo-800 mb-3 flex items-center gap-2">
+                <span className="w-6 h-6 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-xs">🏠</span>
+                Tip nekretnine
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">🏢 Vrsta objekta <span className="text-red-500">*</span></label>
+                  <select
+                    value={formData.idvrstaobjekta}
+                    onChange={(e) => handleFieldChange('idvrstaobjekta', e.target.value)}
+                    required
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  >
+                    <option value="">Izaberite vrstu objekta</option>
+                    {vrsteObjekata.map(vrsta => (
+                      <option key={vrsta.id} value={vrsta.id}>{vrsta.opis}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">💼 Status <span className="text-red-500">*</span></label>
+                  <select
+                    value={formData.stsrentaprodaja}
+                    onChange={(e) => handleFieldChange('stsrentaprodaja', e.target.value)}
+                    required
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  >
+                    <option value="prodaja">Prodaja</option>
+                    <option value="renta">Renta</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Kartica: Lokacija */}
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-100">
+              <h4 className="font-semibold text-emerald-800 mb-3 flex items-center gap-2">
+                <span className="w-6 h-6 bg-emerald-600 rounded-lg flex items-center justify-center text-white text-xs">📍</span>
+                Lokacija
+              </h4>
+              
+              {/* Lokalitet - read-only */}
+              <div className="mb-3">
+                <label className="block text-xs font-medium text-gray-600 mb-1">🗺️ Lokalitet (automatski)</label>
                 <input
                   type="text"
                   value={(() => {
-                    // Koristi podatke direktno iz sveUliceSaRelacijama jer već ima sve relacije
                     if (formData.idulica && sveUliceSaRelacijama.length > 0) {
                       const selectedUlica = sveUliceSaRelacijama.find(u => u.id === parseInt(formData.idulica))
                       if (selectedUlica && selectedUlica.lokacija) {
@@ -1625,7 +1716,6 @@ export default function PonudaForm({ onClose, onSuccess }) {
                       }
                     }
                     
-                    // Fallback: ako lookup mapovi već imaju podatke, koristi ih
                     const lokalitetParts = [
                       drzave.find(d => d.id === parseInt(formData.iddrzava))?.opis,
                       gradovi.find(g => g.id === parseInt(formData.idgrada))?.opis,
@@ -1636,9 +1726,11 @@ export default function PonudaForm({ onClose, onSuccess }) {
                     return lokalitetParts.length > 0 ? lokalitetParts.join(', ') : ''
                   })()}
                   readOnly
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white/50 text-gray-700 text-sm cursor-not-allowed"
                 />
               </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 
               {/* Ulica + Broj ulice + Latitude + Longitude - desna strana (1/2 širine) */}
               <div className="grid grid-cols-2 gap-2">
@@ -1748,54 +1840,43 @@ export default function PonudaForm({ onClose, onSuccess }) {
                   </div>
                 </div>
 
-                {/* Broj ulice, Latitude, Longitude - 3 polja, ukupna širina kao Ulica (1/2 desne strane) */}
+                {/* Broj ulice, Latitude, Longitude */}
                 <div className="grid grid-cols-3 gap-2">
-                  {/* Broj ulice */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Broj ulice
-                    </label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">🔢 Broj</label>
                     <input
                       ref={brojUliceInputRef}
                       type="text"
                       id="brojulice-input"
                       value={formData.brojulice || ''}
                       onChange={(e) => handleFieldChange('brojulice', e.target.value)}
-                      placeholder="npr. 15, 15A..."
+                      placeholder="15, 15A..."
                       disabled={!formData.idulica}
-                      className="w-full px-2 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="w-full px-2 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                     />
                   </div>
-
-                  {/* Latitude */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Latitude
-                    </label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">📍 Lat</label>
                     <input
                       type="text"
                       value={formData.latitude || ''}
                       onChange={(e) => handleFieldChange('latitude', e.target.value)}
-                      className="w-full px-2 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      className="w-full px-2 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     />
                   </div>
-
-                  {/* Longitude */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Longitude
-                    </label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">📍 Lng</label>
                     <div className="relative">
                       <input
                         type="text"
                         value={formData.longitude || ''}
                         onChange={(e) => handleFieldChange('longitude', e.target.value)}
-                        className="w-full pl-2 pr-8 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        className="w-full pl-2 pr-8 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                       />
                       <button
                         type="button"
                         onClick={handleShowLocationOnMap}
-                        className="absolute right-1 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-indigo-600 p-0.5"
+                        className="absolute right-1 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-emerald-600 p-0.5"
                         title="Prikaži lokaciju na mapi"
                       >
                         <Search className="w-4 h-4" />
@@ -1805,54 +1886,68 @@ export default function PonudaForm({ onClose, onSuccess }) {
                 </div>
               </div>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-
-              {fieldsBySection.osnovne.map(field => (
-                <div key={field.key}>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {field.label} {field.required && <span className="text-red-500">*</span>}
-                  </label>
-                  {field.type === 'textarea' ? (
-                    <textarea
-                      value={formData[field.key] || ''}
-                      onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                      required={field.required}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y"
-                      rows="3"
-                    />
-                  ) : field.key === 'cena' ? (
-                    <input
-                      type="text"
-                      value={formattedCena || (formData.cena ? formatCena(formData.cena) : '')}
-                      onChange={(e) => {
-                        const parsed = parseCena(e.target.value)
-                        handleCenaChange(parsed)
-                        setFormattedCena(e.target.value) // Prikaži ono što korisnik kuca
-                      }}
-                      onBlur={handleCenaBlur}
-                      onFocus={() => {
-                        // Pri izlasku sa fokusa, prikaži formatiranu vrednost
-                        if (formData.cena) {
-                          setFormattedCena(formatCena(formData.cena))
-                        }
-                      }}
-                      required={field.required}
-                      placeholder="0.000"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    />
-                  ) : (
-                    <input
-                      type={field.type}
-                      value={formData[field.key] || ''}
-                      onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                      required={field.required}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    />
-                  )}
-                </div>
-              ))}
             </div>
+
+            {/* Kartica: Cena i Površina */}
+            <div className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl p-4 border border-rose-100">
+              <h4 className="font-semibold text-rose-800 mb-3 flex items-center gap-2">
+                <span className="w-6 h-6 bg-rose-600 rounded-lg flex items-center justify-center text-white text-xs">💰</span>
+                Cena i površina
+              </h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {fieldsBySection.osnovne.map(field => (
+                  <div key={field.key} className={field.type === 'textarea' ? 'col-span-2 md:col-span-4' : ''}>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      {field.key === 'cena' && '💵 '}
+                      {field.key === 'kvadratura' && '📐 '}
+                      {field.key === 'terasa' && '🌿 '}
+                      {field.key === 'kvadraturaizugovora' && '📋 '}
+                      {field.key === 'naslovaoglasa' && '📝 '}
+                      {field.key === 'opis' && '📄 '}
+                      {field.label} {field.required && <span className="text-red-500">*</span>}
+                    </label>
+                    {field.type === 'textarea' ? (
+                      <textarea
+                        value={formData[field.key] || ''}
+                        onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                        required={field.required}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:border-transparent resize-y"
+                        rows="3"
+                        placeholder="Unesite opis nekretnine..."
+                      />
+                    ) : field.key === 'cena' ? (
+                      <input
+                        type="text"
+                        value={formattedCena || (formData.cena ? formatCena(formData.cena) : '')}
+                        onChange={(e) => {
+                          const parsed = parseCena(e.target.value)
+                          handleCenaChange(parsed)
+                          setFormattedCena(e.target.value)
+                        }}
+                        onBlur={handleCenaBlur}
+                        onFocus={() => {
+                          if (formData.cena) {
+                            setFormattedCena(formatCena(formData.cena))
+                          }
+                        }}
+                        required={field.required}
+                        placeholder="0.000 €"
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                      />
+                    ) : (
+                      <input
+                        type={field.type}
+                        value={formData[field.key] || ''}
+                        onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                        required={field.required}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
             </div>
             )}
           </section>
@@ -2031,93 +2126,6 @@ export default function PonudaForm({ onClose, onSuccess }) {
             <div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Kontakt osoba
-                </label>
-                <input
-                  type="text"
-                  value={formData.kontaktosoba || ''}
-                  onChange={(e) => handleFieldChange('kontaktosoba', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
-              </div>
-
-              <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Broj telefona
-                </label>
-                <div className="relative">
-                  <input
-                    ref={phoneInputRef}
-                    type="text"
-                    value={formData.brojtelefona_linija || ''}
-                    onChange={(e) => handlePhoneChange(e.target.value)}
-                    onBlur={handlePhoneBlur}
-                    onFocus={() => {
-                      if (phoneSearchResults.length > 0) {
-                        setShowPhoneDropdown(true)
-                      }
-                    }}
-                    placeholder="+381 XX XXX XXXX"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  />
-                  {isSearchingPhone && (
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600"></div>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Dropdown sa rezultatima pretrage */}
-                {showPhoneDropdown && phoneSearchResults.length > 0 && (
-                  <div data-phone-dropdown className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto">
-                    <div className="p-2 text-xs font-semibold text-gray-600 border-b border-gray-200">
-                      Pronađene ponude ({phoneSearchResults.length})
-                    </div>
-                    {phoneSearchResults.map((ponuda) => (
-                      <div
-                        key={ponuda.id}
-                        className="p-3 hover:bg-indigo-50 border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          // Možeš dodati navigaciju ili otvaranje ponude ovde
-                          console.log('Klik na ponudu:', ponuda.id)
-                          setShowPhoneDropdown(false)
-                        }}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium text-sm text-gray-900 truncate">
-                              {ponuda.vrstaobjekta?.opis || 'N/A'}
-                            </div>
-                            <div className="text-xs text-gray-600 mt-1">
-                              {formatAddress(ponuda)}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1">
-                              {ponuda.naslovaoglasa || 'Bez naslova'}
-                            </div>
-                          </div>
-                          <div className="flex-shrink-0 text-right">
-                            <div className="font-semibold text-sm text-indigo-600">
-                              {ponuda.cena 
-                                ? new Intl.NumberFormat('sr-RS', {
-                                    style: 'currency',
-                                    currency: 'EUR',
-                                    minimumFractionDigits: 0
-                                  }).format(ponuda.cena)
-                                : '-'
-                              }
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Grejanje
