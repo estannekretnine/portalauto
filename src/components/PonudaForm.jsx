@@ -9,7 +9,7 @@ import PropertyMap from './PropertyMap'
 const FIELD_DEFINITIONS = {
   // Polja koja se prikazuju za sve vrste objekata
   all: [
-    { key: 'naslovaoglasa', label: 'Naslov oglasa', type: 'text', required: true, section: 'osnovne' },
+    { key: 'naslovaoglasa', label: 'Naslov oglasa (lokacija, sprat, grejanje)', type: 'text', required: true, section: 'osnovne' },
     { key: 'cena', label: 'Cena (€)', type: 'number', required: true, section: 'osnovne' },
     { key: 'kvadratura', label: 'Kvadratura (m²)', type: 'number', section: 'osnovne' },
     { key: 'struktura', label: 'Struktura', type: 'number', section: 'tehnicke' },
