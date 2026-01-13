@@ -208,7 +208,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
   const [aiKarakteristike, setAiKarakteristike] = useState({
     opremljenost: {
       sts_internet: false, sts_kablovska: false, sts_frizider: false, sts_sporet: false,
-      sts_vesmasina: false, sts_tv: false, sts_telefon: false, klima: false, sudomasina: false
+      sts_vesmasina: false, sts_tv: false, klima: false, sudomasina: false
     },
     zivotni_stil: {
       rad_od_kuce: false, pet_friendly: 0, nivo_buke: '', osuncanost: ''
@@ -2791,7 +2791,6 @@ export default function PonudaForm({ onClose, onSuccess }) {
                         { key: 'sts_sporet', label: 'Šporet' },
                         { key: 'sts_vesmasina', label: 'Veš mašina' },
                         { key: 'sts_tv', label: 'TV' },
-                        { key: 'sts_telefon', label: 'Telefon' },
                         { key: 'klima', label: 'Klima' },
                         { key: 'sudomasina', label: 'Sudo mašina' }
                       ].map(item => (
