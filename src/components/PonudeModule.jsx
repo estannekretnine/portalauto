@@ -57,39 +57,102 @@ export default function PonudeModule() {
 
   const loadLokalitetData = async () => {
     try {
-      // Učitaj sve lokalitet podatke paralelno
+      // Učitaj sve lokalitet podatke sa relacijama
       const [drzaveRes, gradoviRes, opstineRes, lokacijeRes, uliceRes] = await Promise.all([
         supabase.from('drzava').select('*').order('opis'),
-        supabase.from('grad').select('*').order('opis'),
-        supabase.from('opstina').select('*').order('opis'),
-        supabase.from('lokacija').select('*').order('opis'),
-        supabase.from('ulica').select('*').order('opis')
+        supabase.from('grad').select('*, drzava:iddrzava(id, opis)').order('opis'),
+        supabase.from('opstina').select('*, grad:idgrada(id, opis, drzava:iddrzava(id, opis))').order('opis'),
+        supabase.from('lokacija').select('*, opstina:idopstina(id, opis, grad:idgrada(id, opis, drzava:iddrzava(id, opis)))').order('opis'),
+        supabase.from('ulica').select('*, lokacija:idlokacija(id, opis, opstina:idopstina(id, opis, grad:idgrada(id, opis, drzava:iddrzava(id, opis))))').order('opis')
       ])
       
       setLokacije(lokacijeRes.data || [])
       
-      // Kreiraj jednu listu svih lokaliteta za autocomplete
-      const allLokaliteti = [
-        ...(drzaveRes.data || []).map(d => ({ id: d.id, type: 'drzava', opis: d.opis, label: `${d.opis}`, typeLabel: 'Država' })),
-        ...(gradoviRes.data || []).map(g => ({ id: g.id, type: 'grad', opis: g.opis, label: `${g.opis}`, typeLabel: 'Grad' })),
-        ...(opstineRes.data || []).map(o => ({ id: o.id, type: 'opstina', opis: o.opis, label: `${o.opis}`, typeLabel: 'Opština' })),
-        ...(lokacijeRes.data || []).map(l => ({ id: l.id, type: 'lokacija', opis: l.opis, label: `${l.opis}`, typeLabel: 'Lokacija' })),
-        ...(uliceRes.data || []).map(u => ({ id: u.id, type: 'ulica', opis: u.opis, label: `${u.opis}`, typeLabel: 'Ulica' }))
-      ]
+      // Kreiraj listu sa kompletnim putanjama
+      const allLokaliteti = []
+      
+      // Države
+      ;(drzaveRes.data || []).forEach(d => {
+        allLokaliteti.push({
+          id: d.id,
+          type: 'drzava',
+          opis: d.opis,
+          fullPath: d.opis,
+          typeLabel: 'Država'
+        })
+      })
+      
+      // Gradovi: Država > Grad
+      ;(gradoviRes.data || []).forEach(g => {
+        const drzava = g.drzava?.opis || ''
+        allLokaliteti.push({
+          id: g.id,
+          type: 'grad',
+          opis: g.opis,
+          fullPath: drzava ? `${drzava} > ${g.opis}` : g.opis,
+          typeLabel: 'Grad'
+        })
+      })
+      
+      // Opštine: Država > Grad > Opština
+      ;(opstineRes.data || []).forEach(o => {
+        const grad = o.grad?.opis || ''
+        const drzava = o.grad?.drzava?.opis || ''
+        const parts = [drzava, grad, o.opis].filter(Boolean)
+        allLokaliteti.push({
+          id: o.id,
+          type: 'opstina',
+          opis: o.opis,
+          fullPath: parts.join(' > '),
+          typeLabel: 'Opština'
+        })
+      })
+      
+      // Lokacije: Država > Grad > Opština > Lokacija
+      ;(lokacijeRes.data || []).forEach(l => {
+        const opstina = l.opstina?.opis || ''
+        const grad = l.opstina?.grad?.opis || ''
+        const drzava = l.opstina?.grad?.drzava?.opis || ''
+        const parts = [drzava, grad, opstina, l.opis].filter(Boolean)
+        allLokaliteti.push({
+          id: l.id,
+          type: 'lokacija',
+          opis: l.opis,
+          fullPath: parts.join(' > '),
+          typeLabel: 'Lokacija'
+        })
+      })
+      
+      // Ulice: Država > Grad > Opština > Lokacija > Ulica
+      ;(uliceRes.data || []).forEach(u => {
+        const lokacija = u.lokacija?.opis || ''
+        const opstina = u.lokacija?.opstina?.opis || ''
+        const grad = u.lokacija?.opstina?.grad?.opis || ''
+        const drzava = u.lokacija?.opstina?.grad?.drzava?.opis || ''
+        const parts = [drzava, grad, opstina, lokacija, u.opis].filter(Boolean)
+        allLokaliteti.push({
+          id: u.id,
+          type: 'ulica',
+          opis: u.opis,
+          fullPath: parts.join(' > '),
+          typeLabel: 'Ulica'
+        })
+      })
+      
       setSviLokaliteti(allLokaliteti)
     } catch (error) {
       console.error('Greška pri učitavanju lokaliteta:', error)
     }
   }
   
-  // Filtrirani lokaliteti za dropdown
+  // Filtrirani lokaliteti za dropdown - pretražuje po celoj putanji
   const filteredLokaliteti = useMemo(() => {
     if (!lokalitetSearch.trim()) return []
     const search = lokalitetSearch.toLowerCase()
     return sviLokaliteti
-      .filter(l => l.opis.toLowerCase().includes(search))
+      .filter(l => l.fullPath.toLowerCase().includes(search))
       .filter(l => !selectedLokaliteti.some(s => s.id === l.id && s.type === l.type))
-      .slice(0, 15)
+      .slice(0, 20)
   }, [lokalitetSearch, sviLokaliteti, selectedLokaliteti])
   
   // Dodaj lokalitet
@@ -459,34 +522,76 @@ export default function PonudeModule() {
                   />
                 </div>
                 
-                {/* Dropdown sa rezultatima */}
+                {/* Dropdown sa rezultatima - prikazuje kompletnu putanju */}
                 {showLokalitetDropdown && filteredLokaliteti.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-64 overflow-y-auto">
-                    {filteredLokaliteti.map(lok => (
-                      <button
-                        key={`${lok.type}-${lok.id}`}
-                        onClick={() => addLokalitet(lok)}
-                        className="w-full px-4 py-3 text-left hover:bg-amber-50 flex items-center justify-between border-b border-gray-100 last:border-0"
-                      >
-                        <span className="text-gray-800">{lok.opis}</span>
-                        <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">{lok.typeLabel}</span>
-                      </button>
-                    ))}
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto">
+                    {filteredLokaliteti.map(lok => {
+                      // Highlight-uj deo koji se poklapa sa pretragom
+                      const search = lokalitetSearch.toLowerCase()
+                      const fullPath = lok.fullPath
+                      const lowerPath = fullPath.toLowerCase()
+                      const matchIndex = lowerPath.indexOf(search)
+                      
+                      let displayPath
+                      if (matchIndex >= 0) {
+                        const before = fullPath.slice(0, matchIndex)
+                        const match = fullPath.slice(matchIndex, matchIndex + search.length)
+                        const after = fullPath.slice(matchIndex + search.length)
+                        displayPath = (
+                          <>
+                            <span className="text-gray-500">{before}</span>
+                            <span className="text-amber-600 font-semibold bg-amber-50 px-0.5 rounded">{match}</span>
+                            <span className="text-gray-700">{after}</span>
+                          </>
+                        )
+                      } else {
+                        displayPath = <span className="text-gray-700">{fullPath}</span>
+                      }
+                      
+                      return (
+                        <button
+                          key={`${lok.type}-${lok.id}`}
+                          onClick={() => addLokalitet(lok)}
+                          className="w-full px-4 py-3 text-left hover:bg-amber-50 flex items-center justify-between border-b border-gray-100 last:border-0 group transition-colors"
+                        >
+                          <div className="flex-1 min-w-0 pr-3">
+                            <div className="text-sm truncate">{displayPath}</div>
+                          </div>
+                          <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${
+                            lok.type === 'drzava' ? 'bg-blue-100 text-blue-700' :
+                            lok.type === 'grad' ? 'bg-purple-100 text-purple-700' :
+                            lok.type === 'opstina' ? 'bg-emerald-100 text-emerald-700' :
+                            lok.type === 'lokacija' ? 'bg-amber-100 text-amber-700' :
+                            'bg-rose-100 text-rose-700'
+                          }`}>
+                            {lok.typeLabel}
+                          </span>
+                        </button>
+                      )
+                    })}
                   </div>
                 )}
                 
-                {/* Izabrani lokaliteti kao tagovi */}
+                {/* Izabrani lokaliteti kao tagovi - prikazuje punu putanju */}
                 {selectedLokaliteti.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-3">
                     {selectedLokaliteti.map(lok => (
                       <span
                         key={`${lok.type}-${lok.id}`}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 text-amber-800 rounded-full text-sm"
+                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm ${
+                          lok.type === 'drzava' ? 'bg-blue-100 text-blue-800' :
+                          lok.type === 'grad' ? 'bg-purple-100 text-purple-800' :
+                          lok.type === 'opstina' ? 'bg-emerald-100 text-emerald-800' :
+                          lok.type === 'lokacija' ? 'bg-amber-100 text-amber-800' :
+                          'bg-rose-100 text-rose-800'
+                        }`}
                       >
-                        {lok.opis}
+                        <span className="max-w-[200px] truncate" title={lok.fullPath}>
+                          {lok.fullPath}
+                        </span>
                         <button
                           onClick={() => removeLokalitet(lok)}
-                          className="hover:bg-amber-200 rounded-full p-0.5"
+                          className="hover:bg-black/10 rounded-full p-0.5 transition-colors"
                         >
                           <X className="w-3.5 h-3.5" />
                         </button>
