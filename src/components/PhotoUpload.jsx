@@ -18,15 +18,17 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
   }, [photos])
 
   // Parsiranje koordinata iz stringa u objekat
+  // Format: "sketchId:x,y;sketchId2:x2,y2"
   const parseCoords = (coordsString) => {
     if (!coordsString) return []
     const coords = []
     const parts = coordsString.split(';').filter(Boolean)
     parts.forEach(part => {
-      const match = part.match(/^(\d+):(\d+\.?\d*),(\d+\.?\d*)$/)
+      // Regex koji hvata decimalne ID-eve (npr. 1736849123456.789:50.5,30.2)
+      const match = part.match(/^([\d.]+):([\d.]+),([\d.]+)$/)
       if (match) {
         coords.push({
-          sketchId: parseInt(match[1]),
+          sketchId: parseFloat(match[1]),
           x: parseFloat(match[2]),
           y: parseFloat(match[3])
         })
@@ -40,7 +42,8 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
     const markers = []
     regularPhotos.forEach(photo => {
       const coords = parseCoords(photo.skica_coords)
-      const coordForSketch = coords.find(c => c.sketchId === sketchId)
+      // Poređenje sa tolerancijom za floating point
+      const coordForSketch = coords.find(c => Math.abs(c.sketchId - sketchId) < 0.001)
       if (coordForSketch) {
         markers.push({
           photoId: photo.id,
@@ -55,11 +58,19 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
 
   // Klik na skicu - hvata koordinate
   const handleSketchClick = (e, sketchPhoto) => {
-    if (!selectedPhotoForLink) return
+    e.preventDefault()
+    e.stopPropagation()
+    
+    if (!selectedPhotoForLink) {
+      console.log('Nema izabrane fotografije za povezivanje')
+      return
+    }
     
     const rect = e.currentTarget.getBoundingClientRect()
     const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1)
     const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1)
+    
+    console.log('Klik na skicu:', { sketchId: sketchPhoto.id, x, y, selectedPhotoForLink })
     
     // Dodaj koordinate fotografiji
     const newCoord = `${sketchPhoto.id}:${x},${y}`
@@ -69,11 +80,15 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
       let existingCoords = photo.skica_coords || ''
       // Ukloni stare koordinate za ovu skicu ako postoje
       const parts = existingCoords.split(';').filter(part => {
-        const match = part.match(/^(\d+):/)
-        return match ? parseInt(match[1]) !== sketchPhoto.id : false
+        const colonIndex = part.indexOf(':')
+        if (colonIndex === -1) return false
+        const partSketchId = parseFloat(part.substring(0, colonIndex))
+        return Math.abs(partSketchId - sketchPhoto.id) >= 0.001
       })
       parts.push(newCoord)
       const newCoordsString = parts.filter(Boolean).join(';')
+      
+      console.log('Nove koordinate:', newCoordsString)
       
       const updatedPhotos = photos.map(p =>
         p.id === selectedPhotoForLink ? { ...p, skica_coords: newCoordsString } : p
@@ -335,11 +350,11 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                   <div className="mb-3 flex items-center justify-between">
                     <p className="text-sm text-gray-600">
                       {selectedPhotoForLink ? (
-                        <span className="text-amber-600 font-medium">
-                          👆 Kliknite na skicu da postavite marker za izabranu fotografiju
+                        <span className="text-amber-600 font-medium animate-pulse">
+                          👆 Sada kliknite na skicu gde želite da postavite marker
                         </span>
                       ) : (
-                        <span>Kliknite na fotografiju ispod, pa na skicu da je povežete</span>
+                        <span>Prvo kliknite "Poveži sa skicom" kod fotografije ispod</span>
                       )}
                     </p>
                     {selectedPhotoForLink && (
@@ -519,8 +534,8 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                                 : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
                             }`}
                           >
-                            <MapPin className="w-4 h-4" />
-                            {isSelectedForLink ? 'Klikni na skicu...' : 'Poveži sa skicom'}
+                            <MapPin className={`w-4 h-4 ${isSelectedForLink ? 'animate-bounce' : ''}`} />
+                            {isSelectedForLink ? '↑ Klikni na skicu gore' : 'Poveži sa skicom'}
                           </button>
                         )}
                         
