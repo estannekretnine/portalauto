@@ -1,13 +1,104 @@
 ﻿import { useMemo, useState } from 'react'
-import { Upload, X, Image as ImageIcon, Star, ArrowUp, ArrowDown } from 'lucide-react'
+import { Upload, X, Star, ArrowUp, ArrowDown, MapPin, Eye, Layers } from 'lucide-react'
 
 export default function PhotoUpload({ photos = [], onPhotosChange }) {
   const [dragActive, setDragActive] = useState(false)
-  const [previewSegment, setPreviewSegment] = useState(null)
-  const [photoHoverSegment, setPhotoHoverSegment] = useState(null)
-  const [currentSketch, setCurrentSketch] = useState('Skica1')
+  const [activeSketchId, setActiveSketchId] = useState(null)
+  const [selectedPhotoForLink, setSelectedPhotoForLink] = useState(null)
+  const [hoveredMarker, setHoveredMarker] = useState(null)
 
-  const sketchOptions = ['Skica1', 'Skica2', 'Skica3', 'Skica4', 'Skica5']
+  // Fotografije koje su označene kao skice
+  const sketchPhotos = useMemo(() => {
+    return photos.filter(p => p.stsskica)
+  }, [photos])
+
+  // Fotografije koje NISU skice (obične fotografije)
+  const regularPhotos = useMemo(() => {
+    return photos.filter(p => !p.stsskica)
+  }, [photos])
+
+  // Parsiranje koordinata iz stringa u objekat
+  const parseCoords = (coordsString) => {
+    if (!coordsString) return []
+    const coords = []
+    const parts = coordsString.split(';').filter(Boolean)
+    parts.forEach(part => {
+      const match = part.match(/^(\d+):(\d+\.?\d*),(\d+\.?\d*)$/)
+      if (match) {
+        coords.push({
+          sketchId: parseInt(match[1]),
+          x: parseFloat(match[2]),
+          y: parseFloat(match[3])
+        })
+      }
+    })
+    return coords
+  }
+
+  // Dobijanje markera za određenu skicu
+  const getMarkersForSketch = (sketchId) => {
+    const markers = []
+    regularPhotos.forEach(photo => {
+      const coords = parseCoords(photo.skica_coords)
+      const coordForSketch = coords.find(c => c.sketchId === sketchId)
+      if (coordForSketch) {
+        markers.push({
+          photoId: photo.id,
+          photo: photo,
+          x: coordForSketch.x,
+          y: coordForSketch.y
+        })
+      }
+    })
+    return markers
+  }
+
+  // Klik na skicu - hvata koordinate
+  const handleSketchClick = (e, sketchPhoto) => {
+    if (!selectedPhotoForLink) return
+    
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1)
+    const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1)
+    
+    // Dodaj koordinate fotografiji
+    const newCoord = `${sketchPhoto.id}:${x},${y}`
+    const photo = photos.find(p => p.id === selectedPhotoForLink)
+    
+    if (photo) {
+      let existingCoords = photo.skica_coords || ''
+      // Ukloni stare koordinate za ovu skicu ako postoje
+      const parts = existingCoords.split(';').filter(part => {
+        const match = part.match(/^(\d+):/)
+        return match ? parseInt(match[1]) !== sketchPhoto.id : false
+      })
+      parts.push(newCoord)
+      const newCoordsString = parts.filter(Boolean).join(';')
+      
+      const updatedPhotos = photos.map(p =>
+        p.id === selectedPhotoForLink ? { ...p, skica_coords: newCoordsString } : p
+      )
+      onPhotosChange(updatedPhotos)
+    }
+    
+    setSelectedPhotoForLink(null)
+  }
+
+  // Ukloni marker sa skice
+  const removeMarkerFromSketch = (photoId, sketchId) => {
+    const photo = photos.find(p => p.id === photoId)
+    if (!photo) return
+    
+    const parts = (photo.skica_coords || '').split(';').filter(part => {
+      const match = part.match(/^(\d+):/)
+      return match ? parseInt(match[1]) !== sketchId : false
+    })
+    
+    const updatedPhotos = photos.map(p =>
+      p.id === photoId ? { ...p, skica_coords: parts.join(';') } : p
+    )
+    onPhotosChange(updatedPhotos)
+  }
 
   const handleFiles = (files) => {
     const fileArray = Array.from(files)
@@ -18,8 +109,9 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
       url: URL.createObjectURL(file),
       opis: '',
       redosled: maxRedosled + index + 1,
-      glavna: photos.length === 0 && index === 0, // Prva fotografija je glavna ako nema postojećih
-      stsskica: false // Podrazumevano nije skica
+      glavna: photos.length === 0 && index === 0,
+      stsskica: false,
+      skica_coords: ''
     }))
     
     onPhotosChange([...photos, ...newPhotos])
@@ -51,7 +143,6 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
     if (e.target.files && e.target.files.length > 0) {
       handleFiles(e.target.files)
     }
-    // Resetuj input da bi mogao da se ponovo izabere isti fajl
     e.target.value = ''
   }
 
@@ -81,7 +172,7 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
   const toggleGlavna = (id) => {
     const updatedPhotos = photos.map(photo => ({
       ...photo,
-      glavna: photo.id === id ? !photo.glavna : false // Samo jedna može biti glavna
+      glavna: photo.id === id ? !photo.glavna : false
     }))
     onPhotosChange(updatedPhotos)
   }
@@ -91,6 +182,12 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
       photo.id === id ? { ...photo, stsskica: !photo.stsskica } : photo
     )
     onPhotosChange(updatedPhotos)
+    
+    // Ako je ovo prva skica, postavi je kao aktivnu
+    const photo = photos.find(p => p.id === id)
+    if (photo && !photo.stsskica) {
+      setActiveSketchId(id)
+    }
   }
 
   const movePhoto = (id, direction) => {
@@ -105,7 +202,6 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
     updatedPhotos[index] = updatedPhotos[newIndex]
     updatedPhotos[newIndex] = temp
 
-    // A┼╛uriraj redosled
     updatedPhotos.forEach((photo, idx) => {
       photo.redosled = idx + 1
     })
@@ -130,86 +226,40 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
     onPhotosChange(updatedPhotos)
   }
 
-  const getSegmentLabel = (value) => {
-    const trimmed = (value || '').trim()
-    return trimmed || 'Nepovezano'
-  }
-
-  const segmentsSummary = useMemo(() => {
-    const summary = new Map()
-    photos.forEach(photo => {
-      const label = getSegmentLabel(photo.skica_segment)
-      if (!summary.has(label)) {
-        summary.set(label, { name: label, photos: [] })
-      }
-      summary.get(label).photos.push(photo)
-    })
-    return Array.from(summary.values())
-  }, [photos])
-
-  const segmentOptions = useMemo(() => {
-    const names = segmentsSummary.map(segment => segment.name)
-    return Array.from(new Set(names))
-  }, [segmentsSummary])
-
-  const updatePhotoSegment = (id, segment) => {
-    const trimmed = segment ? segment.trim() : ''
-    const updatedPhotos = photos.map(photo =>
-      photo.id === id ? { ...photo, skica_segment: trimmed } : photo
-    )
-    onPhotosChange(updatedPhotos)
-  }
-
-  const formatCoordinates = (value, sketch) => {
-    const parts = value
-      .split(';')
-      .map(part => part.trim())
-      .filter(Boolean)
-    if (parts.length === 0) return ''
-
-    return parts
-      .map(part => {
-        if (part.startsWith(`${sketch}:`)) {
-          return part
-        }
-        return `${sketch}:${part}`
-      })
-      .join(';')
-  }
-
   const updatePhotoCoords = (id, coords) => {
-    const formatted = formatCoordinates(coords, currentSketch)
     const updatedPhotos = photos.map(photo =>
-      photo.id === id ? { ...photo, skica_coords: formatted } : photo
+      photo.id === id ? { ...photo, skica_coords: coords } : photo
     )
     onPhotosChange(updatedPhotos)
   }
 
-  const previewPhotos = previewSegment
-    ? (segmentsSummary.find(segment => segment.name === previewSegment)?.photos || [])
-    : []
-  const activeSegment = previewSegment || photoHoverSegment
+  // Postavi prvu skicu kao aktivnu ako nije postavljena
+  if (sketchPhotos.length > 0 && !activeSketchId) {
+    setActiveSketchId(sketchPhotos[0].id)
+  }
+
+  const activeSketch = sketchPhotos.find(s => s.id === activeSketchId)
+  const markersForActiveSketch = activeSketch ? getMarkersForSketch(activeSketch.id) : []
 
   return (
     <div 
       className="space-y-4"
       data-photo-upload="true"
       onClick={(e) => {
-        // Zaustavi propagaciju svih klikova unutar PhotoUpload komponente
         e.stopPropagation()
       }}
       onKeyDown={(e) => {
-        // Spre─ìi submit na Enter key
         if (e.key === 'Enter') {
           e.preventDefault()
           e.stopPropagation()
         }
       }}
     >
+      {/* Upload zona */}
       <div
-        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+        className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
           dragActive
-            ? 'border-indigo-500 bg-indigo-50'
+            ? 'border-amber-500 bg-amber-50'
             : 'border-gray-300 hover:border-gray-400'
         }`}
         onDragEnter={handleDrag}
@@ -229,7 +279,6 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
           htmlFor="photo-upload"
           className="cursor-pointer flex flex-col items-center"
           onClick={(e) => {
-            // Spre─ìi da se forma submit-uje ako se klikne na label
             e.stopPropagation()
           }}
         >
@@ -238,108 +287,152 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
             Kliknite ili prevucite fotografije ovde
           </p>
           <p className="text-sm text-gray-500">
-            Mo┼╛ete odabrati vi┼íe fotografija odjednom
+            Možete odabrati više fotografija odjednom
           </p>
         </label>
       </div>
 
       {photos.length > 0 && (
         <div className="space-y-4">
-          <div className="border border-gray-200 rounded-lg bg-white shadow-sm p-4 space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div>
-                <p className="text-sm font-semibold text-gray-700">Segmenti skice</p>
-                <span className="text-xs text-gray-500">Izaberi skicu koju povezuješ sa foto</span>
+          
+          {/* Panel sa skicama - prikazuje se samo ako ima skica */}
+          {sketchPhotos.length > 0 && (
+            <div className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
+              <div className="bg-gradient-to-r from-gray-900 to-black px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <Layers className="w-5 h-5 text-white" />
+                  <h3 className="text-white font-semibold">Skice / Tlocrti</h3>
+                  <span className="ml-auto text-xs text-gray-300">
+                    {sketchPhotos.length} {sketchPhotos.length === 1 ? 'skica' : 'skica'}
+                  </span>
+                </div>
               </div>
-              <div className="flex flex-col gap-1 text-xs text-gray-500">
-                <label className="flex flex-col gap-1">
-                  Izaberi skicu
-                  <div className="flex gap-2">
-                    <input
-                      list="skica-options"
-                      value={currentSketch}
-                      onChange={(e) => setCurrentSketch(e.target.value)}
-                      className="block w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    />
+              
+              {/* Tabovi za izbor skice */}
+              {sketchPhotos.length > 1 && (
+                <div className="flex gap-2 p-3 border-b border-gray-100 overflow-x-auto">
+                  {sketchPhotos.map((sketch, idx) => (
                     <button
+                      key={sketch.id}
                       type="button"
-                      onClick={() => {
-                        const nextIndex = (sketchOptions.indexOf(currentSketch) + 1) % sketchOptions.length
-                        setCurrentSketch(sketchOptions[nextIndex])
-                      }}
-                      className="px-2 py-1 rounded-md bg-indigo-50 text-indigo-700 text-xs font-semibold border border-indigo-200"
+                      onClick={() => setActiveSketchId(sketch.id)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                        activeSketchId === sketch.id
+                          ? 'bg-amber-100 text-amber-700 border border-amber-300'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
                     >
-                      Sledeća
+                      <img src={sketch.url} alt="" className="w-6 h-6 rounded object-cover" />
+                      Skica {idx + 1}
                     </button>
-                  </div>
-                </label>
-                <datalist id="skica-options">
-                  {sketchOptions.map(option => (
-                    <option key={option} value={option} />
                   ))}
-                </datalist>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {segmentsSummary.map(segment => {
-                const isActive = activeSegment === segment.name
-                const previewPhoto = segment.photos[0]
-                return (
-                  <button
-                    key={segment.name}
-                    type="button"
-                    onMouseEnter={() => setPreviewSegment(segment.name)}
-                    onMouseLeave={() => setPreviewSegment(null)}
-                    className={`relative w-full text-left rounded-lg border p-3 transition ${isActive ? 'border-indigo-500 bg-white shadow-lg' : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-white'}`}
+                </div>
+              )}
+              
+              {/* Aktivna skica sa markerima */}
+              {activeSketch && (
+                <div className="p-4">
+                  <div className="mb-3 flex items-center justify-between">
+                    <p className="text-sm text-gray-600">
+                      {selectedPhotoForLink ? (
+                        <span className="text-amber-600 font-medium">
+                          👆 Kliknite na skicu da postavite marker za izabranu fotografiju
+                        </span>
+                      ) : (
+                        <span>Kliknite na fotografiju ispod, pa na skicu da je povežete</span>
+                      )}
+                    </p>
+                    {selectedPhotoForLink && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPhotoForLink(null)}
+                        className="text-xs text-red-600 hover:text-red-700"
+                      >
+                        Otkaži
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div 
+                    className={`relative rounded-lg overflow-hidden border-2 transition-all ${
+                      selectedPhotoForLink ? 'border-amber-400 cursor-crosshair' : 'border-gray-200'
+                    }`}
+                    onClick={(e) => handleSketchClick(e, activeSketch)}
                   >
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900 truncate">{segment.name}</p>
-                        <p className="text-xs text-gray-500">{segment.photos.length} fotografija</p>
-                        {previewPhoto?.skica_coords && (
-                          <p className="text-[10px] text-gray-400">Koord: {previewPhoto.skica_coords}</p>
+                    <img 
+                      src={activeSketch.url} 
+                      alt="Skica" 
+                      className="w-full h-auto"
+                      draggable={false}
+                    />
+                    
+                    {/* Markeri na skici */}
+                    {markersForActiveSketch.map((marker, idx) => (
+                      <div
+                        key={marker.photoId}
+                        className="absolute transform -translate-x-1/2 -translate-y-1/2 group"
+                        style={{ left: `${marker.x}%`, top: `${marker.y}%` }}
+                        onMouseEnter={() => setHoveredMarker(marker.photoId)}
+                        onMouseLeave={() => setHoveredMarker(null)}
+                      >
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg transition-transform hover:scale-110 ${
+                          hoveredMarker === marker.photoId ? 'bg-amber-500 scale-110' : 'bg-amber-600'
+                        }`}>
+                          {idx + 1}
+                        </div>
+                        
+                        {/* Tooltip sa preview fotografije */}
+                        {hoveredMarker === marker.photoId && (
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-10">
+                            <div className="bg-white rounded-lg shadow-xl border border-gray-200 p-2 w-32">
+                              <img 
+                                src={marker.photo.url} 
+                                alt="" 
+                                className="w-full h-20 object-cover rounded"
+                              />
+                              <p className="text-xs text-gray-600 mt-1 truncate">
+                                {marker.photo.opis || 'Bez opisa'}
+                              </p>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  removeMarkerFromSketch(marker.photoId, activeSketch.id)
+                                }}
+                                className="mt-1 w-full text-xs text-red-600 hover:text-red-700"
+                              >
+                                Ukloni marker
+                              </button>
+                            </div>
+                          </div>
                         )}
                       </div>
-                      {previewPhoto?.url ? (
-                        <img
-                          src={previewPhoto.url}
-                          alt={segment.name}
-                          className="h-12 w-12 rounded-md object-cover border border-gray-200"
-                        />
-                      ) : (
-                        <div className="h-12 w-12 rounded-md border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
-                          nema
-                        </div>
-                      )}
-                    </div>
-                  </button>
-                )
-              })}
+                    ))}
+                  </div>
+                  
+                  <p className="text-xs text-gray-400 mt-2">
+                    {markersForActiveSketch.length} fotografija povezano sa ovom skicom
+                  </p>
+                </div>
+              )}
             </div>
-            {previewPhotos.length > 0 && (
-              <div className="border border-gray-200 rounded-lg bg-gray-50 p-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {previewPhotos.slice(0, 6).map(photo => (
-                  <img
-                    key={photo.id}
-                    src={photo.url}
-                    alt={photo.opis || 'Preview'}
-                    className="h-20 w-full object-cover rounded"
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+          )}
+
+          {/* Lista fotografija */}
           {photos
             .sort((a, b) => (a.redosled || 0) - (b.redosled || 0))
             .map((photo, index) => {
-              const photoSegmentName = getSegmentLabel(photo.skica_segment)
-              const isPhotoActive = activeSegment === photoSegmentName
+              const isSelectedForLink = selectedPhotoForLink === photo.id
+              const photoCoords = parseCoords(photo.skica_coords)
+              
               return (
                 <div
                   key={photo.id}
-                  onMouseEnter={() => setPhotoHoverSegment(photoSegmentName)}
-                  onMouseLeave={() => setPhotoHoverSegment(null)}
-                  className={`border rounded-lg p-4 bg-white shadow-sm transition ${isPhotoActive ? 'border-indigo-500 shadow-lg' : 'border-gray-200'}`}
+                  className={`border rounded-xl p-4 bg-white shadow-sm transition-all ${
+                    isSelectedForLink 
+                      ? 'border-amber-500 ring-2 ring-amber-200 shadow-lg' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
                 >
                   <div className="flex gap-4">
                     <div className="relative flex-shrink-0">
@@ -351,6 +444,11 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                       {photo.glavna && (
                         <div className="absolute top-2 left-2 bg-yellow-400 text-white rounded-full p-1">
                           <Star className="w-4 h-4 fill-current" />
+                        </div>
+                      )}
+                      {photo.stsskica && (
+                        <div className="absolute top-2 left-2 bg-blue-500 text-white rounded-full p-1">
+                          <Layers className="w-4 h-4" />
                         </div>
                       )}
                       <button
@@ -385,7 +483,11 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                           {photo.glavna ? 'Glavna' : 'Postavi kao glavnu'}
                         </button>
                         
-                        <label className="flex items-center gap-2 px-3 py-1 rounded-lg text-sm border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer transition-colors">
+                        <label className={`flex items-center gap-2 px-3 py-1 rounded-lg text-sm border cursor-pointer transition-colors ${
+                          photo.stsskica 
+                            ? 'bg-blue-100 text-blue-700 border-blue-300' 
+                            : 'bg-white border-gray-300 hover:bg-gray-50'
+                        }`}>
                           <input
                             type="checkbox"
                             checked={photo.stsskica || false}
@@ -396,10 +498,31 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                             onClick={(e) => {
                               e.stopPropagation()
                             }}
-                            className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
-                          <span className="text-sm text-gray-700">Skica</span>
+                          <Layers className="w-4 h-4" />
+                          <span>Skica/Tlocrt</span>
                         </label>
+                        
+                        {/* Dugme za povezivanje sa skicom - samo za obične fotografije */}
+                        {!photo.stsskica && sketchPhotos.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              setSelectedPhotoForLink(isSelectedForLink ? null : photo.id)
+                            }}
+                            className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm transition-colors ${
+                              isSelectedForLink
+                                ? 'bg-amber-100 text-amber-700 border border-amber-300'
+                                : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
+                            }`}
+                          >
+                            <MapPin className="w-4 h-4" />
+                            {isSelectedForLink ? 'Klikni na skicu...' : 'Poveži sa skicom'}
+                          </button>
+                        )}
                         
                         <div className="flex items-center gap-1">
                           <button
@@ -428,6 +551,27 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                           </button>
                         </div>
                       </div>
+                      
+                      {/* Prikaz povezanih skica */}
+                      {photoCoords.length > 0 && (
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs text-gray-500">Povezano sa:</span>
+                          {photoCoords.map(coord => {
+                            const sketch = sketchPhotos.find(s => s.id === coord.sketchId)
+                            if (!sketch) return null
+                            return (
+                              <span 
+                                key={coord.sketchId}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-700 rounded text-xs"
+                              >
+                                <img src={sketch.url} alt="" className="w-4 h-4 rounded object-cover" />
+                                Skica ({coord.x}%, {coord.y}%)
+                              </span>
+                            )
+                          })}
+                        </div>
+                      )}
+                      
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -437,7 +581,7 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                             value={photo.opis || ''}
                             onChange={(e) => updatePhotoDescription(photo.id, e.target.value)}
                             placeholder="Unesite opis fotografije..."
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
                             rows="2"
                           />
                         </div>
@@ -451,42 +595,31 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                             value={photo.redosled || ''}
                             onChange={(e) => updatePhotoRedosled(photo.id, e.target.value)}
                             placeholder="Redosled prikaza"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                           />
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      
+                      {/* Koordinate - samo za obične fotografije */}
+                      {!photo.stsskica && (
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Segment skice
-                          </label>
-                          <input
-                            type="text"
-                            list="skica-segment-options"
-                            value={photo.skica_segment || ''}
-                            onChange={(e) => updatePhotoSegment(photo.id, e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="npr. Kuhinja, Dnevna soba"
-                          />
-                          <datalist id="skica-segment-options">
-                            {segmentOptions.map(option => (
-                              <option key={option} value={option} />
-                            ))}
-                          </datalist>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Koordinate segmenta
+                            Koordinate na skici:
+                            <span className="font-normal text-gray-400 ml-1">(automatski ili ručno)</span>
                           </label>
                           <input
                             type="text"
                             value={photo.skica_coords || ''}
                             onChange={(e) => updatePhotoCoords(photo.id, e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="npr. 120,230;150,260"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                            placeholder="npr. 123:45.5,67.2;456:12.3,89.1"
                           />
+                          <p className="text-xs text-gray-400 mt-1">
+                            Format: skicaId:x%,y% (više koordinata razdvojeno sa ;)
+                          </p>
                         </div>
-                      </div>
+                      )}
+                      
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Zameni fotografiju:
@@ -500,12 +633,12 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                             if (e.target.files && e.target.files[0]) {
                               updatePhoto(photo.id, e.target.files[0])
                             }
-                            e.target.value = '' // Reset input
+                            e.target.value = ''
                           }}
                           onClick={(e) => {
                             e.stopPropagation()
                           }}
-                          className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                          className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100"
                         />
                       </div>
                     </div>
@@ -518,4 +651,3 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
     </div>
   )
 }
-
