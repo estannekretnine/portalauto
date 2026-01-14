@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
-import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, Filter, RotateCcw, Building2, Euro, Pencil } from 'lucide-react'
+import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, Filter, RotateCcw, Building2, Euro, Pencil, Archive, XCircle, MoreVertical } from 'lucide-react'
 import PonudaForm from './PonudaForm'
 
 export default function PonudeModule() {
@@ -14,6 +14,7 @@ export default function PonudeModule() {
   const [showForm, setShowForm] = useState(false)
   const [editingPonuda, setEditingPonuda] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const [openActionMenu, setOpenActionMenu] = useState(null) // ID ponude za koju je otvoren meni
   const [itemsPerPage, setItemsPerPage] = useState(10)
   
   // Lokalitet podaci - sve u jednoj listi za autocomplete
@@ -395,6 +396,55 @@ export default function PonudeModule() {
     loadPonude()
   }
 
+  // Zatvori action menu kad se klikne bilo gde
+  useEffect(() => {
+    const handleClickOutside = () => setOpenActionMenu(null)
+    if (openActionMenu !== null) {
+      document.addEventListener('click', handleClickOutside)
+      return () => document.removeEventListener('click', handleClickOutside)
+    }
+  }, [openActionMenu])
+
+  // Arhiviraj ponudu (postavi stsaktivan na false)
+  const handleArhiviraj = async (ponudaId) => {
+    try {
+      const { error } = await supabase
+        .from('ponuda')
+        .update({ stsaktivan: false })
+        .eq('id', ponudaId)
+
+      if (error) throw error
+      
+      loadPonude()
+      setOpenActionMenu(null)
+    } catch (error) {
+      console.error('Greška pri arhiviranju:', error)
+      alert('Greška pri arhiviranju ponude: ' + error.message)
+    }
+  }
+
+  // Storniraj ponudu (za sada samo placeholder - možeš prilagoditi logiku)
+  const handleStorniraj = async (ponudaId) => {
+    if (!confirm('Da li ste sigurni da želite da stornirate ovu ponudu?')) return
+    
+    try {
+      // Ovde možeš dodati svoju logiku za storniranje
+      // Na primer, brisanje ili postavljanje posebnog statusa
+      const { error } = await supabase
+        .from('ponuda')
+        .delete()
+        .eq('id', ponudaId)
+
+      if (error) throw error
+      
+      loadPonude()
+      setOpenActionMenu(null)
+    } catch (error) {
+      console.error('Greška pri storniranju:', error)
+      alert('Greška pri storniranju ponude: ' + error.message)
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -740,17 +790,17 @@ export default function PonudeModule() {
             <table className="min-w-full">
               <thead>
                 <tr className="bg-gradient-to-r from-gray-900 to-black text-white">
-                  <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider">ID</th>
-                  <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider">Vrsta</th>
-                  <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider">Opština</th>
-                  <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider">Lokacija</th>
-                  <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider">Ulica</th>
-                  <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider">m²</th>
-                  <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider">Struktura</th>
-                  <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider">Cena</th>
-                  <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
-                  <th className="px-6 py-5 text-center text-xs font-bold uppercase tracking-wider">Akcije</th>
+                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider w-16">ID</th>
+                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider">Vrsta</th>
+                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider">Opština</th>
+                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider">Lokacija</th>
+                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider">Ulica</th>
+                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider">m²</th>
+                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider">STR</th>
+                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider">Cena</th>
+                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider">Status</th>
+                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
+                  <th className="px-4 py-5 text-center text-xs font-bold uppercase tracking-wider">Akcije</th>
                 </tr>
               </thead>
               <tbody>
@@ -762,12 +812,12 @@ export default function PonudeModule() {
                       ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}
                     `}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center justify-center w-10 h-7 bg-gradient-to-r from-gray-900 to-black text-white text-xs font-bold rounded-lg">
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <span className="inline-flex items-center justify-center min-w-[40px] h-7 bg-gradient-to-r from-gray-900 to-black text-white text-xs font-bold rounded-lg px-2">
                         {ponuda.id}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl flex items-center justify-center">
                           <Building2 className="w-4 h-4 text-amber-700" />
@@ -775,34 +825,34 @@ export default function PonudeModule() {
                         <span className="text-sm font-semibold text-gray-900">{ponuda.vrstaobjekta?.opis || '-'}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <span className="text-sm text-gray-700">{ponuda.opstina?.opis || '-'}</span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-amber-500" />
                         <span className="text-sm font-medium text-gray-700">{ponuda.lokacija?.opis || '-'}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{ponuda.ulica?.opis || '-'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{ponuda.ulica?.opis || '-'}</td>
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
                         <Ruler className="w-4 h-4 text-gray-400" />
                         <span className="text-sm font-bold text-gray-900">{ponuda.kvadratura ? `${ponuda.kvadratura}` : '-'}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-3 py-1.5 bg-gray-100 rounded-xl text-sm font-semibold text-gray-700">
                         {ponuda.struktura ? parseFloat(ponuda.struktura).toFixed(1) : '-'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
                         <Euro className="w-4 h-4 text-amber-600" />
                         <span className="text-sm font-bold text-gray-900">{ponuda.cena ? new Intl.NumberFormat('sr-RS').format(ponuda.cena) : '-'}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${
                         ponuda.stsaktivan
                           ? 'bg-emerald-100 text-emerald-800'
@@ -812,7 +862,7 @@ export default function PonudeModule() {
                         {ponuda.stsaktivan ? 'Aktivan' : 'Neaktivan'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold ${
                         ponuda.stsrentaprodaja === 'prodaja'
                           ? 'bg-blue-100 text-blue-800'
@@ -821,18 +871,56 @@ export default function PonudeModule() {
                         {ponuda.stsrentaprodaja === 'prodaja' ? '🏠 Prodaja' : '🔑 Renta'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setEditingPonuda(ponuda)
-                          setShowForm(true)
-                        }}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-semibold rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all shadow-md hover:shadow-lg"
-                      >
-                        <Pencil className="w-4 h-4" />
-                        Promeni
-                      </button>
+                    <td className="px-4 py-4 whitespace-nowrap text-center">
+                      <div className="relative inline-block">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setOpenActionMenu(openActionMenu === ponuda.id ? null : ponuda.id)
+                          }}
+                          className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all"
+                        >
+                          <MoreVertical className="w-5 h-5" />
+                        </button>
+                        
+                        {/* Dropdown meni */}
+                        {openActionMenu === ponuda.id && (
+                          <div className="absolute right-0 top-full mt-2 w-44 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setEditingPonuda(ponuda)
+                                setShowForm(true)
+                                setOpenActionMenu(null)
+                              }}
+                              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
+                            >
+                              <Pencil className="w-4 h-4" />
+                              Promeni
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleArhiviraj(ponuda.id)
+                              }}
+                              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                            >
+                              <Archive className="w-4 h-4" />
+                              Arhiviraj
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleStorniraj(ponuda.id)
+                              }}
+                              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                            >
+                              <XCircle className="w-4 h-4" />
+                              Storniraj
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
