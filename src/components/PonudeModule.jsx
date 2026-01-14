@@ -396,22 +396,6 @@ export default function PonudeModule() {
     loadPonude()
   }
 
-  // Zatvori action menu kad se klikne bilo gde
-  useEffect(() => {
-    if (openActionMenu === null) return
-    
-    const handleClickOutside = () => setOpenActionMenu(null)
-    // Dodaj listener sa malim kašnjenjem da ne uhvati isti klik koji je otvorio meni
-    const timeoutId = setTimeout(() => {
-      document.addEventListener('click', handleClickOutside)
-    }, 0)
-    
-    return () => {
-      clearTimeout(timeoutId)
-      document.removeEventListener('click', handleClickOutside)
-    }
-  }, [openActionMenu])
-
   // Arhiviraj ponudu (postavi stsaktivan na false)
   const handleArhiviraj = async (ponudaId) => {
     try {
@@ -892,40 +876,47 @@ export default function PonudeModule() {
                         
                         {/* Dropdown meni */}
                         {openActionMenu === ponuda.id && (
-                          <div className="absolute right-0 top-full mt-2 w-44 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setEditingPonuda(ponuda)
-                                setShowForm(true)
-                                setOpenActionMenu(null)
-                              }}
-                              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
-                            >
-                              <Pencil className="w-4 h-4" />
-                              Promeni
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleArhiviraj(ponuda.id)
-                              }}
-                              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
-                            >
-                              <Archive className="w-4 h-4" />
-                              Arhiviraj
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleStorniraj(ponuda.id)
-                              }}
-                              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                            >
-                              <XCircle className="w-4 h-4" />
-                              Storniraj
-                            </button>
-                          </div>
+                          <>
+                            {/* Invisible overlay to close menu */}
+                            <div 
+                              className="fixed inset-0 z-40" 
+                              onClick={() => setOpenActionMenu(null)}
+                            />
+                            <div className="absolute right-0 top-full mt-2 w-44 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setEditingPonuda(ponuda)
+                                  setShowForm(true)
+                                  setOpenActionMenu(null)
+                                }}
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
+                              >
+                                <Pencil className="w-4 h-4" />
+                                Promeni
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleArhiviraj(ponuda.id)
+                                }}
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                              >
+                                <Archive className="w-4 h-4" />
+                                Arhiviraj
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleStorniraj(ponuda.id)
+                                }}
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                              >
+                                <XCircle className="w-4 h-4" />
+                                Storniraj
+                              </button>
+                            </div>
+                          </>
                         )}
                       </div>
                     </td>
