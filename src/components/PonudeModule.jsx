@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../utils/supabase'
-import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, Filter, RotateCcw, Building2, Euro } from 'lucide-react'
+import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, Filter, RotateCcw, Building2, Euro, Pencil } from 'lucide-react'
 import PonudaForm from './PonudaForm'
 
 export default function PonudeModule() {
@@ -12,6 +12,7 @@ export default function PonudeModule() {
   const [viewMode, setViewMode] = useState('table')
   const [showFilters, setShowFilters] = useState(false)
   const [showForm, setShowForm] = useState(false)
+  const [editingPonuda, setEditingPonuda] = useState(null) // Ponuda koja se uređuje
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
   const [filters, setFilters] = useState({
@@ -507,6 +508,7 @@ export default function PonudeModule() {
                   <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider">Cena</th>
                   <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider">Status</th>
                   <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
+                  <th className="px-6 py-5 text-center text-xs font-bold uppercase tracking-wider">Akcije</th>
                 </tr>
               </thead>
               <tbody>
@@ -576,6 +578,19 @@ export default function PonudeModule() {
                       }`}>
                         {ponuda.stsrentaprodaja === 'prodaja' ? '🏠 Prodaja' : '🔑 Renta'}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setEditingPonuda(ponuda)
+                          setShowForm(true)
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-semibold rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all shadow-md hover:shadow-lg"
+                      >
+                        <Pencil className="w-4 h-4" />
+                        Promeni
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -759,7 +774,11 @@ export default function PonudeModule() {
       {/* Form Modal */}
       {showForm && (
         <PonudaForm
-          onClose={() => setShowForm(false)}
+          ponuda={editingPonuda}
+          onClose={() => {
+            setShowForm(false)
+            setEditingPonuda(null)
+          }}
           onSuccess={handleFormSuccess}
         />
       )}

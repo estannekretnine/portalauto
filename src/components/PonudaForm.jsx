@@ -80,14 +80,15 @@ const getVrstaObjektaKey = (vrstaObjektaOpis) => {
   return 'all'
 }
 
-export default function PonudaForm({ onClose, onSuccess }) {
+export default function PonudaForm({ ponuda, onClose, onSuccess }) {
   const currentUser = getCurrentUser()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const isEditing = !!ponuda // Da li je u režimu uređivanja
   
   // DEBUG: Proveri da li se onClose/onSuccess pozivaju negde drugde
   useEffect(() => {
-    console.log('🔵 PonudaForm montiran, onClose:', typeof onClose, 'onSuccess:', typeof onSuccess)
+    console.log('🔵 PonudaForm montiran, onClose:', typeof onClose, 'onSuccess:', typeof onSuccess, 'editing:', isEditing)
     return () => {
       console.log('🔴 PonudaForm unmount-ovan')
     }
@@ -301,6 +302,151 @@ export default function PonudaForm({ onClose, onSuccess }) {
     loadLookupData()
     loadSveUliceSaRelacijama() // Učitaj sve ulice sa relacijama za autocomplete
   }, [])
+
+  // Popuni formu ako je u režimu uređivanja
+  useEffect(() => {
+    if (ponuda) {
+      console.log('📝 Popunjavam formu sa postojećim podacima:', ponuda.id)
+      loadPonudaData(ponuda.id)
+    }
+  }, [ponuda])
+
+  // Učitaj sve podatke ponude za uređivanje
+  const loadPonudaData = async (ponudaId) => {
+    try {
+      setLoading(true)
+      
+      // Učitaj ponudu sa svim poljima
+      const { data: ponudaData, error: ponudaError } = await supabase
+        .from('ponuda')
+        .select('*')
+        .eq('id', ponudaId)
+        .single()
+      
+      if (ponudaError) throw ponudaError
+      
+      // Popuni formData
+      setFormData(prev => ({
+        ...prev,
+        idvrstaobjekta: ponudaData.idvrstaobjekta || '',
+        iddrzava: ponudaData.iddrzava || '',
+        idgrada: ponudaData.idgrada || '',
+        idopstina: ponudaData.idopstina || '',
+        idlokacija: ponudaData.idlokacija || '',
+        idulica: ponudaData.idulica || '',
+        brojulice: ponudaData.brojulice || '',
+        datumprijema: ponudaData.datumprijema ? ponudaData.datumprijema.split('T')[0] : '',
+        naslovaoglasa: ponudaData.naslovaoglasa || '',
+        kontaktosoba: ponudaData.kontaktosoba || '',
+        brojtelefona_linija: ponudaData.brojtelefona_linija || '',
+        kvadratura: ponudaData.kvadratura || '',
+        terasa: ponudaData.terasa || '',
+        kvadraturaizugovora: ponudaData.kvadraturaizugovora || '',
+        struktura: ponudaData.struktura || '',
+        sprat: ponudaData.sprat || '',
+        spratstana: ponudaData.spratstana || '',
+        spratnostzgrade: ponudaData.spratnostzgrade || '',
+        idgrejanje: ponudaData.idgrejanje || '',
+        idinvestitor: ponudaData.idinvestitor || '',
+        cena: ponudaData.cena || '',
+        godinagradnje: ponudaData.godinagradnje || '',
+        opis: ponudaData.opis || '',
+        stsaktivan: ponudaData.stsaktivan ?? true,
+        stsrentaprodaja: ponudaData.stsrentaprodaja || 'prodaja',
+        // Checkbox polja
+        ststelefon: ponudaData.ststelefon || false,
+        stslift: ponudaData.stslift || false,
+        stsuknjizen: ponudaData.stsuknjizen || false,
+        stspodrum: ponudaData.stspodrum || false,
+        ststoplavoda: ponudaData.ststoplavoda || false,
+        stsinterfon: ponudaData.stsinterfon || false,
+        stszasebno: ponudaData.stszasebno || false,
+        stsimagarazu: ponudaData.stsimagarazu || false,
+        stsimaparking: ponudaData.stsimaparking || false,
+        stsdvamokracvora: ponudaData.stsdvamokracvora || false,
+        stslegalizacija: ponudaData.stslegalizacija || false,
+        stszasticen: ponudaData.stszasticen || false,
+        stsuseljivost: ponudaData.stsuseljivost || '',
+        stsnovogradnja: ponudaData.stsnovogradnja || false,
+        stssalonac: ponudaData.stssalonac || false,
+        stsdupleks: ponudaData.stsdupleks || false,
+        stsopremljen: ponudaData.stsopremljen || '',
+        // Opremljenost - aparati
+        stsfrizider: ponudaData.stsfrizider || false,
+        stssporet: ponudaData.stssporet || false,
+        stsvesmasina: ponudaData.stsvesmasina || false,
+        ststv: ponudaData.ststv || false,
+        stsklima: ponudaData.stsklima || false,
+        stssudomasina: ponudaData.stssudomasina || false,
+        stsmikrotalasna: ponudaData.stsmikrotalasna || false,
+        stspegla: ponudaData.stspegla || false,
+        stsusisivac: ponudaData.stsusisivac || false,
+        stsfen: ponudaData.stsfen || false,
+        stssivafaza: ponudaData.stssivafaza || false,
+        stsuizgradnji: ponudaData.stsuizgradnji || false,
+        stsekskluziva: ponudaData.stsekskluziva || false,
+        stshitnaprodaja: ponudaData.stshitnaprodaja || false,
+        stslux: ponudaData.stslux || false,
+        stszainvestiranje: ponudaData.stszainvestiranje || false,
+        stslodja: ponudaData.stslodja || false,
+        stsfb: ponudaData.stsfb || false,
+        // Dodatna polja
+        ari: ponudaData.ari || '',
+        etaze: ponudaData.etaze || '',
+        opissekretarice: ponudaData.opissekretarice || '',
+        prostorije: ponudaData.prostorije || '',
+        latitude: ponudaData.latitude || '',
+        longitude: ponudaData.longitude || '',
+        videolink: ponudaData.videolink || '',
+        internenapomene: ponudaData.internenapomene || '',
+        dokumentacija: ponudaData.dokumentacija || '',
+        link: ponudaData.link || '',
+        vidljivostnasajtu: ponudaData.vidljivostnasajtu || '',
+        nivoenergetskeefikasnosti: ponudaData.nivoenergetskeefikasnosti || '',
+        '3dture': ponudaData['3dture'] || '',
+        stsvertikalahorizontala: ponudaData.stsvertikalahorizontala || false,
+      }))
+
+      // Popuni JSONB polja ako postoje
+      if (ponudaData.detalji) {
+        setDetalji(ponudaData.detalji)
+      }
+      if (ponudaData.metapodaci) {
+        setMetapodaci(prev => ({ ...prev, ...ponudaData.metapodaci }))
+      }
+      if (ponudaData.ai_karakteristike) {
+        setAiKarakteristike(prev => ({ ...prev, ...ponudaData.ai_karakteristike }))
+      }
+
+      // Učitaj fotografije
+      const { data: fotosData, error: fotosError } = await supabase
+        .from('ponudafoto')
+        .select('*')
+        .eq('idponude', ponudaId)
+        .order('redosled', { ascending: true })
+      
+      if (!fotosError && fotosData) {
+        const formattedPhotos = fotosData.map(foto => ({
+          id: foto.id,
+          url: foto.url,
+          opis: foto.opis || '',
+          redosled: foto.redosled || 0,
+          glavna: foto.glavna || false,
+          stsskica: foto.stsskica || false,
+          skica_coords: foto.skica_coords || '',
+          existingId: foto.id // Oznaka da je postojeća fotografija
+        }))
+        setPhotos(formattedPhotos)
+      }
+
+      console.log('✅ Podaci ponude učitani za uređivanje')
+    } catch (error) {
+      console.error('Greška pri učitavanju ponude:', error)
+      setError('Greška pri učitavanju podataka ponude')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Zatvori phone dropdown kada se klikne van njega
   useEffect(() => {
@@ -1463,45 +1609,128 @@ export default function PonudaForm({ onClose, onSuccess }) {
         ponudaData.vektor = vector
       }
 
-      // Insert ponuda
-      const { data: ponuda, error: ponudaError } = await supabase
-        .from('ponuda')
-        .insert([ponudaData])
-        .select()
-        .single()
+      let savedPonuda
 
-      if (ponudaError) throw ponudaError
+      if (isEditing) {
+        // UPDATE postojeće ponude
+        delete ponudaData.datumkreiranja // Ne menjamo datum kreiranja
+        
+        const { data: updatedPonuda, error: updateError } = await supabase
+          .from('ponuda')
+          .update(ponudaData)
+          .eq('id', ponuda.id)
+          .select()
+          .single()
 
-      // Upload fotografija
-      if (photos.length > 0) {
-        const photosData = await Promise.all(
-          photos.map(async (photo) => {
-            let url = photo.url
-            
-            // Ako je nova fotografija (ima file), konvertuj u base64 ili upload-uj
-            if (photo.file) {
-              url = await convertFileToBase64(photo.file)
-            }
+        if (updateError) throw updateError
+        savedPonuda = updatedPonuda
+        console.log('✅ Ponuda ažurirana:', savedPonuda.id)
+      } else {
+        // INSERT nove ponude
+        const { data: newPonuda, error: insertError } = await supabase
+          .from('ponuda')
+          .insert([ponudaData])
+          .select()
+          .single()
 
-            return {
+        if (insertError) throw insertError
+        savedPonuda = newPonuda
+        console.log('✅ Nova ponuda kreirana:', savedPonuda.id)
+      }
+
+      // Upravljanje fotografijama
+      if (isEditing) {
+        // Za uređivanje: obriši stare fotografije koje više ne postoje i dodaj nove
+        const existingPhotoIds = photos.filter(p => p.existingId).map(p => p.existingId)
+        
+        // Obriši fotografije koje su uklonjene
+        if (existingPhotoIds.length > 0) {
+          await supabase
+            .from('ponudafoto')
+            .delete()
+            .eq('idponude', savedPonuda.id)
+            .not('id', 'in', `(${existingPhotoIds.join(',')})`)
+        } else {
+          // Ako nema postojećih, obriši sve
+          await supabase
+            .from('ponudafoto')
+            .delete()
+            .eq('idponude', savedPonuda.id)
+        }
+
+        // Ažuriraj postojeće fotografije
+        for (const photo of photos.filter(p => p.existingId)) {
+          await supabase
+            .from('ponudafoto')
+            .update({
               datumpromene: new Date().toISOString(),
-              idponude: ponuda.id,
-              url: url,
-            opis: photo.opis || null,
-            redosled: photo.redosled || null,
-            glavna: photo.glavna || false,
-            stsskica: photo.stsskica || false,
-            skica_segment: photo.skica_segment || null,
-            skica_coords: photo.skica_coords || null
-            }
-          })
-        )
+              opis: photo.opis || null,
+              redosled: photo.redosled || null,
+              glavna: photo.glavna || false,
+              stsskica: photo.stsskica || false,
+              skica_segment: photo.skica_segment || null,
+              skica_coords: photo.skica_coords || null
+            })
+            .eq('id', photo.existingId)
+        }
 
-        const { error: photosError } = await supabase
-          .from('ponudafoto')
-          .insert(photosData)
+        // Dodaj nove fotografije
+        const newPhotos = photos.filter(p => !p.existingId && p.file)
+        if (newPhotos.length > 0) {
+          const newPhotosData = await Promise.all(
+            newPhotos.map(async (photo) => {
+              const url = await convertFileToBase64(photo.file)
+              return {
+                datumpromene: new Date().toISOString(),
+                idponude: savedPonuda.id,
+                url: url,
+                opis: photo.opis || null,
+                redosled: photo.redosled || null,
+                glavna: photo.glavna || false,
+                stsskica: photo.stsskica || false,
+                skica_segment: photo.skica_segment || null,
+                skica_coords: photo.skica_coords || null
+              }
+            })
+          )
 
-        if (photosError) throw photosError
+          const { error: newPhotosError } = await supabase
+            .from('ponudafoto')
+            .insert(newPhotosData)
+
+          if (newPhotosError) throw newPhotosError
+        }
+      } else {
+        // Za novu ponudu: samo dodaj fotografije
+        if (photos.length > 0) {
+          const photosData = await Promise.all(
+            photos.map(async (photo) => {
+              let url = photo.url
+              
+              if (photo.file) {
+                url = await convertFileToBase64(photo.file)
+              }
+
+              return {
+                datumpromene: new Date().toISOString(),
+                idponude: savedPonuda.id,
+                url: url,
+                opis: photo.opis || null,
+                redosled: photo.redosled || null,
+                glavna: photo.glavna || false,
+                stsskica: photo.stsskica || false,
+                skica_segment: photo.skica_segment || null,
+                skica_coords: photo.skica_coords || null
+              }
+            })
+          )
+
+          const { error: photosError } = await supabase
+            .from('ponudafoto')
+            .insert(photosData)
+
+          if (photosError) throw photosError
+        }
       }
 
       // Zatvori formu i osveži listu samo nakon uspešnog čuvanja
@@ -1548,9 +1777,11 @@ export default function PonudaForm({ onClose, onSuccess }) {
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-white">
-                Dodaj novu ponudu
+                {isEditing ? 'Izmena ponude' : 'Dodaj novu ponudu'}
               </h2>
-              <p className="text-gray-400 text-sm">Unesite podatke o nekretnini</p>
+              <p className="text-gray-400 text-sm">
+                {isEditing ? `ID: ${ponuda.id}` : 'Unesite podatke o nekretnini'}
+              </p>
             </div>
           </div>
           <button
@@ -3149,7 +3380,7 @@ export default function PonudaForm({ onClose, onSuccess }) {
               className="px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 font-semibold shadow-lg shadow-amber-500/25"
             >
               <Save className="w-5 h-5" />
-              {loading ? 'Čuvanje...' : 'Sačuvaj ponudu'}
+              {loading ? 'Čuvanje...' : (isEditing ? 'Sačuvaj izmene' : 'Sačuvaj ponudu')}
             </button>
           </div>
         </form>
