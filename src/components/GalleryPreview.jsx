@@ -242,22 +242,21 @@ export default function GalleryPreview({ photos = [], onClose }) {
                       >
                         {/* Pulsiranje za aktivni marker */}
                         {(isHighlighted || isHovered) && (
-                          <div className="absolute inset-0 w-12 h-12 -m-2 rounded-full bg-amber-400 animate-ping opacity-40"></div>
+                          <div className="absolute inset-0 w-10 h-10 -m-1 rounded-full bg-red-400 animate-ping opacity-30"></div>
                         )}
                         
                         {/* Marker krug */}
                         <div 
                           className={`
                             relative flex items-center justify-center text-white font-bold 
-                            cursor-pointer transition-all shadow-lg
+                            cursor-pointer transition-all shadow-lg rounded-full
                             ${(isHighlighted || isHovered) 
-                              ? 'w-12 h-12 text-base bg-gradient-to-br from-amber-400 to-orange-500 scale-110 ring-4 ring-white shadow-2xl shadow-amber-500/50' 
+                              ? 'w-9 h-9 text-sm bg-red-500 ring-2 ring-white shadow-xl' 
                               : 'w-8 h-8 text-xs bg-amber-600 hover:scale-105'}
-                            rounded-full
                           `}
                         >
                           {hasMultiplePhotos ? (
-                            <span className={isHighlighted || isHovered ? 'text-sm' : 'text-[10px]'}>{marker.photos.length}</span>
+                            <span className="text-[10px]">{marker.photos.length}</span>
                           ) : (
                             idx + 1
                           )}
