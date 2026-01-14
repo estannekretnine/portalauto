@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react'
+﻿import { useMemo, useState, useRef, useCallback } from 'react'
 import { Upload, X, Star, ArrowUp, ArrowDown, MapPin, Eye, Layers } from 'lucide-react'
 
 export default function PhotoUpload({ photos = [], onPhotosChange }) {
@@ -6,6 +6,9 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
   const [activeSketchId, setActiveSketchId] = useState(null)
   const [selectedPhotoForLink, setSelectedPhotoForLink] = useState(null)
   const [hoveredMarker, setHoveredMarker] = useState(null)
+  const [hoverPosition, setHoverPosition] = useState(null) // { x, y, nearestPhoto }
+  const sketchContainerRef = useRef(null)
+  const photoRefs = useRef({}) // Reference za svaku fotografiju za skrolovanje
 
   // Fotografije koje su označene kao skice
   const sketchPhotos = useMemo(() => {
@@ -98,6 +101,64 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
     
     setSelectedPhotoForLink(null)
   }
+
+  // Pronađi najbližu fotografiju na osnovu pozicije miša
+  const findNearestPhoto = useCallback((mouseX, mouseY, markers) => {
+    if (!markers || markers.length === 0) return null
+    
+    let nearest = null
+    let minDistance = Infinity
+    const threshold = 15 // 15% udaljenost - zona detekcije
+    
+    markers.forEach(marker => {
+      const distance = Math.sqrt(
+        Math.pow(mouseX - marker.x, 2) + Math.pow(mouseY - marker.y, 2)
+      )
+      if (distance < minDistance && distance < threshold) {
+        minDistance = distance
+        nearest = marker
+      }
+    })
+    
+    return nearest
+  }, [])
+
+  // Hover nad skicom - pronađi najbližu fotografiju
+  const handleSketchMouseMove = useCallback((e, markers) => {
+    if (selectedPhotoForLink) {
+      setHoverPosition(null)
+      return
+    }
+    
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width * 100)
+    const y = ((e.clientY - rect.top) / rect.height * 100)
+    
+    const nearest = findNearestPhoto(x, y, markers)
+    
+    if (nearest) {
+      setHoverPosition({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+        photo: nearest.photo
+      })
+    } else {
+      setHoverPosition(null)
+    }
+  }, [selectedPhotoForLink, findNearestPhoto])
+
+  // Skroluj do fotografije
+  const scrollToPhoto = useCallback((photoId) => {
+    const photoElement = photoRefs.current[photoId]
+    if (photoElement) {
+      photoElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      // Highlight efekat
+      photoElement.classList.add('ring-4', 'ring-amber-400')
+      setTimeout(() => {
+        photoElement.classList.remove('ring-4', 'ring-amber-400')
+      }, 2000)
+    }
+  }, [])
 
   // Ukloni marker sa skice
   const removeMarkerFromSketch = (photoId, sketchId) => {
@@ -369,10 +430,13 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                   </div>
                   
                   <div 
+                    ref={sketchContainerRef}
                     className={`relative rounded-lg overflow-hidden border-2 transition-all ${
-                      selectedPhotoForLink ? 'border-amber-400 cursor-crosshair' : 'border-gray-200'
+                      selectedPhotoForLink ? 'border-amber-400 cursor-crosshair' : 'border-gray-200 cursor-pointer'
                     }`}
                     onClick={(e) => handleSketchClick(e, activeSketch)}
+                    onMouseMove={(e) => handleSketchMouseMove(e, markersForActiveSketch)}
+                    onMouseLeave={() => setHoverPosition(null)}
                   >
                     <img 
                       src={activeSketch.url} 
@@ -385,44 +449,67 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                     {markersForActiveSketch.map((marker, idx) => (
                       <div
                         key={marker.photoId}
-                        className="absolute transform -translate-x-1/2 -translate-y-1/2 group"
+                        className="absolute transform -translate-x-1/2 -translate-y-1/2 group z-10"
                         style={{ left: `${marker.x}%`, top: `${marker.y}%` }}
                         onMouseEnter={() => setHoveredMarker(marker.photoId)}
                         onMouseLeave={() => setHoveredMarker(null)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          scrollToPhoto(marker.photoId)
+                        }}
                       >
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg transition-transform hover:scale-110 ${
-                          hoveredMarker === marker.photoId ? 'bg-amber-500 scale-110' : 'bg-amber-600'
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg transition-all cursor-pointer ${
+                          hoveredMarker === marker.photoId ? 'bg-amber-500 scale-125' : 'bg-amber-600 hover:scale-110'
                         }`}>
                           {idx + 1}
                         </div>
                         
-                        {/* Tooltip sa preview fotografije */}
+                        {/* Tooltip sa preview fotografije - prikazuje se na hover markera */}
                         {hoveredMarker === marker.photoId && (
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-10">
-                            <div className="bg-white rounded-lg shadow-xl border border-gray-200 p-2 w-32">
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-20 pointer-events-none">
+                            <div className="bg-white rounded-lg shadow-xl border border-gray-200 p-2 w-40">
                               <img 
                                 src={marker.photo.url} 
                                 alt="" 
-                                className="w-full h-20 object-cover rounded"
+                                className="w-full h-24 object-cover rounded"
                               />
-                              <p className="text-xs text-gray-600 mt-1 truncate">
+                              <p className="text-xs text-gray-600 mt-1 truncate text-center">
                                 {marker.photo.opis || 'Bez opisa'}
                               </p>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  removeMarkerFromSketch(marker.photoId, activeSketch.id)
-                                }}
-                                className="mt-1 w-full text-xs text-red-600 hover:text-red-700"
-                              >
-                                Ukloni marker
-                              </button>
+                              <p className="text-xs text-amber-600 mt-1 text-center font-medium">
+                                Klikni za skok na foto
+                              </p>
                             </div>
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-white"></div>
                           </div>
                         )}
                       </div>
                     ))}
+
+                    {/* Floating preview - prikazuje se kada si blizu markera */}
+                    {hoverPosition && !selectedPhotoForLink && !hoveredMarker && (
+                      <div 
+                        className="absolute z-30 pointer-events-none transform -translate-x-1/2"
+                        style={{ 
+                          left: hoverPosition.x, 
+                          top: Math.max(10, hoverPosition.y - 140)
+                        }}
+                      >
+                        <div className="bg-white rounded-lg shadow-2xl border-2 border-amber-400 p-2 w-36 animate-fade-in">
+                          <img 
+                            src={hoverPosition.photo.url} 
+                            alt="" 
+                            className="w-full h-20 object-cover rounded"
+                          />
+                          <p className="text-xs text-gray-700 mt-1 truncate text-center font-medium">
+                            {hoverPosition.photo.opis || 'Bez opisa'}
+                          </p>
+                          <p className="text-xs text-amber-600 text-center">
+                            Približi se markeru
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
                   <p className="text-xs text-gray-400 mt-2">
@@ -443,7 +530,8 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
               return (
                 <div
                   key={photo.id}
-                  className={`border rounded-xl p-4 bg-white shadow-sm transition-all ${
+                  ref={(el) => { photoRefs.current[photo.id] = el }}
+                  className={`border rounded-xl p-4 bg-white shadow-sm transition-all scroll-mt-4 ${
                     isSelectedForLink 
                       ? 'border-amber-500 ring-2 ring-amber-200 shadow-lg' 
                       : 'border-gray-200 hover:border-gray-300'
