@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
-import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, Filter, RotateCcw, Building2, Euro, Pencil, Globe, Building, MapPinned, Navigation } from 'lucide-react'
+import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, Filter, RotateCcw, Building2, Euro, Pencil } from 'lucide-react'
 import PonudaForm from './PonudaForm'
 
 export default function PonudeModule() {
@@ -12,15 +12,16 @@ export default function PonudeModule() {
   const [viewMode, setViewMode] = useState('table')
   const [showFilters, setShowFilters] = useState(false)
   const [showForm, setShowForm] = useState(false)
-  const [editingPonuda, setEditingPonuda] = useState(null) // Ponuda koja se uređuje
+  const [editingPonuda, setEditingPonuda] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
   
-  // Lokalitet podaci
-  const [drzave, setDrzave] = useState([])
-  const [gradovi, setGradovi] = useState([])
-  const [opstine, setOpstine] = useState([])
-  const [ulice, setUlice] = useState([])
+  // Lokalitet podaci - sve u jednoj listi za autocomplete
+  const [sviLokaliteti, setSviLokaliteti] = useState([])
+  const [lokalitetSearch, setLokalitetSearch] = useState('')
+  const [showLokalitetDropdown, setShowLokalitetDropdown] = useState(false)
+  const [selectedLokaliteti, setSelectedLokaliteti] = useState([]) // { id, type, opis }
+  const lokalitetInputRef = useRef(null)
   
   const [filters, setFilters] = useState({
     idvrstaobjekta: '',
@@ -30,12 +31,6 @@ export default function PonudeModule() {
     strukturaDo: '',
     cenaOd: '',
     cenaDo: '',
-    // Lokalitet filteri - višestruki izbor
-    iddrzava: [],
-    idgrada: [],
-    idopstina: [],
-    idlokacija: [],
-    idulica: [],
     stsaktivan: true,
     stsrentaprodaja: 'prodaja'
   })
@@ -71,15 +66,54 @@ export default function PonudeModule() {
         supabase.from('ulica').select('*').order('opis')
       ])
       
-      setDrzave(drzaveRes.data || [])
-      setGradovi(gradoviRes.data || [])
-      setOpstine(opstineRes.data || [])
       setLokacije(lokacijeRes.data || [])
-      setUlice(uliceRes.data || [])
+      
+      // Kreiraj jednu listu svih lokaliteta za autocomplete
+      const allLokaliteti = [
+        ...(drzaveRes.data || []).map(d => ({ id: d.id, type: 'drzava', opis: d.opis, label: `${d.opis}`, typeLabel: 'Država' })),
+        ...(gradoviRes.data || []).map(g => ({ id: g.id, type: 'grad', opis: g.opis, label: `${g.opis}`, typeLabel: 'Grad' })),
+        ...(opstineRes.data || []).map(o => ({ id: o.id, type: 'opstina', opis: o.opis, label: `${o.opis}`, typeLabel: 'Opština' })),
+        ...(lokacijeRes.data || []).map(l => ({ id: l.id, type: 'lokacija', opis: l.opis, label: `${l.opis}`, typeLabel: 'Lokacija' })),
+        ...(uliceRes.data || []).map(u => ({ id: u.id, type: 'ulica', opis: u.opis, label: `${u.opis}`, typeLabel: 'Ulica' }))
+      ]
+      setSviLokaliteti(allLokaliteti)
     } catch (error) {
       console.error('Greška pri učitavanju lokaliteta:', error)
     }
   }
+  
+  // Filtrirani lokaliteti za dropdown
+  const filteredLokaliteti = useMemo(() => {
+    if (!lokalitetSearch.trim()) return []
+    const search = lokalitetSearch.toLowerCase()
+    return sviLokaliteti
+      .filter(l => l.opis.toLowerCase().includes(search))
+      .filter(l => !selectedLokaliteti.some(s => s.id === l.id && s.type === l.type))
+      .slice(0, 15)
+  }, [lokalitetSearch, sviLokaliteti, selectedLokaliteti])
+  
+  // Dodaj lokalitet
+  const addLokalitet = (lokalitet) => {
+    setSelectedLokaliteti(prev => [...prev, lokalitet])
+    setLokalitetSearch('')
+    setShowLokalitetDropdown(false)
+  }
+  
+  // Ukloni lokalitet
+  const removeLokalitet = (lokalitet) => {
+    setSelectedLokaliteti(prev => prev.filter(l => !(l.id === lokalitet.id && l.type === lokalitet.type)))
+  }
+  
+  // Zatvori dropdown kad se klikne van
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (lokalitetInputRef.current && !lokalitetInputRef.current.contains(e.target)) {
+        setShowLokalitetDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const loadPonude = async () => {
     try {
@@ -128,21 +162,28 @@ export default function PonudeModule() {
       if (filters.cenaDo) {
         query = query.lte('cena', parseFloat(filters.cenaDo))
       }
-      // Lokalitet filteri
-      if (filters.iddrzava && filters.iddrzava.length > 0) {
-        query = query.in('iddrzava', filters.iddrzava)
+      
+      // Lokalitet filteri iz selectedLokaliteti
+      const drzaveIds = selectedLokaliteti.filter(l => l.type === 'drzava').map(l => l.id)
+      const gradoviIds = selectedLokaliteti.filter(l => l.type === 'grad').map(l => l.id)
+      const opstineIds = selectedLokaliteti.filter(l => l.type === 'opstina').map(l => l.id)
+      const lokacijeIds = selectedLokaliteti.filter(l => l.type === 'lokacija').map(l => l.id)
+      const uliceIds = selectedLokaliteti.filter(l => l.type === 'ulica').map(l => l.id)
+      
+      if (drzaveIds.length > 0) {
+        query = query.in('iddrzava', drzaveIds)
       }
-      if (filters.idgrada && filters.idgrada.length > 0) {
-        query = query.in('idgrada', filters.idgrada)
+      if (gradoviIds.length > 0) {
+        query = query.in('idgrada', gradoviIds)
       }
-      if (filters.idopstina && filters.idopstina.length > 0) {
-        query = query.in('idopstina', filters.idopstina)
+      if (opstineIds.length > 0) {
+        query = query.in('idopstina', opstineIds)
       }
-      if (filters.idlokacija && filters.idlokacija.length > 0) {
-        query = query.in('idlokacija', filters.idlokacija)
+      if (lokacijeIds.length > 0) {
+        query = query.in('idlokacija', lokacijeIds)
       }
-      if (filters.idulica && filters.idulica.length > 0) {
-        query = query.in('idulica', filters.idulica)
+      if (uliceIds.length > 0) {
+        query = query.in('idulica', uliceIds)
       }
 
       const { data, error } = await query.order('id', { ascending: false })
@@ -208,28 +249,15 @@ export default function PonudeModule() {
     }
   }
 
-  // Uklonjen automatski useEffect za filters - sada se pretraga pokreće dugmetom
-
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }))
-  }
-
-  // Toggle za višestruki izbor lokaliteta
-  const handleLokalitetToggle = (key, id) => {
-    setFilters(prev => {
-      const current = prev[key] || []
-      if (current.includes(id)) {
-        return { ...prev, [key]: current.filter(i => i !== id) }
-      } else {
-        return { ...prev, [key]: [...current, id] }
-      }
-    })
   }
 
   // Pretraga - poziva se na klik dugmeta
   const handleSearch = () => {
     setCurrentPage(1)
     loadPonude()
+    setShowFilters(false)
   }
 
   const resetFilters = () => {
@@ -241,14 +269,10 @@ export default function PonudeModule() {
       strukturaDo: '',
       cenaOd: '',
       cenaDo: '',
-      iddrzava: [],
-      idgrada: [],
-      idopstina: [],
-      idlokacija: [],
-      idulica: [],
       stsaktivan: true,
       stsrentaprodaja: 'prodaja'
     })
+    setSelectedLokaliteti([])
   }
 
   // Broj aktivnih filtera
@@ -260,11 +284,7 @@ export default function PonudeModule() {
     filters.kvadraturaDo,
     filters.strukturaOd,
     filters.strukturaDo,
-    ...(filters.iddrzava || []),
-    ...(filters.idgrada || []),
-    ...(filters.idopstina || []),
-    ...(filters.idlokacija || []),
-    ...(filters.idulica || [])
+    ...selectedLokaliteti
   ].filter(Boolean).length
 
   const formatCena = (cena) => {
@@ -367,360 +387,232 @@ export default function PonudeModule() {
         </div>
       </div>
 
-      {/* Filter Panel - Svetla tema */}
+      {/* Filter Modal - Popup */}
       {showFilters && (
-        <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-gray-900 to-black px-6 py-4">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center">
-                  <Search className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white">Pretraga ponuda</h3>
-                  <p className="text-gray-400 text-xs">Filtrirajte nekretnine po kriterijumima</p>
-                </div>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8 overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-gray-900 to-black px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Search className="w-5 h-5 text-amber-400" />
+                <h3 className="text-lg font-bold text-white">Pretraga ponuda</h3>
               </div>
-              <div className="flex items-center gap-2">
-                {activeFiltersCount > 0 && (
-                  <span className="px-3 py-1 bg-amber-500/20 text-amber-400 text-xs font-semibold rounded-full">
-                    {activeFiltersCount} filtera
-                  </span>
-                )}
-                <button
-                  onClick={resetFilters}
-                  className="flex items-center gap-2 text-sm text-gray-300 hover:text-white px-3 py-2 rounded-lg hover:bg-white/10 transition-colors"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  Resetuj
-                </button>
-                <button
-                  onClick={() => setShowFilters(false)}
-                  className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-6 space-y-6">
-            {/* Red 1: Tip i Status */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Tip transakcije */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-3">Tip transakcije</label>
-                <div className="flex gap-2">
-                  {[
-                    { value: '', label: 'Sve', icon: '🏠' },
-                    { value: 'prodaja', label: 'Prodaja', icon: '💰' },
-                    { value: 'renta', label: 'Izdavanje', icon: '🔑' }
-                  ].map(option => (
-                    <button
-                      key={option.value}
-                      onClick={() => handleFilterChange('stsrentaprodaja', option.value)}
-                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                        filters.stsrentaprodaja === option.value
-                          ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      <span>{option.icon}</span>
-                      <span>{option.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Status */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-3">Status ponude</label>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleFilterChange('stsaktivan', true)}
-                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                      filters.stsaktivan === true
-                        ? 'bg-emerald-100 text-emerald-700 border-2 border-emerald-300'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-transparent'
-                    }`}
-                  >
-                    <span className={`w-2 h-2 rounded-full ${filters.stsaktivan === true ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
-                    Aktivne
-                  </button>
-                  <button
-                    onClick={() => handleFilterChange('stsaktivan', false)}
-                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                      filters.stsaktivan === false
-                        ? 'bg-gray-200 text-gray-700 border-2 border-gray-400'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-transparent'
-                    }`}
-                  >
-                    <span className={`w-2 h-2 rounded-full ${filters.stsaktivan === false ? 'bg-gray-500' : 'bg-gray-400'}`}></span>
-                    Neaktivne
-                  </button>
-                </div>
-              </div>
+              <button
+                onClick={() => setShowFilters(false)}
+                className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            {/* Red 2: Vrsta objekta */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">Vrsta objekta</label>
+            <div className="p-6 space-y-5">
+              {/* Red 1: Tip transakcije */}
+              <div className="flex gap-2">
+                {[
+                  { value: '', label: 'Sve' },
+                  { value: 'prodaja', label: 'Prodaja' },
+                  { value: 'renta', label: 'Izdavanje' }
+                ].map(option => (
+                  <button
+                    key={option.value}
+                    onClick={() => handleFilterChange('stsrentaprodaja', option.value)}
+                    className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                      filters.stsrentaprodaja === option.value
+                        ? 'bg-amber-500 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Red 2: Vrsta objekta */}
               <div className="relative">
-                <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <select
                   value={filters.idvrstaobjekta}
                   onChange={(e) => handleFilterChange('idvrstaobjekta', e.target.value)}
-                  className="w-full pl-12 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all appearance-none cursor-pointer hover:bg-gray-100"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent appearance-none cursor-pointer"
                 >
-                  <option value="">Sve vrste objekata</option>
+                  <option value="">Tip nekretnine</option>
                   {vrsteObjekata.map(vrsta => (
                     <option key={vrsta.id} value={vrsta.id}>{vrsta.opis}</option>
                   ))}
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
               </div>
-            </div>
 
-            {/* Red 3: Range filteri */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Cena */}
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                <div className="flex items-center gap-2 mb-3">
-                  <Euro className="w-4 h-4 text-amber-600" />
-                  <span className="text-sm font-semibold text-gray-700">Cena (EUR)</span>
+              {/* Red 3: Lokalitet - Autocomplete kao HaloOglasi */}
+              <div ref={lokalitetInputRef} className="relative">
+                <div className="relative">
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    value={lokalitetSearch}
+                    onChange={(e) => {
+                      setLokalitetSearch(e.target.value)
+                      setShowLokalitetDropdown(true)
+                    }}
+                    onFocus={() => setShowLokalitetDropdown(true)}
+                    placeholder="Unesite lokaciju (država, grad, opština, lokacija, ulica)"
+                    className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
                 </div>
-                <div className="flex gap-2 items-center">
+                
+                {/* Dropdown sa rezultatima */}
+                {showLokalitetDropdown && filteredLokaliteti.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-64 overflow-y-auto">
+                    {filteredLokaliteti.map(lok => (
+                      <button
+                        key={`${lok.type}-${lok.id}`}
+                        onClick={() => addLokalitet(lok)}
+                        className="w-full px-4 py-3 text-left hover:bg-amber-50 flex items-center justify-between border-b border-gray-100 last:border-0"
+                      >
+                        <span className="text-gray-800">{lok.opis}</span>
+                        <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">{lok.typeLabel}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Izabrani lokaliteti kao tagovi */}
+                {selectedLokaliteti.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {selectedLokaliteti.map(lok => (
+                      <span
+                        key={`${lok.type}-${lok.id}`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 text-amber-800 rounded-full text-sm"
+                      >
+                        {lok.opis}
+                        <button
+                          onClick={() => removeLokalitet(lok)}
+                          className="hover:bg-amber-200 rounded-full p-0.5"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Red 4: Cena */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="relative">
+                  <Euro className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="number"
                     value={filters.cenaOd}
                     onChange={(e) => handleFilterChange('cenaOd', e.target.value)}
-                    className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Od"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    placeholder="Cena od"
                   />
-                  <span className="text-gray-400">—</span>
+                </div>
+                <div className="relative">
+                  <Euro className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="number"
                     value={filters.cenaDo}
                     onChange={(e) => handleFilterChange('cenaDo', e.target.value)}
-                    className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Do"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    placeholder="Cena do"
                   />
                 </div>
               </div>
 
-              {/* Kvadratura */}
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                <div className="flex items-center gap-2 mb-3">
-                  <Ruler className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm font-semibold text-gray-700">Kvadratura (m²)</span>
-                </div>
-                <div className="flex gap-2 items-center">
+              {/* Red 5: Kvadratura */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="relative">
+                  <Ruler className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="number"
                     value={filters.kvadraturaOd}
                     onChange={(e) => handleFilterChange('kvadraturaOd', e.target.value)}
-                    className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Od"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    placeholder="Kvadratura od (m²)"
                   />
-                  <span className="text-gray-400">—</span>
+                </div>
+                <div className="relative">
+                  <Ruler className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="number"
                     value={filters.kvadraturaDo}
                     onChange={(e) => handleFilterChange('kvadraturaDo', e.target.value)}
-                    className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Do"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    placeholder="Kvadratura do (m²)"
                   />
                 </div>
               </div>
 
-              {/* Struktura */}
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                <div className="flex items-center gap-2 mb-3">
-                  <Home className="w-4 h-4 text-purple-600" />
-                  <span className="text-sm font-semibold text-gray-700">Struktura (sobe)</span>
-                </div>
-                <div className="flex gap-2 items-center">
+              {/* Red 6: Struktura */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="relative">
+                  <Home className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="number"
                     step="0.5"
                     value={filters.strukturaOd}
                     onChange={(e) => handleFilterChange('strukturaOd', e.target.value)}
-                    className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Od"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    placeholder="Broj soba od"
                   />
-                  <span className="text-gray-400">—</span>
+                </div>
+                <div className="relative">
+                  <Home className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="number"
                     step="0.5"
                     value={filters.strukturaDo}
                     onChange={(e) => handleFilterChange('strukturaDo', e.target.value)}
-                    className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Do"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    placeholder="Broj soba do"
                   />
                 </div>
               </div>
-            </div>
 
-            {/* Red 4: Lokalitet - Hijerarhijski izbor */}
-            <div className="border border-gray-200 rounded-xl overflow-hidden">
-              <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-amber-600" />
-                  <span className="font-semibold text-gray-700">Lokalitet</span>
-                  {(filters.iddrzava?.length > 0 || filters.idgrada?.length > 0 || filters.idopstina?.length > 0 || filters.idlokacija?.length > 0 || filters.idulica?.length > 0) && (
-                    <span className="ml-auto px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
-                      {(filters.iddrzava?.length || 0) + (filters.idgrada?.length || 0) + (filters.idopstina?.length || 0) + (filters.idlokacija?.length || 0) + (filters.idulica?.length || 0)} izabrano
-                    </span>
-                  )}
-                </div>
-              </div>
-              
-              <div className="p-4 space-y-4">
-                {/* Država */}
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Globe className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm font-medium text-gray-600">Država</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {drzave.map(d => {
-                      const isSelected = filters.iddrzava?.includes(d.id)
-                      return (
-                        <button
-                          key={d.id}
-                          onClick={() => handleLokalitetToggle('iddrzava', d.id)}
-                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                            isSelected
-                              ? 'bg-amber-100 text-amber-700 border border-amber-300'
-                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-transparent'
-                          }`}
-                        >
-                          {d.opis}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                {/* Grad */}
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Building className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm font-medium text-gray-600">Grad</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
-                    {gradovi.map(g => {
-                      const isSelected = filters.idgrada?.includes(g.id)
-                      return (
-                        <button
-                          key={g.id}
-                          onClick={() => handleLokalitetToggle('idgrada', g.id)}
-                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                            isSelected
-                              ? 'bg-blue-100 text-blue-700 border border-blue-300'
-                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-transparent'
-                          }`}
-                        >
-                          {g.opis}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                {/* Opština */}
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <MapPinned className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm font-medium text-gray-600">Opština</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
-                    {opstine.map(o => {
-                      const isSelected = filters.idopstina?.includes(o.id)
-                      return (
-                        <button
-                          key={o.id}
-                          onClick={() => handleLokalitetToggle('idopstina', o.id)}
-                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                            isSelected
-                              ? 'bg-purple-100 text-purple-700 border border-purple-300'
-                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-transparent'
-                          }`}
-                        >
-                          {o.opis}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                {/* Lokacija */}
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <MapPin className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm font-medium text-gray-600">Lokacija</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
-                    {lokacije.map(l => {
-                      const isSelected = filters.idlokacija?.includes(l.id)
-                      return (
-                        <button
-                          key={l.id}
-                          onClick={() => handleLokalitetToggle('idlokacija', l.id)}
-                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                            isSelected
-                              ? 'bg-emerald-100 text-emerald-700 border border-emerald-300'
-                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-transparent'
-                          }`}
-                        >
-                          {l.opis}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                {/* Ulica */}
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Navigation className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm font-medium text-gray-600">Ulica</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
-                    {ulice.slice(0, 50).map(u => {
-                      const isSelected = filters.idulica?.includes(u.id)
-                      return (
-                        <button
-                          key={u.id}
-                          onClick={() => handleLokalitetToggle('idulica', u.id)}
-                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                            isSelected
-                              ? 'bg-rose-100 text-rose-700 border border-rose-300'
-                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-transparent'
-                          }`}
-                        >
-                          {u.opis}
-                        </button>
-                      )
-                    })}
-                    {ulice.length > 50 && (
-                      <span className="px-3 py-1.5 text-sm text-gray-400">+{ulice.length - 50} više...</span>
-                    )}
-                  </div>
-                </div>
+              {/* Red 7: Status */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleFilterChange('stsaktivan', true)}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    filters.stsaktivan === true
+                      ? 'bg-emerald-100 text-emerald-700 border border-emerald-300'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${filters.stsaktivan === true ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
+                  Aktivne
+                </button>
+                <button
+                  onClick={() => handleFilterChange('stsaktivan', false)}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    filters.stsaktivan === false
+                      ? 'bg-gray-300 text-gray-700 border border-gray-400'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${filters.stsaktivan === false ? 'bg-gray-500' : 'bg-gray-400'}`}></span>
+                  Neaktivne
+                </button>
               </div>
             </div>
 
-            {/* Dugme Pretraži */}
-            <div className="flex justify-end pt-4 border-t border-gray-100">
+            {/* Footer sa dugmadima */}
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+              <button
+                onClick={resetFilters}
+                className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Resetuj filtere
+              </button>
               <button
                 onClick={handleSearch}
                 disabled={loading}
-                className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl font-semibold shadow-lg shadow-amber-500/30 hover:from-amber-600 hover:to-amber-700 transition-all disabled:opacity-50"
+                className="flex items-center gap-2 px-6 py-2.5 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-all disabled:opacity-50"
               >
                 <Search className="w-5 h-5" />
-                {loading ? 'Pretražujem...' : 'Pretraži'}
+                {loading ? 'Pretražujem...' : 'Prikaži oglase'}
               </button>
             </div>
           </div>
