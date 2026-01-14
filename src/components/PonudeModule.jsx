@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../utils/supabase'
-import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, Filter, RotateCcw, Building2, Euro, Pencil } from 'lucide-react'
+import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, Filter, RotateCcw, Building2, Euro, Pencil } from 'lucide-react'
 import PonudaForm from './PonudaForm'
 
 export default function PonudeModule() {
@@ -315,169 +315,265 @@ export default function PonudeModule() {
         </div>
       </div>
 
-      {/* Filter Panel */}
+      {/* Filter Panel - Redesigned */}
       {showFilters && (
-        <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20">
-                <Search className="w-6 h-6 text-white" />
+        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl shadow-2xl border border-gray-700/50 overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-b border-gray-700/50 px-6 py-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/30">
+                  <Filter className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">Filteri pretrage</h3>
+                  <p className="text-gray-400 text-sm">Pronađite idealnu nekretninu</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-900">Pretraga ponuda</h3>
-                <p className="text-gray-500 text-sm">Filtrirajte nekretnine po kriterijumima</p>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={resetFilters}
+                  className="flex items-center gap-2 text-sm text-gray-300 hover:text-white px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all font-medium"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Resetuj sve
+                </button>
+                <button
+                  onClick={() => setShowFilters(false)}
+                  className="p-2.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={resetFilters}
-                className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-4 py-2 rounded-xl hover:bg-gray-100 transition-colors font-medium"
-              >
-                <RotateCcw className="w-4 h-4" />
-                Resetuj
-              </button>
-              <button
-                onClick={() => setShowFilters(false)}
-                className="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Vrsta objekta</label>
-              <select
-                value={filters.idvrstaobjekta}
-                onChange={(e) => handleFilterChange('idvrstaobjekta', e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
-              >
-                <option value="">Sve vrste</option>
-                {vrsteObjekata.map(vrsta => (
-                  <option key={vrsta.id} value={vrsta.id}>{vrsta.opis}</option>
+          <div className="p-6">
+            {/* Tip transakcije - Toggle buttons */}
+            <div className="mb-6">
+              <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Tip transakcije</label>
+              <div className="flex gap-2">
+                {[
+                  { value: '', label: 'Sve', icon: '🏠' },
+                  { value: 'prodaja', label: 'Prodaja', icon: '💰' },
+                  { value: 'renta', label: 'Izdavanje', icon: '🔑' }
+                ].map(option => (
+                  <button
+                    key={option.value}
+                    onClick={() => handleFilterChange('stsrentaprodaja', option.value)}
+                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all ${
+                      filters.stsrentaprodaja === option.value
+                        ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30'
+                        : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10'
+                    }`}
+                  >
+                    <span>{option.icon}</span>
+                    <span>{option.label}</span>
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
 
+            {/* Status - Toggle buttons */}
+            <div className="mb-6">
+              <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Status ponude</label>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleFilterChange('stsaktivan', true)}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all ${
+                    filters.stsaktivan === true
+                      ? 'bg-emerald-500/20 text-emerald-400 border-2 border-emerald-500/50'
+                      : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10'
+                  }`}
+                >
+                  <span className={`w-2.5 h-2.5 rounded-full ${filters.stsaktivan === true ? 'bg-emerald-400' : 'bg-gray-500'}`}></span>
+                  Aktivne
+                </button>
+                <button
+                  onClick={() => handleFilterChange('stsaktivan', false)}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all ${
+                    filters.stsaktivan === false
+                      ? 'bg-gray-500/20 text-gray-300 border-2 border-gray-500/50'
+                      : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10'
+                  }`}
+                >
+                  <span className={`w-2.5 h-2.5 rounded-full ${filters.stsaktivan === false ? 'bg-gray-400' : 'bg-gray-500'}`}></span>
+                  Neaktivne
+                </button>
+              </div>
+            </div>
+
+            {/* Vrsta objekta */}
+            <div className="mb-6">
+              <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Vrsta objekta</label>
+              <div className="relative">
+                <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <select
+                  value={filters.idvrstaobjekta}
+                  onChange={(e) => handleFilterChange('idvrstaobjekta', e.target.value)}
+                  className="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all appearance-none cursor-pointer hover:bg-white/10"
+                >
+                  <option value="" className="bg-gray-800">Sve vrste objekata</option>
+                  {vrsteObjekata.map(vrsta => (
+                    <option key={vrsta.id} value={vrsta.id} className="bg-gray-800">{vrsta.opis}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+              </div>
+            </div>
+
+            {/* Range filteri - Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              {/* Cena */}
+              <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                <div className="flex items-center gap-2 mb-4">
+                  <Euro className="w-5 h-5 text-amber-400" />
+                  <span className="text-sm font-semibold text-white">Cena (EUR)</span>
+                </div>
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className="block text-xs text-gray-500 mb-1">Od</label>
+                    <input
+                      type="number"
+                      value={filters.cenaOd}
+                      onChange={(e) => handleFilterChange('cenaOd', e.target.value)}
+                      className="w-full px-3 py-2.5 bg-white/10 border border-white/10 rounded-lg text-white text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent placeholder-gray-500"
+                      placeholder="Min"
+                    />
+                  </div>
+                  <div className="flex items-end pb-2.5 text-gray-500">—</div>
+                  <div className="flex-1">
+                    <label className="block text-xs text-gray-500 mb-1">Do</label>
+                    <input
+                      type="number"
+                      value={filters.cenaDo}
+                      onChange={(e) => handleFilterChange('cenaDo', e.target.value)}
+                      className="w-full px-3 py-2.5 bg-white/10 border border-white/10 rounded-lg text-white text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent placeholder-gray-500"
+                      placeholder="Max"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Kvadratura */}
+              <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                <div className="flex items-center gap-2 mb-4">
+                  <Ruler className="w-5 h-5 text-blue-400" />
+                  <span className="text-sm font-semibold text-white">Kvadratura (m²)</span>
+                </div>
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className="block text-xs text-gray-500 mb-1">Od</label>
+                    <input
+                      type="number"
+                      value={filters.kvadraturaOd}
+                      onChange={(e) => handleFilterChange('kvadraturaOd', e.target.value)}
+                      className="w-full px-3 py-2.5 bg-white/10 border border-white/10 rounded-lg text-white text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent placeholder-gray-500"
+                      placeholder="Min"
+                    />
+                  </div>
+                  <div className="flex items-end pb-2.5 text-gray-500">—</div>
+                  <div className="flex-1">
+                    <label className="block text-xs text-gray-500 mb-1">Do</label>
+                    <input
+                      type="number"
+                      value={filters.kvadraturaDo}
+                      onChange={(e) => handleFilterChange('kvadraturaDo', e.target.value)}
+                      className="w-full px-3 py-2.5 bg-white/10 border border-white/10 rounded-lg text-white text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent placeholder-gray-500"
+                      placeholder="Max"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Struktura */}
+              <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                <div className="flex items-center gap-2 mb-4">
+                  <Home className="w-5 h-5 text-purple-400" />
+                  <span className="text-sm font-semibold text-white">Struktura (sobe)</span>
+                </div>
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className="block text-xs text-gray-500 mb-1">Od</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      value={filters.strukturaOd}
+                      onChange={(e) => handleFilterChange('strukturaOd', e.target.value)}
+                      className="w-full px-3 py-2.5 bg-white/10 border border-white/10 rounded-lg text-white text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent placeholder-gray-500"
+                      placeholder="Min"
+                    />
+                  </div>
+                  <div className="flex items-end pb-2.5 text-gray-500">—</div>
+                  <div className="flex-1">
+                    <label className="block text-xs text-gray-500 mb-1">Do</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      value={filters.strukturaDo}
+                      onChange={(e) => handleFilterChange('strukturaDo', e.target.value)}
+                      className="w-full px-3 py-2.5 bg-white/10 border border-white/10 rounded-lg text-white text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent placeholder-gray-500"
+                      placeholder="Max"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Lokacije */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Kvadratura od (m²)</label>
-              <input
-                type="number"
-                value={filters.kvadraturaOd}
-                onChange={(e) => handleFilterChange('kvadraturaOd', e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
-                placeholder="0"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Kvadratura do (m²)</label>
-              <input
-                type="number"
-                value={filters.kvadraturaDo}
-                onChange={(e) => handleFilterChange('kvadraturaDo', e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
-                placeholder="9999"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Struktura od</label>
-              <input
-                type="number"
-                step="0.01"
-                value={filters.strukturaOd}
-                onChange={(e) => handleFilterChange('strukturaOd', e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
-                placeholder="0"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Struktura do</label>
-              <input
-                type="number"
-                step="0.01"
-                value={filters.strukturaDo}
-                onChange={(e) => handleFilterChange('strukturaDo', e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
-                placeholder="9999"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Cena od (EUR)</label>
-              <input
-                type="number"
-                value={filters.cenaOd}
-                onChange={(e) => handleFilterChange('cenaOd', e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
-                placeholder="0"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Cena do (EUR)</label>
-              <input
-                type="number"
-                value={filters.cenaDo}
-                onChange={(e) => handleFilterChange('cenaDo', e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
-                placeholder="999999999"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-              <select
-                value={filters.stsaktivan ? 'true' : 'false'}
-                onChange={(e) => handleFilterChange('stsaktivan', e.target.value === 'true')}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
-              >
-                <option value="true">Aktivan</option>
-                <option value="false">Neaktivan</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Tip</label>
-              <select
-                value={filters.stsrentaprodaja}
-                onChange={(e) => handleFilterChange('stsrentaprodaja', e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
-              >
-                <option value="prodaja">Prodaja</option>
-                <option value="renta">Renta</option>
-                <option value="">Sve</option>
-              </select>
-            </div>
-
-            <div className="md:col-span-2 lg:col-span-3">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Lokacije</label>
-              <div className="max-h-40 overflow-y-auto bg-gray-50 border border-gray-200 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <label className="flex items-center gap-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                  <MapPin className="w-4 h-4" />
+                  Lokacije
+                </label>
+                {filters.idlokacija && filters.idlokacija.length > 0 && (
+                  <span className="px-3 py-1 bg-amber-500/20 text-amber-400 text-xs font-semibold rounded-full">
+                    {filters.idlokacija.length} izabrano
+                  </span>
+                )}
+              </div>
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 max-h-48 overflow-y-auto custom-scrollbar">
                 {lokacije.length === 0 ? (
-                  <p className="text-sm text-gray-500">Nema dostupnih lokacija</p>
+                  <p className="text-sm text-gray-500 text-center py-4">Nema dostupnih lokacija</p>
                 ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                    {lokacije.map(lokacija => (
-                      <label key={lokacija.id} className="flex items-center gap-2 cursor-pointer hover:bg-white p-2.5 rounded-xl transition-colors">
-                        <input
-                          type="checkbox"
-                          checked={filters.idlokacija?.includes(lokacija.id) || false}
-                          onChange={() => handleLokacijaToggle(lokacija.id)}
-                          className="rounded-lg border-gray-300 text-amber-500 focus:ring-amber-500"
-                        />
-                        <span className="text-sm text-gray-700">{lokacija.opis}</span>
-                      </label>
-                    ))}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                    {lokacije.map(lokacija => {
+                      const isSelected = filters.idlokacija?.includes(lokacija.id)
+                      return (
+                        <button
+                          key={lokacija.id}
+                          onClick={() => handleLokacijaToggle(lokacija.id)}
+                          className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                            isSelected
+                              ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50'
+                              : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-transparent hover:border-white/20'
+                          }`}
+                        >
+                          <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isSelected ? 'bg-amber-400' : 'bg-gray-600'}`}></span>
+                          <span className="truncate">{lokacija.opis}</span>
+                        </button>
+                      )
+                    })}
                   </div>
                 )}
               </div>
-              {filters.idlokacija && filters.idlokacija.length > 0 && (
-                <p className="text-xs text-amber-600 mt-2 font-medium">Izabrano: {filters.idlokacija.length} lokacija</p>
-              )}
             </div>
+
+            {/* Aktivni filteri summary */}
+            {(filters.idvrstaobjekta || filters.cenaOd || filters.cenaDo || filters.kvadraturaOd || filters.kvadraturaDo || filters.strukturaOd || filters.strukturaDo || (filters.idlokacija && filters.idlokacija.length > 0)) && (
+              <div className="mt-6 pt-6 border-t border-white/10">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-400">Aktivni filteri prikazuju rezultate</span>
+                  <button
+                    onClick={resetFilters}
+                    className="text-sm text-amber-400 hover:text-amber-300 font-medium"
+                  >
+                    Obriši sve filtere
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
