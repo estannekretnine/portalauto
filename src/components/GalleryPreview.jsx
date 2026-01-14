@@ -125,16 +125,6 @@ export default function GalleryPreview({ photos = [], onClose }) {
     goToPhoto((currentPhotoIndex - 1 + regularPhotos.length) % regularPhotos.length)
   }
 
-  // Klik na marker - prikaži prvu fotografiju iz grupe
-  const handleMarkerClick = (marker) => {
-    if (marker.photos.length > 0) {
-      const photoIndex = regularPhotos.findIndex(p => p.id === marker.photos[0].id)
-      if (photoIndex !== -1) {
-        goToPhoto(photoIndex)
-      }
-    }
-  }
-
   // Keyboard navigacija
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -238,9 +228,17 @@ export default function GalleryPreview({ photos = [], onClose }) {
                         key={markerKey}
                         className="absolute transform -translate-x-1/2 -translate-y-1/2 z-10"
                         style={{ left: `${marker.x}%`, top: `${marker.y}%` }}
-                        onMouseEnter={() => setHoveredMarkerId(markerKey)}
+                        onMouseEnter={() => {
+                          setHoveredMarkerId(markerKey)
+                          // Automatski prikaži fotografiju na hover
+                          if (marker.photos.length > 0) {
+                            const photoIndex = regularPhotos.findIndex(p => p.id === marker.photos[0].id)
+                            if (photoIndex !== -1) {
+                              goToPhoto(photoIndex)
+                            }
+                          }
+                        }}
                         onMouseLeave={() => setHoveredMarkerId(null)}
-                        onClick={() => handleMarkerClick(marker)}
                       >
                         {/* Marker krug */}
                         <div 
@@ -265,50 +263,20 @@ export default function GalleryPreview({ photos = [], onClose }) {
                           </div>
                         )}
                         
-                        {/* Tooltip sa preview fotografija */}
+                        {/* Mini tooltip - samo opis */}
                         {isHovered && (
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-20">
-                            <div className="bg-gray-900 rounded-lg shadow-2xl border border-white/20 p-2 min-w-[150px]">
-                              {marker.photos.length === 1 ? (
-                                // Jedna fotografija
-                                <div>
-                                  <img
-                                    src={marker.photos[0].url}
-                                    alt=""
-                                    className="w-full h-24 object-cover rounded"
-                                  />
-                                  <p className="text-xs text-white/80 mt-1 truncate text-center">
-                                    {marker.photos[0].opis || 'Bez opisa'}
-                                  </p>
-                                </div>
-                              ) : (
-                                // Više fotografija - grid
-                                <div>
-                                  <p className="text-xs text-amber-400 mb-2 text-center font-medium">
-                                    {marker.photos.length} fotografije
-                                  </p>
-                                  <div className="grid grid-cols-2 gap-1">
-                                    {marker.photos.slice(0, 4).map((photo, i) => (
-                                      <img
-                                        key={photo.id}
-                                        src={photo.url}
-                                        alt=""
-                                        className="w-full h-16 object-cover rounded"
-                                      />
-                                    ))}
-                                  </div>
-                                  {marker.photos.length > 4 && (
-                                    <p className="text-xs text-white/50 mt-1 text-center">
-                                      +{marker.photos.length - 4} više
-                                    </p>
-                                  )}
-                                </div>
-                              )}
-                              <p className="text-xs text-amber-400 mt-2 text-center">
-                                Klikni za prikaz
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-20 pointer-events-none">
+                            <div className="bg-gray-900/95 backdrop-blur rounded-lg shadow-xl border border-amber-500/30 px-3 py-2 whitespace-nowrap">
+                              <p className="text-sm text-white font-medium">
+                                {marker.photos[0]?.opis || `Fotografija ${idx + 1}`}
                               </p>
+                              {hasMultiplePhotos && (
+                                <p className="text-xs text-amber-400 mt-0.5">
+                                  + još {marker.photos.length - 1} foto
+                                </p>
+                              )}
                             </div>
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-gray-900"></div>
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-6 border-r-6 border-t-6 border-l-transparent border-r-transparent border-t-gray-900/95"></div>
                           </div>
                         )}
                       </div>
