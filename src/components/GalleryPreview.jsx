@@ -240,24 +240,31 @@ export default function GalleryPreview({ photos = [], onClose }) {
                         }}
                         onMouseLeave={() => setHoveredMarkerId(null)}
                       >
+                        {/* Pulsiranje za aktivni marker */}
+                        {(isHighlighted || isHovered) && (
+                          <div className="absolute inset-0 w-12 h-12 -m-2 rounded-full bg-amber-400 animate-ping opacity-40"></div>
+                        )}
+                        
                         {/* Marker krug */}
                         <div 
                           className={`
-                            w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold 
+                            relative flex items-center justify-center text-white font-bold 
                             cursor-pointer transition-all shadow-lg
-                            ${isHighlighted ? 'bg-amber-500 scale-125 ring-4 ring-amber-300/50' : 
-                              isHovered ? 'bg-amber-500 scale-110' : 'bg-amber-600 hover:scale-105'}
+                            ${(isHighlighted || isHovered) 
+                              ? 'w-12 h-12 text-base bg-gradient-to-br from-amber-400 to-orange-500 scale-110 ring-4 ring-white shadow-2xl shadow-amber-500/50' 
+                              : 'w-8 h-8 text-xs bg-amber-600 hover:scale-105'}
+                            rounded-full
                           `}
                         >
                           {hasMultiplePhotos ? (
-                            <span className="text-[10px]">{marker.photos.length}</span>
+                            <span className={isHighlighted || isHovered ? 'text-sm' : 'text-[10px]'}>{marker.photos.length}</span>
                           ) : (
                             idx + 1
                           )}
                         </div>
                         
                         {/* Badge za više fotografija */}
-                        {hasMultiplePhotos && (
+                        {hasMultiplePhotos && !(isHighlighted || isHovered) && (
                           <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[8px] text-white font-bold">
                             +
                           </div>
