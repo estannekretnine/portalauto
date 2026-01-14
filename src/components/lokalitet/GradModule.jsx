@@ -212,66 +212,73 @@ export default function GradModule() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-xl text-gray-600">Učitavanje...</div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
-        <h3 className="text-lg sm:text-xl font-semibold text-gray-800">Gradovi</h3>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Gradovi</h2>
+          <p className="text-gray-500 mt-1">Upravljanje gradovima</p>
+        </div>
         <button
           onClick={handleAdd}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-2xl hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-lg shadow-amber-500/25 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={drzave.length === 0}
         >
-          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span className="hidden sm:inline">Dodaj grad</span>
-          <span className="sm:hidden">Dodaj</span>
+          <Plus className="w-5 h-5" />
+          <span>Dodaj grad</span>
         </button>
       </div>
 
       {drzave.length === 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <p className="text-yellow-800">Morate prvo dodati državu pre dodavanja gradova.</p>
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+          <p className="text-amber-800 font-medium">Morate prvo dodati državu pre dodavanja gradova.</p>
         </div>
       )}
 
       {gradovi.length === 0 ? (
-        <div className="bg-gray-50 rounded-lg p-12 text-center">
-          <Building className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 text-lg mb-2">Nema gradova</p>
-          <p className="text-gray-500 mb-4">Dodajte prvi grad</p>
+        <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-16 text-center">
+          <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
+            <Building className="w-12 h-12 text-gray-400" />
+          </div>
+          <p className="text-gray-900 text-xl font-semibold mb-2">Nema gradova</p>
+          <p className="text-gray-500 mb-6">Dodajte prvi grad</p>
           <button
             onClick={handleAdd}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            className="px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-2xl hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-lg shadow-amber-500/25 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={drzave.length === 0}
           >
             Dodaj grad
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
           {/* Filter input - prikazuje se samo kada je sortColumn postavljen */}
           {sortColumn && (
-            <div className="p-3 sm:p-4 border-b border-gray-200 bg-gray-50">
-              <div className="flex items-center gap-2">
-                <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
+            <div className="p-4 border-b border-gray-100 bg-gray-50/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center">
+                  <Search className="w-5 h-5 text-gray-500" />
+                </div>
                 <input
                   type="text"
                   value={filterValue}
                   onChange={(e) => setFilterValue(e.target.value)}
                   placeholder={`Pretraži po ${sortColumn === 'id' ? 'ID' : sortColumn === 'opis' ? 'Opisu' : 'Državi'}...`}
-                  className="flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                 />
                 {filterValue && (
                   <button
                     onClick={() => setFilterValue('')}
-                    className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 flex-shrink-0"
+                    className="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
                     type="button"
                   >
-                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <X className="w-5 h-5" />
                   </button>
                 )}
               </div>
@@ -279,11 +286,11 @@ export default function GradModule() {
           )}
           {/* Desktop Table View */}
           <div className="hidden md:block overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full">
+              <thead className="bg-gradient-to-r from-gray-900 to-black">
                 <tr>
                   <th 
-                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider cursor-pointer hover:bg-white/10 select-none transition-colors"
                     onClick={() => handleSort('id')}
                   >
                     <div className="flex items-center">
@@ -292,7 +299,7 @@ export default function GradModule() {
                     </div>
                   </th>
                   <th 
-                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider cursor-pointer hover:bg-white/10 select-none transition-colors"
                     onClick={() => handleSort('opis')}
                   >
                     <div className="flex items-center">
@@ -301,7 +308,7 @@ export default function GradModule() {
                     </div>
                   </th>
                   <th 
-                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider cursor-pointer hover:bg-white/10 select-none transition-colors"
                     onClick={() => handleSort('iddrzave')}
                   >
                     <div className="flex items-center">
@@ -309,40 +316,42 @@ export default function GradModule() {
                       {getSortIcon('iddrzave')}
                     </div>
                   </th>
-                <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-right text-xs font-semibold text-white uppercase tracking-wider">
                   Akcije
                 </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-100">
                 {filteredAndSortedData.map((grad) => {
                   const drzavaOpis = drzave.find(d => d.id === grad.iddrzave)?.opis || 'N/A'
                   return (
-                    <tr key={grad.id} className="hover:bg-gray-50">
-                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
-                        {grad.id}
+                    <tr key={grad.id} className="hover:bg-amber-50 border-l-4 border-l-transparent hover:border-l-amber-500 transition-all duration-200">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center justify-center px-3 py-1 text-xs font-bold text-white bg-gradient-to-r from-gray-900 to-black rounded-lg">
+                          {grad.id}
+                        </span>
                       </td>
-                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">
+                      <td className="px-6 py-4 text-sm text-gray-900 font-medium">
                         {grad.opis}
                       </td>
-                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-500">
+                      <td className="px-6 py-4 text-sm text-gray-500">
                         {drzavaOpis}
                       </td>
-                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
-                        <div className="flex justify-end gap-1 sm:gap-2">
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="flex justify-end gap-2">
                           <button
                             onClick={() => handleEdit(grad)}
-                            className="flex items-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
+                            className="flex items-center gap-1.5 px-4 py-2 text-sm bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-md shadow-amber-500/20"
                           >
-                            <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                            <span className="hidden sm:inline">Izmeni</span>
+                            <Edit className="w-4 h-4" />
+                            <span className="hidden lg:inline">Izmeni</span>
                           </button>
                           <button
                             onClick={() => handleDelete(grad.id)}
-                            className="flex items-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                            className="flex items-center gap-1.5 px-4 py-2 text-sm bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-md shadow-red-500/20"
                           >
-                            <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                            <span className="hidden sm:inline">Obriši</span>
+                            <Trash2 className="w-4 h-4" />
+                            <span className="hidden lg:inline">Obriši</span>
                           </button>
                         </div>
                       </td>
@@ -354,14 +363,16 @@ export default function GradModule() {
           </div>
           
           {/* Mobile Card View */}
-          <div className="md:hidden divide-y divide-gray-200">
+          <div className="md:hidden divide-y divide-gray-100">
             {filteredAndSortedData.map((grad) => {
               const drzavaOpis = drzave.find(d => d.id === grad.iddrzave)?.opis || 'N/A'
               return (
-                <div key={grad.id} className="p-4 hover:bg-gray-50">
+                <div key={grad.id} className="p-4 hover:bg-amber-50 border-l-4 border-l-transparent hover:border-l-amber-500 transition-all duration-200">
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex-1">
-                      <div className="text-xs text-gray-500 mb-1">ID: {grad.id}</div>
+                      <span className="inline-flex items-center justify-center px-2.5 py-1 text-xs font-bold text-white bg-gradient-to-r from-gray-900 to-black rounded-lg mb-2">
+                        ID: {grad.id}
+                      </span>
                       <div className="text-sm font-medium text-gray-900 mb-1">{grad.opis}</div>
                       <div className="text-xs text-gray-500">Država: {drzavaOpis}</div>
                     </div>
@@ -369,14 +380,14 @@ export default function GradModule() {
                   <div className="flex gap-2 mt-3">
                     <button
                       onClick={() => handleEdit(grad)}
-                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors text-sm"
+                      className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-md shadow-amber-500/20 text-sm font-medium"
                     >
                       <Edit className="w-4 h-4" />
                       Izmeni
                     </button>
                     <button
                       onClick={() => handleDelete(grad.id)}
-                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
+                      className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-md shadow-red-500/20 text-sm font-medium"
                     >
                       <Trash2 className="w-4 h-4" />
                       Obriši
@@ -391,23 +402,28 @@ export default function GradModule() {
 
       {/* Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md my-auto">
-            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-800">
-                {editingGrad ? 'Izmeni grad' : 'Dodaj novi grad'}
-              </h3>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 w-full max-w-md my-auto">
+            <div className="px-6 py-5 bg-gradient-to-r from-gray-900 to-black rounded-t-3xl">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
+                  <Building className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white">
+                  {editingGrad ? 'Izmeni grad' : 'Dodaj novi grad'}
+                </h3>
+              </div>
             </div>
-            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-6 space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Država *
                 </label>
                 <select
                   value={formData.iddrzave}
                   onChange={(e) => setFormData({ ...formData, iddrzave: e.target.value })}
                   required
-                  className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                 >
                   <option value="">Izaberi državu</option>
                   {drzave.map((drzava) => (
@@ -418,7 +434,7 @@ export default function GradModule() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Opis *
                 </label>
                 <input
@@ -426,20 +442,21 @@ export default function GradModule() {
                   value={formData.opis}
                   onChange={(e) => setFormData({ ...formData, opis: e.target.value })}
                   required
-                  className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                  placeholder="Unesite naziv grada..."
                 />
               </div>
-              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-100">
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="w-full sm:w-auto px-4 sm:px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm sm:text-base"
+                  className="w-full sm:w-auto px-6 py-3 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors font-medium"
                 >
                   Otkaži
                 </button>
                 <button
                   type="submit"
-                  className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm sm:text-base"
+                  className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-lg shadow-amber-500/25 font-medium"
                 >
                   {editingGrad ? 'Sačuvaj izmene' : 'Kreiraj grad'}
                 </button>

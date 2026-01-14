@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
-import { Edit, Trash2, Plus, User, Phone, ToggleLeft, ToggleRight, ArrowUp, ArrowDown, Search, X, MapPin } from 'lucide-react'
+import { Edit, Trash2, Plus, User, Phone, ToggleLeft, ToggleRight, ArrowUp, ArrowDown, Search, X, MapPin, Mail, Calendar, Shield } from 'lucide-react'
 
 export default function KorisniciModule() {
   const [korisnici, setKorisnici] = useState([])
@@ -36,15 +36,15 @@ export default function KorisniciModule() {
 
       setKorisnici(data || [])
     } catch (error) {
-      console.error('Gre┼íka pri u─ìitavanju korisnika:', error)
-      alert('Gre┼íka pri u─ìitavanju korisnika')
+      console.error('Greška pri učitavanju korisnika:', error)
+      alert('Greška pri učitavanju korisnika')
     } finally {
       setLoading(false)
     }
   }
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Da li ste sigurni da ┼╛elite da obri┼íete ovog korisnika?')) {
+    if (!window.confirm('Da li ste sigurni da želite da obrišete ovog korisnika?')) {
       return
     }
 
@@ -58,8 +58,8 @@ export default function KorisniciModule() {
 
       loadKorisnici()
     } catch (error) {
-      console.error('Gre┼íka pri brisanju:', error)
-      alert('Gre┼íka pri brisanju korisnika')
+      console.error('Greška pri brisanju:', error)
+      alert('Greška pri brisanju korisnika')
     }
   }
 
@@ -76,8 +76,8 @@ export default function KorisniciModule() {
 
       loadKorisnici()
     } catch (error) {
-      console.error('Gre┼íka pri promeni statusa:', error)
-      alert('Gre┼íka pri promeni statusa: ' + error.message)
+      console.error('Greška pri promeni statusa:', error)
+      alert('Greška pri promeni statusa: ' + error.message)
     }
   }
 
@@ -105,7 +105,7 @@ export default function KorisniciModule() {
       setSortColumn(column)
       setSortDirection('asc')
     }
-    setFilterValue('') // Resetuj filter pri promeni sortiranja
+    setFilterValue('')
   }
 
   const getSortIcon = (column) => {
@@ -127,7 +127,7 @@ export default function KorisniciModule() {
       'stsstatus': 'Statusu',
       'stsaktivan': 'Aktivnom statusu',
       'datumk': 'Datumu kreiranja',
-      'datumpt': 'Datumu a┼╛uriranja'
+      'datumpt': 'Datumu ažuriranja'
     }
     return labels[column] || column
   }
@@ -135,12 +135,10 @@ export default function KorisniciModule() {
   const filteredAndSortedData = useMemo(() => {
     let data = [...korisnici]
 
-    // Filtriranje
     if (filterValue && sortColumn) {
       const filterLower = filterValue.toLowerCase()
       data = data.filter((item) => {
         let value = item[sortColumn]
-        // Za datum kolone, formatiraj pre pretrage
         if (sortColumn === 'datumk' || sortColumn === 'datumpt') {
           value = formatDate(value)
         }
@@ -149,17 +147,14 @@ export default function KorisniciModule() {
       })
     }
 
-    // Sortiranje
     if (sortColumn) {
       data.sort((a, b) => {
         let aVal = a[sortColumn]
         let bVal = b[sortColumn]
 
-        // Handle null/undefined
         if (aVal === null || aVal === undefined) aVal = ''
         if (bVal === null || bVal === undefined) bVal = ''
 
-        // Convert to string for comparison
         aVal = String(aVal).toLowerCase()
         bVal = String(bVal).toLowerCase()
 
@@ -176,13 +171,13 @@ export default function KorisniciModule() {
 
   const getStatusBadgeColor = (status) => {
     const colors = {
-      'kupac': 'bg-blue-100 text-blue-700',
-      'prodavac': 'bg-green-100 text-green-700',
-      'agent': 'bg-purple-100 text-purple-700',
-      'admin': 'bg-red-100 text-red-700',
-      'manager': 'bg-yellow-100 text-yellow-700'
+      'kupac': 'bg-blue-100 text-blue-700 border-blue-200',
+      'prodavac': 'bg-green-100 text-green-700 border-green-200',
+      'agent': 'bg-purple-100 text-purple-700 border-purple-200',
+      'admin': 'bg-red-100 text-red-700 border-red-200',
+      'manager': 'bg-amber-100 text-amber-700 border-amber-200'
     }
-    return colors[status] || 'bg-gray-100 text-gray-700'
+    return colors[status] || 'bg-gray-100 text-gray-700 border-gray-200'
   }
 
   const handleEdit = (korisnik) => {
@@ -190,7 +185,7 @@ export default function KorisniciModule() {
     setFormData({
       naziv: korisnik.naziv || '',
       email: korisnik.email || '',
-      password: '', // Ne prikazujemo postoje─çi password
+      password: '',
       brojmob: korisnik.brojmob || '',
       adresa: korisnik.adresa || '',
       stsstatus: korisnik.stsstatus || 'kupac',
@@ -218,7 +213,6 @@ export default function KorisniciModule() {
 
     try {
       if (editingKorisnik) {
-        // Update
         const updateData = {
           naziv: formData.naziv,
           email: formData.email,
@@ -228,7 +222,6 @@ export default function KorisniciModule() {
           stsaktivan: formData.stsaktivan
         }
         
-        // Dodaj password samo ako je unet novi
         if (formData.password) {
           updateData.password = formData.password
         }
@@ -240,7 +233,6 @@ export default function KorisniciModule() {
 
         if (error) throw error
       } else {
-        // Create
         if (!formData.password) {
           alert('Password je obavezan za novog korisnika')
           return
@@ -264,243 +256,139 @@ export default function KorisniciModule() {
       setShowForm(false)
       loadKorisnici()
     } catch (error) {
-      console.error('Gre┼íka pri ─ìuvanju korisnika:', error)
-      alert('Gre┼íka pri ─ìuvanju korisnika: ' + error.message)
+      console.error('Greška pri čuvanju korisnika:', error)
+      alert('Greška pri čuvanju korisnika: ' + error.message)
     }
   }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-xl text-gray-600">U─ìitavanje...</div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Korisnici</h2>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Korisnici</h2>
+          <p className="text-gray-500 mt-1">Upravljanje korisnicima sistema</p>
+        </div>
         <button
           onClick={handleAdd}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm sm:text-base"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-2xl hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-lg shadow-amber-500/25 font-medium"
         >
-          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span className="hidden sm:inline">Dodaj korisnika</span>
-          <span className="sm:hidden">Dodaj</span>
+          <Plus className="w-5 h-5" />
+          <span>Dodaj korisnika</span>
         </button>
       </div>
 
       {korisnici.length === 0 ? (
-        <div className="bg-gray-50 rounded-lg p-12 text-center">
-          <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 text-lg mb-2">Nema korisnika</p>
-          <p className="text-gray-500 mb-4">Dodajte prvog korisnika</p>
+        <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-16 text-center">
+          <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
+            <User className="w-12 h-12 text-gray-400" />
+          </div>
+          <p className="text-gray-900 text-xl font-semibold mb-2">Nema korisnika</p>
+          <p className="text-gray-500 mb-6">Dodajte prvog korisnika</p>
           <button
             onClick={handleAdd}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            className="px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-2xl hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-lg shadow-amber-500/25 font-medium"
           >
             Dodaj korisnika
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          {/* Filter input - prikazuje se samo kada je sortColumn postavljen */}
+        <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
           {sortColumn && (
-            <div className="flex-shrink-0 p-3 sm:p-4 border-b border-gray-200 bg-gray-50">
-              <div className="flex items-center gap-2">
-                <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
+            <div className="flex-shrink-0 p-4 border-b border-gray-100 bg-gray-50/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center">
+                  <Search className="w-5 h-5 text-gray-500" />
+                </div>
                 <input
                   type="text"
                   value={filterValue}
                   onChange={(e) => setFilterValue(e.target.value)}
-                  placeholder={`Pretra┼╛i po ${getColumnLabel(sortColumn)}...`}
-                  className="flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder={`Pretraži po ${getColumnLabel(sortColumn)}...`}
+                  className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                 />
                 {filterValue && (
-                  <button
-                    onClick={() => setFilterValue('')}
-                    className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 flex-shrink-0"
-                    type="button"
-                  >
-                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <button onClick={() => setFilterValue('')} className="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors" type="button">
+                    <X className="w-5 h-5" />
                   </button>
                 )}
               </div>
             </div>
           )}
-          {/* Desktop Table View */}
           <div className="hidden md:block overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full">
+              <thead className="bg-gradient-to-r from-gray-900 to-black">
                 <tr>
-                  <th 
-                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
-                    onClick={() => handleSort('id')}
-                  >
-                    <div className="flex items-center">
-                      ID
-                      {getSortIcon('id')}
-                    </div>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider cursor-pointer hover:bg-white/10 select-none transition-colors" onClick={() => handleSort('id')}>
+                    <div className="flex items-center">ID{getSortIcon('id')}</div>
                   </th>
-                  <th 
-                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
-                    onClick={() => handleSort('naziv')}
-                  >
-                    <div className="flex items-center">
-                      Naziv
-                      {getSortIcon('naziv')}
-                    </div>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider cursor-pointer hover:bg-white/10 select-none transition-colors" onClick={() => handleSort('naziv')}>
+                    <div className="flex items-center">Naziv{getSortIcon('naziv')}</div>
                   </th>
-                  <th 
-                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
-                    onClick={() => handleSort('email')}
-                  >
-                    <div className="flex items-center">
-                      Email
-                      {getSortIcon('email')}
-                    </div>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider cursor-pointer hover:bg-white/10 select-none transition-colors" onClick={() => handleSort('email')}>
+                    <div className="flex items-center">Email{getSortIcon('email')}</div>
                   </th>
-                  <th 
-                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
-                    onClick={() => handleSort('brojmob')}
-                  >
-                    <div className="flex items-center">
-                      Telefon
-                      {getSortIcon('brojmob')}
-                    </div>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider cursor-pointer hover:bg-white/10 select-none transition-colors" onClick={() => handleSort('brojmob')}>
+                    <div className="flex items-center">Telefon{getSortIcon('brojmob')}</div>
                   </th>
-                  <th 
-                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
-                    onClick={() => handleSort('adresa')}
-                  >
-                    <div className="flex items-center">
-                      Adresa
-                      {getSortIcon('adresa')}
-                    </div>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider cursor-pointer hover:bg-white/10 select-none transition-colors" onClick={() => handleSort('stsstatus')}>
+                    <div className="flex items-center">Status{getSortIcon('stsstatus')}</div>
                   </th>
-                  <th 
-                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
-                    onClick={() => handleSort('stsstatus')}
-                  >
-                    <div className="flex items-center">
-                      Status
-                      {getSortIcon('stsstatus')}
-                    </div>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider cursor-pointer hover:bg-white/10 select-none transition-colors" onClick={() => handleSort('stsaktivan')}>
+                    <div className="flex items-center">Aktivan{getSortIcon('stsaktivan')}</div>
                   </th>
-                  <th 
-                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
-                    onClick={() => handleSort('stsaktivan')}
-                  >
-                    <div className="flex items-center">
-                      Aktivan
-                      {getSortIcon('stsaktivan')}
-                    </div>
-                  </th>
-                  <th 
-                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
-                    onClick={() => handleSort('datumk')}
-                  >
-                    <div className="flex items-center">
-                      Kreiran
-                      {getSortIcon('datumk')}
-                    </div>
-                  </th>
-                  <th 
-                    className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
-                    onClick={() => handleSort('datumpt')}
-                  >
-                    <div className="flex items-center">
-                      A┼╛uriran
-                      {getSortIcon('datumpt')}
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Akcije
-                  </th>
+                  <th className="px-6 py-4 text-right text-xs font-semibold text-white uppercase tracking-wider">Akcije</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-100">
                 {filteredAndSortedData.map((korisnik) => (
-                  <tr key={korisnik.id} className="hover:bg-gray-50">
-                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
-                      {korisnik.id}
+                  <tr key={korisnik.id} className="hover:bg-amber-50 border-l-4 border-l-transparent hover:border-l-amber-500 transition-all duration-200">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="inline-flex items-center justify-center px-3 py-1 text-xs font-bold text-white bg-gradient-to-r from-gray-900 to-black rounded-lg">{korisnik.id}</span>
                     </td>
-                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
-                      {korisnik.naziv}
-                    </td>
-                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
-                      {korisnik.email}
-                    </td>
-                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                    <td className="px-6 py-4 text-sm text-gray-900 font-medium">{korisnik.naziv}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{korisnik.email}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
                       {korisnik.brojmob ? (
-                        <div className="flex items-center gap-1">
-                          <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
-                          {korisnik.brojmob}
-                        </div>
-                      ) : (
-                        <span className="text-gray-400">-</span>
-                      )}
+                        <div className="flex items-center gap-1.5"><Phone className="w-4 h-4" />{korisnik.brojmob}</div>
+                      ) : '-'}
                     </td>
-                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-500 max-w-xs truncate" title={korisnik.adresa || ''}>
-                      {korisnik.adresa ? (
-                        <div className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                          <span className="truncate">{korisnik.adresa}</span>
-                        </div>
-                      ) : (
-                        <span className="text-gray-400">-</span>
-                      )}
-                    </td>
-                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       {korisnik.stsstatus ? (
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(korisnik.stsstatus)}`}>
-                          {korisnik.stsstatus}
-                        </span>
-                      ) : (
-                        <span className="text-gray-400">-</span>
-                      )}
+                        <span className={`px-3 py-1 rounded-lg text-xs font-semibold border ${getStatusBadgeColor(korisnik.stsstatus)}`}>{korisnik.stsstatus}</span>
+                      ) : '-'}
                     </td>
-                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <button
                         onClick={() => handleToggleStatus(korisnik)}
-                        className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-colors"
                         title={`Kliknite da ${korisnik.stsaktivan === 'da' ? 'deaktivirate' : 'aktivirate'} korisnika`}
                       >
                         {korisnik.stsaktivan === 'da' ? (
-                          <span className="flex items-center gap-0.5 sm:gap-1 text-green-600 hover:text-green-700">
-                            <ToggleRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                            <span className="text-xs font-medium">Da</span>
+                          <span className="flex items-center gap-1.5 text-green-600 hover:text-green-700 bg-green-50 px-3 py-1.5 rounded-xl">
+                            <ToggleRight className="w-5 h-5" /><span className="text-xs font-semibold">Da</span>
                           </span>
                         ) : (
-                          <span className="flex items-center gap-0.5 sm:gap-1 text-red-600 hover:text-red-700">
-                            <ToggleLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                            <span className="text-xs font-medium">Ne</span>
+                          <span className="flex items-center gap-1.5 text-red-600 hover:text-red-700 bg-red-50 px-3 py-1.5 rounded-xl">
+                            <ToggleLeft className="w-5 h-5" /><span className="text-xs font-semibold">Ne</span>
                           </span>
                         )}
                       </button>
                     </td>
-                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
-                      {formatDate(korisnik.datumk)}
-                    </td>
-                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
-                      {formatDate(korisnik.datumpt)}
-                    </td>
-                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
-                      <div className="flex justify-end gap-1 sm:gap-2">
-                        <button
-                          onClick={() => handleEdit(korisnik)}
-                          className="flex items-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
-                        >
-                          <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span className="hidden sm:inline">Izmeni</span>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <div className="flex justify-end gap-2">
+                        <button onClick={() => handleEdit(korisnik)} className="flex items-center gap-1.5 px-4 py-2 text-sm bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-md shadow-amber-500/20">
+                          <Edit className="w-4 h-4" /><span className="hidden lg:inline">Izmeni</span>
                         </button>
-                        <button
-                          onClick={() => handleDelete(korisnik.id)}
-                          className="flex items-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-                        >
-                          <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span className="hidden sm:inline">Obri┼íi</span>
+                        <button onClick={() => handleDelete(korisnik.id)} className="flex items-center gap-1.5 px-4 py-2 text-sm bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-md shadow-red-500/20">
+                          <Trash2 className="w-4 h-4" /><span className="hidden lg:inline">Obriši</span>
                         </button>
                       </div>
                     </td>
@@ -510,70 +398,30 @@ export default function KorisniciModule() {
             </table>
           </div>
           
-          {/* Mobile Card View */}
-          <div className="md:hidden divide-y divide-gray-200">
+          <div className="md:hidden divide-y divide-gray-100">
             {filteredAndSortedData.map((korisnik) => (
-              <div key={korisnik.id} className="p-4 hover:bg-gray-50">
+              <div key={korisnik.id} className="p-4 hover:bg-amber-50 border-l-4 border-l-transparent hover:border-l-amber-500 transition-all duration-200">
                 <div className="space-y-2 mb-3">
-                  <div className="text-xs text-gray-500">ID: {korisnik.id}</div>
+                  <span className="inline-flex items-center justify-center px-2.5 py-1 text-xs font-bold text-white bg-gradient-to-r from-gray-900 to-black rounded-lg">ID: {korisnik.id}</span>
                   <div className="text-sm font-medium text-gray-900">{korisnik.naziv}</div>
-                  {korisnik.email && (
-                    <div className="text-xs text-gray-600">Γ£ë∩╕Å {korisnik.email}</div>
-                  )}
-                  {korisnik.brojmob && (
-                    <div className="text-xs text-gray-600">≡ƒô₧ {korisnik.brojmob}</div>
-                  )}
-                  {korisnik.adresa && (
-                    <div className="text-xs text-gray-600">≡ƒôì {korisnik.adresa}</div>
-                  )}
+                  {korisnik.email && <div className="flex items-center gap-1.5 text-xs text-gray-600"><Mail className="w-3.5 h-3.5" />{korisnik.email}</div>}
+                  {korisnik.brojmob && <div className="flex items-center gap-1.5 text-xs text-gray-600"><Phone className="w-3.5 h-3.5" />{korisnik.brojmob}</div>}
+                  {korisnik.adresa && <div className="flex items-center gap-1.5 text-xs text-gray-600"><MapPin className="w-3.5 h-3.5" />{korisnik.adresa}</div>}
                   <div className="flex flex-wrap gap-2 mt-2">
                     {korisnik.stsstatus && (
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(korisnik.stsstatus)}`}>
-                        {korisnik.stsstatus}
-                      </span>
+                      <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold border ${getStatusBadgeColor(korisnik.stsstatus)}`}>{korisnik.stsstatus}</span>
                     )}
-                    <button
-                      onClick={() => handleToggleStatus(korisnik)}
-                      className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors ${
-                        korisnik.stsaktivan === 'da' 
-                          ? 'bg-green-100 text-green-700 hover:bg-green-200' 
-                          : 'bg-red-100 text-red-700 hover:bg-red-200'
-                      }`}
-                    >
-                      {korisnik.stsaktivan === 'da' ? (
-                        <>
-                          <ToggleRight className="w-3 h-3" />
-                          Aktivan
-                        </>
-                      ) : (
-                        <>
-                          <ToggleLeft className="w-3 h-3" />
-                          Neaktivan
-                        </>
-                      )}
+                    <button onClick={() => handleToggleStatus(korisnik)} className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${korisnik.stsaktivan === 'da' ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}`}>
+                      {korisnik.stsaktivan === 'da' ? (<><ToggleRight className="w-3.5 h-3.5" />Aktivan</>) : (<><ToggleLeft className="w-3.5 h-3.5" />Neaktivan</>)}
                     </button>
                   </div>
-                  {korisnik.datumk && (
-                    <div className="text-xs text-gray-500">≡ƒôà Kreiran: {formatDate(korisnik.datumk)}</div>
-                  )}
-                  {korisnik.datumpt && (
-                    <div className="text-xs text-gray-500">≡ƒöä A┼╛uriran: {formatDate(korisnik.datumpt)}</div>
-                  )}
                 </div>
                 <div className="flex gap-2 mt-3">
-                  <button
-                    onClick={() => handleEdit(korisnik)}
-                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors text-sm"
-                  >
-                    <Edit className="w-4 h-4" />
-                    Izmeni
+                  <button onClick={() => handleEdit(korisnik)} className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-md shadow-amber-500/20 text-sm font-medium">
+                    <Edit className="w-4 h-4" />Izmeni
                   </button>
-                  <button
-                    onClick={() => handleDelete(korisnik.id)}
-                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Obri┼íi
+                  <button onClick={() => handleDelete(korisnik.id)} className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-md shadow-red-500/20 text-sm font-medium">
+                    <Trash2 className="w-4 h-4" />Obriši
                   </button>
                 </div>
               </div>
@@ -582,74 +430,37 @@ export default function KorisniciModule() {
         </div>
       )}
 
-      {/* Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md my-auto">
-            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-800">
-                {editingKorisnik ? 'Izmeni korisnika' : 'Dodaj novog korisnika'}
-              </h3>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 w-full max-w-md max-h-[90vh] overflow-y-auto my-auto">
+            <div className="px-6 py-5 bg-gradient-to-r from-gray-900 to-black rounded-t-3xl">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
+                  <User className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white">{editingKorisnik ? 'Izmeni korisnika' : 'Dodaj novog korisnika'}</h3>
+              </div>
             </div>
-            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-6 space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Naziv *
-                </label>
-                <input
-                  type="text"
-                  value={formData.naziv}
-                  onChange={(e) => setFormData({ ...formData, naziv: e.target.value })}
-                  required
-                  className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Naziv *</label>
+                <input type="text" value={formData.naziv} onChange={(e) => setFormData({ ...formData, naziv: e.target.value })} required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all" placeholder="Ime i prezime" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  required
-                  className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+                <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all" placeholder="email@example.com" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Broj telefona
-                </label>
-                <input
-                  type="tel"
-                  value={formData.brojmob}
-                  onChange={(e) => setFormData({ ...formData, brojmob: e.target.value })}
-                  className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="+381 60 123 4567"
-                />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Broj telefona</label>
+                <input type="tel" value={formData.brojmob} onChange={(e) => setFormData({ ...formData, brojmob: e.target.value })} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all" placeholder="+381 60 123 4567" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Adresa
-                </label>
-                <textarea
-                  value={formData.adresa}
-                  onChange={(e) => setFormData({ ...formData, adresa: e.target.value })}
-                  rows={3}
-                  className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y"
-                  placeholder="Unesite adresu korisnika"
-                />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Adresa</label>
+                <textarea value={formData.adresa} onChange={(e) => setFormData({ ...formData, adresa: e.target.value })} rows={2} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all resize-none" placeholder="Unesite adresu korisnika" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Status *
-                </label>
-                <select
-                  value={formData.stsstatus}
-                  onChange={(e) => setFormData({ ...formData, stsstatus: e.target.value })}
-                  required
-                  className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                >
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Status *</label>
+                <select value={formData.stsstatus} onChange={(e) => setFormData({ ...formData, stsstatus: e.target.value })} required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all">
                   <option value="kupac">Kupac</option>
                   <option value="prodavac">Prodavac</option>
                   <option value="agent">Agent</option>
@@ -658,46 +469,19 @@ export default function KorisniciModule() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Aktivan *
-                </label>
-                <select
-                  value={formData.stsaktivan}
-                  onChange={(e) => setFormData({ ...formData, stsaktivan: e.target.value })}
-                  required
-                  className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                >
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Aktivan *</label>
+                <select value={formData.stsaktivan} onChange={(e) => setFormData({ ...formData, stsaktivan: e.target.value })} required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all">
                   <option value="da">Da</option>
                   <option value="ne">Ne</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Password {editingKorisnik ? '(ostavite prazno da zadr┼╛ite postoje─çi)' : '*'}
-                </label>
-                <input
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required={!editingKorisnik}
-                  className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder={editingKorisnik ? 'Nova password (opciono)' : 'Password'}
-                />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Password {editingKorisnik ? '(ostavite prazno da zadržite postojeći)' : '*'}</label>
+                <input type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} required={!editingKorisnik} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all" placeholder={editingKorisnik ? 'Nova lozinka (opciono)' : 'Lozinka'} />
               </div>
-              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="w-full sm:w-auto px-4 sm:px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm sm:text-base"
-                >
-                  Otka┼╛i
-                </button>
-                <button
-                  type="submit"
-                  className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm sm:text-base"
-                >
-                  {editingKorisnik ? 'Sa─ìuvaj izmene' : 'Kreiraj korisnika'}
-                </button>
+              <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-100">
+                <button type="button" onClick={() => setShowForm(false)} className="w-full sm:w-auto px-6 py-3 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors font-medium">Otkaži</button>
+                <button type="submit" className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-lg shadow-amber-500/25 font-medium">{editingKorisnik ? 'Sačuvaj izmene' : 'Kreiraj korisnika'}</button>
               </div>
             </form>
           </div>
@@ -706,4 +490,3 @@ export default function KorisniciModule() {
     </div>
   )
 }
-
