@@ -1,5 +1,6 @@
 ﻿import { useMemo, useState, useRef, useCallback } from 'react'
-import { Upload, X, Star, ArrowUp, ArrowDown, MapPin, Eye, Layers } from 'lucide-react'
+import { Upload, X, Star, ArrowUp, ArrowDown, MapPin, Eye, Layers, Play } from 'lucide-react'
+import GalleryPreview from './GalleryPreview'
 
 export default function PhotoUpload({ photos = [], onPhotosChange }) {
   const [dragActive, setDragActive] = useState(false)
@@ -7,6 +8,7 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
   const [selectedPhotoForLink, setSelectedPhotoForLink] = useState(null)
   const [hoveredMarker, setHoveredMarker] = useState(null)
   const [hoverPosition, setHoverPosition] = useState(null) // { x, y, nearestPhoto }
+  const [showPreview, setShowPreview] = useState(false) // Za prikaz GalleryPreview
   const sketchContainerRef = useRef(null)
   const photoRefs = useRef({}) // Reference za svaku fotografiju za skrolovanje
 
@@ -370,6 +372,22 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
 
       {photos.length > 0 && (
         <div className="space-y-4">
+          
+          {/* Preview dugme */}
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                setShowPreview(true)
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg font-medium shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+            >
+              <Play className="w-5 h-5" />
+              Preview galerije
+            </button>
+          </div>
           
           {/* Panel sa skicama - prikazuje se samo ako ima skica */}
           {sketchPhotos.length > 0 && (
@@ -750,6 +768,14 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
               )
             })}
         </div>
+      )}
+
+      {/* Gallery Preview Modal */}
+      {showPreview && (
+        <GalleryPreview
+          photos={photos}
+          onClose={() => setShowPreview(false)}
+        />
       )}
     </div>
   )
