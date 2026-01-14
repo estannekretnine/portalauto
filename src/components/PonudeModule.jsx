@@ -398,10 +398,17 @@ export default function PonudeModule() {
 
   // Zatvori action menu kad se klikne bilo gde
   useEffect(() => {
+    if (openActionMenu === null) return
+    
     const handleClickOutside = () => setOpenActionMenu(null)
-    if (openActionMenu !== null) {
+    // Dodaj listener sa malim kašnjenjem da ne uhvati isti klik koji je otvorio meni
+    const timeoutId = setTimeout(() => {
       document.addEventListener('click', handleClickOutside)
-      return () => document.removeEventListener('click', handleClickOutside)
+    }, 0)
+    
+    return () => {
+      clearTimeout(timeoutId)
+      document.removeEventListener('click', handleClickOutside)
     }
   }, [openActionMenu])
 
