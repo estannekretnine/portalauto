@@ -249,23 +249,23 @@ export default function OpstinaModule() {
         <div className="bg-white rounded-lg shadow overflow-hidden">
           {/* Filter input - prikazuje se samo kada je sortColumn postavljen */}
           {sortColumn && (
-            <div className="p-4 border-b border-gray-200 bg-gray-50">
+            <div className="p-3 sm:p-4 border-b border-gray-200 bg-gray-50">
               <div className="flex items-center gap-2">
-                <Search className="w-5 h-5 text-gray-400" />
+                <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
                 <input
                   type="text"
                   value={filterValue}
                   onChange={(e) => setFilterValue(e.target.value)}
                   placeholder={`Pretraži po ${sortColumn === 'id' ? 'ID' : sortColumn === 'opis' ? 'Opisu' : 'Gradu'}...`}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
                 {filterValue && (
                   <button
                     onClick={() => setFilterValue('')}
-                    className="p-2 text-gray-400 hover:text-gray-600"
+                    className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 flex-shrink-0"
                     type="button"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 )}
               </div>
@@ -320,7 +320,7 @@ export default function OpstinaModule() {
                         {opstina.opis}
                       </td>
                       <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-500">
-                        {gradOpis} (ID: {opstina.idgrad})
+                        {gradOpis}
                       </td>
                       <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
                         <div className="flex justify-end gap-1 sm:gap-2">

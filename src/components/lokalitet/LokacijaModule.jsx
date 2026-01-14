@@ -320,7 +320,7 @@ export default function LokacijaModule() {
                         {lokacija.opis}
                       </td>
                       <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-500">
-                        {opstinaOpis} (ID: {lokacija.idopstina})
+                        {opstinaOpis}
                       </td>
                       <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
                         <div className="flex justify-end gap-1 sm:gap-2">
