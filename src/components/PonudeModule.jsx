@@ -510,7 +510,19 @@ export default function PonudeModule() {
     }
 
     return result
-  }, [ponude, columnFilters, sortConfig])
+  }, [
+    ponude, 
+    columnFilters.id,
+    columnFilters.vrsta,
+    columnFilters.opstina,
+    columnFilters.lokacija,
+    columnFilters.ulica,
+    columnFilters.kvadratura,
+    columnFilters.struktura,
+    columnFilters.cena,
+    sortConfig.key, 
+    sortConfig.direction
+  ])
 
   const totalPonude = filteredAndSortedPonude.length
   const totalPages = Math.ceil(totalPonude / itemsPerPage)
