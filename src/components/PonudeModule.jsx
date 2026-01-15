@@ -977,6 +977,7 @@ export default function PonudeModule() {
                   <th 
                     className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
                     onClick={() => handleSort('kvadratura')}
+                    title="Kvadratura nekretnine"
                   >
                     <div className="flex items-center gap-1">
                       m²
@@ -1007,8 +1008,8 @@ export default function PonudeModule() {
                       )}
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider">Vidljiv</th>
-                  <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider">Ugovor</th>
+                  <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider" title="Vidljivo na sajtu">Vid</th>
+                  <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider" title="Ugovor potpisan">Ug</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
                   <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider">Akcije</th>
