@@ -209,7 +209,9 @@ export default function PonudeModule() {
           struktura,
           cena,
           stsaktivan,
-          stsrentaprodaja
+          stsrentaprodaja,
+          vidljivostnasajtu,
+          metapodaci
         `)
 
       if (filters.stsaktivan !== null && filters.stsaktivan !== undefined) {
@@ -1005,6 +1007,8 @@ export default function PonudeModule() {
                       )}
                     </div>
                   </th>
+                  <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider">Vidljiv</th>
+                  <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider">Ugovor</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
                   <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider">Akcije</th>
@@ -1087,6 +1091,8 @@ export default function PonudeModule() {
                   <th className="px-2 py-2"></th>
                   <th className="px-2 py-2"></th>
                   <th className="px-2 py-2"></th>
+                  <th className="px-2 py-2"></th>
+                  <th className="px-2 py-2"></th>
                 </tr>
               </thead>
               <tbody>
@@ -1137,6 +1143,24 @@ export default function PonudeModule() {
                         <Euro className="w-4 h-4 text-amber-600" />
                         <span className="text-sm font-bold text-gray-900">{ponuda.cena ? new Intl.NumberFormat('sr-RS').format(ponuda.cena) : '-'}</span>
                       </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-center">
+                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${
+                        ponuda.vidljivostnasajtu
+                          ? 'bg-emerald-100 text-emerald-600'
+                          : 'bg-gray-100 text-gray-400'
+                      }`}>
+                        {ponuda.vidljivostnasajtu ? '👁️' : '🚫'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-center">
+                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${
+                        ponuda.metapodaci?.eop?.sts_ugovor_potpisan
+                          ? 'bg-blue-100 text-blue-600'
+                          : 'bg-gray-100 text-gray-400'
+                      }`}>
+                        {ponuda.metapodaci?.eop?.sts_ugovor_potpisan ? '📝' : '—'}
+                      </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${

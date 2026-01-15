@@ -14,7 +14,7 @@ const FIELD_DEFINITIONS = {
     { key: 'kvadratura', label: 'Kvadratura (m²)', type: 'number', section: 'osnovne' },
     { key: 'terasa', label: 'Terasa (m²)', type: 'text', section: 'osnovne' },
     { key: 'kvadraturaizugovora', label: 'Uknjižena kvadratura (m²)', type: 'number', section: 'osnovne' },
-    { key: 'struktura', label: 'Struktura', type: 'number', section: 'tehnicke' },
+    { key: 'struktura', label: 'Struktura', type: 'number', section: 'osnovne' },
     { key: 'stsuseljivost', label: 'Useljivost', type: 'select', options: ['Odmah', 'Vezano', 'Neuseljiv'], section: 'tehnicke' },
     { key: 'stsdupleks', label: 'Dupleks', type: 'checkbox', section: 'tehnicke' },
     { key: 'stsimagarazu', label: 'Ima garažu', type: 'checkbox', section: 'tehnicke' },
@@ -169,7 +169,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
     internenapomene: '',
     dokumentacija: '',
     link: '',
-    vidljivostnasajtu: '',
+    vidljivostnasajtu: false,
     nivoenergetskeefikasnosti: '',
     '3dture': '',
     stsvertikalahorizontala: false,
@@ -402,7 +402,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
         internenapomene: ponudaData.internenapomene || '',
         dokumentacija: ponudaData.dokumentacija || '',
         link: ponudaData.link || '',
-        vidljivostnasajtu: ponudaData.vidljivostnasajtu || '',
+        vidljivostnasajtu: ponudaData.vidljivostnasajtu || false,
         nivoenergetskeefikasnosti: ponudaData.nivoenergetskeefikasnosti || '',
         '3dture': ponudaData['3dture'] || '',
         stsvertikalahorizontala: ponudaData.stsvertikalahorizontala || false,
@@ -1558,7 +1558,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
         prostorije: formData.prostorije || null,
         dokumentacija: formData.dokumentacija || null,
         link: formData.link || null,
-        vidljivostnasajtu: formData.vidljivostnasajtu || null,
+        vidljivostnasajtu: formData.vidljivostnasajtu || false,
         nivoenergetskeefikasnosti: formData.nivoenergetskeefikasnosti || null,
         '3dture': formData['3dture'] || null,
         stsvertikalahorizontala: formData.stsvertikalahorizontala,
@@ -2856,15 +2856,17 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
               </div>
 
                 <div className="bg-slate-50 rounded-xl p-3">
-                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
-                    <span>👁️</span> Vidljivost na sajtu
-                </label>
-                <input
-                  type="text"
-                  value={formData.vidljivostnasajtu || ''}
-                  onChange={(e) => handleFieldChange('vidljivostnasajtu', e.target.value)}
-                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
-                />
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.vidljivostnasajtu || false}
+                      onChange={(e) => handleFieldChange('vidljivostnasajtu', e.target.checked)}
+                      className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                    />
+                    <span className="text-sm font-medium text-slate-700 flex items-center gap-2">
+                      <span>👁️</span> Vidljivo na sajtu
+                    </span>
+                  </label>
               </div>
 
                 <div className="bg-slate-50 rounded-xl p-3">
