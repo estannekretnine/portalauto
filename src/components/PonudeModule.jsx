@@ -389,25 +389,21 @@ export default function PonudeModule() {
 
   // Funkcija za sortiranje
   const handleSort = (key) => {
-    setSortConfig(prev => {
-      if (prev.key === key) {
-        // Isti key - toggle direction: asc -> desc -> null
-        if (prev.direction === 'asc') return { key, direction: 'desc' }
-        if (prev.direction === 'desc') return { key: null, direction: null }
-      }
-      return { key, direction: 'asc' }
-    })
-    setCurrentPage(1)
+    let newDirection = 'asc'
+    if (sortConfig.key === key) {
+      if (sortConfig.direction === 'asc') newDirection = 'desc'
+      else if (sortConfig.direction === 'desc') newDirection = null
+    }
+    setSortConfig({ key: newDirection ? key : null, direction: newDirection })
   }
 
   // Funkcija za promenu filtera kolone
   const handleColumnFilterChange = (key, value) => {
     setColumnFilters(prev => ({ ...prev, [key]: value }))
-    setCurrentPage(1)
   }
 
-  // Filtrirani i sortirani podaci
-  const filteredAndSortedPonude = useMemo(() => {
+  // Filtrirani i sortirani podaci - računaju se pri svakom renderovanju
+  const getFilteredAndSortedPonude = () => {
     let result = [...ponude]
 
     // Filtriranje po kolonama
@@ -510,19 +506,9 @@ export default function PonudeModule() {
     }
 
     return result
-  }, [
-    ponude, 
-    columnFilters.id,
-    columnFilters.vrsta,
-    columnFilters.opstina,
-    columnFilters.lokacija,
-    columnFilters.ulica,
-    columnFilters.kvadratura,
-    columnFilters.struktura,
-    columnFilters.cena,
-    sortConfig.key, 
-    sortConfig.direction
-  ])
+  }
+  
+  const filteredAndSortedPonude = getFilteredAndSortedPonude()
 
   const totalPonude = filteredAndSortedPonude.length
   const totalPages = Math.ceil(totalPonude / itemsPerPage)
