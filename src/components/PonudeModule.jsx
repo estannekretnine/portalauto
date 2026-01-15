@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
-import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, Filter, RotateCcw, Building2, Euro, Pencil, Archive, XCircle, MoreVertical } from 'lucide-react'
+import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Building2, Euro, Pencil, Archive, XCircle, MoreVertical } from 'lucide-react'
 import PonudaForm from './PonudaForm'
 
 export default function PonudeModule() {
@@ -16,6 +16,19 @@ export default function PonudeModule() {
   const [currentPage, setCurrentPage] = useState(1)
   const [openActionMenu, setOpenActionMenu] = useState(null) // ID ponude za koju je otvoren meni
   const [itemsPerPage, setItemsPerPage] = useState(10)
+  
+  // Sortiranje i pretraga po kolonama
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: null })
+  const [columnFilters, setColumnFilters] = useState({
+    id: '',
+    vrsta: '',
+    opstina: '',
+    lokacija: '',
+    ulica: '',
+    kvadratura: '',
+    struktura: '',
+    cena: ''
+  })
   
   // Lokalitet podaci - sve u jednoj listi za autocomplete
   const [sviLokaliteti, setSviLokaliteti] = useState([])
@@ -374,11 +387,136 @@ export default function PonudeModule() {
   
   console.log('✅ PonudeModule: Loading complete, ponude count:', ponude.length)
 
-  const totalPonude = ponude.length
+  // Funkcija za sortiranje
+  const handleSort = (key) => {
+    setSortConfig(prev => {
+      if (prev.key === key) {
+        // Isti key - toggle direction: asc -> desc -> null
+        if (prev.direction === 'asc') return { key, direction: 'desc' }
+        if (prev.direction === 'desc') return { key: null, direction: null }
+      }
+      return { key, direction: 'asc' }
+    })
+    setCurrentPage(1)
+  }
+
+  // Funkcija za promenu filtera kolone
+  const handleColumnFilterChange = (key, value) => {
+    setColumnFilters(prev => ({ ...prev, [key]: value }))
+    setCurrentPage(1)
+  }
+
+  // Filtrirani i sortirani podaci
+  const filteredAndSortedPonude = useMemo(() => {
+    let result = [...ponude]
+
+    // Filtriranje po kolonama
+    if (columnFilters.id) {
+      result = result.filter(p => String(p.id).includes(columnFilters.id))
+    }
+    if (columnFilters.vrsta) {
+      result = result.filter(p => 
+        p.vrstaobjekta?.opis?.toLowerCase().includes(columnFilters.vrsta.toLowerCase())
+      )
+    }
+    if (columnFilters.opstina) {
+      result = result.filter(p => 
+        p.opstina?.opis?.toLowerCase().includes(columnFilters.opstina.toLowerCase())
+      )
+    }
+    if (columnFilters.lokacija) {
+      result = result.filter(p => 
+        p.lokacija?.opis?.toLowerCase().includes(columnFilters.lokacija.toLowerCase())
+      )
+    }
+    if (columnFilters.ulica) {
+      result = result.filter(p => 
+        p.ulica?.opis?.toLowerCase().includes(columnFilters.ulica.toLowerCase())
+      )
+    }
+    if (columnFilters.kvadratura) {
+      const minKvad = parseFloat(columnFilters.kvadratura)
+      if (!isNaN(minKvad)) {
+        result = result.filter(p => p.kvadratura >= minKvad)
+      }
+    }
+    if (columnFilters.struktura) {
+      const minStr = parseFloat(columnFilters.struktura)
+      if (!isNaN(minStr)) {
+        result = result.filter(p => p.struktura >= minStr)
+      }
+    }
+    if (columnFilters.cena) {
+      const minCena = parseFloat(columnFilters.cena)
+      if (!isNaN(minCena)) {
+        result = result.filter(p => p.cena >= minCena)
+      }
+    }
+
+    // Sortiranje
+    if (sortConfig.key && sortConfig.direction) {
+      result.sort((a, b) => {
+        let aVal, bVal
+
+        switch (sortConfig.key) {
+          case 'id':
+            aVal = a.id
+            bVal = b.id
+            break
+          case 'vrsta':
+            aVal = a.vrstaobjekta?.opis || ''
+            bVal = b.vrstaobjekta?.opis || ''
+            break
+          case 'opstina':
+            aVal = a.opstina?.opis || ''
+            bVal = b.opstina?.opis || ''
+            break
+          case 'lokacija':
+            aVal = a.lokacija?.opis || ''
+            bVal = b.lokacija?.opis || ''
+            break
+          case 'ulica':
+            aVal = a.ulica?.opis || ''
+            bVal = b.ulica?.opis || ''
+            break
+          case 'kvadratura':
+            aVal = a.kvadratura || 0
+            bVal = b.kvadratura || 0
+            break
+          case 'struktura':
+            aVal = parseFloat(a.struktura) || 0
+            bVal = parseFloat(b.struktura) || 0
+            break
+          case 'cena':
+            aVal = a.cena || 0
+            bVal = b.cena || 0
+            break
+          default:
+            return 0
+        }
+
+        // String comparison
+        if (typeof aVal === 'string') {
+          const comparison = aVal.localeCompare(bVal, 'sr')
+          return sortConfig.direction === 'asc' ? comparison : -comparison
+        }
+
+        // Number comparison
+        if (sortConfig.direction === 'asc') {
+          return aVal - bVal
+        }
+        return bVal - aVal
+      })
+    }
+
+    return result
+  }, [ponude, columnFilters, sortConfig])
+
+  const totalPonude = filteredAndSortedPonude.length
   const totalPages = Math.ceil(totalPonude / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
-  const paginatedPonude = ponude.slice(startIndex, endIndex)
+  const paginatedPonude = filteredAndSortedPonude.slice(startIndex, endIndex)
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
@@ -781,17 +919,176 @@ export default function PonudeModule() {
             <table className="min-w-full">
               <thead>
                 <tr className="bg-gradient-to-r from-gray-900 to-black text-white">
-                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider w-16">ID</th>
-                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider">Vrsta</th>
-                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider">Opština</th>
-                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider">Lokacija</th>
-                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider">Ulica</th>
-                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider">m²</th>
-                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider">STR</th>
-                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider">Cena</th>
-                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider">Status</th>
-                  <th className="px-4 py-5 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
-                  <th className="px-4 py-5 text-center text-xs font-bold uppercase tracking-wider">Akcije</th>
+                  <th 
+                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider w-16 cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    onClick={() => handleSort('id')}
+                  >
+                    <div className="flex items-center gap-1">
+                      ID
+                      {sortConfig.key === 'id' && (
+                        sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                      )}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    onClick={() => handleSort('vrsta')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Vrsta
+                      {sortConfig.key === 'vrsta' && (
+                        sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                      )}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    onClick={() => handleSort('opstina')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Opština
+                      {sortConfig.key === 'opstina' && (
+                        sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                      )}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    onClick={() => handleSort('lokacija')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Lokacija
+                      {sortConfig.key === 'lokacija' && (
+                        sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                      )}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    onClick={() => handleSort('ulica')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Ulica
+                      {sortConfig.key === 'ulica' && (
+                        sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                      )}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    onClick={() => handleSort('kvadratura')}
+                  >
+                    <div className="flex items-center gap-1">
+                      m²
+                      {sortConfig.key === 'kvadratura' && (
+                        sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                      )}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    onClick={() => handleSort('struktura')}
+                  >
+                    <div className="flex items-center gap-1">
+                      STR
+                      {sortConfig.key === 'struktura' && (
+                        sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                      )}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    onClick={() => handleSort('cena')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Cena
+                      {sortConfig.key === 'cena' && (
+                        sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                      )}
+                    </div>
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
+                  <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider">Akcije</th>
+                </tr>
+                {/* Red sa filterima */}
+                <tr className="bg-gray-800">
+                  <th className="px-2 py-2">
+                    <input
+                      type="text"
+                      value={columnFilters.id}
+                      onChange={(e) => handleColumnFilterChange('id', e.target.value)}
+                      placeholder="🔍"
+                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </th>
+                  <th className="px-2 py-2">
+                    <input
+                      type="text"
+                      value={columnFilters.vrsta}
+                      onChange={(e) => handleColumnFilterChange('vrsta', e.target.value)}
+                      placeholder="🔍"
+                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </th>
+                  <th className="px-2 py-2">
+                    <input
+                      type="text"
+                      value={columnFilters.opstina}
+                      onChange={(e) => handleColumnFilterChange('opstina', e.target.value)}
+                      placeholder="🔍"
+                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </th>
+                  <th className="px-2 py-2">
+                    <input
+                      type="text"
+                      value={columnFilters.lokacija}
+                      onChange={(e) => handleColumnFilterChange('lokacija', e.target.value)}
+                      placeholder="🔍"
+                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </th>
+                  <th className="px-2 py-2">
+                    <input
+                      type="text"
+                      value={columnFilters.ulica}
+                      onChange={(e) => handleColumnFilterChange('ulica', e.target.value)}
+                      placeholder="🔍"
+                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </th>
+                  <th className="px-2 py-2">
+                    <input
+                      type="number"
+                      value={columnFilters.kvadratura}
+                      onChange={(e) => handleColumnFilterChange('kvadratura', e.target.value)}
+                      placeholder="≥"
+                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </th>
+                  <th className="px-2 py-2">
+                    <input
+                      type="number"
+                      step="0.5"
+                      value={columnFilters.struktura}
+                      onChange={(e) => handleColumnFilterChange('struktura', e.target.value)}
+                      placeholder="≥"
+                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </th>
+                  <th className="px-2 py-2">
+                    <input
+                      type="number"
+                      value={columnFilters.cena}
+                      onChange={(e) => handleColumnFilterChange('cena', e.target.value)}
+                      placeholder="≥"
+                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </th>
+                  <th className="px-2 py-2"></th>
+                  <th className="px-2 py-2"></th>
+                  <th className="px-2 py-2"></th>
                 </tr>
               </thead>
               <tbody>
