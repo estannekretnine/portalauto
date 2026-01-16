@@ -535,9 +535,9 @@ export default function TraznjaModule() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-gray-900 to-black rounded-2xl p-5 shadow-lg">
+    <div>
+      {/* Header - spojen sa tabelom */}
+      <div className="bg-gradient-to-r from-gray-900 to-black rounded-t-2xl p-5 shadow-lg">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h2 className="text-3xl font-bold text-white tracking-tight">Tražnja</h2>
@@ -904,7 +904,7 @@ export default function TraznjaModule() {
 
       {/* Content */}
       {traznje.length === 0 ? (
-        <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-16 text-center">
+        <div className="bg-white rounded-b-2xl shadow-lg p-16 text-center">
           <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
             <FileText className="w-12 h-12 text-gray-400" />
           </div>
@@ -913,7 +913,7 @@ export default function TraznjaModule() {
         </div>
       ) : (
         /* Table View */
-        <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-b-2xl shadow-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead>
