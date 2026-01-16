@@ -879,7 +879,6 @@ export default function TraznjaModule() {
                     m² od-do
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Agent</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
                   <th 
                     className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
@@ -892,6 +891,8 @@ export default function TraznjaModule() {
                       )}
                     </div>
                   </th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Ugovor</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Agent</th>
                   <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider w-10"></th>
                 </tr>
                 {/* Red sa filterima */}
@@ -1009,18 +1010,6 @@ export default function TraznjaModule() {
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      {traznja.korisnik ? (
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center">
-                            <User className="w-3.5 h-3.5 text-purple-700" />
-                          </div>
-                          <span className="text-sm font-medium text-gray-700">{traznja.korisnik.naziv}</span>
-                        </div>
-                      ) : (
-                        <span className="text-sm text-gray-400">-</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex flex-col gap-1">
                         <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${
                           traznja.stsaktivan
@@ -1043,6 +1032,29 @@ export default function TraznjaModule() {
                         <Calendar className="w-4 h-4 text-gray-400" />
                         <span className="text-sm text-gray-600">{formatDatum(traznja.datumkreiranja)}</span>
                       </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      {traznja.metapodaci?.eop?.stsugovorpotpisan ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800">
+                          ✅ Da
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-gray-100 text-gray-500">
+                          ❌ Ne
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      {traznja.korisnik ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center">
+                            <User className="w-3.5 h-3.5 text-purple-700" />
+                          </div>
+                          <span className="text-sm font-medium text-gray-700">{traznja.korisnik.naziv}</span>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-400">-</span>
+                      )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-center">
                       <div className="relative inline-block">
