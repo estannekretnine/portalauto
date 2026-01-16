@@ -31,6 +31,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
     idulica: '',
     stsaktivan: true,
     stskupaczakupac: 'kupac',
+    statuskupca: '',
     // Nova polja za sprat
     spratod: '',
     spratdo: '',
@@ -180,6 +181,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
         idulica: traznjaData.idulica || '',
         stsaktivan: traznjaData.stsaktivan ?? true,
         stskupaczakupac: traznjaData.stskupaczakupac || 'kupac',
+        statuskupca: traznjaData.statuskupca || '',
         // Nova polja za sprat
         spratod: traznjaData.spratod || '',
         spratdo: traznjaData.spratdo || '',
@@ -587,6 +589,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
         ai_karakteristike: aiKarakteristike,
         stsaktivan: formData.stsaktivan,
         stskupaczakupac: formData.stskupaczakupac || null,
+        statuskupca: formData.statuskupca || null,
         // Nova polja za sprat
         spratod: formData.spratod ? parseFloat(formData.spratod) : null,
         spratdo: formData.spratdo ? parseFloat(formData.spratdo) : null,
@@ -786,6 +789,62 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                         </div>
                       )}
                     </div>
+                  </div>
+                </div>
+
+                {/* Status kupca */}
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+                  <h4 className="font-semibold text-purple-800 mb-3 flex items-center gap-2">
+                    <span>🔥</span> Status kupca
+                  </h4>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { value: 'vruc', emoji: '🔥', label: 'Vruci', color: 'from-red-400 to-orange-400', border: 'border-red-300' },
+                      { value: 'mlak', emoji: '🟡', label: 'Mlaki', color: 'from-yellow-400 to-amber-400', border: 'border-yellow-300' },
+                      { value: 'hladan', emoji: '❄️', label: 'Hladni', color: 'from-blue-400 to-cyan-400', border: 'border-blue-300' }
+                    ].map(status => (
+                      <button
+                        key={status.value}
+                        type="button"
+                        onClick={() => handleFieldChange('statuskupca', status.value)}
+                        className={`flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-xl font-semibold text-sm transition-all border-2 ${
+                          formData.statuskupca === status.value
+                            ? `bg-gradient-to-br ${status.color} text-white ${status.border} shadow-lg`
+                            : `bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:shadow-md`
+                        }`}
+                      >
+                        <span className="text-2xl">{status.emoji}</span>
+                        <span className="text-xs">{status.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Status kupca */}
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+                  <h4 className="font-semibold text-purple-800 mb-3 flex items-center gap-2">
+                    <span>💹</span> Status kupca
+                  </h4>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { value: 'vruc', emoji: '🔥', label: 'Vruci', color: 'from-red-400 to-orange-400', borderColor: 'border-red-300' },
+                      { value: 'mlak', emoji: '🟡', label: 'Mlaki', color: 'from-yellow-400 to-amber-400', borderColor: 'border-yellow-300' },
+                      { value: 'hladan', emoji: '❄️', label: 'Hladni', color: 'from-blue-400 to-cyan-400', borderColor: 'border-blue-300' }
+                    ].map(status => (
+                      <button
+                        key={status.value}
+                        type="button"
+                        onClick={() => handleFieldChange('statuskupca', formData.statuskupca === status.value ? '' : status.value)}
+                        className={`px-3 py-3 rounded-lg font-semibold text-white transition-all duration-200 flex flex-col items-center gap-1 text-sm border-2 ${
+                          formData.statuskupca === status.value
+                            ? `bg-gradient-to-r ${status.color} border-transparent shadow-lg scale-105`
+                            : `bg-white text-gray-700 border-gray-200 hover:${status.borderColor}`
+                        }`}
+                      >
+                        <span className="text-xl">{status.emoji}</span>
+                        <span>{status.label}</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
 

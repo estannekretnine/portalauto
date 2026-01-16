@@ -42,7 +42,8 @@ export default function TraznjaModule() {
     strukturaOd: '',
     strukturaDo: '',
     stsaktivan: true,
-    stskupaczakupac: ''
+    stskupaczakupac: '',
+    statuskupca: ''
   })
 
   useEffect(() => {
@@ -200,6 +201,7 @@ export default function TraznjaModule() {
           spratdo,
           stsnecezadnjispratat,
           stsnecesuteren,
+          statuskupca,
           iduser
         `)
 
@@ -209,6 +211,9 @@ export default function TraznjaModule() {
       }
       if (filters.stskupaczakupac) {
         query = query.eq('stskupaczakupac', filters.stskupaczakupac)
+      }
+      if (filters.statuskupca) {
+        query = query.eq('statuskupca', filters.statuskupca)
       }
       if (filters.cenaOd) {
         query = query.gte('cenaod', parseFloat(filters.cenaOd))
@@ -306,7 +311,8 @@ export default function TraznjaModule() {
       strukturaOd: '',
       strukturaDo: '',
       stsaktivan: true,
-      stskupaczakupac: ''
+      stskupaczakupac: '',
+      statuskupca: ''
     })
     setSelectedLokaliteti([])
   }
@@ -319,6 +325,7 @@ export default function TraznjaModule() {
     filters.strukturaOd,
     filters.strukturaDo,
     filters.stskupaczakupac,
+    filters.statuskupca,
     ...selectedLokaliteti
   ].filter(Boolean).length
 
@@ -612,6 +619,31 @@ export default function TraznjaModule() {
                 </button>
               </div>
 
+              {/* Status kupca */}
+              <div className="flex gap-2">
+                {[
+                  { value: '', label: 'Svi' },
+                  { value: 'vruc', emoji: '🔥', label: 'Vruci', color: 'from-red-400 to-orange-400', borderColor: 'border-red-300' },
+                  { value: 'mlak', emoji: '🟡', label: 'Mlaki', color: 'from-yellow-400 to-amber-400', borderColor: 'border-yellow-300' },
+                  { value: 'hladan', emoji: '❄️', label: 'Hladni', color: 'from-blue-400 to-cyan-400', borderColor: 'border-blue-300' }
+                ].map(option => (
+                  <button
+                    key={option.value}
+                    onClick={() => handleFilterChange('statuskupca', option.value)}
+                    className={`py-2.5 px-3 rounded-lg text-sm font-medium transition-all flex items-center gap-1 ${
+                      filters.statuskupca === option.value
+                        ? option.value === ''
+                          ? 'bg-gray-500 text-white'
+                          : `bg-gradient-to-r ${option.color} text-white`
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {option.emoji && <span className="text-lg">{option.emoji}</span>}
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+
               {/* Lokalitet - Autocomplete */}
               <div ref={lokalitetInputRef} className="relative">
                 <div className="relative">
@@ -875,10 +907,9 @@ export default function TraznjaModule() {
                       )}
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
-                    m² od-do
-                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">m² od-do</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Sprat</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status kupca</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
                   <th 
@@ -1008,6 +1039,23 @@ export default function TraznjaModule() {
                           {traznja.spratod || '?'} - {traznja.spratdo || '?'}
                         </span>
                       </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      {traznja.statuskupca ? (
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white ${
+                          traznja.statuskupca === 'vruc'
+                            ? 'bg-gradient-to-r from-red-400 to-orange-400'
+                            : traznja.statuskupca === 'mlak'
+                            ? 'bg-gradient-to-r from-yellow-400 to-amber-400'
+                            : traznja.statuskupca === 'hladan'
+                            ? 'bg-gradient-to-r from-blue-400 to-cyan-400'
+                            : 'bg-gray-300'
+                        }`}>
+                          {traznja.statuskupca === 'vruc' ? '🔥 Vruci' : traznja.statuskupca === 'mlak' ? '🟡 Mlaki' : traznja.statuskupca === 'hladan' ? '❄️ Hladni' : '-'}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-xs">-</span>
+                      )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold ${
