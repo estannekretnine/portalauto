@@ -17,6 +17,24 @@ export default function PonudeModule() {
   const [openActionMenu, setOpenActionMenu] = useState(null) // ID ponude za koju je otvoren meni
   const [itemsPerPage, setItemsPerPage] = useState(10)
   
+  // Modal za arhiviranje sa razlogom
+  const [showArchiveReasonModal, setShowArchiveReasonModal] = useState(false)
+  const [selectedPonudaIdForArchive, setSelectedPonudaIdForArchive] = useState(null)
+  const [archiveReason, setArchiveReason] = useState('')
+  
+  const archiveReasons = [
+    'prodat',
+    'prodat-agencija',
+    'povucen',
+    'odustali',
+    'nisu dobri papiri',
+    'legalizacija',
+    'pogresan broj',
+    'nepostojeci broj',
+    'nedostupan',
+    'drugo'
+  ]
+  
   // Sortiranje i pretraga po kolonama
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null })
   const [columnFilters, setColumnFilters] = useState({
@@ -211,7 +229,9 @@ export default function PonudeModule() {
           stsaktivan,
           stsrentaprodaja,
           vidljivostnasajtu,
-          metapodaci
+          metapodaci,
+          datumbrisanja,
+          razlogbrisanja
         `)
 
       if (filters.stsaktivan !== null && filters.stsaktivan !== undefined) {
@@ -534,18 +554,35 @@ export default function PonudeModule() {
     loadPonude()
   }
 
-  // Arhiviraj ponudu (postavi stsaktivan na false)
-  const handleArhiviraj = async (ponudaId) => {
+  // Arhiviraj ponudu - otvori modal za izbor razloga
+  const handleArhiviraj = (ponudaId) => {
+    setOpenActionMenu(null)
+    setSelectedPonudaIdForArchive(ponudaId)
+    setShowArchiveReasonModal(true)
+  }
+  
+  // Potvrdi arhiviranje sa izabranim razlogom
+  const handleArchiveConfirm = async () => {
+    if (!selectedPonudaIdForArchive || !archiveReason) {
+      alert('Molimo izaberite razlog arhiviranja.')
+      return
+    }
     try {
       const { error } = await supabase
         .from('ponuda')
-        .update({ stsaktivan: false })
-        .eq('id', ponudaId)
+        .update({ 
+          stsaktivan: false,
+          datumbrisanja: new Date().toISOString(),
+          razlogbrisanja: archiveReason
+        })
+        .eq('id', selectedPonudaIdForArchive)
 
       if (error) throw error
       
       loadPonude()
-      setOpenActionMenu(null)
+      setShowArchiveReasonModal(false)
+      setSelectedPonudaIdForArchive(null)
+      setArchiveReason('')
     } catch (error) {
       console.error('Greška pri arhiviranju:', error)
       alert('Greška pri arhiviranju ponude: ' + error.message)
@@ -628,6 +665,67 @@ export default function PonudeModule() {
           </div>
         </div>
       </div>
+
+      {/* Modal za izbor razloga arhiviranja */}
+      {showArchiveReasonModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div className="bg-gradient-to-r from-gray-900 to-black px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Archive className="w-5 h-5 text-amber-400" />
+                <h3 className="text-lg font-bold text-white">Razlog arhiviranja</h3>
+              </div>
+              <button
+                onClick={() => {
+                  setShowArchiveReasonModal(false)
+                  setSelectedPonudaIdForArchive(null)
+                  setArchiveReason('')
+                }}
+                className="text-white/60 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6">
+              <p className="text-gray-600 mb-4">Izaberite razlog arhiviranja ponude:</p>
+              <div className="grid grid-cols-2 gap-2">
+                {archiveReasons.map((reason) => (
+                  <button
+                    key={reason}
+                    onClick={() => setArchiveReason(reason)}
+                    className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                      archiveReason === reason
+                        ? 'bg-amber-500 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {reason}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowArchiveReasonModal(false)
+                    setSelectedPonudaIdForArchive(null)
+                    setArchiveReason('')
+                  }}
+                  className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Otkaži
+                </button>
+                <button
+                  onClick={handleArchiveConfirm}
+                  disabled={!archiveReason}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Arhiviraj
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Filter Modal - Popup */}
       {showFilters && (
@@ -1164,14 +1262,27 @@ export default function PonudeModule() {
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${
-                        ponuda.stsaktivan
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-gray-200 text-gray-600'
-                      }`}>
-                        <span className={`w-2 h-2 rounded-full ${ponuda.stsaktivan ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
-                        {ponuda.stsaktivan ? 'Aktivan' : 'Neaktivan'}
-                      </span>
+                      <div className="flex flex-col gap-1">
+                        <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${
+                          ponuda.stsaktivan
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-gray-200 text-gray-600'
+                        }`}>
+                          <span className={`w-2 h-2 rounded-full ${ponuda.stsaktivan ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
+                          {ponuda.stsaktivan ? 'Aktivan' : 'Neaktivan'}
+                        </span>
+                        {/* Prikaz datuma i razloga brisanja za neaktivne */}
+                        {!ponuda.stsaktivan && (ponuda.datumbrisanja || ponuda.razlogbrisanja) && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            {ponuda.razlogbrisanja && (
+                              <div className="font-medium text-red-600">{ponuda.razlogbrisanja}</div>
+                            )}
+                            {ponuda.datumbrisanja && (
+                              <div>{new Date(ponuda.datumbrisanja).toLocaleDateString('sr-RS')}</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold ${
@@ -1361,6 +1472,30 @@ export default function PonudeModule() {
                       <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-xl">
                         <Building2 className="w-4 h-4 text-gray-500" />
                         <span className="font-semibold text-gray-800">{parseFloat(ponuda.struktura).toFixed(1)}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Status aktivnosti */}
+                  <div className="mt-3 pt-3 border-t border-gray-100">
+                    <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${
+                      ponuda.stsaktivan
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : 'bg-gray-200 text-gray-600'
+                    }`}>
+                      <span className={`w-2 h-2 rounded-full ${ponuda.stsaktivan ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
+                      {ponuda.stsaktivan ? 'Aktivan' : 'Neaktivan'}
+                    </span>
+                    
+                    {/* Prikaz datuma i razloga brisanja za neaktivne */}
+                    {!ponuda.stsaktivan && (ponuda.datumbrisanja || ponuda.razlogbrisanja) && (
+                      <div className="mt-2 text-xs">
+                        {ponuda.razlogbrisanja && (
+                          <div className="font-semibold text-red-600 bg-red-50 px-2 py-1 rounded-lg inline-block">{ponuda.razlogbrisanja}</div>
+                        )}
+                        {ponuda.datumbrisanja && (
+                          <div className="text-gray-500 mt-1">Arhivirano: {new Date(ponuda.datumbrisanja).toLocaleDateString('sr-RS')}</div>
+                        )}
                       </div>
                     )}
                   </div>
