@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
-import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Building2, Euro, Pencil, Archive, ArchiveRestore, XCircle, MoreVertical, Phone, Calendar, FileText } from 'lucide-react'
+import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Building2, Euro, Pencil, Archive, ArchiveRestore, MoreVertical, Phone, Calendar, FileText } from 'lucide-react'
 import TraznjaForm from './TraznjaForm'
 
 export default function TraznjaModule() {
@@ -500,26 +500,6 @@ export default function TraznjaModule() {
     } catch (error) {
       console.error('Greška pri dearhiviranju:', error)
       alert('Greška pri dearhiviranju tražnje: ' + error.message)
-    }
-  }
-
-  // Storniraj tražnju
-  const handleStorniraj = async (traznjaId) => {
-    if (!confirm('Da li ste sigurni da želite da stornirate ovu tražnju?')) return
-    
-    try {
-      const { error } = await supabase
-        .from('traznja')
-        .delete()
-        .eq('id', traznjaId)
-
-      if (error) throw error
-      
-      loadTraznje()
-      setOpenActionMenu(null)
-    } catch (error) {
-      console.error('Greška pri storniranju:', error)
-      alert('Greška pri storniranju tražnje: ' + error.message)
     }
   }
 
@@ -1120,16 +1100,6 @@ export default function TraznjaModule() {
                                   Dearhiviraj
                                 </button>
                               )}
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleStorniraj(traznja.id)
-                                }}
-                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                              >
-                                <XCircle className="w-4 h-4" />
-                                Storniraj
-                              </button>
                             </div>
                           </>
                         )}
