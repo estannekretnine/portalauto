@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
-import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Building2, Euro, Pencil, Archive, ArchiveRestore, MoreVertical, Phone, Calendar, FileText } from 'lucide-react'
+import { Search, X, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Euro, Pencil, Archive, ArchiveRestore, MoreVertical, Phone, Calendar, FileText } from 'lucide-react'
 import TraznjaForm from './TraznjaForm'
 
 export default function TraznjaModule() {
   console.log('🔵 TraznjaModule montiran')
   const [traznje, setTraznje] = useState([])
   const [loading, setLoading] = useState(true)
-  const [viewMode, setViewMode] = useState('table')
+  // Samo tabelarni prikaz - uklonjen viewMode toggle
   const [showFilters, setShowFilters] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [editingTraznja, setEditingTraznja] = useState(null)
@@ -534,30 +534,6 @@ export default function TraznjaModule() {
               <span className="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full">{activeFiltersCount}</span>
             )}
           </button>
-          <div className="flex items-center bg-white border border-gray-200 rounded-2xl p-1.5 shadow-sm">
-            <button
-              onClick={() => setViewMode('table')}
-              className={`p-2.5 rounded-xl transition-all ${
-                viewMode === 'table'
-                  ? 'bg-gray-900 text-white shadow-sm'
-                  : 'text-gray-500 hover:bg-gray-100'
-              }`}
-              title="Tabelarni prikaz"
-            >
-              <List className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-2.5 rounded-xl transition-all ${
-                viewMode === 'grid'
-                  ? 'bg-gray-900 text-white shadow-sm'
-                  : 'text-gray-500 hover:bg-gray-100'
-              }`}
-              title="Grid prikaz"
-            >
-              <Grid className="w-4 h-4" />
-            </button>
-          </div>
         </div>
       </div>
 
@@ -828,7 +804,7 @@ export default function TraznjaModule() {
           <p className="text-gray-900 text-2xl font-bold mb-2">Nema tražnji</p>
           <p className="text-gray-500">Nema tražnji koje odgovaraju vašim kriterijumima.</p>
         </div>
-      ) : viewMode === 'table' ? (
+      ) : (
         /* Table View */
         <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
@@ -1113,140 +1089,6 @@ export default function TraznjaModule() {
           
           {/* Pagination */}
           <div className="bg-gradient-to-r from-gray-900 to-black px-6 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-400">Prikaži:</span>
-              <select
-                value={itemsPerPage}
-                onChange={(e) => {
-                  setItemsPerPage(Number(e.target.value))
-                  setCurrentPage(1)
-                }}
-                className="px-4 py-2 bg-white/10 border border-white/20 text-white rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent backdrop-blur-sm"
-              >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-white/10"
-              >
-                <ChevronLeft className="w-4 h-4 text-white" />
-              </button>
-              
-              <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/10">
-                <span className="text-sm font-bold text-amber-400">{currentPage}</span>
-                <span className="text-gray-500">/</span>
-                <span className="text-sm text-gray-400">{totalPages || 1}</span>
-              </div>
-              
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages || totalPages === 0}
-                className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-white/10"
-              >
-                <ChevronRight className="w-4 h-4 text-white" />
-              </button>
-            </div>
-            
-            <div className="text-sm text-gray-400 font-medium">
-              Ukupno: <span className="text-amber-400 font-bold">{totalTraznje}</span> tražnji
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* Grid View */
-        <div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {paginatedTraznje.map((traznja) => (
-              <div
-                key={traznja.id}
-                onClick={() => {
-                  setEditingTraznja(traznja)
-                  setShowForm(true)
-                }}
-                className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl hover:border-amber-200 transition-all duration-300 cursor-pointer group"
-              >
-                {/* Header */}
-                <div className="relative h-24 bg-gradient-to-br from-gray-900 to-black overflow-hidden p-4">
-                  <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5">
-                    <span>#{traznja.id}</span>
-                  </div>
-                  <div className="absolute bottom-4 left-4">
-                    <div className="text-white/60 text-xs mb-1">Cena do</div>
-                    <div className="text-white text-lg font-bold flex items-center gap-1">
-                      <Euro className="w-4 h-4 text-amber-400" />
-                      {traznja.cenado ? new Intl.NumberFormat('sr-RS').format(traznja.cenado) : '-'}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-5">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="w-10 h-10 bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-5 h-5 text-amber-700" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-gray-900 truncate">
-                        {traznja.kontaktosoba || 'Nepoznat kontakt'}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">
-                        {traznja.kontakttelefon || '-'}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 mb-3">
-                    <MapPin className="w-4 h-4 text-amber-500" />
-                    <span className="text-sm text-gray-700">
-                      {traznja.lokacija?.opis || traznja.opstina?.opis || '-'}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-xl">
-                      <Ruler className="w-4 h-4 text-gray-500" />
-                      <span className="font-semibold text-gray-800">
-                        {traznja.kvadraturaod || '?'}-{traznja.kvadraturado || '?'} m²
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-xl">
-                      <Calendar className="w-4 h-4 text-gray-500" />
-                      <span className="text-xs text-gray-600">{formatDatum(traznja.datumkreiranja)}</span>
-                    </div>
-                  </div>
-
-                  {/* Status aktivnosti */}
-                  <div className="mt-3 pt-3 border-t border-gray-100">
-                    <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${
-                      traznja.stsaktivan
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : 'bg-gray-200 text-gray-600'
-                    }`}>
-                      <span className={`w-2 h-2 rounded-full ${traznja.stsaktivan ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
-                      {traznja.stsaktivan ? 'Aktivna' : 'Neaktivna'}
-                    </span>
-                    
-                    {/* Prikaz datuma brisanja za neaktivne */}
-                    {!traznja.stsaktivan && traznja.datumbrisanja && (
-                      <div className="mt-2 text-xs">
-                        <div className="text-gray-500">Arhivirano: {formatDatum(traznja.datumbrisanja)}</div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          {/* Pagination - Grid */}
-          <div className="bg-gradient-to-r from-gray-900 to-black rounded-3xl shadow-lg mt-6 px-6 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-3">
               <span className="text-sm text-gray-400">Prikaži:</span>
               <select
