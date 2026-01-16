@@ -31,7 +31,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
     idulica: '',
     stsaktivan: true,
     stskupaczakupac: 'kupac',
-    statuskupca: '',
+    statuskupca: '', // hladan, mlak, vruc ili prazno
     // Nova polja za sprat
     spratod: '',
     spratdo: '',
@@ -722,6 +722,60 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                       }`}
                     >
                       🔑 Zakupac
+                    </button>
+                  </div>
+                </div>
+
+                {/* Status kupca */}
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                    <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">🌡️</span>
+                    Status kupca
+                  </h4>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleFieldChange('statuskupca', '')}
+                      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all ${
+                        !formData.statuskupca
+                          ? 'bg-gray-500 text-white shadow-lg shadow-gray-500/25'
+                          : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      ⚪ Prazno
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleFieldChange('statuskupca', 'hladan')}
+                      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all ${
+                        formData.statuskupca === 'hladan'
+                          ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
+                          : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      🥶 Hladan
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleFieldChange('statuskupca', 'mlak')}
+                      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all ${
+                        formData.statuskupca === 'mlak'
+                          ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/25'
+                          : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      😐 Mlak
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleFieldChange('statuskupca', 'vruc')}
+                      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all ${
+                        formData.statuskupca === 'vruc'
+                          ? 'bg-red-500 text-white shadow-lg shadow-red-500/25'
+                          : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      🔥 Vruć
                     </button>
                   </div>
                 </div>

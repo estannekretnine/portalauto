@@ -201,6 +201,7 @@ export default function TraznjaModule() {
           ai_karakteristike,
           stsaktivan,
           stskupaczakupac,
+          statuskupca,
           spratod,
           spratdo,
           stsnecezadnjispratat,
@@ -607,6 +608,31 @@ export default function TraznjaModule() {
                 ))}
               </div>
 
+              {/* Status kupca: Hladan/Mlak/Vruć */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">🌡️ Status kupca</label>
+                <div className="flex gap-2">
+                  {[
+                    { value: '', label: 'Svi', color: 'bg-gray-100 text-gray-600 hover:bg-gray-200', activeColor: 'bg-gray-500 text-white' },
+                    { value: 'hladan', label: '🥶 Hladan', color: 'bg-gray-100 text-gray-600 hover:bg-gray-200', activeColor: 'bg-blue-500 text-white' },
+                    { value: 'mlak', label: '😐 Mlak', color: 'bg-gray-100 text-gray-600 hover:bg-gray-200', activeColor: 'bg-amber-500 text-white' },
+                    { value: 'vruc', label: '🔥 Vruć', color: 'bg-gray-100 text-gray-600 hover:bg-gray-200', activeColor: 'bg-red-500 text-white' }
+                  ].map(option => (
+                    <button
+                      key={option.value}
+                      onClick={() => handleFilterChange('statuskupca', option.value)}
+                      className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        filters.statuskupca === option.value
+                          ? option.activeColor
+                          : option.color
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Status: Aktivna/Neaktivna */}
               <div className="flex gap-2">
                 <button
@@ -951,7 +977,8 @@ export default function TraznjaModule() {
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Sprat do</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status kupca</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">🌡️ Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Aktivan</th>
                   <th 
                     className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
                     onClick={() => handleSort('datumkreiranja')}
@@ -1050,6 +1077,7 @@ export default function TraznjaModule() {
                       className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
+                  <th className="px-4 py-3"></th>
                   <th className="px-4 py-3"></th>
                   <th className="px-4 py-3"></th>
                   <th className="px-4 py-3"></th>
@@ -1156,6 +1184,21 @@ export default function TraznjaModule() {
                           : 'bg-gray-100 text-gray-600'
                       }`}>
                         {traznja.stskupaczakupac === 'kupac' ? '🏠 Kupac' : traznja.stskupaczakupac === 'zakupac' ? '🔑 Zakupac' : '-'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold ${
+                        traznja.statuskupca === 'hladan'
+                          ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                          : traznja.statuskupca === 'mlak'
+                          ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                          : traznja.statuskupca === 'vruc'
+                          ? 'bg-red-100 text-red-800 border border-red-200'
+                          : 'bg-gray-100 text-gray-500 border border-gray-200'
+                      }`}>
+                        {traznja.statuskupca === 'hladan' ? '🥶 Hladan' : 
+                         traznja.statuskupca === 'mlak' ? '😐 Mlak' : 
+                         traznja.statuskupca === 'vruc' ? '🔥 Vruć' : '⚪ -'}
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
