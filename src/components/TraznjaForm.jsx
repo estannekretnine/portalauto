@@ -107,6 +107,20 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
     bezbednost: {
       portir: false, video_interfon: false, protivpozarni_sistem: false,
       osigurana_zgrada: false, sigurnosna_vrata: false
+    },
+    prioriteti: {
+      prioritet_cena: '', prioritet_lokacija: '', prioritet_opremljenost: '',
+      prioritet_kvadratura: '', prioritet_struktura: '', prioritet_sprat: '',
+      prioritet_bezbednost: ''
+    },
+    fleksibilnost: {
+      fleksibilnost_cena: 0, fleksibilnost_kvadratura: 0, fleksibilnost_struktura: 0,
+      fleksibilnost_sprat: 0, fleksibilnost_lokacija: 0
+    },
+    zivotne_karakteristike: {
+      ima_autoparking: false, koristi_javni_prevoz: false, ima_kucne_ljubimce: '',
+      broj_ukucana: 1, tip_domacinstva: '', radno_vreme_fleksibilno: false,
+      radi_od_kuce_moguce: false
     }
   })
 
@@ -515,6 +529,30 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
         : [...currentPogled, value]
       return { ...prev, ekologija: { ...prev.ekologija, pogled: newPogled } }
     })
+  }
+
+  const handleAiPriorititiChange = (field, value) => {
+    setAiKarakteristike(prev => ({ ...prev, prioriteti: { ...prev.prioriteti, [field]: value } }))
+  }
+
+  const handleAiFleksibilnostChange = (field, value) => {
+    setAiKarakteristike(prev => ({ ...prev, fleksibilnost: { ...prev.fleksibilnost, [field]: value } }))
+  }
+
+  const handleAiZivotneKarakteristikeChange = (field, value) => {
+    setAiKarakteristike(prev => ({ ...prev, zivotne_karakteristike: { ...prev.zivotne_karakteristike, [field]: value } }))
+  }
+
+  const getFleksibilnostLabel = (level) => {
+    const labels = {
+      0: '❌ Nema fleksibilnosti',
+      1: '🤏 Minimalno',
+      2: '😐 Malo',
+      3: '👍 Srednje',
+      4: '😊 Veoma fleksibilan',
+      5: '✅ Svaki može'
+    }
+    return labels[level] || ''
   }
 
   const handleSubmit = async (e) => {
@@ -1355,6 +1393,143 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                         <span className="text-sm text-gray-700">{item.label}</span>
                       </label>
                     ))}
+                  </div>
+                </div>
+
+                {/* 🎯 PRIORITETI KUPCA */}
+                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-200">
+                  <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                    <span>🎯</span> Prioriteti kupca
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {[
+                      { field: 'prioritet_cena', label: '💰 Cena' },
+                      { field: 'prioritet_lokacija', label: '📍 Lokacija' },
+                      { field: 'prioritet_opremljenost', label: '🏠 Opremljenost' },
+                      { field: 'prioritet_kvadratura', label: '📐 Kvadratura' },
+                      { field: 'prioritet_struktura', label: '🛏️ Struktura' },
+                      { field: 'prioritet_sprat', label: '🏢 Sprat' },
+                      { field: 'prioritet_bezbednost', label: '🛡️ Bezbednost' }
+                    ].map(item => (
+                      <div key={item.field}>
+                        <label className="block text-xs text-gray-600 mb-1">{item.label}</label>
+                        <select
+                          value={aiKarakteristike.prioriteti?.[item.field] || ''}
+                          onChange={(e) => handleAiPriorititiChange(item.field, e.target.value)}
+                          className="w-full px-2 py-1.5 text-xs bg-white border border-blue-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="">-</option>
+                          <option value="nije_bitan">⚪ Nije bitan</option>
+                          <option value="vazan">🟡 Važan</option>
+                          <option value="veoma_vazan">🔴 Veoma važan</option>
+                        </select>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 📊 FLEKSIBILNOST KUPCA */}
+                <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl p-4 border border-orange-200">
+                  <h4 className="font-semibold text-orange-800 mb-3 flex items-center gap-2">
+                    <span>📊</span> Fleksibilnost kupca
+                  </h4>
+                  <div className="space-y-3">
+                    {[
+                      { field: 'fleksibilnost_cena', label: '💰 Cena (koliko ±% može)' },
+                      { field: 'fleksibilnost_kvadratura', label: '📐 Kvadratura' },
+                      { field: 'fleksibilnost_struktura', label: '🛏️ Struktura' },
+                      { field: 'fleksibilnost_sprat', label: '🏢 Sprat' },
+                      { field: 'fleksibilnost_lokacija', label: '📍 Lokacija' }
+                    ].map(item => (
+                      <div key={item.field}>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="text-xs text-gray-600">{item.label}</label>
+                          <span className="text-xs font-semibold text-orange-700">
+                            {getFleksibilnostLabel(aiKarakteristike.fleksibilnost?.[item.field] || 0)}
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="5"
+                          value={aiKarakteristike.fleksibilnost?.[item.field] || 0}
+                          onChange={(e) => handleAiFleksibilnostChange(item.field, parseInt(e.target.value))}
+                          className="w-full h-2 bg-orange-200 rounded-lg appearance-none cursor-pointer accent-orange-600"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 👥 ŽIVOTNE KARAKTERISTIKE */}
+                <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-xl p-4 border border-pink-200">
+                  <h4 className="font-semibold text-pink-800 mb-3 flex items-center gap-2">
+                    <span>👥</span> Životne karakteristike
+                  </h4>
+                  <div className="space-y-3">
+                    {/* Checkboxes */}
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { field: 'ima_autoparking', label: '🚗 Ima automobil' },
+                        { field: 'koristi_javni_prevoz', label: '🚌 Javni prevoz' },
+                        { field: 'radno_vreme_fleksibilno', label: '⏰ Fleksibilno vreme' },
+                        { field: 'radi_od_kuce_moguce', label: '💻 Rad od kuće' }
+                      ].map(item => (
+                        <label key={item.field} className="flex items-center gap-2 p-2 bg-white rounded-lg cursor-pointer hover:bg-pink-50">
+                          <input
+                            type="checkbox"
+                            checked={aiKarakteristike.zivotne_karakteristike?.[item.field] || false}
+                            onChange={(e) => handleAiZivotneKarakteristikeChange(item.field, e.target.checked)}
+                            className="rounded border-gray-300 text-pink-600"
+                          />
+                          <span className="text-sm text-gray-700">{item.label}</span>
+                        </label>
+                      ))}
+                    </div>
+
+                    {/* Select inputs */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">🐾 Kućni ljubimci</label>
+                        <select
+                          value={aiKarakteristike.zivotne_karakteristike?.ima_kucne_ljubimce || ''}
+                          onChange={(e) => handleAiZivotneKarakteristikeChange('ima_kucne_ljubimce', e.target.value)}
+                          className="w-full px-2 py-1.5 text-xs bg-white border border-pink-300 rounded-lg focus:ring-1 focus:ring-pink-500"
+                        >
+                          <option value="">-</option>
+                          <option value="nema">Nema</option>
+                          <option value="mali">Mali (ptica, riba)</option>
+                          <option value="srednji">Srednji (mačka)</option>
+                          <option value="veliki">Veliki (pas)</option>
+                          <option value="vise">Više / veliki pas</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">👥 Broj osoba</label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="8"
+                          value={aiKarakteristike.zivotne_karakteristike?.broj_ukucana || 1}
+                          onChange={(e) => handleAiZivotneKarakteristikeChange('broj_ukucana', parseInt(e.target.value))}
+                          className="w-full px-2 py-1.5 text-xs bg-white border border-pink-300 rounded-lg focus:ring-1 focus:ring-pink-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">👨‍👩‍👧 Tip domaćinstva</label>
+                        <select
+                          value={aiKarakteristike.zivotne_karakteristike?.tip_domacinstva || ''}
+                          onChange={(e) => handleAiZivotneKarakteristikeChange('tip_domacinstva', e.target.value)}
+                          className="w-full px-2 py-1.5 text-xs bg-white border border-pink-300 rounded-lg focus:ring-1 focus:ring-pink-500"
+                        >
+                          <option value="">-</option>
+                          <option value="samotan">Samotan/a</option>
+                          <option value="par">Par</option>
+                          <option value="porodica">Porodica</option>
+                          <option value="grupe">Grupe/Studenti</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
