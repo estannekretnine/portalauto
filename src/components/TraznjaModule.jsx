@@ -197,6 +197,7 @@ export default function TraznjaModule() {
           datumkreiranja,
           datumpromene,
           datumbrisanja,
+          razlogbrisanja,
           kontaktosoba,
           kontakttelefon,
           strukturaod,
@@ -1052,14 +1053,27 @@ export default function TraznjaModule() {
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${
-                        traznja.stsaktivan
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-gray-200 text-gray-600'
-                      }`}>
-                        <span className={`w-2 h-2 rounded-full ${traznja.stsaktivan ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
-                        {traznja.stsaktivan ? 'Aktivna' : 'Neaktivna'}
-                      </span>
+                      <div className="flex flex-col gap-1">
+                        <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${
+                          traznja.stsaktivan
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-gray-200 text-gray-600'
+                        }`}>
+                          <span className={`w-2 h-2 rounded-full ${traznja.stsaktivan ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
+                          {traznja.stsaktivan ? 'Aktivna' : 'Neaktivna'}
+                        </span>
+                        {/* Prikaz datuma i razloga brisanja za neaktivne */}
+                        {!traznja.stsaktivan && (traznja.datumbrisanja || traznja.razlogbrisanja) && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            {traznja.razlogbrisanja && (
+                              <div className="font-medium text-red-600">{traznja.razlogbrisanja}</div>
+                            )}
+                            {traznja.datumbrisanja && (
+                              <div>{formatDatum(traznja.datumbrisanja)}</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
@@ -1239,6 +1253,30 @@ export default function TraznjaModule() {
                       <Calendar className="w-4 h-4 text-gray-500" />
                       <span className="text-xs text-gray-600">{formatDatum(traznja.datumkreiranja)}</span>
                     </div>
+                  </div>
+
+                  {/* Status aktivnosti */}
+                  <div className="mt-3 pt-3 border-t border-gray-100">
+                    <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${
+                      traznja.stsaktivan
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : 'bg-gray-200 text-gray-600'
+                    }`}>
+                      <span className={`w-2 h-2 rounded-full ${traznja.stsaktivan ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
+                      {traznja.stsaktivan ? 'Aktivna' : 'Neaktivna'}
+                    </span>
+                    
+                    {/* Prikaz datuma i razloga brisanja za neaktivne */}
+                    {!traznja.stsaktivan && (traznja.datumbrisanja || traznja.razlogbrisanja) && (
+                      <div className="mt-2 text-xs">
+                        {traznja.razlogbrisanja && (
+                          <div className="font-semibold text-red-600 bg-red-50 px-2 py-1 rounded-lg inline-block">{traznja.razlogbrisanja}</div>
+                        )}
+                        {traznja.datumbrisanja && (
+                          <div className="text-gray-500 mt-1">Arhivirano: {formatDatum(traznja.datumbrisanja)}</div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
