@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
-import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Building2, Euro, Pencil, Archive, XCircle, MoreVertical } from 'lucide-react'
+import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Building2, Euro, Pencil, Archive, ArchiveRestore, XCircle, MoreVertical } from 'lucide-react'
 import PonudaForm from './PonudaForm'
 
 export default function PonudeModule() {
@@ -556,9 +556,34 @@ export default function PonudeModule() {
 
   // Arhiviraj ponudu - otvori modal za izbor razloga
   const handleArhiviraj = (ponudaId) => {
+    if (!confirm('Da li želite da arhivirate ovu ponudu?')) return
     setOpenActionMenu(null)
     setSelectedPonudaIdForArchive(ponudaId)
     setShowArchiveReasonModal(true)
+  }
+
+  // Dearhiviraj ponudu (postavi stsaktivan na true)
+  const handleDearhiviraj = async (ponudaId) => {
+    if (!confirm('Da li želite da dearhivirate ovu ponudu?')) return
+    
+    try {
+      const { error } = await supabase
+        .from('ponuda')
+        .update({ 
+          stsaktivan: true,
+          datumbrisanja: null,
+          razlogbrisanja: null
+        })
+        .eq('id', ponudaId)
+
+      if (error) throw error
+      
+      loadPonude()
+      setOpenActionMenu(null)
+    } catch (error) {
+      console.error('Greška pri dearhiviranju:', error)
+      alert('Greška pri dearhiviranju ponude: ' + error.message)
+    }
   }
   
   // Potvrdi arhiviranje sa izabranim razlogom
@@ -1326,16 +1351,29 @@ export default function PonudeModule() {
                                 <Pencil className="w-4 h-4" />
                                 Promeni
                               </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleArhiviraj(ponuda.id)
-                                }}
-                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
-                              >
-                                <Archive className="w-4 h-4" />
-                                Arhiviraj
-                              </button>
+                              {ponuda.stsaktivan ? (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleArhiviraj(ponuda.id)
+                                  }}
+                                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                                >
+                                  <Archive className="w-4 h-4" />
+                                  Arhiviraj
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleDearhiviraj(ponuda.id)
+                                  }}
+                                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-emerald-700 hover:bg-emerald-50 transition-colors"
+                                >
+                                  <ArchiveRestore className="w-4 h-4" />
+                                  Dearhiviraj
+                                </button>
+                              )}
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation()

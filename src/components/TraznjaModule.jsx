@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
-import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Building2, Euro, Pencil, Archive, XCircle, MoreVertical, Phone, Calendar, FileText } from 'lucide-react'
+import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Building2, Euro, Pencil, Archive, ArchiveRestore, XCircle, MoreVertical, Phone, Calendar, FileText } from 'lucide-react'
 import TraznjaForm from './TraznjaForm'
 
 export default function TraznjaModule() {
@@ -459,7 +459,7 @@ export default function TraznjaModule() {
 
   // Arhiviraj tražnju (postavi stsaktivan na false)
   const handleArhiviraj = async (traznjaId) => {
-    if (!confirm('Da li ste sigurni da želite da arhivirate ovu tražnju?')) return
+    if (!confirm('Da li želite da arhivirate ovu tražnju?')) return
     
     try {
       const { error } = await supabase
@@ -477,6 +477,29 @@ export default function TraznjaModule() {
     } catch (error) {
       console.error('Greška pri arhiviranju:', error)
       alert('Greška pri arhiviranju tražnje: ' + error.message)
+    }
+  }
+
+  // Dearhiviraj tražnju (postavi stsaktivan na true)
+  const handleDearhiviraj = async (traznjaId) => {
+    if (!confirm('Da li želite da dearhivirate ovu tražnju?')) return
+    
+    try {
+      const { error } = await supabase
+        .from('traznja')
+        .update({ 
+          stsaktivan: true,
+          datumbrisanja: null
+        })
+        .eq('id', traznjaId)
+
+      if (error) throw error
+      
+      loadTraznje()
+      setOpenActionMenu(null)
+    } catch (error) {
+      console.error('Greška pri dearhiviranju:', error)
+      alert('Greška pri dearhiviranju tražnje: ' + error.message)
     }
   }
 
@@ -1074,16 +1097,29 @@ export default function TraznjaModule() {
                                 <Pencil className="w-4 h-4" />
                                 Promeni
                               </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleArhiviraj(traznja.id)
-                                }}
-                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
-                              >
-                                <Archive className="w-4 h-4" />
-                                Arhiviraj
-                              </button>
+                              {traznja.stsaktivan ? (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleArhiviraj(traznja.id)
+                                  }}
+                                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                                >
+                                  <Archive className="w-4 h-4" />
+                                  Arhiviraj
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleDearhiviraj(traznja.id)
+                                  }}
+                                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-emerald-700 hover:bg-emerald-50 transition-colors"
+                                >
+                                  <ArchiveRestore className="w-4 h-4" />
+                                  Dearhiviraj
+                                </button>
+                              )}
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation()
