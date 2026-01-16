@@ -1033,15 +1033,15 @@ export default function TraznjaModule() {
                         <span className="text-sm text-gray-600">{formatDatum(traznja.datumkreiranja)}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap text-center">
                       {traznja.metapodaci?.eop?.stsugovorpotpisan ? (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800">
-                          ✅ Da
-                        </span>
+                        <div className="inline-flex items-center justify-center w-8 h-8 bg-emerald-100 rounded-full">
+                          <span className="text-emerald-600 text-lg">✓</span>
+                        </div>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-gray-100 text-gray-500">
-                          ❌ Ne
-                        </span>
+                        <div className="inline-flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full">
+                          <span className="text-gray-400 text-lg">−</span>
+                        </div>
                       )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
