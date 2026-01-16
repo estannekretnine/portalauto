@@ -40,7 +40,9 @@ export default function TraznjaModule() {
     kvadraturaOd: '',
     kvadraturaDo: '',
     strukturaOd: '',
-    strukturaDo: ''
+    strukturaDo: '',
+    stsaktivan: true,
+    stskupaczakupac: ''
   })
 
   useEffect(() => {
@@ -175,6 +177,7 @@ export default function TraznjaModule() {
           id,
           datumkreiranja,
           datumpromene,
+          datumbrisanja,
           kontaktosoba,
           kontakttelefon,
           strukturaod,
@@ -190,10 +193,18 @@ export default function TraznjaModule() {
           idopstina,
           idlokacija,
           idulica,
-          ai_karakteristike
+          ai_karakteristike,
+          stsaktivan,
+          stskupaczakupac
         `)
 
       // Primeni filtere
+      if (filters.stsaktivan !== null && filters.stsaktivan !== undefined && filters.stsaktivan !== '') {
+        query = query.eq('stsaktivan', filters.stsaktivan)
+      }
+      if (filters.stskupaczakupac) {
+        query = query.eq('stskupaczakupac', filters.stskupaczakupac)
+      }
       if (filters.cenaOd) {
         query = query.gte('cenaod', parseFloat(filters.cenaOd))
       }
@@ -284,7 +295,9 @@ export default function TraznjaModule() {
       kvadraturaOd: '',
       kvadraturaDo: '',
       strukturaOd: '',
-      strukturaDo: ''
+      strukturaDo: '',
+      stsaktivan: true,
+      stskupaczakupac: ''
     })
     setSelectedLokaliteti([])
   }
@@ -296,6 +309,7 @@ export default function TraznjaModule() {
     filters.kvadraturaDo,
     filters.strukturaOd,
     filters.strukturaDo,
+    filters.stskupaczakupac,
     ...selectedLokaliteti
   ].filter(Boolean).length
 
@@ -443,14 +457,24 @@ export default function TraznjaModule() {
     loadTraznje()
   }
 
-  // Arhiviraj tražnju
+  // Arhiviraj tražnju (postavi stsaktivan na false)
   const handleArhiviraj = async (traznjaId) => {
     try {
-      // Možemo dodati polje stsaktivan ako postoji
-      alert('Tražnja arhivirana: ' + traznjaId)
+      const { error } = await supabase
+        .from('traznja')
+        .update({ 
+          stsaktivan: false,
+          datumbrisanja: new Date().toISOString()
+        })
+        .eq('id', traznjaId)
+
+      if (error) throw error
+      
+      loadTraznje()
       setOpenActionMenu(null)
     } catch (error) {
       console.error('Greška pri arhiviranju:', error)
+      alert('Greška pri arhiviranju tražnje: ' + error.message)
     }
   }
 
@@ -551,6 +575,53 @@ export default function TraznjaModule() {
             </div>
 
             <div className="p-6 space-y-5">
+              {/* Tip: Kupac/Zakupac */}
+              <div className="flex gap-2">
+                {[
+                  { value: '', label: 'Svi' },
+                  { value: 'kupac', label: '🏠 Kupac' },
+                  { value: 'zakupac', label: '🔑 Zakupac' }
+                ].map(option => (
+                  <button
+                    key={option.value}
+                    onClick={() => handleFilterChange('stskupaczakupac', option.value)}
+                    className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                      filters.stskupaczakupac === option.value
+                        ? 'bg-amber-500 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Status: Aktivna/Neaktivna */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleFilterChange('stsaktivan', true)}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    filters.stsaktivan === true
+                      ? 'bg-emerald-100 text-emerald-700 border border-emerald-300'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${filters.stsaktivan === true ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
+                  Aktivne
+                </button>
+                <button
+                  onClick={() => handleFilterChange('stsaktivan', false)}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    filters.stsaktivan === false
+                      ? 'bg-gray-300 text-gray-700 border border-gray-400'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${filters.stsaktivan === false ? 'bg-gray-500' : 'bg-gray-400'}`}></span>
+                  Neaktivne
+                </button>
+              </div>
+
               {/* Lokalitet - Autocomplete */}
               <div ref={lokalitetInputRef} className="relative">
                 <div className="relative">
@@ -817,6 +888,8 @@ export default function TraznjaModule() {
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
                     m² od-do
                   </th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
                   <th 
                     className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
                     onClick={() => handleSort('datumkreiranja')}
@@ -880,6 +953,8 @@ export default function TraznjaModule() {
                   <th className="px-2 py-2"></th>
                   <th className="px-2 py-2"></th>
                   <th className="px-2 py-2"></th>
+                  <th className="px-2 py-2"></th>
+                  <th className="px-2 py-2"></th>
                 </tr>
               </thead>
               <tbody>
@@ -929,6 +1004,27 @@ export default function TraznjaModule() {
                           {traznja.kvadraturaod || '?'} - {traznja.kvadraturado || '?'}
                         </span>
                       </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold ${
+                        traznja.stskupaczakupac === 'kupac'
+                          ? 'bg-blue-100 text-blue-800'
+                          : traznja.stskupaczakupac === 'zakupac'
+                          ? 'bg-amber-100 text-amber-800'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        {traznja.stskupaczakupac === 'kupac' ? '🏠 Kupac' : traznja.stskupaczakupac === 'zakupac' ? '🔑 Zakupac' : '-'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${
+                        traznja.stsaktivan
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-gray-200 text-gray-600'
+                      }`}>
+                        <span className={`w-2 h-2 rounded-full ${traznja.stsaktivan ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
+                        {traznja.stsaktivan ? 'Aktivna' : 'Neaktivna'}
+                      </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">

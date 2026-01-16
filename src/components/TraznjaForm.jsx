@@ -24,7 +24,9 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
     idgrada: '',
     idopstina: '',
     idlokacija: '',
-    idulica: ''
+    idulica: '',
+    stsaktivan: true,
+    stskupaczakupac: 'kupac'
   })
 
   // Aktivni tab za metapodatke
@@ -132,7 +134,9 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
         idgrada: traznjaData.idgrada || '',
         idopstina: traznjaData.idopstina || '',
         idlokacija: traznjaData.idlokacija || '',
-        idulica: traznjaData.idulica || ''
+        idulica: traznjaData.idulica || '',
+        stsaktivan: traznjaData.stsaktivan ?? true,
+        stskupaczakupac: traznjaData.stskupaczakupac || 'kupac'
       }))
 
       if (traznjaData.metapodaci) {
@@ -443,7 +447,9 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
         cenado: formData.cenado ? parseFloat(formData.cenado) : null,
         detaljitraznje: formData.detaljitraznje || null,
         metapodaci: metapodaci,
-        ai_karakteristike: aiKarakteristike
+        ai_karakteristike: aiKarakteristike,
+        stsaktivan: formData.stsaktivan,
+        stskupaczakupac: formData.stskupaczakupac || null
       }
 
       if (formData.iddrzava) traznjaData.iddrzava = parseInt(formData.iddrzava)
@@ -542,6 +548,38 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
             
             {openSections.osnovne && (
               <div className="mt-4 space-y-4 bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                {/* Tip tražnje: Kupac/Zakupac */}
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                    <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">🎯</span>
+                    Tip tražnje
+                  </h4>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handleFieldChange('stskupaczakupac', 'kupac')}
+                      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all ${
+                        formData.stskupaczakupac === 'kupac'
+                          ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
+                          : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      🏠 Kupac
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleFieldChange('stskupaczakupac', 'zakupac')}
+                      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all ${
+                        formData.stskupaczakupac === 'zakupac'
+                          ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/25'
+                          : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      🔑 Zakupac
+                    </button>
+                  </div>
+                </div>
+
                 {/* Kontakt */}
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
