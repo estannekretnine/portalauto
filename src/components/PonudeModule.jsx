@@ -231,6 +231,7 @@ export default function PonudeModule() {
           stsrentaprodaja,
           vidljivostnasajtu,
           metapodaci,
+          datumkreiranja,
           datumbrisanja
         `)
 
@@ -1170,6 +1171,7 @@ export default function PonudeModule() {
                   </th>
                   <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider" title="Vidljivo na sajtu">Vid</th>
                   <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider" title="Ugovor potpisan">Ug</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Datum</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
                   {filters.statusFilter !== 'aktivne' && (
                     <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Dat.Bris.</th>
@@ -1325,6 +1327,15 @@ export default function PonudeModule() {
                       }`}>
                         {ponuda.metapodaci?.eop?.sts_ugovor_potpisan ? '📝' : '—'}
                       </span>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      {ponuda.datumkreiranja ? (
+                        <span className="text-sm text-gray-600">
+                          {new Date(ponuda.datumkreiranja).toLocaleDateString('sr-RS')}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex flex-col gap-1">
