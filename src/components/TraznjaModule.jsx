@@ -1033,14 +1033,18 @@ export default function TraznjaModule() {
                           <MoreVertical className="w-5 h-5" />
                         </button>
                         
-                        {/* Dropdown meni */}
+                        {/* Dropdown meni - prikaži iznad za poslednja 2 reda */}
                         {openActionMenu === traznja.id && (
                           <>
                             <div 
                               className="fixed inset-0 z-40" 
                               onClick={() => setOpenActionMenu(null)}
                             />
-                            <div className="absolute right-0 top-full mt-2 w-44 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50">
+                            <div className={`absolute right-0 w-44 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50 ${
+                              index >= paginatedTraznje.length - 2 
+                                ? 'bottom-full mb-2' 
+                                : 'top-full mt-2'
+                            }`}>
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation()
