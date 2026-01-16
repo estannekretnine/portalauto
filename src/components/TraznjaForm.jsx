@@ -524,6 +524,14 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
 
     try {
       if (!currentUser) throw new Error('Korisnik nije prijavljen')
+      
+      // Validacija obaveznih polja
+      if (!formData.kontaktosoba || !formData.kontaktosoba.trim()) {
+        throw new Error('Kontakt osoba je obavezno polje')
+      }
+      if (!formData.kontakttelefon || !formData.kontakttelefon.trim()) {
+        throw new Error('Telefon je obavezno polje')
+      }
 
       const traznjaData = {
         datumkreiranja: new Date().toISOString(),
@@ -685,17 +693,22 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">👤 Kontakt osoba</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        👤 Kontakt osoba <span className="text-red-500">*</span>
+                      </label>
                       <input
                         type="text"
                         value={formData.kontaktosoba}
                         onChange={(e) => handleFieldChange('kontaktosoba', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                         placeholder="Ime i prezime"
+                        required
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">📱 Telefon</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        📱 Telefon <span className="text-red-500">*</span>
+                      </label>
                       <div className="relative">
                         <input
                           type="text"
@@ -705,6 +718,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                             duplicatePhone ? 'border-orange-400 bg-orange-50' : 'border-gray-200'
                           }`}
                           placeholder="+381 XX XXX XXXX"
+                          required
                         />
                         {checkingPhone && (
                           <div className="absolute right-3 top-1/2 -translate-y-1/2">
