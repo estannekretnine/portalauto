@@ -537,36 +537,34 @@ export default function TraznjaModule() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-gray-900 to-black rounded-2xl p-5 shadow-lg">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h2 className="text-3xl font-bold text-white tracking-tight">Tražnja</h2>
-            <p className="text-gray-400 text-sm mt-1">Upravljanje tražnjama nekretnina</p>
-          </div>
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <button
-              onClick={handleAddTraznja}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-2xl hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg shadow-amber-500/25 font-semibold"
-            >
-              <Plus className="w-5 h-5" />
-              <span className="hidden sm:inline">Dodaj tražnju</span>
-              <span className="sm:hidden">Dodaj</span>
-            </button>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 px-5 py-3 rounded-2xl transition-all font-medium whitespace-nowrap ${
-                showFilters
-                  ? 'bg-amber-500 text-white'
-                  : 'bg-white/10 text-white border border-white/20 hover:bg-white/20'
-              }`}
-            >
-              <Filter className="w-4 h-4" />
-              <span className="hidden sm:inline">Filteri</span>
-              {activeFiltersCount > 0 && (
-                <span className="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full">{activeFiltersCount}</span>
-              )}
-            </button>
-          </div>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Tražnja</h2>
+          <p className="text-gray-500 text-sm mt-1">Upravljanje tražnjama nekretnina</p>
+        </div>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <button
+            onClick={handleAddTraznja}
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-2xl hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg shadow-amber-500/25 font-semibold"
+          >
+            <Plus className="w-5 h-5" />
+            <span className="hidden sm:inline">Dodaj tražnju</span>
+            <span className="sm:hidden">Dodaj</span>
+          </button>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex items-center gap-2 px-5 py-3 rounded-2xl transition-all font-medium ${
+              showFilters
+                ? 'bg-gray-900 text-white'
+                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 shadow-sm'
+            }`}
+          >
+            <Filter className="w-4 h-4" />
+            <span className="hidden sm:inline">Filteri</span>
+            {activeFiltersCount > 0 && (
+              <span className="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full">{activeFiltersCount}</span>
+            )}
+          </button>
         </div>
       </div>
 
@@ -992,7 +990,7 @@ export default function TraznjaModule() {
                       )}
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Ugovor</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">UG</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Agent</th>
                   <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider w-10"></th>
                 </tr>
@@ -1079,6 +1077,8 @@ export default function TraznjaModule() {
                       className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
+                  <th className="px-4 py-2"></th>
+                  <th className="px-4 py-2"></th>
                   <th className="px-4 py-2"></th>
                   <th className="px-4 py-2"></th>
                   <th className="px-4 py-2"></th>
