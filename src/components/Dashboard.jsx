@@ -12,6 +12,7 @@ import OpstinaModule from './lokalitet/OpstinaModule'
 import LokacijaModule from './lokalitet/LokacijaModule'
 import UlicaModule from './lokalitet/UlicaModule'
 import PonudeModule from './PonudeModule'
+import TraznjaModule from './TraznjaModule'
 import WelcomeDashboard from './WelcomeDashboard'
 import { LogOut, Menu, Building2 } from 'lucide-react'
 
@@ -95,6 +96,7 @@ export default function Dashboard() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
           {!activeModule && <WelcomeDashboard />}
           {activeModule === 'ponude' && <PonudeModule />}
+          {activeModule === 'traznja' && <TraznjaModule />}
           {activeModule === 'vrstaobjekta' && <VrstaObjektaModule />}
           {activeModule === 'lokalitet-drzava' && <DrzavaModule />}
           {activeModule === 'lokalitet-grad' && <GradModule />}
