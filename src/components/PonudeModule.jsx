@@ -1264,11 +1264,15 @@ export default function PonudeModule() {
                       className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-2 py-2"></th>
-                  <th className="px-2 py-2"></th>
-                  <th className="px-2 py-2"></th>
-                  <th className="px-2 py-2"></th>
-                  <th className="px-2 py-2"></th>
+                  <th className="px-2 py-2"></th>{/* Vid */}
+                  <th className="px-2 py-2"></th>{/* Ug */}
+                  <th className="px-2 py-2"></th>{/* Datum */}
+                  <th className="px-2 py-2"></th>{/* Status */}
+                  {filters.statusFilter !== 'aktivne' && (
+                    <th className="px-2 py-2"></th>
+                  )}{/* Dat.Bris. */}
+                  <th className="px-2 py-2"></th>{/* Tip */}
+                  <th className="px-2 py-2"></th>{/* Akcije */}
                 </tr>
               </thead>
               <tbody>
