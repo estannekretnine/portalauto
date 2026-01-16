@@ -236,9 +236,9 @@ export default function PonudeModule() {
 
       // Filter po statusu: aktivne, neaktivne, storno, sve
       if (filters.statusFilter === 'aktivne') {
-        query = query.eq('stsaktivan', true).or('stsstorniran.is.null,stsstorniran.eq.false')
+        query = query.eq('stsaktivan', true)
       } else if (filters.statusFilter === 'neaktivne') {
-        query = query.eq('stsaktivan', false).or('stsstorniran.is.null,stsstorniran.eq.false')
+        query = query.eq('stsaktivan', false)
       } else if (filters.statusFilter === 'storno') {
         query = query.eq('stsstorniran', true)
       }
