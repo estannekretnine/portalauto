@@ -15,6 +15,25 @@ export default function TraznjaModule() {
   const [openActionMenu, setOpenActionMenu] = useState(null)
   const [itemsPerPage, setItemsPerPage] = useState(10)
   
+  // Modal za arhiviranje
+  const [showArhivirajModal, setShowArhivirajModal] = useState(false)
+  const [arhivirajTraznjaId, setArhivirajTraznjaId] = useState(null)
+  const [selectedRazlogBrisanja, setSelectedRazlogBrisanja] = useState('')
+  
+  // Opcije za razlog brisanja/arhiviranja
+  const razloziBrisanja = [
+    'Prodat',
+    'Prodat - agencija',
+    'Povučen',
+    'Odustali',
+    'Nisu dobri papiri',
+    'Legalizacija',
+    'Pogrešan broj',
+    'Nepostojeći broj',
+    'Nedostupan',
+    'Drugo'
+  ]
+  
   // Sortiranje i pretraga po kolonama
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null })
   const [columnFilters, setColumnFilters] = useState({
@@ -457,21 +476,37 @@ export default function TraznjaModule() {
     loadTraznje()
   }
 
-  // Arhiviraj tražnju (postavi stsaktivan na false)
-  const handleArhiviraj = async (traznjaId) => {
+  // Otvori modal za arhiviranje
+  const openArhivirajModal = (traznjaId) => {
+    setArhivirajTraznjaId(traznjaId)
+    setSelectedRazlogBrisanja('')
+    setShowArhivirajModal(true)
+    setOpenActionMenu(null)
+  }
+
+  // Arhiviraj tražnju (postavi stsaktivan na false sa razlogom)
+  const handleArhiviraj = async () => {
+    if (!selectedRazlogBrisanja) {
+      alert('Molimo izaberite razlog arhiviranja')
+      return
+    }
+    
     try {
       const { error } = await supabase
         .from('traznja')
         .update({ 
           stsaktivan: false,
-          datumbrisanja: new Date().toISOString()
+          datumbrisanja: new Date().toISOString(),
+          razlogbrisanja: selectedRazlogBrisanja
         })
-        .eq('id', traznjaId)
+        .eq('id', arhivirajTraznjaId)
 
       if (error) throw error
       
       loadTraznje()
-      setOpenActionMenu(null)
+      setShowArhivirajModal(false)
+      setArhivirajTraznjaId(null)
+      setSelectedRazlogBrisanja('')
     } catch (error) {
       console.error('Greška pri arhiviranju:', error)
       alert('Greška pri arhiviranju tražnje: ' + error.message)
@@ -1067,7 +1102,7 @@ export default function TraznjaModule() {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  handleArhiviraj(traznja.id)
+                                  openArhivirajModal(traznja.id)
                                 }}
                                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
                               >
@@ -1270,6 +1305,84 @@ export default function TraznjaModule() {
           }}
           onSuccess={handleFormSuccess}
         />
+      )}
+
+      {/* Arhiviraj Modal - Izbor razloga */}
+      {showArhivirajModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-gray-900 to-black px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Archive className="w-5 h-5 text-amber-400" />
+                <h3 className="text-lg font-bold text-white">Arhiviraj tražnju</h3>
+              </div>
+              <button
+                onClick={() => {
+                  setShowArhivirajModal(false)
+                  setArhivirajTraznjaId(null)
+                  setSelectedRazlogBrisanja('')
+                }}
+                className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <p className="text-gray-600 mb-4">Izaberite razlog arhiviranja:</p>
+              
+              <div className="space-y-2 max-h-80 overflow-y-auto">
+                {razloziBrisanja.map((razlog) => (
+                  <label
+                    key={razlog}
+                    className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${
+                      selectedRazlogBrisanja === razlog
+                        ? 'bg-amber-100 border-2 border-amber-500'
+                        : 'bg-gray-50 border-2 border-transparent hover:bg-gray-100'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="razlogBrisanja"
+                      value={razlog}
+                      checked={selectedRazlogBrisanja === razlog}
+                      onChange={(e) => setSelectedRazlogBrisanja(e.target.value)}
+                      className="w-4 h-4 text-amber-500 focus:ring-amber-500"
+                    />
+                    <span className={`text-sm font-medium ${
+                      selectedRazlogBrisanja === razlog ? 'text-amber-800' : 'text-gray-700'
+                    }`}>
+                      {razlog}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowArhivirajModal(false)
+                  setArhivirajTraznjaId(null)
+                  setSelectedRazlogBrisanja('')
+                }}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Otkaži
+              </button>
+              <button
+                onClick={handleArhiviraj}
+                disabled={!selectedRazlogBrisanja}
+                className="px-6 py-2 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <Archive className="w-4 h-4" />
+                Arhiviraj
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
