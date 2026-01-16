@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
-import { Search, X, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Euro, Pencil, Archive, ArchiveRestore, MoreVertical, Phone, Calendar, FileText, User } from 'lucide-react'
+import { Search, X, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Euro, Pencil, Archive, ArchiveRestore, MoreVertical, Phone, Calendar, FileText, User, Building2 } from 'lucide-react'
 import TraznjaForm from './TraznjaForm'
 
 export default function TraznjaModule() {
@@ -878,6 +878,7 @@ export default function TraznjaModule() {
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
                     m² od-do
                   </th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Sprat</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
                   <th 
@@ -949,6 +950,7 @@ export default function TraznjaModule() {
                   <th className="px-2 py-2"></th>
                   <th className="px-2 py-2"></th>
                   <th className="px-2 py-2"></th>
+                  <th className="px-2 py-2"></th>
                 </tr>
               </thead>
               <tbody>
@@ -996,6 +998,14 @@ export default function TraznjaModule() {
                         <Ruler className="w-4 h-4 text-gray-400" />
                         <span className="text-sm text-gray-700">
                           {traznja.kvadraturaod || '?'} - {traznja.kvadraturado || '?'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5">
+                        <Building2 className="w-4 h-4 text-slate-500" />
+                        <span className="text-sm text-gray-700">
+                          {traznja.spratod || '?'} - {traznja.spratdo || '?'}
                         </span>
                       </div>
                     </td>
