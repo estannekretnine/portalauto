@@ -945,8 +945,10 @@ export default function TraznjaModule() {
                       )}
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">m² od-do</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Sprat</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">m² od</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">m² do</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Sprat od</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Sprat do</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status kupca</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
@@ -1100,7 +1102,15 @@ export default function TraznjaModule() {
                       <div className="flex items-center gap-1.5">
                         <Ruler className="w-4 h-4 text-gray-400" />
                         <span className="text-sm text-gray-700">
-                          {traznja.kvadraturaod || '?'} - {traznja.kvadraturado || '?'}
+                          {traznja.kvadraturaod || '?'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5">
+                        <Ruler className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm text-gray-700">
+                          {traznja.kvadraturado || '?'}
                         </span>
                       </div>
                     </td>
@@ -1108,7 +1118,15 @@ export default function TraznjaModule() {
                       <div className="flex items-center gap-1.5">
                         <Building2 className="w-4 h-4 text-slate-500" />
                         <span className="text-sm text-gray-700">
-                          {traznja.spratod || '?'} - {traznja.spratdo || '?'}
+                          {traznja.spratod || '?'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5">
+                        <Building2 className="w-4 h-4 text-slate-500" />
+                        <span className="text-sm text-gray-700">
+                          {traznja.spratdo || '?'}
                         </span>
                       </div>
                     </td>
