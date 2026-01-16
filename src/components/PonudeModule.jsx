@@ -1171,7 +1171,17 @@ export default function PonudeModule() {
                   </th>
                   <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider" title="Vidljivo na sajtu">Vid</th>
                   <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider" title="Ugovor potpisan">Ug</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Datum</th>
+                  <th 
+                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    onClick={() => handleSort('datumkreiranja')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Datum
+                      {sortConfig.key === 'datumkreiranja' && (
+                        sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                      )}
+                    </div>
+                  </th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
                   {filters.statusFilter !== 'aktivne' && (
                     <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Dat.Bris.</th>
