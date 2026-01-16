@@ -1175,7 +1175,7 @@ export default function PonudeModule() {
                     <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Dat.Bris.</th>
                   )}
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
-                  <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider">Akcije</th>
+                  <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider w-10"></th>
                 </tr>
                 {/* Red sa filterima */}
                 <tr className="bg-gray-800">

@@ -906,7 +906,7 @@ export default function TraznjaModule() {
                       )}
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider">Akcije</th>
+                  <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider w-10"></th>
                 </tr>
                 {/* Red sa filterima */}
                 <tr className="bg-gray-800">
