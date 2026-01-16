@@ -41,6 +41,8 @@ export default function TraznjaModule() {
     kvadraturaDo: '',
     strukturaOd: '',
     strukturaDo: '',
+    spratOd: '',
+    spratDo: '',
     stsaktivan: true,
     stskupaczakupac: '',
     statuskupca: ''
@@ -233,6 +235,12 @@ export default function TraznjaModule() {
       if (filters.strukturaDo) {
         query = query.lte('strukturado', parseFloat(filters.strukturaDo))
       }
+      if (filters.spratOd) {
+        query = query.gte('spratod', parseFloat(filters.spratOd))
+      }
+      if (filters.spratDo) {
+        query = query.lte('spratdo', parseFloat(filters.spratDo))
+      }
       
       // Lokalitet filteri
       const drzaveIds = selectedLokaliteti.filter(l => l.type === 'drzava').map(l => l.id)
@@ -310,6 +318,8 @@ export default function TraznjaModule() {
       kvadraturaDo: '',
       strukturaOd: '',
       strukturaDo: '',
+      spratOd: '',
+      spratDo: '',
       stsaktivan: true,
       stskupaczakupac: '',
       statuskupca: ''
@@ -324,6 +334,8 @@ export default function TraznjaModule() {
     filters.kvadraturaDo,
     filters.strukturaOd,
     filters.strukturaDo,
+    filters.spratOd,
+    filters.spratDo,
     filters.stskupaczakupac,
     filters.statuskupca,
     ...selectedLokaliteti
@@ -522,7 +534,7 @@ export default function TraznjaModule() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Tražnja</h2>
           <p className="text-gray-500 text-sm mt-1">Upravljanje tražnjama nekretnina</p>
@@ -538,7 +550,7 @@ export default function TraznjaModule() {
           </button>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 px-5 py-3 rounded-2xl transition-all font-medium ${
+            className={`flex items-center gap-2 px-5 py-3 rounded-2xl transition-all font-medium whitespace-nowrap ${
               showFilters
                 ? 'bg-gray-900 text-white'
                 : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 shadow-sm'
@@ -809,6 +821,30 @@ export default function TraznjaModule() {
                     onChange={(e) => handleFilterChange('strukturaDo', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                     placeholder="Broj soba do"
+                  />
+                </div>
+              </div>
+
+              {/* Sprat */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="relative">
+                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="number"
+                    value={filters.spratOd}
+                    onChange={(e) => handleFilterChange('spratOd', e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    placeholder="Sprat od"
+                  />
+                </div>
+                <div className="relative">
+                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="number"
+                    value={filters.spratDo}
+                    onChange={(e) => handleFilterChange('spratDo', e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    placeholder="Sprat do"
                   />
                 </div>
               </div>
@@ -1122,7 +1158,7 @@ export default function TraznjaModule() {
                             e.stopPropagation()
                             setOpenActionMenu(openActionMenu === traznja.id ? null : traznja.id)
                           }}
-                          className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all"
+                          className="inline-flex items-center justify-center w-10 h-10 hover:bg-gray-200 text-gray-700 rounded-xl transition-all"
                         >
                           <MoreVertical className="w-5 h-5" />
                         </button>
