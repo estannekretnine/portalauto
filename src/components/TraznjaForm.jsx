@@ -30,7 +30,13 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
     idlokacija: '',
     idulica: '',
     stsaktivan: true,
-    stskupaczakupac: 'kupac'
+    stskupaczakupac: 'kupac',
+    // Nova polja za sprat
+    spratod: '',
+    spratdo: '',
+    stsnecezadnjispratat: false,
+    stsnecesuteren: false,
+    iduser: currentUser?.id || null
   })
 
   // Aktivni tab za metapodatke
@@ -159,7 +165,13 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
         idlokacija: traznjaData.idlokacija || '',
         idulica: traznjaData.idulica || '',
         stsaktivan: traznjaData.stsaktivan ?? true,
-        stskupaczakupac: traznjaData.stskupaczakupac || 'kupac'
+        stskupaczakupac: traznjaData.stskupaczakupac || 'kupac',
+        // Nova polja za sprat
+        spratod: traznjaData.spratod || '',
+        spratdo: traznjaData.spratdo || '',
+        stsnecezadnjispratat: traznjaData.stsnecezadnjispratat || false,
+        stsnecesuteren: traznjaData.stsnecesuteren || false,
+        iduser: traznjaData.iduser || currentUser?.id || null
       }))
 
       if (traznjaData.metapodaci) {
@@ -528,7 +540,13 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
         metapodaci: metapodaci,
         ai_karakteristike: aiKarakteristike,
         stsaktivan: formData.stsaktivan,
-        stskupaczakupac: formData.stskupaczakupac || null
+        stskupaczakupac: formData.stskupaczakupac || null,
+        // Nova polja za sprat
+        spratod: formData.spratod ? parseFloat(formData.spratod) : null,
+        spratdo: formData.spratdo ? parseFloat(formData.spratdo) : null,
+        stsnecezadnjispratat: formData.stsnecezadnjispratat || false,
+        stsnecesuteren: formData.stsnecesuteren || false,
+        iduser: currentUser?.id || null
       }
 
       if (formData.iddrzava) traznjaData.iddrzava = parseInt(formData.iddrzava)
@@ -794,6 +812,56 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                       />
                     </div>
+                  </div>
+                </div>
+
+                {/* Sprat */}
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                    <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">🏢</span>
+                    Sprat
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Sprat od</label>
+                      <input
+                        type="number"
+                        value={formData.spratod}
+                        onChange={(e) => handleFieldChange('spratod', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        placeholder="0"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Sprat do</label>
+                      <input
+                        type="number"
+                        value={formData.spratdo}
+                        onChange={(e) => handleFieldChange('spratdo', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        placeholder="10"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    <label className="flex items-center gap-2 text-sm bg-white hover:bg-red-50 rounded-lg px-3 py-2 cursor-pointer border border-gray-200 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={formData.stsnecezadnjispratat}
+                        onChange={(e) => handleFieldChange('stsnecezadnjispratat', e.target.checked)}
+                        className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                      />
+                      <span className="text-gray-700">🚫 Neće zadnji sprat</span>
+                    </label>
+                    <label className="flex items-center gap-2 text-sm bg-white hover:bg-red-50 rounded-lg px-3 py-2 cursor-pointer border border-gray-200 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={formData.stsnecesuteren}
+                        onChange={(e) => handleFieldChange('stsnecesuteren', e.target.checked)}
+                        className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                      />
+                      <span className="text-gray-700">🚫 Neće suteren</span>
+                    </label>
                   </div>
                 </div>
 

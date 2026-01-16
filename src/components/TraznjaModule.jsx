@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
-import { Search, X, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Euro, Pencil, Archive, ArchiveRestore, MoreVertical, Phone, Calendar, FileText } from 'lucide-react'
+import { Search, X, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Euro, Pencil, Archive, ArchiveRestore, MoreVertical, Phone, Calendar, FileText, User } from 'lucide-react'
 import TraznjaForm from './TraznjaForm'
 
 export default function TraznjaModule() {
@@ -195,7 +195,12 @@ export default function TraznjaModule() {
           idulica,
           ai_karakteristike,
           stsaktivan,
-          stskupaczakupac
+          stskupaczakupac,
+          spratod,
+          spratdo,
+          stsnecezadnjispratat,
+          stsnecesuteren,
+          iduser
         `)
 
       // Primeni filtere
@@ -254,19 +259,23 @@ export default function TraznjaModule() {
       // Učitaj relacije
       const opstinaIds = [...new Set((data || []).map(t => t.idopstina).filter(Boolean))]
       const lokacijaIds = [...new Set((data || []).map(t => t.idlokacija).filter(Boolean))]
+      const userIds = [...new Set((data || []).map(t => t.iduser).filter(Boolean))]
 
-      const [opstineResult, lokacijeResult] = await Promise.all([
+      const [opstineResult, lokacijeResult, korisniciResult] = await Promise.all([
         opstinaIds.length > 0 ? supabase.from('opstina').select('id, opis').in('id', opstinaIds) : Promise.resolve({ data: [] }),
-        lokacijaIds.length > 0 ? supabase.from('lokacija').select('id, opis').in('id', lokacijaIds) : Promise.resolve({ data: [] })
+        lokacijaIds.length > 0 ? supabase.from('lokacija').select('id, opis').in('id', lokacijaIds) : Promise.resolve({ data: [] }),
+        userIds.length > 0 ? supabase.from('korisnici').select('id, naziv, email').in('id', userIds) : Promise.resolve({ data: [] })
       ])
 
       const opstineMap = new Map((opstineResult.data || []).map(o => [o.id, o]))
       const lokacijeMap = new Map((lokacijeResult.data || []).map(l => [l.id, l]))
+      const korisniciMap = new Map((korisniciResult.data || []).map(k => [k.id, k]))
 
       const traznjeSaRelacijama = (data || []).map(traznja => ({
         ...traznja,
         opstina: traznja.idopstina ? opstineMap.get(traznja.idopstina) || null : null,
-        lokacija: traznja.idlokacija ? lokacijeMap.get(traznja.idlokacija) || null : null
+        lokacija: traznja.idlokacija ? lokacijeMap.get(traznja.idlokacija) || null : null,
+        korisnik: traznja.iduser ? korisniciMap.get(traznja.iduser) || null : null
       }))
 
       setTraznje(traznjeSaRelacijama)
@@ -870,6 +879,7 @@ export default function TraznjaModule() {
                     m² od-do
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Agent</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
                   <th 
                     className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
@@ -936,6 +946,7 @@ export default function TraznjaModule() {
                   <th className="px-2 py-2"></th>
                   <th className="px-2 py-2"></th>
                   <th className="px-2 py-2"></th>
+                  <th className="px-2 py-2"></th>
                 </tr>
               </thead>
               <tbody>
@@ -996,6 +1007,18 @@ export default function TraznjaModule() {
                       }`}>
                         {traznja.stskupaczakupac === 'kupac' ? '🏠 Kupac' : traznja.stskupaczakupac === 'zakupac' ? '🔑 Zakupac' : '-'}
                       </span>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      {traznja.korisnik ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center">
+                            <User className="w-3.5 h-3.5 text-purple-700" />
+                          </div>
+                          <span className="text-sm font-medium text-gray-700">{traznja.korisnik.naziv}</span>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-400">-</span>
+                      )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex flex-col gap-1">
