@@ -63,7 +63,7 @@ export default function PonudeModule() {
     strukturaDo: '',
     cenaOd: '',
     cenaDo: '',
-    stsaktivan: true,
+    statusFilter: 'aktivne', // 'aktivne', 'neaktivne', 'storno', 'sve'
     stsrentaprodaja: 'prodaja'
   })
 
@@ -227,16 +227,24 @@ export default function PonudeModule() {
           struktura,
           cena,
           stsaktivan,
+          stsstorniran,
           stsrentaprodaja,
           vidljivostnasajtu,
           metapodaci,
+          datumkreiranja,
           datumbrisanja,
           razlogbrisanja
         `)
 
-      if (filters.stsaktivan !== null && filters.stsaktivan !== undefined) {
-        query = query.eq('stsaktivan', filters.stsaktivan)
+      // Filter po statusu: aktivne, neaktivne, storno, sve
+      if (filters.statusFilter === 'aktivne') {
+        query = query.eq('stsaktivan', true).eq('stsstorniran', false)
+      } else if (filters.statusFilter === 'neaktivne') {
+        query = query.eq('stsaktivan', false).eq('stsstorniran', false)
+      } else if (filters.statusFilter === 'storno') {
+        query = query.eq('stsstorniran', true)
       }
+      // 'sve' - ne primenjuje filter
       if (filters.stsrentaprodaja) {
         query = query.eq('stsrentaprodaja', filters.stsrentaprodaja)
       }
@@ -368,7 +376,7 @@ export default function PonudeModule() {
       strukturaDo: '',
       cenaOd: '',
       cenaDo: '',
-      stsaktivan: true,
+      statusFilter: 'aktivne',
       stsrentaprodaja: 'prodaja'
     })
     setSelectedLokaliteti([])
@@ -509,6 +517,14 @@ export default function PonudeModule() {
             aVal = a.cena || 0
             bVal = b.cena || 0
             break
+          case 'datumkreiranja':
+            aVal = a.datumkreiranja ? new Date(a.datumkreiranja).getTime() : 0
+            bVal = b.datumkreiranja ? new Date(b.datumkreiranja).getTime() : 0
+            break
+          case 'datumbrisanja':
+            aVal = a.datumbrisanja ? new Date(a.datumbrisanja).getTime() : 0
+            bVal = b.datumbrisanja ? new Date(b.datumbrisanja).getTime() : 0
+            break
           default:
             return 0
         }
@@ -597,7 +613,7 @@ export default function PonudeModule() {
         .from('ponuda')
         .update({ 
           stsaktivan: false,
-          datumbrisanja: new Date().toISOString(),
+          datumbrisanja: new Date().toISOString().split('T')[0],
           razlogbrisanja: archiveReason
         })
         .eq('id', selectedPonudaIdForArchive)
@@ -614,16 +630,17 @@ export default function PonudeModule() {
     }
   }
 
-  // Storniraj ponudu (za sada samo placeholder - možeš prilagoditi logiku)
+  // Storniraj ponudu (postavi stsstorniran na true)
   const handleStorniraj = async (ponudaId) => {
-    if (!confirm('Da li ste sigurni da želite da stornirate ovu ponudu?')) return
+    if (!confirm('Da li želite da stornirate ovu ponudu?')) return
     
     try {
-      // Ovde možeš dodati svoju logiku za storniranje
-      // Na primer, brisanje ili postavljanje posebnog statusa
       const { error } = await supabase
         .from('ponuda')
-        .delete()
+        .update({ 
+          stsstorniran: true,
+          datumbrisanja: new Date().toISOString().split('T')[0]
+        })
         .eq('id', ponudaId)
 
       if (error) throw error
@@ -978,28 +995,50 @@ export default function PonudeModule() {
               </div>
 
               {/* Red 7: Status */}
-              <div className="flex gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 <button
-                  onClick={() => handleFilterChange('stsaktivan', true)}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                    filters.stsaktivan === true
+                  onClick={() => handleFilterChange('statusFilter', 'aktivne')}
+                  className={`flex items-center justify-center gap-1 py-2.5 rounded-lg text-xs font-medium transition-all ${
+                    filters.statusFilter === 'aktivne'
                       ? 'bg-emerald-100 text-emerald-700 border border-emerald-300'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
-                  <span className={`w-2 h-2 rounded-full ${filters.stsaktivan === true ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
+                  <span className={`w-2 h-2 rounded-full ${filters.statusFilter === 'aktivne' ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
                   Aktivne
                 </button>
                 <button
-                  onClick={() => handleFilterChange('stsaktivan', false)}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                    filters.stsaktivan === false
+                  onClick={() => handleFilterChange('statusFilter', 'neaktivne')}
+                  className={`flex items-center justify-center gap-1 py-2.5 rounded-lg text-xs font-medium transition-all ${
+                    filters.statusFilter === 'neaktivne'
                       ? 'bg-gray-300 text-gray-700 border border-gray-400'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
-                  <span className={`w-2 h-2 rounded-full ${filters.stsaktivan === false ? 'bg-gray-500' : 'bg-gray-400'}`}></span>
+                  <span className={`w-2 h-2 rounded-full ${filters.statusFilter === 'neaktivne' ? 'bg-gray-500' : 'bg-gray-400'}`}></span>
                   Neaktivne
+                </button>
+                <button
+                  onClick={() => handleFilterChange('statusFilter', 'storno')}
+                  className={`flex items-center justify-center gap-1 py-2.5 rounded-lg text-xs font-medium transition-all ${
+                    filters.statusFilter === 'storno'
+                      ? 'bg-red-100 text-red-700 border border-red-300'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${filters.statusFilter === 'storno' ? 'bg-red-500' : 'bg-gray-400'}`}></span>
+                  Storno
+                </button>
+                <button
+                  onClick={() => handleFilterChange('statusFilter', 'sve')}
+                  className={`flex items-center justify-center gap-1 py-2.5 rounded-lg text-xs font-medium transition-all ${
+                    filters.statusFilter === 'sve'
+                      ? 'bg-blue-100 text-blue-700 border border-blue-300'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${filters.statusFilter === 'sve' ? 'bg-blue-500' : 'bg-gray-400'}`}></span>
+                  Sve
                 </button>
               </div>
             </div>
@@ -1133,7 +1172,29 @@ export default function PonudeModule() {
                   </th>
                   <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider" title="Vidljivo na sajtu">Vid</th>
                   <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider" title="Ugovor potpisan">Ug</th>
+                  <th 
+                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    onClick={() => handleSort('datumkreiranja')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Kreiran
+                      {sortConfig.key === 'datumkreiranja' && (
+                        sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                      )}
+                    </div>
+                  </th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
+                  <th 
+                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    onClick={() => handleSort('datumbrisanja')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Dat.Bris.
+                      {sortConfig.key === 'datumbrisanja' && (
+                        sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                      )}
+                    </div>
+                  </th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
                   <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider">Akcije</th>
                 </tr>
@@ -1287,27 +1348,46 @@ export default function PonudeModule() {
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
+                      {ponuda.datumkreiranja ? (
+                        <span className="text-sm text-gray-600">
+                          {new Date(ponuda.datumkreiranja).toLocaleDateString('sr-RS')}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex flex-col gap-1">
                         <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${
-                          ponuda.stsaktivan
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : 'bg-gray-200 text-gray-600'
+                          ponuda.stsstorniran
+                            ? 'bg-red-100 text-red-800'
+                            : ponuda.stsaktivan
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-gray-200 text-gray-600'
                         }`}>
-                          <span className={`w-2 h-2 rounded-full ${ponuda.stsaktivan ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
-                          {ponuda.stsaktivan ? 'Aktivan' : 'Neaktivan'}
+                          <span className={`w-2 h-2 rounded-full ${
+                            ponuda.stsstorniran 
+                              ? 'bg-red-500' 
+                              : ponuda.stsaktivan 
+                                ? 'bg-emerald-500' 
+                                : 'bg-gray-400'
+                          }`}></span>
+                          {ponuda.stsstorniran ? 'Storno' : ponuda.stsaktivan ? 'Aktivan' : 'Neaktivan'}
                         </span>
-                        {/* Prikaz datuma i razloga brisanja za neaktivne */}
-                        {!ponuda.stsaktivan && (ponuda.datumbrisanja || ponuda.razlogbrisanja) && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            {ponuda.razlogbrisanja && (
-                              <div className="font-medium text-red-600">{ponuda.razlogbrisanja}</div>
-                            )}
-                            {ponuda.datumbrisanja && (
-                              <div>{new Date(ponuda.datumbrisanja).toLocaleDateString('sr-RS')}</div>
-                            )}
-                          </div>
+                        {/* Prikaz razloga brisanja */}
+                        {ponuda.razlogbrisanja && (
+                          <div className="text-xs font-medium text-red-600 mt-1">{ponuda.razlogbrisanja}</div>
                         )}
                       </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      {ponuda.datumbrisanja ? (
+                        <span className="text-sm text-gray-600">
+                          {new Date(ponuda.datumbrisanja).toLocaleDateString('sr-RS')}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold ${
@@ -1517,16 +1597,24 @@ export default function PonudeModule() {
                   {/* Status aktivnosti */}
                   <div className="mt-3 pt-3 border-t border-gray-100">
                     <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${
-                      ponuda.stsaktivan
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : 'bg-gray-200 text-gray-600'
+                      ponuda.stsstorniran
+                        ? 'bg-red-100 text-red-800'
+                        : ponuda.stsaktivan
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-gray-200 text-gray-600'
                     }`}>
-                      <span className={`w-2 h-2 rounded-full ${ponuda.stsaktivan ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
-                      {ponuda.stsaktivan ? 'Aktivan' : 'Neaktivan'}
+                      <span className={`w-2 h-2 rounded-full ${
+                        ponuda.stsstorniran 
+                          ? 'bg-red-500' 
+                          : ponuda.stsaktivan 
+                            ? 'bg-emerald-500' 
+                            : 'bg-gray-400'
+                      }`}></span>
+                      {ponuda.stsstorniran ? 'Storno' : ponuda.stsaktivan ? 'Aktivan' : 'Neaktivan'}
                     </span>
                     
-                    {/* Prikaz datuma i razloga brisanja za neaktivne */}
-                    {!ponuda.stsaktivan && (ponuda.datumbrisanja || ponuda.razlogbrisanja) && (
+                    {/* Prikaz datuma i razloga brisanja */}
+                    {(ponuda.datumbrisanja || ponuda.razlogbrisanja) && (
                       <div className="mt-2 text-xs">
                         {ponuda.razlogbrisanja && (
                           <div className="font-semibold text-red-600 bg-red-50 px-2 py-1 rounded-lg inline-block">{ponuda.razlogbrisanja}</div>

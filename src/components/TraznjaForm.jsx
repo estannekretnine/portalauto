@@ -9,6 +9,10 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
   const [error, setError] = useState('')
   const isEditing = !!traznja
 
+  // State za duplikate telefona
+  const [duplicatePhone, setDuplicatePhone] = useState(null)
+  const [checkingPhone, setCheckingPhone] = useState(false)
+
   // Osnovne informacije
   const [formData, setFormData] = useState({
     kontaktosoba: '',
@@ -68,16 +72,35 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
     }
   })
 
-  // JSONB ai_karakteristike
+  // JSONB ai_karakteristike - usklađeno sa PonudaForm
   const [aiKarakteristike, setAiKarakteristike] = useState({
-    tip_nekretnine: [],
-    karakteristike: {
-      lift: false, terasa: false, parking: false, garaza: false,
-      novogradnja: false, namesten: false, klima: false
+    opremljenost: {
+      sts_internet: false, sts_kablovska: false, sts_frizider: false, sts_sporet: false,
+      sts_vesmasina: false, sts_tv: false, klima: false, sudomasina: false,
+      sts_masina_sudje: false, sts_mikrotalasna: false, sts_pegla: false,
+      sts_usisivac: false, sts_fen: false, sts_grejalica: false,
+      sts_roletne: false, sts_alarm: false, sts_video_nadzor: false, sts_smart_home: false
     },
-    preferencije: {
-      sprat_od: '', sprat_do: '', orijentacija: '', blizina_centra: false,
-      mirna_lokacija: false, blizina_skole: false, blizina_prevoza: false
+    zivotni_stil: {
+      rad_od_kuce: false, pet_friendly: 0, nivo_buke: '', osuncanost: '',
+      blizina_parka: 0, blizina_teretane: 0, blizina_prodavnice: 0,
+      blizina_apoteke: 0, blizina_bolnice: 0, blizina_autobuske: 0,
+      pusenje_dozvoljeno: false, pogodan_za_decu: false,
+      pogodan_za_studente: false, pogodan_za_penzionere: false
+    },
+    ekologija: {
+      pogled: [], indeks_vazduha: '', energetski_razred: '',
+      solarni_paneli: false, toplotna_pumpa: false,
+      reciklaza: false, zelena_povrsina: 0
+    },
+    mikrolokacija: {
+      mirna_ulica: false, skola_minuta: 0, ev_punjac_metara: 0,
+      vrtic_minuta: 0, fakultet_minuta: 0, metro_minuta: 0,
+      parking_zona: '', blizina_centra: 0
+    },
+    bezbednost: {
+      portir: false, video_interfon: false, protivpozarni_sistem: false,
+      osigurana_zgrada: false, sigurnosna_vrata: false
     }
   })
 
@@ -364,6 +387,48 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
 
   const handleFieldChange = (key, value) => {
     setFormData(prev => ({ ...prev, [key]: value }))
+    
+    // Provera duplikata telefona pri unosu
+    if (key === 'kontakttelefon' && value && value.length >= 6) {
+      checkDuplicatePhone(value)
+    } else if (key === 'kontakttelefon') {
+      setDuplicatePhone(null)
+    }
+  }
+
+  // Funkcija za proveru duplikata telefona
+  const checkDuplicatePhone = async (phone) => {
+    if (!phone || phone.length < 6) return
+    
+    setCheckingPhone(true)
+    try {
+      // Ukloni razmake i specijalne karaktere za poređenje
+      const cleanPhone = phone.replace(/[\s\-\(\)]/g, '')
+      
+      let query = supabase
+        .from('traznja')
+        .select('id, kontaktosoba, kontakttelefon, datumkreiranja')
+        .ilike('kontakttelefon', `%${cleanPhone}%`)
+      
+      // Ako uređujemo postojeću tražnju, isključi je iz pretrage
+      if (isEditing && traznja?.id) {
+        query = query.neq('id', traznja.id)
+      }
+      
+      const { data, error } = await query.limit(5)
+      
+      if (error) throw error
+      
+      if (data && data.length > 0) {
+        setDuplicatePhone(data)
+      } else {
+        setDuplicatePhone(null)
+      }
+    } catch (err) {
+      console.error('Greška pri proveri duplikata:', err)
+    } finally {
+      setCheckingPhone(false)
+    }
   }
 
   // Handleri za Nalogodavce
@@ -409,20 +474,34 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
     setMetapodaci(prev => ({ ...prev, zastupnik: { ...prev.zastupnik, [field]: value } }))
   }
 
-  // AI karakteristike handleri
-  const handleAiKarakteristikeChange = (field, value) => {
-    setAiKarakteristike(prev => ({ ...prev, karakteristike: { ...prev.karakteristike, [field]: value } }))
+  // AI karakteristike handleri - usklađeno sa PonudaForm
+  const handleAiOpremljenostChange = (field, value) => {
+    setAiKarakteristike(prev => ({ ...prev, opremljenost: { ...prev.opremljenost, [field]: value } }))
   }
 
-  const handleAiPreferencijeChange = (field, value) => {
-    setAiKarakteristike(prev => ({ ...prev, preferencije: { ...prev.preferencije, [field]: value } }))
+  const handleAiZivotniStilChange = (field, value) => {
+    setAiKarakteristike(prev => ({ ...prev, zivotni_stil: { ...prev.zivotni_stil, [field]: value } }))
   }
 
-  const handleTipNekretnineToggle = (tip) => {
+  const handleAiEkologijaChange = (field, value) => {
+    setAiKarakteristike(prev => ({ ...prev, ekologija: { ...prev.ekologija, [field]: value } }))
+  }
+
+  const handleAiMikrolokacijaChange = (field, value) => {
+    setAiKarakteristike(prev => ({ ...prev, mikrolokacija: { ...prev.mikrolokacija, [field]: value } }))
+  }
+
+  const handleAiBezbednostChange = (field, value) => {
+    setAiKarakteristike(prev => ({ ...prev, bezbednost: { ...prev.bezbednost, [field]: value } }))
+  }
+
+  const handlePogledToggle = (value) => {
     setAiKarakteristike(prev => {
-      const current = Array.isArray(prev.tip_nekretnine) ? prev.tip_nekretnine : []
-      const newTipovi = current.includes(tip) ? current.filter(t => t !== tip) : [...current, tip]
-      return { ...prev, tip_nekretnine: newTipovi }
+      const currentPogled = Array.isArray(prev.ekologija.pogled) ? prev.ekologija.pogled : []
+      const newPogled = currentPogled.includes(value) 
+        ? currentPogled.filter(p => p !== value) 
+        : [...currentPogled, value]
+      return { ...prev, ekologija: { ...prev.ekologija, pogled: newPogled } }
     })
   }
 
@@ -599,13 +678,43 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1">📱 Telefon</label>
-                      <input
-                        type="text"
-                        value={formData.kontakttelefon}
-                        onChange={(e) => handleFieldChange('kontakttelefon', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                        placeholder="+381 XX XXX XXXX"
-                      />
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={formData.kontakttelefon}
+                          onChange={(e) => handleFieldChange('kontakttelefon', e.target.value)}
+                          className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent ${
+                            duplicatePhone ? 'border-orange-400 bg-orange-50' : 'border-gray-200'
+                          }`}
+                          placeholder="+381 XX XXX XXXX"
+                        />
+                        {checkingPhone && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <div className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+                          </div>
+                        )}
+                      </div>
+                      {/* Upozorenje o duplikatu */}
+                      {duplicatePhone && duplicatePhone.length > 0 && (
+                        <div className="mt-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                          <div className="flex items-center gap-2 text-orange-700 font-medium text-sm mb-2">
+                            <span>⚠️</span>
+                            <span>Pronađene postojeće tražnje sa ovim brojem!</span>
+                          </div>
+                          <div className="space-y-1">
+                            {duplicatePhone.map((dup) => (
+                              <div key={dup.id} className="text-xs text-orange-600 bg-white/50 rounded px-2 py-1">
+                                <span className="font-semibold">ID: {dup.id}</span>
+                                {dup.kontaktosoba && <span> • {dup.kontaktosoba}</span>}
+                                <span> • {dup.kontakttelefon}</span>
+                                {dup.datumkreiranja && (
+                                  <span className="text-orange-500"> • {new Date(dup.datumkreiranja).toLocaleDateString('sr-RS')}</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -877,103 +986,288 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
             </button>
             
             {openSections.ai && (
-              <div className="mt-4 bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-                {/* Tip nekretnine */}
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
-                  <h4 className="font-semibold text-slate-700 mb-3">🏠 Tip nekretnine</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {['Stan', 'Kuća', 'Poslovni prostor', 'Plac', 'Garaža', 'Vikendica'].map(tip => (
-                      <button
-                        key={tip}
-                        type="button"
-                        onClick={() => handleTipNekretnineToggle(tip)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                          aiKarakteristike.tip_nekretnine?.includes(tip)
-                            ? 'bg-amber-500 text-white'
-                            : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-                        }`}
-                      >
-                        {tip}
-                      </button>
-                    ))}
+              <div className="mt-4 bg-white rounded-xl p-4 border border-gray-100 shadow-sm space-y-4">
+                
+                {/* Ekologija & Energija */}
+                <div className="bg-gradient-to-br from-teal-50 to-emerald-50 rounded-xl p-4 border border-teal-200">
+                  <h4 className="font-semibold text-teal-800 mb-3 flex items-center gap-2">
+                    <span>🌍</span> Ekologija & Energija
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Pogled na */}
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-2">👁️ Pogled na</label>
+                      <div className="flex flex-wrap gap-1">
+                        {[
+                          { value: 'park', label: '🌳 Park' },
+                          { value: 'ulica', label: '🛣️ Ulica' },
+                          { value: 'dvoriste', label: '🏡 Dvorište' },
+                          { value: 'reka', label: '🌊 Reka' },
+                          { value: 'panorama', label: '🌄 Panorama' }
+                        ].map(option => {
+                          const currentPogled = Array.isArray(aiKarakteristike.ekologija?.pogled) ? aiKarakteristike.ekologija.pogled : []
+                          const isChecked = currentPogled.includes(option.value)
+                          return (
+                            <label key={option.value} className={`text-xs px-2 py-1 rounded-full cursor-pointer transition-colors ${isChecked ? 'bg-teal-600 text-white' : 'bg-white hover:bg-slate-100 text-gray-700'}`}>
+                              <input type="checkbox" checked={isChecked} onChange={() => handlePogledToggle(option.value)} className="hidden" />
+                              {option.label}
+                            </label>
+                          )
+                        })}
+                      </div>
+                    </div>
+                    {/* Kvalitet vazduha i Energetski razred */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">💨 Kvalitet vazduha</label>
+                        <select value={aiKarakteristike.ekologija?.indeks_vazduha || ''} onChange={(e) => handleAiEkologijaChange('indeks_vazduha', e.target.value)} className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs bg-white">
+                          <option value="">-</option>
+                          <option value="dobar">✅ Dobar</option>
+                          <option value="srednji">⚠️ Srednji</option>
+                          <option value="los">❌ Loš</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">⚡ Energetski razred</label>
+                        <select value={aiKarakteristike.ekologija?.energetski_razred || ''} onChange={(e) => handleAiEkologijaChange('energetski_razred', e.target.value)} className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs bg-white">
+                          <option value="">-</option>
+                          <option value="A+">A+</option>
+                          <option value="A">A</option>
+                          <option value="B">B</option>
+                          <option value="C">C</option>
+                          <option value="D">D</option>
+                          <option value="E">E</option>
+                        </select>
+                      </div>
+                    </div>
+                    {/* Eko karakteristike */}
+                    <div className="md:col-span-2">
+                      <label className="block text-xs text-gray-600 mb-2">♻️ Eko karakteristike</label>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { key: 'solarni_paneli', label: '☀️ Solarni paneli' },
+                          { key: 'toplotna_pumpa', label: '🌡️ Toplotna pumpa' },
+                          { key: 'reciklaza', label: '♻️ Reciklaža' }
+                        ].map(item => (
+                          <label key={item.key} className="flex items-center gap-1 text-xs bg-white hover:bg-slate-100 rounded-lg px-2 py-1.5 cursor-pointer">
+                            <input type="checkbox" checked={aiKarakteristike.ekologija?.[item.key] || false} onChange={(e) => handleAiEkologijaChange(item.key, e.target.checked)} className="rounded border-gray-300 text-teal-600 w-3 h-3" />
+                            <span className="text-gray-700">{item.label}</span>
+                          </label>
+                        ))}
+                        <div className="flex items-center gap-1 bg-white rounded-lg px-2 py-1.5">
+                          <span className="text-xs">🌿</span>
+                          <input type="number" min="0" max="100" value={aiKarakteristike.ekologija?.zelena_povrsina || 0} onChange={(e) => handleAiEkologijaChange('zelena_povrsina', parseInt(e.target.value) || 0)} className="w-12 px-1 py-0.5 border border-gray-200 rounded text-xs text-center" />
+                          <span className="text-xs text-gray-500">% zeleno</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Karakteristike */}
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
-                  <h4 className="font-semibold text-slate-700 mb-3">✨ Željene karakteristike</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {/* Bezbednost */}
+                <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-4 border border-red-200">
+                  <h4 className="font-semibold text-red-800 mb-3 flex items-center gap-2">
+                    <span>🛡️</span> Bezbednost
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
                     {[
-                      { key: 'lift', label: '🛗 Lift' },
-                      { key: 'terasa', label: '🌅 Terasa' },
-                      { key: 'parking', label: '🅿️ Parking' },
-                      { key: 'garaza', label: '🚗 Garaža' },
-                      { key: 'novogradnja', label: '🏗️ Novogradnja' },
-                      { key: 'namesten', label: '🛋️ Namešten' },
-                      { key: 'klima', label: '❄️ Klima' }
+                      { key: 'portir', icon: '👮', label: 'Portir u zgradi' },
+                      { key: 'video_interfon', icon: '📹', label: 'Video interfon' },
+                      { key: 'protivpozarni_sistem', icon: '🧯', label: 'Protivpožarni' },
+                      { key: 'osigurana_zgrada', icon: '🏢', label: 'Osigurana zgrada' },
+                      { key: 'sigurnosna_vrata', icon: '🚪', label: 'Sigurnosna vrata' }
                     ].map(item => (
-                      <label key={item.key} className="flex items-center gap-2 p-2 bg-white rounded-lg cursor-pointer hover:bg-slate-100 transition-colors">
+                      <label key={item.key} className="flex items-center gap-1.5 text-xs bg-white hover:bg-slate-100 rounded-lg px-3 py-2 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={aiKarakteristike.karakteristike[item.key] || false}
-                          onChange={(e) => handleAiKarakteristikeChange(item.key, e.target.checked)}
-                          className="rounded border-gray-300 text-amber-600"
+                          checked={aiKarakteristike.bezbednost?.[item.key] || false}
+                          onChange={(e) => handleAiBezbednostChange(item.key, e.target.checked)}
+                          className="rounded border-gray-300 text-red-600 w-3.5 h-3.5"
                         />
-                        <span className="text-sm text-gray-700">{item.label}</span>
+                        <span>{item.icon}</span>
+                        <span className="text-gray-700">{item.label}</span>
                       </label>
                     ))}
                   </div>
                 </div>
 
-                {/* Preferencije */}
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                  <h4 className="font-semibold text-slate-700 mb-3">🎯 Preferencije</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                {/* Životni stil */}
+                <div className="bg-gradient-to-br from-green-50 to-lime-50 rounded-xl p-4 border border-green-200">
+                  <h4 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
+                    <span>🌿</span> Životni stil
+                  </h4>
+                  {/* Checkboxes */}
+                  <div className="grid grid-cols-2 gap-2 mb-3">
+                    <label className="flex items-center gap-1.5 text-xs bg-white hover:bg-slate-100 rounded-lg px-2 py-1.5 cursor-pointer">
+                      <input type="checkbox" checked={aiKarakteristike.zivotni_stil?.rad_od_kuce || false} onChange={(e) => handleAiZivotniStilChange('rad_od_kuce', e.target.checked)} className="rounded border-gray-300 text-green-600 w-3.5 h-3.5" />
+                      <span>💻</span><span className="text-gray-700">Rad od kuće</span>
+                    </label>
+                    <label className="flex items-center gap-1.5 text-xs bg-white hover:bg-slate-100 rounded-lg px-2 py-1.5 cursor-pointer">
+                      <input type="checkbox" checked={aiKarakteristike.zivotni_stil?.pusenje_dozvoljeno || false} onChange={(e) => handleAiZivotniStilChange('pusenje_dozvoljeno', e.target.checked)} className="rounded border-gray-300 text-green-600 w-3.5 h-3.5" />
+                      <span>🚬</span><span className="text-gray-700">Pušenje OK</span>
+                    </label>
+                    <label className="flex items-center gap-1.5 text-xs bg-white hover:bg-slate-100 rounded-lg px-2 py-1.5 cursor-pointer">
+                      <input type="checkbox" checked={aiKarakteristike.zivotni_stil?.pogodan_za_decu || false} onChange={(e) => handleAiZivotniStilChange('pogodan_za_decu', e.target.checked)} className="rounded border-gray-300 text-green-600 w-3.5 h-3.5" />
+                      <span>👶</span><span className="text-gray-700">Za decu</span>
+                    </label>
+                    <label className="flex items-center gap-1.5 text-xs bg-white hover:bg-slate-100 rounded-lg px-2 py-1.5 cursor-pointer">
+                      <input type="checkbox" checked={aiKarakteristike.zivotni_stil?.pogodan_za_studente || false} onChange={(e) => handleAiZivotniStilChange('pogodan_za_studente', e.target.checked)} className="rounded border-gray-300 text-green-600 w-3.5 h-3.5" />
+                      <span>🎓</span><span className="text-gray-700">Za studente</span>
+                    </label>
+                    <label className="flex items-center gap-1.5 text-xs bg-white hover:bg-slate-100 rounded-lg px-2 py-1.5 cursor-pointer">
+                      <input type="checkbox" checked={aiKarakteristike.zivotni_stil?.pogodan_za_penzionere || false} onChange={(e) => handleAiZivotniStilChange('pogodan_za_penzionere', e.target.checked)} className="rounded border-gray-300 text-green-600 w-3.5 h-3.5" />
+                      <span>👴</span><span className="text-gray-700">Za penzionere</span>
+                    </label>
+                  </div>
+                  {/* Selecti */}
+                  <div className="grid grid-cols-3 gap-2 mb-3">
                     <div>
-                      <label className="block text-xs text-gray-600 mb-1">Sprat od</label>
-                      <input
-                        type="number"
-                        value={aiKarakteristike.preferencije.sprat_od || ''}
-                        onChange={(e) => handleAiPreferencijeChange('sprat_od', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
-                      />
+                      <label className="block text-xs text-gray-600 mb-1">🐾 Pet-friendly</label>
+                      <input type="number" min="0" max="5" value={aiKarakteristike.zivotni_stil?.pet_friendly || 0} onChange={(e) => handleAiZivotniStilChange('pet_friendly', parseInt(e.target.value) || 0)} className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs bg-white" placeholder="0-5" />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-600 mb-1">Sprat do</label>
-                      <input
-                        type="number"
-                        value={aiKarakteristike.preferencije.sprat_do || ''}
-                        onChange={(e) => handleAiPreferencijeChange('sprat_do', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
-                      />
+                      <label className="block text-xs text-gray-600 mb-1">🔊 Buka</label>
+                      <select value={aiKarakteristike.zivotni_stil?.nivo_buke || ''} onChange={(e) => handleAiZivotniStilChange('nivo_buke', e.target.value)} className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs bg-white">
+                        <option value="">-</option>
+                        <option value="nisko">Nisko</option>
+                        <option value="srednje">Srednje</option>
+                        <option value="visoko">Visoko</option>
+                      </select>
                     </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-xs text-gray-600 mb-1">Orijentacija</label>
-                      <select
-                        value={aiKarakteristike.preferencije.orijentacija || ''}
-                        onChange={(e) => handleAiPreferencijeChange('orijentacija', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
-                      >
-                        <option value="">Bilo koja</option>
-                        <option value="sever">Sever</option>
-                        <option value="jug">Jug</option>
-                        <option value="istok">Istok</option>
-                        <option value="zapad">Zapad</option>
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">☀️ Sunce</label>
+                      <select value={aiKarakteristike.zivotni_stil?.osuncanost || ''} onChange={(e) => handleAiZivotniStilChange('osuncanost', e.target.value)} className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs bg-white">
+                        <option value="">-</option>
+                        <option value="slabo">Slabo</option>
+                        <option value="srednje">Srednje</option>
+                        <option value="jako">Jako</option>
                       </select>
                     </div>
                   </div>
+                  {/* Blizina (min pešice) */}
+                  <label className="block text-xs text-gray-600 mb-2">📍 Blizina (min pešice)</label>
+                  <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                    <div className="bg-white rounded-lg p-2 text-center">
+                      <span className="text-sm">🌳</span>
+                      <div className="text-xs text-gray-500">Park</div>
+                      <input type="number" min="0" value={aiKarakteristike.zivotni_stil?.blizina_parka || 0} onChange={(e) => handleAiZivotniStilChange('blizina_parka', parseInt(e.target.value) || 0)} className="w-full px-1 py-0.5 border border-gray-200 rounded text-xs text-center mt-1" />
+                    </div>
+                    <div className="bg-white rounded-lg p-2 text-center">
+                      <span className="text-sm">🏋️</span>
+                      <div className="text-xs text-gray-500">Teretana</div>
+                      <input type="number" min="0" value={aiKarakteristike.zivotni_stil?.blizina_teretane || 0} onChange={(e) => handleAiZivotniStilChange('blizina_teretane', parseInt(e.target.value) || 0)} className="w-full px-1 py-0.5 border border-gray-200 rounded text-xs text-center mt-1" />
+                    </div>
+                    <div className="bg-white rounded-lg p-2 text-center">
+                      <span className="text-sm">🛒</span>
+                      <div className="text-xs text-gray-500">Prodavnica</div>
+                      <input type="number" min="0" value={aiKarakteristike.zivotni_stil?.blizina_prodavnice || 0} onChange={(e) => handleAiZivotniStilChange('blizina_prodavnice', parseInt(e.target.value) || 0)} className="w-full px-1 py-0.5 border border-gray-200 rounded text-xs text-center mt-1" />
+                    </div>
+                    <div className="bg-white rounded-lg p-2 text-center">
+                      <span className="text-sm">💊</span>
+                      <div className="text-xs text-gray-500">Apoteka</div>
+                      <input type="number" min="0" value={aiKarakteristike.zivotni_stil?.blizina_apoteke || 0} onChange={(e) => handleAiZivotniStilChange('blizina_apoteke', parseInt(e.target.value) || 0)} className="w-full px-1 py-0.5 border border-gray-200 rounded text-xs text-center mt-1" />
+                    </div>
+                    <div className="bg-white rounded-lg p-2 text-center">
+                      <span className="text-sm">🏥</span>
+                      <div className="text-xs text-gray-500">Bolnica</div>
+                      <input type="number" min="0" value={aiKarakteristike.zivotni_stil?.blizina_bolnice || 0} onChange={(e) => handleAiZivotniStilChange('blizina_bolnice', parseInt(e.target.value) || 0)} className="w-full px-1 py-0.5 border border-gray-200 rounded text-xs text-center mt-1" />
+                    </div>
+                    <div className="bg-white rounded-lg p-2 text-center">
+                      <span className="text-sm">🚌</span>
+                      <div className="text-xs text-gray-500">Autobus</div>
+                      <input type="number" min="0" value={aiKarakteristike.zivotni_stil?.blizina_autobuske || 0} onChange={(e) => handleAiZivotniStilChange('blizina_autobuske', parseInt(e.target.value) || 0)} className="w-full px-1 py-0.5 border border-gray-200 rounded text-xs text-center mt-1" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mikrolokacija */}
+                <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-4 border border-purple-200">
+                  <h4 className="font-semibold text-purple-800 mb-3 flex items-center gap-2">
+                    <span>📍</span> Mikrolokacija
+                  </h4>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <label className="flex items-center gap-1.5 text-xs bg-white hover:bg-slate-100 rounded-lg px-3 py-2 cursor-pointer">
+                      <input type="checkbox" checked={aiKarakteristike.mikrolokacija?.mirna_ulica || false} onChange={(e) => handleAiMikrolokacijaChange('mirna_ulica', e.target.checked)} className="rounded border-gray-300 text-purple-600 w-3.5 h-3.5" />
+                      <span>🤫</span><span className="text-gray-700">Mirna ulica</span>
+                    </label>
+                    <div className="flex items-center gap-1 bg-white rounded-lg px-2 py-1.5">
+                      <span className="text-xs">🅿️</span>
+                      <span className="text-xs text-gray-600">Parking zona:</span>
+                      <select value={aiKarakteristike.mikrolokacija?.parking_zona || ''} onChange={(e) => handleAiMikrolokacijaChange('parking_zona', e.target.value)} className="px-1 py-0.5 border border-gray-200 rounded text-xs bg-white">
+                        <option value="">-</option>
+                        <option value="besplatna">Besplatna</option>
+                        <option value="zona1">Zona 1</option>
+                        <option value="zona2">Zona 2</option>
+                        <option value="zona3">Zona 3</option>
+                      </select>
+                    </div>
+                  </div>
+                  {/* Udaljenosti (min pešice) */}
+                  <label className="block text-xs text-gray-600 mb-2">🚶 Udaljenosti (min pešice)</label>
+                  <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                    <div className="bg-white rounded-lg p-2 text-center">
+                      <span className="text-sm">🏫</span>
+                      <div className="text-xs text-gray-500">Škola</div>
+                      <input type="number" min="0" value={aiKarakteristike.mikrolokacija?.skola_minuta || 0} onChange={(e) => handleAiMikrolokacijaChange('skola_minuta', parseInt(e.target.value) || 0)} className="w-full px-1 py-0.5 border border-gray-200 rounded text-xs text-center mt-1" />
+                    </div>
+                    <div className="bg-white rounded-lg p-2 text-center">
+                      <span className="text-sm">👶</span>
+                      <div className="text-xs text-gray-500">Vrtić</div>
+                      <input type="number" min="0" value={aiKarakteristike.mikrolokacija?.vrtic_minuta || 0} onChange={(e) => handleAiMikrolokacijaChange('vrtic_minuta', parseInt(e.target.value) || 0)} className="w-full px-1 py-0.5 border border-gray-200 rounded text-xs text-center mt-1" />
+                    </div>
+                    <div className="bg-white rounded-lg p-2 text-center">
+                      <span className="text-sm">🎓</span>
+                      <div className="text-xs text-gray-500">Fakultet</div>
+                      <input type="number" min="0" value={aiKarakteristike.mikrolokacija?.fakultet_minuta || 0} onChange={(e) => handleAiMikrolokacijaChange('fakultet_minuta', parseInt(e.target.value) || 0)} className="w-full px-1 py-0.5 border border-gray-200 rounded text-xs text-center mt-1" />
+                    </div>
+                    <div className="bg-white rounded-lg p-2 text-center">
+                      <span className="text-sm">🚇</span>
+                      <div className="text-xs text-gray-500">Metro</div>
+                      <input type="number" min="0" value={aiKarakteristike.mikrolokacija?.metro_minuta || 0} onChange={(e) => handleAiMikrolokacijaChange('metro_minuta', parseInt(e.target.value) || 0)} className="w-full px-1 py-0.5 border border-gray-200 rounded text-xs text-center mt-1" />
+                    </div>
+                    <div className="bg-white rounded-lg p-2 text-center">
+                      <span className="text-sm">🏙️</span>
+                      <div className="text-xs text-gray-500">Centar</div>
+                      <input type="number" min="0" value={aiKarakteristike.mikrolokacija?.blizina_centra || 0} onChange={(e) => handleAiMikrolokacijaChange('blizina_centra', parseInt(e.target.value) || 0)} className="w-full px-1 py-0.5 border border-gray-200 rounded text-xs text-center mt-1" />
+                    </div>
+                    <div className="bg-white rounded-lg p-2 text-center">
+                      <span className="text-sm">⚡</span>
+                      <div className="text-xs text-gray-500">EV punjač</div>
+                      <input type="number" min="0" value={aiKarakteristike.mikrolokacija?.ev_punjac_metara || 0} onChange={(e) => handleAiMikrolokacijaChange('ev_punjac_metara', parseInt(e.target.value) || 0)} className="w-full px-1 py-0.5 border border-gray-200 rounded text-xs text-center mt-1" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Opremljenost */}
+                <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-200">
+                  <h4 className="font-semibold text-amber-800 mb-3 flex items-center gap-2">
+                    <span>🏠</span> Opremljenost
+                  </h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     {[
-                      { key: 'blizina_centra', label: '🏙️ Blizu centra' },
-                      { key: 'mirna_lokacija', label: '🤫 Mirna lokacija' },
-                      { key: 'blizina_skole', label: '🏫 Blizu škole' },
-                      { key: 'blizina_prevoza', label: '🚌 Blizu prevoza' }
+                      { key: 'sts_internet', label: '🌐 Internet' },
+                      { key: 'sts_kablovska', label: '📺 Kablovska' },
+                      { key: 'sts_frizider', label: '❄️ Frižider' },
+                      { key: 'sts_sporet', label: '🍳 Šporet' },
+                      { key: 'sts_vesmasina', label: '🧺 Veš mašina' },
+                      { key: 'sts_tv', label: '📺 TV' },
+                      { key: 'klima', label: '❄️ Klima' },
+                      { key: 'sudomasina', label: '🍽️ Sudomašina' },
+                      { key: 'sts_mikrotalasna', label: '📡 Mikrotalasna' },
+                      { key: 'sts_pegla', label: '👔 Pegla' },
+                      { key: 'sts_usisivac', label: '🧹 Usisivač' },
+                      { key: 'sts_fen', label: '💨 Fen' },
+                      { key: 'sts_grejalica', label: '🔥 Grejalica' },
+                      { key: 'sts_roletne', label: '🪟 Roletne' },
+                      { key: 'sts_alarm', label: '🚨 Alarm' },
+                      { key: 'sts_video_nadzor', label: '📹 Video nadzor' },
+                      { key: 'sts_smart_home', label: '🏠 Smart home' }
                     ].map(item => (
                       <label key={item.key} className="flex items-center gap-2 p-2 bg-white rounded-lg cursor-pointer hover:bg-slate-100 transition-colors">
                         <input
                           type="checkbox"
-                          checked={aiKarakteristike.preferencije[item.key] || false}
-                          onChange={(e) => handleAiPreferencijeChange(item.key, e.target.checked)}
+                          checked={aiKarakteristike.opremljenost?.[item.key] || false}
+                          onChange={(e) => handleAiOpremljenostChange(item.key, e.target.checked)}
                           className="rounded border-gray-300 text-amber-600"
                         />
                         <span className="text-sm text-gray-700">{item.label}</span>
@@ -981,6 +1275,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                     ))}
                   </div>
                 </div>
+
               </div>
             )}
           </section>
