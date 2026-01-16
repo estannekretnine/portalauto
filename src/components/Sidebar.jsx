@@ -267,10 +267,10 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
 
         {/* Logout button */}
         {onLogout && (
-          <div className="p-4 border-t border-white/5">
+          <div className="p-6 border-t border-white/5">
             <button
               onClick={onLogout}
-              className={`w-full flex items-center ${collapsed ? 'justify-center' : ''} gap-3 px-4 py-3.5 rounded-2xl text-gray-400 hover:bg-red-500/10 hover:text-red-400 border border-transparent hover:border-red-500/20 transition-all duration-300`}
+              className={`w-full flex items-center ${collapsed ? 'justify-center' : ''} gap-3 px-4 py-4 rounded-2xl text-gray-400 hover:bg-red-500/10 hover:text-red-400 border border-transparent hover:border-red-500/20 transition-all duration-300`}
               title={collapsed ? 'Odjavi se' : undefined}
               type="button"
             >

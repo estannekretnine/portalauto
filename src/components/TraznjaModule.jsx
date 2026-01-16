@@ -969,7 +969,7 @@ export default function TraznjaModule() {
                 </tr>
                 {/* Red sa filterima */}
                 <tr className="bg-gray-800">
-                  <th className="px-4 py-2">
+                  <th className="px-4 py-3">
                     <input
                       type="text"
                       value={columnFilters.id}
@@ -978,7 +978,7 @@ export default function TraznjaModule() {
                       className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-4 py-2">
+                  <th className="px-4 py-3">
                     <input
                       type="text"
                       value={columnFilters.kontaktosoba}
@@ -987,7 +987,7 @@ export default function TraznjaModule() {
                       className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-4 py-2">
+                  <th className="px-4 py-3">
                     <input
                       type="text"
                       value={columnFilters.opstina}
@@ -996,7 +996,7 @@ export default function TraznjaModule() {
                       className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-4 py-2">
+                  <th className="px-4 py-3">
                     <input
                       type="text"
                       value={columnFilters.lokacija}
@@ -1005,7 +1005,7 @@ export default function TraznjaModule() {
                       className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-4 py-2">
+                  <th className="px-4 py-3">
                     <input
                       type="number"
                       value={columnFilters.cenado}
@@ -1050,12 +1050,12 @@ export default function TraznjaModule() {
                       className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-4 py-2"></th>
-                  <th className="px-4 py-2"></th>
-                  <th className="px-4 py-2"></th>
-                  <th className="px-4 py-2"></th>
-                  <th className="px-4 py-2"></th>
-                  <th className="px-4 py-2 w-10 text-center"></th>
+                  <th className="px-4 py-3"></th>
+                  <th className="px-4 py-3"></th>
+                  <th className="px-4 py-3"></th>
+                  <th className="px-4 py-3"></th>
+                  <th className="px-4 py-3"></th>
+                  <th className="px-4 py-3 w-10 text-center"></th>
                 </tr>
               </thead>
               <tbody>
