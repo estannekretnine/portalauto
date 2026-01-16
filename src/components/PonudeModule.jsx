@@ -230,7 +230,8 @@ export default function PonudeModule() {
           stsstorniran,
           stsrentaprodaja,
           vidljivostnasajtu,
-          metapodaci
+          metapodaci,
+          datumbrisanja
         `)
 
       // Filter po statusu: aktivne, neaktivne, storno, sve
@@ -1170,6 +1171,9 @@ export default function PonudeModule() {
                   <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider" title="Vidljivo na sajtu">Vid</th>
                   <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider" title="Ugovor potpisan">Ug</th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
+                  {filters.statusFilter !== 'aktivne' && (
+                    <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Dat.Bris.</th>
+                  )}
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
                   <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider">Akcije</th>
                 </tr>
@@ -1342,6 +1346,17 @@ export default function PonudeModule() {
                         </span>
                       </div>
                     </td>
+                    {filters.statusFilter !== 'aktivne' && (
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        {ponuda.datumbrisanja ? (
+                          <span className="text-sm text-gray-600">
+                            {new Date(ponuda.datumbrisanja).toLocaleDateString('sr-RS')}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                    )}
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold ${
                         ponuda.stsrentaprodaja === 'prodaja'
@@ -1565,6 +1580,12 @@ export default function PonudeModule() {
                       }`}></span>
                       {ponuda.stsstorniran ? 'Storno' : ponuda.stsaktivan ? 'Aktivan' : 'Neaktivan'}
                     </span>
+                    {/* Prikaz datuma brisanja za neaktivne */}
+                    {filters.statusFilter !== 'aktivne' && ponuda.datumbrisanja && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        Arhivirano: {new Date(ponuda.datumbrisanja).toLocaleDateString('sr-RS')}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
