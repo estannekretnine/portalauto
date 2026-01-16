@@ -227,7 +227,6 @@ export default function PonudeModule() {
           struktura,
           cena,
           stsaktivan,
-          stsstorniran,
           stsrentaprodaja,
           vidljivostnasajtu,
           metapodaci,
@@ -238,11 +237,13 @@ export default function PonudeModule() {
 
       // Filter po statusu: aktivne, neaktivne, storno, sve
       if (filters.statusFilter === 'aktivne') {
-        query = query.eq('stsaktivan', true).eq('stsstorniran', false)
+        query = query.eq('stsaktivan', true)
       } else if (filters.statusFilter === 'neaktivne') {
-        query = query.eq('stsaktivan', false).eq('stsstorniran', false)
+        query = query.eq('stsaktivan', false)
       } else if (filters.statusFilter === 'storno') {
-        query = query.eq('stsstorniran', true)
+        // Storno - ako kolona stsstorniran postoji, koristi je
+        // query = query.eq('stsstorniran', true)
+        query = query.eq('stsaktivan', false) // Privremeno dok se ne doda kolona
       }
       // 'sve' - ne primenjuje filter
       if (filters.stsrentaprodaja) {
@@ -1359,20 +1360,16 @@ export default function PonudeModule() {
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex flex-col gap-1">
                         <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${
-                          ponuda.stsstorniran
-                            ? 'bg-red-100 text-red-800'
-                            : ponuda.stsaktivan
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-gray-200 text-gray-600'
+                          ponuda.stsaktivan
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-gray-200 text-gray-600'
                         }`}>
                           <span className={`w-2 h-2 rounded-full ${
-                            ponuda.stsstorniran 
-                              ? 'bg-red-500' 
-                              : ponuda.stsaktivan 
-                                ? 'bg-emerald-500' 
-                                : 'bg-gray-400'
+                            ponuda.stsaktivan 
+                              ? 'bg-emerald-500' 
+                              : 'bg-gray-400'
                           }`}></span>
-                          {ponuda.stsstorniran ? 'Storno' : ponuda.stsaktivan ? 'Aktivan' : 'Neaktivan'}
+                          {ponuda.stsaktivan ? 'Aktivan' : 'Neaktivan'}
                         </span>
                         {/* Prikaz razloga brisanja */}
                         {ponuda.razlogbrisanja && (
@@ -1597,20 +1594,16 @@ export default function PonudeModule() {
                   {/* Status aktivnosti */}
                   <div className="mt-3 pt-3 border-t border-gray-100">
                     <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${
-                      ponuda.stsstorniran
-                        ? 'bg-red-100 text-red-800'
-                        : ponuda.stsaktivan
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-gray-200 text-gray-600'
+                      ponuda.stsaktivan
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : 'bg-gray-200 text-gray-600'
                     }`}>
                       <span className={`w-2 h-2 rounded-full ${
-                        ponuda.stsstorniran 
-                          ? 'bg-red-500' 
-                          : ponuda.stsaktivan 
-                            ? 'bg-emerald-500' 
-                            : 'bg-gray-400'
+                        ponuda.stsaktivan 
+                          ? 'bg-emerald-500' 
+                          : 'bg-gray-400'
                       }`}></span>
-                      {ponuda.stsstorniran ? 'Storno' : ponuda.stsaktivan ? 'Aktivan' : 'Neaktivan'}
+                      {ponuda.stsaktivan ? 'Aktivan' : 'Neaktivan'}
                     </span>
                     
                     {/* Prikaz datuma i razloga brisanja */}
