@@ -24,7 +24,9 @@ export default function TraznjaModule() {
     lokacija: '',
     cenado: '',
     kvmod: '',
-    kvmdo: ''
+    kvmdo: '',
+    spratod: '',
+    spratdo: ''
   })
   
   // Lokalitet podaci - sve u jednoj listi za autocomplete
@@ -965,7 +967,7 @@ export default function TraznjaModule() {
                 </tr>
                 {/* Red sa filterima */}
                 <tr className="bg-gray-800">
-                  <th className="px-2 py-2">
+                  <th className="px-4 py-2">
                     <input
                       type="text"
                       value={columnFilters.id}
@@ -974,7 +976,7 @@ export default function TraznjaModule() {
                       className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-2 py-2">
+                  <th className="px-4 py-2">
                     <input
                       type="text"
                       value={columnFilters.kontaktosoba}
@@ -983,7 +985,7 @@ export default function TraznjaModule() {
                       className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-2 py-2">
+                  <th className="px-4 py-2">
                     <input
                       type="text"
                       value={columnFilters.opstina}
@@ -992,7 +994,7 @@ export default function TraznjaModule() {
                       className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-2 py-2">
+                  <th className="px-4 py-2">
                     <input
                       type="text"
                       value={columnFilters.lokacija}
@@ -1001,7 +1003,7 @@ export default function TraznjaModule() {
                       className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-2 py-2">
+                  <th className="px-4 py-2">
                     <input
                       type="number"
                       value={columnFilters.cenado}
@@ -1010,14 +1012,48 @@ export default function TraznjaModule() {
                       className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-2 py-2"></th>
-                  <th className="px-2 py-2"></th>
-                  <th className="px-2 py-2"></th>
-                  <th className="px-2 py-2"></th>
-                  <th className="px-2 py-2"></th>
-                  <th className="px-2 py-2"></th>
-                  <th className="px-2 py-2"></th>
-                  <th className="px-2 py-2"></th>
+                  <th className="px-4 py-2">
+                    <input
+                      type="number"
+                      value={columnFilters.kvmod}
+                      onChange={(e) => handleColumnFilterChange('kvmod', e.target.value)}
+                      placeholder="od"
+                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </th>
+                  <th className="px-4 py-2">
+                    <input
+                      type="number"
+                      value={columnFilters.kvmdo}
+                      onChange={(e) => handleColumnFilterChange('kvmdo', e.target.value)}
+                      placeholder="do"
+                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </th>
+                  <th className="px-4 py-2">
+                    <input
+                      type="number"
+                      value={columnFilters.spratod}
+                      onChange={(e) => handleColumnFilterChange('spratod', e.target.value)}
+                      placeholder="od"
+                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </th>
+                  <th className="px-4 py-2">
+                    <input
+                      type="number"
+                      value={columnFilters.spratdo}
+                      onChange={(e) => handleColumnFilterChange('spratdo', e.target.value)}
+                      placeholder="do"
+                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </th>
+                  <th className="px-4 py-2"></th>
+                  <th className="px-4 py-2"></th>
+                  <th className="px-4 py-2"></th>
+                  <th className="px-4 py-2"></th>
+                  <th className="px-4 py-2"></th>
+                  <th className="px-4 py-2"></th>
                 </tr>
               </thead>
               <tbody>
@@ -1158,7 +1194,7 @@ export default function TraznjaModule() {
                             e.stopPropagation()
                             setOpenActionMenu(openActionMenu === traznja.id ? null : traznja.id)
                           }}
-                          className="inline-flex items-center justify-center w-10 h-10 hover:bg-gray-200 text-gray-700 rounded-xl transition-all"
+                          className="inline-flex items-center justify-center w-10 h-10 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-xl transition-all"
                         >
                           <MoreVertical className="w-5 h-5" />
                         </button>
