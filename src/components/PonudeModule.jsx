@@ -92,10 +92,10 @@ export default function PonudeModule() {
       // Učitaj sve lokalitet podatke sa relacijama
       const [drzaveRes, gradoviRes, opstineRes, lokacijeRes, uliceRes] = await Promise.all([
         supabase.from('drzava').select('*').order('opis'),
-        supabase.from('grad').select('*, drzava:iddrzava(id, opis)').order('opis'),
-        supabase.from('opstina').select('*, grad:idgrada(id, opis, drzava:iddrzava(id, opis))').order('opis'),
-        supabase.from('lokacija').select('*, opstina:idopstina(id, opis, grad:idgrada(id, opis, drzava:iddrzava(id, opis)))').order('opis'),
-        supabase.from('ulica').select('*, lokacija:idlokacija(id, opis, opstina:idopstina(id, opis, grad:idgrada(id, opis, drzava:iddrzava(id, opis))))').order('opis')
+        supabase.from('grad').select('*').order('opis'),
+        supabase.from('opstina').select('*').order('opis'),
+        supabase.from('lokacija').select('*').order('opis'),
+        supabase.from('ulica').select('*').order('opis')
       ])
       
       setLokacije(lokacijeRes.data || [])
