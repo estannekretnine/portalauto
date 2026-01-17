@@ -1084,7 +1084,6 @@ export default function TraznjaModule() {
                   <th className="px-4 py-2"></th>
                   <th className="px-4 py-2"></th>
                   <th className="px-4 py-2"></th>
-                  <th className="px-4 py-2"></th>
                   <th className="px-4 py-2 w-10 text-center"></th>
                 </tr>
               </thead>
