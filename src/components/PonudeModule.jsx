@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
-import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Building2, Euro, Pencil, Archive, ArchiveRestore, XCircle, MoreVertical } from 'lucide-react'
+import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Building2, Euro, Pencil, Archive, ArchiveRestore, XCircle, MoreVertical, Sparkles, Brain, Loader2 } from 'lucide-react'
 import PonudaForm from './PonudaForm'
 
 export default function PonudeModule() {
@@ -66,12 +66,193 @@ export default function PonudeModule() {
     statusFilter: 'aktivne', // 'aktivne', 'neaktivne', 'storno', 'sve'
     stsrentaprodaja: 'prodaja'
   })
+  
+  // AI Pretraga state
+  const [showAISearch, setShowAISearch] = useState(false)
+  const [aiSearchQuery, setAiSearchQuery] = useState('')
+  const [aiSearchLoading, setAiSearchLoading] = useState(false)
+  const [aiSearchResults, setAiSearchResults] = useState(null) // null = nije pretraženo, [] = nema rezultata
 
   useEffect(() => {
     loadVrsteObjekata()
     loadLokalitetData()
     loadPonude()
   }, [])
+
+  // Funkcija za generisanje embedding vektora putem OpenAI API
+  const generateEmbedding = async (text) => {
+    try {
+      const openaiKey = import.meta.env.VITE_OPENAI_API_KEY
+      if (!openaiKey) {
+        console.error('OpenAI API ključ nije konfigurisan')
+        return null
+      }
+
+      const response = await fetch('https://api.openai.com/v1/embeddings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${openaiKey}`
+        },
+        body: JSON.stringify({
+          model: 'text-embedding-3-small',
+          input: text
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error?.message || 'Greška pri generisanju embedding-a')
+      }
+
+      const data = await response.json()
+      return data.data[0].embedding
+    } catch (error) {
+      console.error('Greška pri generisanju embedding-a:', error)
+      return null
+    }
+  }
+
+  // AI pretraga - semantička pretraga po vektoru
+  const handleAISearch = async () => {
+    if (!aiSearchQuery.trim()) {
+      alert('Molimo unesite tekst za pretragu')
+      return
+    }
+
+    setAiSearchLoading(true)
+    try {
+      // Generiši embedding za upit
+      const queryEmbedding = await generateEmbedding(aiSearchQuery)
+      
+      if (!queryEmbedding) {
+        alert('Greška pri obradi upita. Proverite da li je OpenAI API ključ konfigurisan.')
+        setAiSearchLoading(false)
+        return
+      }
+
+      // Pozovi Supabase RPC funkciju za vektorsku pretragu
+      const { data, error } = await supabase.rpc('match_ponude', {
+        query_embedding: queryEmbedding,
+        match_threshold: 0.5,
+        match_count: 50
+      })
+
+      if (error) {
+        // Ako RPC funkcija ne postoji, prikaži uputstvo
+        if (error.message.includes('function') || error.code === '42883') {
+          alert('AI pretraga nije još konfigurisana u bazi. Potrebno je pokrenuti SQL skriptu za kreiranje funkcije match_ponude.')
+          console.error('Potrebno je kreirati RPC funkciju match_ponude u Supabase')
+        } else {
+          throw error
+        }
+        setAiSearchLoading(false)
+        return
+      }
+
+      // Učitaj detalje za pronađene ponude
+      if (data && data.length > 0) {
+        const ponudaIds = data.map(d => d.id)
+        
+        // Učitaj kompletne podatke za pronađene ponude
+        const { data: ponudeData, error: ponudeError } = await supabase
+          .from('ponuda')
+          .select(`
+            id,
+            idvrstaobjekta,
+            idopstina,
+            idlokacija,
+            idulica,
+            kvadratura,
+            struktura,
+            cena,
+            stsaktivan,
+            stsstorniran,
+            stsrentaprodaja,
+            vidljivostnasajtu,
+            metapodaci,
+            datumkreiranja,
+            datumbrisanja
+          `)
+          .in('id', ponudaIds)
+
+        if (ponudeError) throw ponudeError
+
+        // Dodaj similarity score i sortiraj
+        const ponudeSaSkorom = ponudeData.map(p => {
+          const matchData = data.find(d => d.id === p.id)
+          return { ...p, similarity: matchData?.similarity || 0 }
+        }).sort((a, b) => b.similarity - a.similarity)
+
+        // Učitaj relacije kao u loadPonude
+        const vrstaIds = [...new Set(ponudeSaSkorom.map(p => p.idvrstaobjekta).filter(Boolean))]
+        const opstinaIds = [...new Set(ponudeSaSkorom.map(p => p.idopstina).filter(Boolean))]
+        const lokacijaIds = [...new Set(ponudeSaSkorom.map(p => p.idlokacija).filter(Boolean))]
+        const ulicaIds = [...new Set(ponudeSaSkorom.map(p => p.idulica).filter(Boolean))]
+
+        const [vrsteResult, opstineResult, lokacijeResult, uliceResult, fotografijeResult] = await Promise.all([
+          vrstaIds.length > 0 ? supabase.from('vrstaobjekta').select('id, opis').in('id', vrstaIds) : Promise.resolve({ data: [] }),
+          opstinaIds.length > 0 ? supabase.from('opstina').select('id, opis').in('id', opstinaIds) : Promise.resolve({ data: [] }),
+          lokacijaIds.length > 0 ? supabase.from('lokacija').select('id, opis').in('id', lokacijaIds) : Promise.resolve({ data: [] }),
+          ulicaIds.length > 0 ? supabase.from('ulica').select('id, opis').in('id', ulicaIds) : Promise.resolve({ data: [] }),
+          ponudaIds.length > 0 ? supabase.from('ponudafoto').select('*').in('idponude', ponudaIds) : Promise.resolve({ data: [] })
+        ])
+
+        const vrsteMap = new Map((vrsteResult.data || []).map(v => [v.id, v]))
+        const opstineMap = new Map((opstineResult.data || []).map(o => [o.id, o]))
+        const lokacijeMap = new Map((lokacijeResult.data || []).map(l => [l.id, l]))
+        const uliceMap = new Map((uliceResult.data || []).map(u => [u.id, u]))
+        const fotografijeMap = new Map()
+        
+        if (fotografijeResult.data) {
+          fotografijeResult.data.forEach(foto => {
+            if (!fotografijeMap.has(foto.idponude)) {
+              fotografijeMap.set(foto.idponude, [])
+            }
+            fotografijeMap.get(foto.idponude).push(foto)
+          })
+          
+          fotografijeMap.forEach((fotos) => {
+            fotos.sort((a, b) => {
+              if (a.glavna && !b.glavna) return -1
+              if (!a.glavna && b.glavna) return 1
+              return (a.redosled || 0) - (b.redosled || 0)
+            })
+          })
+        }
+
+        const ponudeSaRelacijama = ponudeSaSkorom.map(ponuda => ({
+          ...ponuda,
+          vrstaobjekta: ponuda.idvrstaobjekta ? vrsteMap.get(ponuda.idvrstaobjekta) || null : null,
+          opstina: ponuda.idopstina ? opstineMap.get(ponuda.idopstina) || null : null,
+          lokacija: ponuda.idlokacija ? lokacijeMap.get(ponuda.idlokacija) || null : null,
+          ulica: ponuda.idulica ? uliceMap.get(ponuda.idulica) || null : null,
+          fotografija: fotografijeMap.get(ponuda.id)?.[0] || null
+        }))
+
+        setAiSearchResults(ponudeSaRelacijama)
+        setPonude(ponudeSaRelacijama)
+      } else {
+        setAiSearchResults([])
+        setPonude([])
+      }
+
+      setShowAISearch(false)
+      setCurrentPage(1)
+    } catch (error) {
+      console.error('Greška pri AI pretrazi:', error)
+      alert('Greška pri AI pretrazi: ' + error.message)
+    } finally {
+      setAiSearchLoading(false)
+    }
+  }
+
+  // Resetuj AI pretragu
+  const resetAISearch = () => {
+    setAiSearchResults(null)
+    setAiSearchQuery('')
+    loadPonude()
+  }
 
   const loadVrsteObjekata = async () => {
     try {
@@ -670,6 +851,27 @@ export default function PonudeModule() {
             <span className="sm:hidden">Dodaj</span>
           </button>
           <button
+            onClick={() => setShowAISearch(true)}
+            className={`flex items-center gap-2 px-5 py-3 rounded-2xl transition-all font-medium ${
+              aiSearchResults !== null
+                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/25'
+                : 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 shadow-lg shadow-purple-500/25'
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            <span className="hidden sm:inline">AI pretraga</span>
+            <span className="sm:hidden">AI</span>
+          </button>
+          {aiSearchResults !== null && (
+            <button
+              onClick={resetAISearch}
+              className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all font-medium"
+              title="Poništi AI pretragu"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+          )}
+          <button
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-2 px-5 py-3 rounded-2xl transition-all font-medium ${
               showFilters
@@ -706,6 +908,132 @@ export default function PonudeModule() {
           </div>
         </div>
       </div>
+
+      {/* AI Pretraga Modal */}
+      {showAISearch && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            {/* Header sa gradijentom */}
+            <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 px-6 py-5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                  <Brain className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">AI Pretraga</h3>
+                  <p className="text-purple-200 text-xs">Opišite šta tražite prirodnim jezikom</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowAISearch(false)}
+                className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              {/* Primeri upita */}
+              <div className="mb-4">
+                <p className="text-xs text-gray-500 mb-2">Primeri upita:</p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    'Stan u mirnom okruženju za rad od kuće',
+                    'Porodični stan blizu škole i parka',
+                    'Luksuzni stan sa pogledom',
+                    'Pet friendly stan sa terasom'
+                  ].map((primer, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setAiSearchQuery(primer)}
+                      className="px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-xs hover:bg-purple-100 transition-colors"
+                    >
+                      {primer}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tekstualno polje za upit */}
+              <div className="relative">
+                <textarea
+                  value={aiSearchQuery}
+                  onChange={(e) => setAiSearchQuery(e.target.value)}
+                  placeholder="Opišite kakvu nekretninu tražite... npr. 'Želim stan u prijatnom okruženju, obezbeđen i da mogu da radim od kuće'"
+                  className="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-700 focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none h-32 text-sm"
+                  autoFocus
+                />
+                <div className="absolute bottom-3 right-3 text-xs text-gray-400">
+                  {aiSearchQuery.length} karaktera
+                </div>
+              </div>
+
+              {/* Info poruka */}
+              <div className="mt-4 p-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-100">
+                <div className="flex items-start gap-2">
+                  <Sparkles className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-purple-700">
+                    AI pretraga koristi semantičko podudaranje da pronađe nekretnine koje najbolje odgovaraju vašem opisu, 
+                    čak i ako ne koristite tačne ključne reči.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer sa dugmadima */}
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+              <button
+                onClick={() => {
+                  setShowAISearch(false)
+                  setAiSearchQuery('')
+                }}
+                className="px-5 py-2.5 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-xl transition-colors font-medium"
+              >
+                Otkaži
+              </button>
+              <button
+                onClick={handleAISearch}
+                disabled={aiSearchLoading || !aiSearchQuery.trim()}
+                className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/25"
+              >
+                {aiSearchLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Pretražujem...
+                  </>
+                ) : (
+                  <>
+                    <Search className="w-4 h-4" />
+                    Pretraži
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Indikator AI pretrage */}
+      {aiSearchResults !== null && (
+        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-2xl p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center">
+              <Brain className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-purple-900">AI pretraga aktivna</p>
+              <p className="text-xs text-purple-600">"{aiSearchQuery}" - Pronađeno {aiSearchResults.length} rezultata</p>
+            </div>
+          </div>
+          <button
+            onClick={resetAISearch}
+            className="flex items-center gap-2 px-4 py-2 bg-white text-purple-700 rounded-xl hover:bg-purple-100 transition-colors font-medium text-sm border border-purple-200"
+          >
+            <X className="w-4 h-4" />
+            Poništi
+          </button>
+        </div>
+      )}
 
       {/* Modal za izbor razloga arhiviranja */}
       {showArchiveReasonModal && (

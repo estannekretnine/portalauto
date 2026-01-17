@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../utils/supabase'
 import { getCurrentUser } from '../utils/auth'
 import PhotoUpload from './PhotoUpload'
-import { Save, X, Upload, Building2, MapPin, DollarSign, Ruler, Info, Search, ChevronDown, Users, FileText, Receipt, Wallet, UserCheck, Brain, Plus, Trash2 } from 'lucide-react'
+import { Save, X, Upload, Building2, MapPin, DollarSign, Ruler, Info, Search, ChevronDown, Users, FileText, Receipt, Wallet, UserCheck, Brain, Plus, Trash2, Loader2 } from 'lucide-react'
 import PropertyMap from './PropertyMap'
 
 // Definicija polja po vrstama objekata
@@ -1451,9 +1451,37 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
 
   // Generisanje vektora iz opisa i detalja (za AI pretragu)
   const generateVector = async (text) => {
-    // Ovo je placeholder - u produkciji bi pozvao AI servis za generisanje vektora
-    // Za sada vraćamo null, ali struktura je spremna
-    return null
+    try {
+      const openaiKey = import.meta.env.VITE_OPENAI_API_KEY
+      if (!openaiKey) {
+        console.warn('OpenAI API ključ nije konfigurisan - vektor neće biti generisan')
+        return null
+      }
+
+      const response = await fetch('https://api.openai.com/v1/embeddings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${openaiKey}`
+        },
+        body: JSON.stringify({
+          model: 'text-embedding-3-small',
+          input: text.slice(0, 8000) // Ograniči tekst na 8000 karaktera
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('OpenAI API greška:', errorData)
+        return null
+      }
+
+      const data = await response.json()
+      return data.data[0].embedding
+    } catch (error) {
+      console.error('Greška pri generisanju embedding-a:', error)
+      return null
+    }
   }
 
   const handleSubmit = async (e) => {
