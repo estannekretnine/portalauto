@@ -1,4 +1,4 @@
-import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch } from 'lucide-react'
+import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = false }) => {
@@ -54,6 +54,11 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
       id: 'traznja',
       label: 'Tražnja',
       icon: FileSearch,
+    },
+    {
+      id: 'pozivi',
+      label: 'Pozivi',
+      icon: Phone,
     },
     {
       id: 'maticni-podaci',
