@@ -1,10 +1,11 @@
-import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone } from 'lucide-react'
+import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone, Map, BarChart3 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = false }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMaticniPodaciOpen, setIsMaticniPodaciOpen] = useState(false)
   const [isLokalitetOpen, setIsLokalitetOpen] = useState(false)
+  const [isIzvestajiOpen, setIsIzvestajiOpen] = useState(false)
 
   const isAdmin = user?.email === 'admin@example.com'
 
@@ -14,6 +15,12 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
     { id: 'lokalitet-opstina', label: 'Opština' },
     { id: 'lokalitet-lokacija', label: 'Lokacija' },
     { id: 'lokalitet-ulica', label: 'Ulica' },
+  ]
+
+  const izvestajiSubItems = [
+    { id: 'izvestaj-eop', label: 'EOP' },
+    { id: 'izvestaj-eok', label: 'EOK' },
+    { id: 'izvestaj-transakcije', label: 'Izvršene transakcije' },
   ]
 
   const maticniPodaciSubItems = [
@@ -41,6 +48,11 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
     if (isLokalitetActive) {
       setIsLokalitetOpen(true)
     }
+
+    const isIzvestajiActive = izvestajiSubItems.some(item => activeModule === item.id)
+    if (isIzvestajiActive) {
+      setIsIzvestajiOpen(true)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeModule])
 
@@ -61,6 +73,18 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
       icon: Phone,
     },
     {
+      id: 'tereni',
+      label: 'Tereni',
+      icon: Map,
+    },
+    {
+      id: 'izvestaji',
+      label: 'Izveštaji',
+      icon: BarChart3,
+      hasSubmenu: true,
+      subItems: izvestajiSubItems,
+    },
+    {
       id: 'maticni-podaci',
       label: 'Matični podaci',
       icon: Database,
@@ -77,6 +101,8 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
   const handleMenuItemClick = (itemId) => {
     if (itemId === 'maticni-podaci') {
       setIsMaticniPodaciOpen(!isMaticniPodaciOpen)
+    } else if (itemId === 'izvestaji') {
+      setIsIzvestajiOpen(!isIzvestajiOpen)
     } else {
       setActiveModule(itemId)
       setIsMobileMenuOpen(false)
@@ -102,6 +128,8 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
   )
   
   const isLokalitetActive = lokalitetSubItems.some(item => activeModule === item.id)
+  
+  const isIzvestajiActive = izvestajiSubItems.some(item => activeModule === item.id)
 
   return (
     <>
@@ -174,8 +202,11 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
           <ul className="space-y-2">
             {menuItems.map((item) => {
               const Icon = item.icon
-              const isActive = activeModule === item.id || (item.hasSubmenu && isMaticniPodaciActive)
-              const isExpanded = item.hasSubmenu && isMaticniPodaciOpen
+              const isActive = activeModule === item.id || 
+                (item.id === 'maticni-podaci' && isMaticniPodaciActive) ||
+                (item.id === 'izvestaji' && isIzvestajiActive)
+              const isExpanded = (item.id === 'maticni-podaci' && isMaticniPodaciOpen) ||
+                (item.id === 'izvestaji' && isIzvestajiOpen)
 
               return (
                 <li key={item.id}>
@@ -213,6 +244,29 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
                         const isLokalitetItem = subItem.id === 'lokalitet'
                         const isSubItemActive = hasSubmenu ? isLokalitetActive : activeModule === subItem.id
                         const isSubItemExpanded = hasSubmenu && isLokalitetItem && isLokalitetOpen
+                        
+                        // Za stavke bez ikone (npr. izveštaji)
+                        if (!SubIcon) {
+                          return (
+                            <li key={subItem.id}>
+                              <button
+                                onClick={() => {
+                                  setActiveModule(subItem.id)
+                                  setIsMobileMenuOpen(false)
+                                }}
+                                className={`w-full text-left px-3 py-2.5 rounded-xl transition-all duration-200 text-sm ${
+                                  activeModule === subItem.id
+                                    ? 'bg-white/10 text-amber-400'
+                                    : 'text-gray-500 hover:bg-white/5 hover:text-gray-300'
+                                }`}
+                                aria-current={activeModule === subItem.id ? 'page' : undefined}
+                                type="button"
+                              >
+                                <span className="font-medium">{subItem.label}</span>
+                              </button>
+                            </li>
+                          )
+                        }
                         
                         return (
                           <li key={subItem.id}>

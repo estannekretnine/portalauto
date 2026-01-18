@@ -99,6 +99,42 @@ export default function Dashboard() {
           {activeModule === 'ponude' && <PonudeModule />}
           {activeModule === 'traznja' && <TraznjaModule />}
           {activeModule === 'pozivi' && <PoziviModule />}
+          {activeModule === 'tereni' && (
+            <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/20">
+                <span className="text-3xl">🗺️</span>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Tereni</h2>
+              <p className="text-gray-500">Modul u pripremi...</p>
+            </div>
+          )}
+          {activeModule === 'izvestaj-eop' && (
+            <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/20">
+                <span className="text-3xl">📊</span>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">EOP Izveštaj</h2>
+              <p className="text-gray-500">Evidencija o ponudama - modul u pripremi...</p>
+            </div>
+          )}
+          {activeModule === 'izvestaj-eok' && (
+            <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/20">
+                <span className="text-3xl">📈</span>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">EOK Izveštaj</h2>
+              <p className="text-gray-500">Evidencija o kupcima - modul u pripremi...</p>
+            </div>
+          )}
+          {activeModule === 'izvestaj-transakcije' && (
+            <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/20">
+                <span className="text-3xl">💰</span>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Izvršene transakcije</h2>
+              <p className="text-gray-500">Pregled izvršenih transakcija - modul u pripremi...</p>
+            </div>
+          )}
           {activeModule === 'vrstaobjekta' && <VrstaObjektaModule />}
           {activeModule === 'lokalitet-drzava' && <DrzavaModule />}
           {activeModule === 'lokalitet-grad' && <GradModule />}
