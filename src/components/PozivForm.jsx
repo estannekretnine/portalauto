@@ -133,7 +133,7 @@ export default function PozivForm({ poziv, onClose, onSuccess }) {
   const loadSelectedPonuda = async (id) => {
     const { data } = await supabase
       .from('ponuda')
-      .select('id, kontaktosoba, kontakttelefon')
+      .select('id, kontaktosoba, naslovaoglasa')
       .eq('id', id)
       .single()
     if (data) setSelectedPonuda(data)
@@ -153,7 +153,7 @@ export default function PozivForm({ poziv, onClose, onSuccess }) {
     try {
       const { data, error } = await supabase
         .from('ponuda')
-        .select('id, kontaktosoba, kontakttelefon')
+        .select('id, kontaktosoba, naslovaoglasa')
         .eq('stsaktivan', true)
         .order('id', { ascending: false })
         .limit(100)
@@ -189,7 +189,7 @@ export default function PozivForm({ poziv, onClose, onSuccess }) {
   const filteredPonude = ponude.filter(p => 
     !ponudaSearch || 
     p.kontaktosoba?.toLowerCase().includes(ponudaSearch.toLowerCase()) ||
-    p.kontakttelefon?.includes(ponudaSearch) ||
+    p.naslovaoglasa?.toLowerCase().includes(ponudaSearch.toLowerCase()) ||
     String(p.id).includes(ponudaSearch)
   ).slice(0, 20)
 
@@ -354,8 +354,7 @@ export default function PozivForm({ poziv, onClose, onSuccess }) {
                       <Home className="w-4 h-4 text-amber-600" />
                     </div>
                     <div>
-                      <span className="font-medium text-gray-900">{selectedPonuda.kontaktosoba || 'Bez imena'}</span>
-                      <span className="text-xs text-gray-500 ml-2">{selectedPonuda.kontakttelefon}</span>
+                      <span className="font-medium text-gray-900">{selectedPonuda.naslovaoglasa || selectedPonuda.kontaktosoba || 'Bez naslova'}</span>
                     </div>
                     <span className="text-xs bg-amber-200 text-amber-800 px-2 py-1 rounded-lg font-medium">#{selectedPonuda.id}</span>
                   </div>
@@ -373,53 +372,59 @@ export default function PozivForm({ poziv, onClose, onSuccess }) {
                 </div>
               ) : (
                 <div className="relative">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={ponudaSearch}
-                      onChange={(e) => {
-                        setPonudaSearch(e.target.value)
-                        setShowPonudaDropdown(true)
-                      }}
-                      onFocus={() => setShowPonudaDropdown(true)}
-                      placeholder="Pretraži ponude po imenu, telefonu ili ID..."
-                      className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPonudaDropdown(!showPonudaDropdown)}
-                      className="px-4 py-3 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-xl transition-colors"
-                    >
-                      <ChevronDown className={`w-5 h-5 transition-transform ${showPonudaDropdown ? 'rotate-180' : ''}`} />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowPonudaDropdown(!showPonudaDropdown)}
+                    className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 hover:border-amber-300 transition-colors"
+                  >
+                    <span className="text-gray-400">Izaberi ponudu...</span>
+                    <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${showPonudaDropdown ? 'rotate-180' : ''}`} />
+                  </button>
                   {showPonudaDropdown && (
-                    <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto">
-                      {loadingPonude ? (
-                        <div className="px-4 py-3 text-center text-gray-500">Učitavanje...</div>
-                      ) : filteredPonude.length > 0 ? (
-                        filteredPonude.map(p => (
-                          <button
-                            key={p.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedPonuda(p)
-                              handleChange('idponude', p.id)
-                              setPonudaSearch('')
-                              setShowPonudaDropdown(false)
-                            }}
-                            className="w-full px-4 py-3 text-left hover:bg-amber-50 flex items-center justify-between border-b border-gray-100 last:border-0"
-                          >
-                            <div>
-                              <span className="font-medium text-gray-900">{p.kontaktosoba || 'Bez imena'}</span>
-                              <span className="text-xs text-gray-500 ml-2">{p.kontakttelefon}</span>
-                            </div>
-                            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">#{p.id}</span>
-                          </button>
-                        ))
-                      ) : (
-                        <div className="px-4 py-3 text-center text-gray-500">Nema rezultata</div>
-                      )}
+                    <div className="absolute z-30 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden">
+                      {/* Pretraga */}
+                      <div className="p-2 border-b border-gray-100">
+                        <input
+                          type="text"
+                          value={ponudaSearch}
+                          onChange={(e) => setPonudaSearch(e.target.value)}
+                          placeholder="Pretraži po naslovu ili ID..."
+                          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                          autoFocus
+                        />
+                      </div>
+                      {/* Lista */}
+                      <div className="max-h-60 overflow-y-auto">
+                        {loadingPonude ? (
+                          <div className="px-4 py-3 text-center text-gray-500">Učitavanje...</div>
+                        ) : filteredPonude.length > 0 ? (
+                          filteredPonude.map(p => (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedPonuda(p)
+                                handleChange('idponude', p.id)
+                                setPonudaSearch('')
+                                setShowPonudaDropdown(false)
+                              }}
+                              className="w-full px-4 py-3 text-left hover:bg-amber-50 flex items-center justify-between border-b border-gray-100 last:border-0"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <span className="font-medium text-gray-900 block truncate">{p.naslovaoglasa || 'Bez naslova'}</span>
+                                {p.kontaktosoba && (
+                                  <span className="text-xs text-gray-500">{p.kontaktosoba}</span>
+                                )}
+                              </div>
+                              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded ml-2">#{p.id}</span>
+                            </button>
+                          ))
+                        ) : (
+                          <div className="px-4 py-3 text-center text-gray-500">
+                            {ponudaSearch ? 'Nema rezultata' : 'Nema ponuda'}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -458,53 +463,59 @@ export default function PozivForm({ poziv, onClose, onSuccess }) {
                 </div>
               ) : (
                 <div className="relative">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={traznjaSearch}
-                      onChange={(e) => {
-                        setTraznjaSearch(e.target.value)
-                        setShowTraznjaDropdown(true)
-                      }}
-                      onFocus={() => setShowTraznjaDropdown(true)}
-                      placeholder="Pretraži tražnje po imenu, telefonu ili ID..."
-                      className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowTraznjaDropdown(!showTraznjaDropdown)}
-                      className="px-4 py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-xl transition-colors"
-                    >
-                      <ChevronDown className={`w-5 h-5 transition-transform ${showTraznjaDropdown ? 'rotate-180' : ''}`} />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowTraznjaDropdown(!showTraznjaDropdown)}
+                    className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 hover:border-blue-300 transition-colors"
+                  >
+                    <span className="text-gray-400">Izaberi tražnju...</span>
+                    <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${showTraznjaDropdown ? 'rotate-180' : ''}`} />
+                  </button>
                   {showTraznjaDropdown && (
-                    <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto">
-                      {loadingTraznje ? (
-                        <div className="px-4 py-3 text-center text-gray-500">Učitavanje...</div>
-                      ) : filteredTraznje.length > 0 ? (
-                        filteredTraznje.map(t => (
-                          <button
-                            key={t.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedTraznja(t)
-                              handleChange('idtraznja', t.id)
-                              setTraznjaSearch('')
-                              setShowTraznjaDropdown(false)
-                            }}
-                            className="w-full px-4 py-3 text-left hover:bg-blue-50 flex items-center justify-between border-b border-gray-100 last:border-0"
-                          >
-                            <div>
-                              <span className="font-medium text-gray-900">{t.kontaktosoba || 'Bez imena'}</span>
-                              <span className="text-xs text-gray-500 ml-2">{t.kontakttelefon}</span>
-                            </div>
-                            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">#{t.id}</span>
-                          </button>
-                        ))
-                      ) : (
-                        <div className="px-4 py-3 text-center text-gray-500">Nema rezultata</div>
-                      )}
+                    <div className="absolute z-30 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden">
+                      {/* Pretraga */}
+                      <div className="p-2 border-b border-gray-100">
+                        <input
+                          type="text"
+                          value={traznjaSearch}
+                          onChange={(e) => setTraznjaSearch(e.target.value)}
+                          placeholder="Pretraži po imenu, telefonu ili ID..."
+                          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          autoFocus
+                        />
+                      </div>
+                      {/* Lista */}
+                      <div className="max-h-60 overflow-y-auto">
+                        {loadingTraznje ? (
+                          <div className="px-4 py-3 text-center text-gray-500">Učitavanje...</div>
+                        ) : filteredTraznje.length > 0 ? (
+                          filteredTraznje.map(t => (
+                            <button
+                              key={t.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedTraznja(t)
+                                handleChange('idtraznja', t.id)
+                                setTraznjaSearch('')
+                                setShowTraznjaDropdown(false)
+                              }}
+                              className="w-full px-4 py-3 text-left hover:bg-blue-50 flex items-center justify-between border-b border-gray-100 last:border-0"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <span className="font-medium text-gray-900 block truncate">{t.kontaktosoba || 'Bez imena'}</span>
+                                {t.kontakttelefon && (
+                                  <span className="text-xs text-gray-500">{t.kontakttelefon}</span>
+                                )}
+                              </div>
+                              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded ml-2">#{t.id}</span>
+                            </button>
+                          ))
+                        ) : (
+                          <div className="px-4 py-3 text-center text-gray-500">
+                            {traznjaSearch ? 'Nema rezultata' : 'Nema tražnji'}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
