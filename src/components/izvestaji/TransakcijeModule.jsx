@@ -421,10 +421,12 @@ export default function TransakcijeModule() {
                       : (realizacija.kupoprodajnacena || item.cenado)
 
                     // Način izvršenja - iz realizacije
-                    const nacinIzvrsenja = 'preko racuna-keš\nsred.k.nbs'
+                    const nacinIzvrsenja = isPonuda 
+                      ? (realizacija.nacin_izvrsenja_transakcije || '')
+                      : (realizacija.nacinizvrsenjetransakcije || '')
 
                     // Banka
-                    const banka = realizacija.banka || 'erste banka'
+                    const banka = realizacija.banka || ''
 
                     return (
                       <tr key={`${item.tip}-${item.id}`} className={`hover:bg-gray-50 ${!isPonuda ? 'bg-amber-50/30' : ''}`}>

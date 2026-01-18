@@ -71,7 +71,8 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
     realizacija: {
       vrstaobjekta: '', opstinanekretnisti: '', adresanekretnosti: '',
       povrsina: '', zakljucen: false, datumzakljucenja: '',
-      kupoprodajnacena: 0, provizija: 0, primedba: '', namenatransakcije: ''
+      kupoprodajnacena: 0, provizija: 0, primedba: '', namenatransakcije: '',
+      nacinizvrsenjetransakcije: '', banka: ''
     },
     zastupnik: {
       ime: '', prezime: '', adresa: '', opstina: '', brojlicnekarte: '',
@@ -1894,6 +1895,21 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                         </div>
 
                         {/* Detalji */}
+                        {/* Transakcija */}
+                        <div>
+                          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">💳 Transakcija</p>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-sm text-slate-600 mb-1">Način izvršenja transakcije</label>
+                              <input type="text" value={metapodaci.realizacija.nacinizvrsenjetransakcije || ''} onChange={(e) => handleRealizacijaChange('nacinizvrsenjetransakcije', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm" placeholder="Npr. preko računa-keš, sred.k.nbs..." />
+                            </div>
+                            <div>
+                              <label className="block text-sm text-slate-600 mb-1">Banka u kojoj je izvršena transakcija</label>
+                              <input type="text" value={metapodaci.realizacija.banka || ''} onChange={(e) => handleRealizacijaChange('banka', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm" placeholder="Npr. Erste banka, AIK banka..." />
+                            </div>
+                          </div>
+                        </div>
+
                         <div>
                           <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">📝 Detalji</p>
                           <div className="space-y-3">

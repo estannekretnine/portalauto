@@ -220,7 +220,8 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
     },
     realizacija: {
       zakljucen: false, datum_zakljucenja: '', kupoprodajna_cena: 0,
-      provizija: 0, primedba: '', namena_transakcije: ''
+      provizija: 0, primedba: '', namena_transakcije: '',
+      nacin_izvrsenja_transakcije: '', banka: ''
     },
     troskovi: {
       infostan: 0, kablovska: 0, struja: 0, telefon: 0, internet: 0, odrzavanje: 0, ostalo: 0
@@ -3264,6 +3265,21 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                     </div>
 
                     {/* Detalji */}
+                  {/* Transakcija */}
+                  <div>
+                      <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">💳 Transakcija</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Način izvršenja transakcije</label>
+                          <input type="text" value={metapodaci.realizacija.nacin_izvrsenja_transakcije || ''} onChange={(e) => handleRealizacijaChange('nacin_izvrsenja_transakcije', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder="Npr. preko računa-keš, sred.k.nbs..." />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Banka u kojoj je izvršena transakcija</label>
+                          <input type="text" value={metapodaci.realizacija.banka || ''} onChange={(e) => handleRealizacijaChange('banka', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder="Npr. Erste banka, AIK banka..." />
+                        </div>
+                      </div>
+                  </div>
+
                   <div>
                       <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">📝 Detalji</p>
                       <div className="space-y-3">
