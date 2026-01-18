@@ -338,45 +338,84 @@ export default function EOPModule() {
                     // Kolona 2: Datum unošenja u evidenciju = datum ugovora (kolona 4)
                     const datumUnosenja = datumUgovora
 
-                    // Kolona 5: Nalogodavci - prikaži sve nalogodavce u formatu "1. podaci, 2. podaci..."
-                    let nalogodavac = ''
+                    // Kolona 5: Nalogodavci - prikaži sve nalogodavce sa svim podacima
+                    // Funkcija za formatiranje jednog nalogodavca sa svim podacima
+                    const formatNalogodavac = (n, index, isPonudaFormat) => {
+                      const podaci = []
+                      
+                      // Ime i prezime
+                      const imePrezime = isPonudaFormat 
+                        ? ((n.ime || n.prezime) ? `${n.ime || ''} ${n.prezime || ''}`.trim() : '')
+                        : ((n.ime || n.prezime) ? `${n.ime || ''} ${n.prezime || ''}`.trim() : '')
+                      if (imePrezime) podaci.push(imePrezime)
+                      
+                      // Adresa
+                      if (n.adresa) podaci.push(`adresa: ${n.adresa}`)
+                      
+                      // JMBG/Matični broj
+                      const jmbg = isPonudaFormat ? n.jmbg : n.matbrojjmbg
+                      if (jmbg) podaci.push(`JMBG: ${jmbg}`)
+                      
+                      // PIB
+                      if (n.pib) podaci.push(`PIB: ${n.pib}`)
+                      
+                      // Email
+                      if (n.email) podaci.push(`email: ${n.email}`)
+                      
+                      // Telefon
+                      const tel = isPonudaFormat ? n.tel : n.brojtel
+                      if (tel) podaci.push(`tel: ${tel}`)
+                      
+                      // LK
+                      const lk = isPonudaFormat ? n.lk : n.lk
+                      if (lk) podaci.push(`LK: ${lk}`)
+                      
+                      // Identifikaciona isprava
+                      const identIsprava = isPonudaFormat ? n.ident_isprava : n.identisprava
+                      if (identIsprava) podaci.push(`ID isprava: ${identIsprava}`)
+                      
+                      // Mesto rođenja
+                      const mestoRodjenja = isPonudaFormat ? n.mesto_rodjenja : n.mestorodjenja
+                      if (mestoRodjenja) podaci.push(`mesto rođenja: ${mestoRodjenja}`)
+                      
+                      // Datum rođenja
+                      const datumRodjenja = isPonudaFormat ? n.datum_rodjenja : n.datumrodjenja
+                      if (datumRodjenja) podaci.push(`datum rođenja: ${formatDate(datumRodjenja)}`)
+                      
+                      // Status lica
+                      const stsLice = isPonudaFormat ? n.sts_lice : n.stslice
+                      if (stsLice) podaci.push(`status: ${stsLice}`)
+                      
+                      // Poreklo imovine
+                      const porekloImovine = isPonudaFormat ? n.poreklo_imovine : n.porekloimovine
+                      if (porekloImovine) podaci.push(`poreklo imovine: ${porekloImovine}`)
+                      
+                      if (podaci.length === 0) return null
+                      return `${index + 1}. ${podaci.join(', ')}`
+                    }
+                    
+                    let nalogodavacList = []
                     if (isPonuda) {
                       // Za ponudu: uzmi iz vlasnici niza
                       const vlasnici = item.metapodaci?.vlasnici || []
-                      if (vlasnici.length > 0) {
-                        nalogodavac = vlasnici
-                          .map((v, i) => {
-                            const imePrezime = (v.ime && v.prezime) ? `${v.ime} ${v.prezime}` : ''
-                            const adresa = v.adresa || ''
-                            const podaci = [imePrezime, adresa].filter(Boolean).join(', ')
-                            return podaci ? `${i + 1}. ${podaci}` : null
-                          })
-                          .filter(Boolean)
-                          .join('; ')
-                      }
-                      if (!nalogodavac) {
-                        nalogodavac = `${item.tipOsobe} ID: ${item.id}`
-                      }
+                      nalogodavacList = vlasnici
+                        .map((v, i) => formatNalogodavac(v, i, true))
+                        .filter(Boolean)
                     } else {
                       // Za tražnju: uzmi iz nalogodavci niza
                       const nalogodavci = item.metapodaci?.nalogodavci || []
-                      if (nalogodavci.length > 0) {
-                        nalogodavac = nalogodavci
-                          .map((n, i) => {
-                            const imePrezime = (n.ime && n.prezime) ? `${n.ime} ${n.prezime}` : ''
-                            const adresa = n.adresa || ''
-                            const podaci = [imePrezime, adresa].filter(Boolean).join(', ')
-                            return podaci ? `${i + 1}. ${podaci}` : null
-                          })
-                          .filter(Boolean)
-                          .join('; ')
+                      nalogodavacList = nalogodavci
+                        .map((n, i) => formatNalogodavac(n, i, false))
+                        .filter(Boolean)
+                      
+                      // Fallback na kontaktosoba ako nema nalogodavaca
+                      if (nalogodavacList.length === 0 && item.kontaktosoba) {
+                        nalogodavacList = [`1. ${item.kontaktosoba}${item.kontakttelefon ? `, tel: ${item.kontakttelefon}` : ''}`]
                       }
-                      if (!nalogodavac) {
-                        // Fallback na kontaktosoba ako nema nalogodavaca
-                        nalogodavac = item.kontaktosoba 
-                          ? `${item.tipOsobe}: ${item.kontaktosoba}${item.kontakttelefon ? `, tel: ${item.kontakttelefon}` : ''}`
-                          : `${item.tipOsobe} ID: ${item.id}`
-                      }
+                    }
+                    
+                    if (nalogodavacList.length === 0) {
+                      nalogodavacList = [`${item.tipOsobe} ID: ${item.id}`]
                     }
 
                     // Vrsta nepokretnosti
@@ -414,8 +453,14 @@ export default function EOPModule() {
                         <td className="border border-gray-300 px-2 py-2">{item.id}</td>
                         {/* Kolona 4: Datum ugovora */}
                         <td className="border border-gray-300 px-2 py-2">{formatDate(datumUgovora)}</td>
-                        {/* Kolona 5: Nalogodavac */}
-                        <td className="border border-gray-300 px-2 py-2 text-xs">{nalogodavac}</td>
+                        {/* Kolona 5: Nalogodavci - dinamički širenje redova */}
+                        <td className="border border-gray-300 px-2 py-2 text-xs">
+                          {nalogodavacList.map((n, i) => (
+                            <div key={i} className={i > 0 ? 'mt-2 pt-2 border-t border-gray-200' : ''}>
+                              {n}
+                            </div>
+                          ))}
+                        </td>
                         <td className="border border-gray-300 px-2 py-2">{item.opstina?.opis || item.lokacija?.opis || ''}</td>
                         <td className="border border-gray-300 px-2 py-2 text-xs">{adresaParts.join(', ')}</td>
                         <td className="border border-gray-300 px-2 py-2">{vrstaObjekta}</td>
