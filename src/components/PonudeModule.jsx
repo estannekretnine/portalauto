@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
-import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Building2, Euro, Pencil, Archive, ArchiveRestore, XCircle, MoreVertical, Sparkles, Brain, Loader2 } from 'lucide-react'
+import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Building2, Euro, Pencil, Archive, ArchiveRestore, XCircle, MoreVertical, Sparkles, Brain, Loader2, Phone } from 'lucide-react'
 import PonudaForm from './PonudaForm'
+import PonudaDetaljiForm from './PonudaDetaljiForm'
 
 export default function PonudeModule() {
   console.log('🔵 PonudeModule montiran')
@@ -13,6 +14,8 @@ export default function PonudeModule() {
   const [showFilters, setShowFilters] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [editingPonuda, setEditingPonuda] = useState(null)
+  const [showDetaljiForm, setShowDetaljiForm] = useState(false)
+  const [detaljiPonuda, setDetaljiPonuda] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [openActionMenu, setOpenActionMenu] = useState(null) // ID ponude za koju je otvoren meni
   const [itemsPerPage, setItemsPerPage] = useState(10)
@@ -401,6 +404,8 @@ export default function PonudeModule() {
         .select(`
           id,
           idvrstaobjekta,
+          iddrzava,
+          idgrada,
           idopstina,
           idlokacija,
           idulica,
@@ -1756,6 +1761,18 @@ export default function PonudeModule() {
                                 <Pencil className="w-4 h-4" />
                                 Promeni
                               </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setDetaljiPonuda(ponuda)
+                                  setShowDetaljiForm(true)
+                                  setOpenActionMenu(null)
+                                }}
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                              >
+                                <Phone className="w-4 h-4" />
+                                Detalji
+                              </button>
                               {ponuda.stsaktivan ? (
                                 <button
                                   onClick={(e) => {
@@ -2008,6 +2025,22 @@ export default function PonudeModule() {
             setEditingPonuda(null)
           }}
           onSuccess={handleFormSuccess}
+        />
+      )}
+
+      {/* Detalji Form Modal */}
+      {showDetaljiForm && detaljiPonuda && (
+        <PonudaDetaljiForm
+          ponuda={detaljiPonuda}
+          onClose={() => {
+            setShowDetaljiForm(false)
+            setDetaljiPonuda(null)
+          }}
+          onSuccess={() => {
+            setShowDetaljiForm(false)
+            setDetaljiPonuda(null)
+            // Opcionalno: prikaži poruku o uspehu
+          }}
         />
       )}
     </div>
