@@ -373,17 +373,26 @@ export default function PozivForm({ poziv, onClose, onSuccess }) {
                 </div>
               ) : (
                 <div className="relative">
-                  <input
-                    type="text"
-                    value={ponudaSearch}
-                    onChange={(e) => {
-                      setPonudaSearch(e.target.value)
-                      setShowPonudaDropdown(true)
-                    }}
-                    onFocus={() => setShowPonudaDropdown(true)}
-                    placeholder="Pretraži ponude po imenu, telefonu ili ID..."
-                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={ponudaSearch}
+                      onChange={(e) => {
+                        setPonudaSearch(e.target.value)
+                        setShowPonudaDropdown(true)
+                      }}
+                      onFocus={() => setShowPonudaDropdown(true)}
+                      placeholder="Pretraži ponude po imenu, telefonu ili ID..."
+                      className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPonudaDropdown(!showPonudaDropdown)}
+                      className="px-4 py-3 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-xl transition-colors"
+                    >
+                      <ChevronDown className={`w-5 h-5 transition-transform ${showPonudaDropdown ? 'rotate-180' : ''}`} />
+                    </button>
+                  </div>
                   {showPonudaDropdown && (
                     <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto">
                       {loadingPonude ? (
@@ -449,17 +458,26 @@ export default function PozivForm({ poziv, onClose, onSuccess }) {
                 </div>
               ) : (
                 <div className="relative">
-                  <input
-                    type="text"
-                    value={traznjaSearch}
-                    onChange={(e) => {
-                      setTraznjaSearch(e.target.value)
-                      setShowTraznjaDropdown(true)
-                    }}
-                    onFocus={() => setShowTraznjaDropdown(true)}
-                    placeholder="Pretraži tražnje po imenu, telefonu ili ID..."
-                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={traznjaSearch}
+                      onChange={(e) => {
+                        setTraznjaSearch(e.target.value)
+                        setShowTraznjaDropdown(true)
+                      }}
+                      onFocus={() => setShowTraznjaDropdown(true)}
+                      placeholder="Pretraži tražnje po imenu, telefonu ili ID..."
+                      className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowTraznjaDropdown(!showTraznjaDropdown)}
+                      className="px-4 py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-xl transition-colors"
+                    >
+                      <ChevronDown className={`w-5 h-5 transition-transform ${showTraznjaDropdown ? 'rotate-180' : ''}`} />
+                    </button>
+                  </div>
                   {showTraznjaDropdown && (
                     <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto">
                       {loadingTraznje ? (
