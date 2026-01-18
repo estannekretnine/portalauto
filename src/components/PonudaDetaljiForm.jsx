@@ -275,7 +275,8 @@ export default function PonudaDetaljiForm({ ponuda, onClose, onSuccess }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="flex flex-col max-h-[calc(100vh-200px)]">
+          <div className="p-6 space-y-6 overflow-y-auto flex-1">
           {/* Info o ponudi - Read Only */}
           <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-5 border border-amber-200">
             <h4 className="font-semibold text-amber-900 flex items-center gap-2 mb-4">
@@ -698,9 +699,10 @@ export default function PonudaDetaljiForm({ ponuda, onClose, onSuccess }) {
               </div>
             </div>
           )}
+          </div>
 
-          {/* Footer */}
-          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+          {/* Footer - izvan scroll kontejnera */}
+          <div className="flex items-center justify-between p-6 pt-4 border-t border-gray-100 bg-white">
             <button
               type="button"
               onClick={onClose}
