@@ -132,17 +132,18 @@ export default function TransakcijeModule() {
       <head>
         <title>Izvršene transakcije ${godina}</title>
         <style>
-          @page { size: landscape; margin: 5mm; }
-          body { font-family: Arial, sans-serif; font-size: 8px; }
-          .header { text-align: center; margin-bottom: 10px; }
-          .header h1 { font-size: 12px; margin: 0; }
-          .header p { margin: 2px 0; font-size: 9px; }
-          table { width: 100%; border-collapse: collapse; margin-top: 5px; }
-          th, td { border: 1px solid #000; padding: 3px; text-align: left; vertical-align: top; }
-          th { background-color: #f0f0f0; font-size: 7px; }
-          td { font-size: 7px; }
-          .signature { margin-top: 20px; text-align: right; }
-          .signature-line { width: 150px; border-top: 1px solid #000; margin-left: auto; padding-top: 3px; font-size: 8px; }
+          @page { size: landscape; margin: 10mm; }
+          body { font-family: Arial, sans-serif; font-size: 9px; }
+          .header { text-align: center; margin-bottom: 15px; }
+          .header h1 { font-size: 14px; margin: 0; }
+          .header h2 { font-size: 12px; margin: 5px 0; }
+          .header p { margin: 3px 0; font-size: 10px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+          th, td { border: 1px solid #000; padding: 4px; text-align: left; vertical-align: top; }
+          th { background-color: #f0f0f0; font-size: 8px; }
+          td { font-size: 8px; }
+          .signature { margin-top: 30px; text-align: right; }
+          .signature-line { width: 200px; border-top: 1px solid #000; margin-left: auto; padding-top: 5px; }
         </style>
       </head>
       <body>
@@ -296,63 +297,66 @@ export default function TransakcijeModule() {
           ) : (
             <div ref={printRef}>
               {/* Zaglavlje izveštaja */}
-              <div className="header mb-4">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="info-left text-left text-xs">
-                    <p><strong>Podaci o posredniku:</strong></p>
-                    <p>{firmaInfo?.Nazivfirme || ''}</p>
-                    <p>{firmaInfo?.adresa || ''}</p>
-                    {firmaInfo?.pib && <p>PIB: {firmaInfo.pib}</p>}
-                    {firmaInfo?.maticnibroj && <p>matični broj: {firmaInfo.maticnibroj}</p>}
+              <div className="header mb-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="info-left text-left">
+                    <p className="text-sm text-gray-600"><strong>Podaci o posredniku:</strong></p>
+                    <p className="text-sm">{firmaInfo?.Nazivfirme || ''}</p>
+                    <p className="text-sm">{firmaInfo?.adresa || ''}</p>
+                    {firmaInfo?.pib && <p className="text-sm">PIB: {firmaInfo.pib}</p>}
+                    {firmaInfo?.maticnibroj && <p className="text-sm">matični broj: {firmaInfo.maticnibroj}</p>}
                   </div>
                   <div className="text-center flex-1">
-                    <h1 className="text-lg font-bold">EVIDENCIJA O IZVRŠENIM TRANSAKCIJAMA</h1>
-                    <p className="text-sm">za <strong>{godina}</strong>. godinu</p>
-                    <p className="text-xs mt-1">ako ne postoji sumnja da se radi o pranju novca i finansiranju terorizma</p>
+                    <h1 className="text-xl font-bold">EVIDENCIJA O IZVRŠENIM TRANSAKCIJAMA</h1>
+                    <p className="text-sm mt-2">za <strong>{godina}</strong>. godinu</p>
+                    <p className="text-sm mt-1">ako ne postoji sumnja da se radi o pranju novca i finansiranju terorizma</p>
                   </div>
-                  <div className="info-right text-right text-xs">
-                    <p>Upisan u Registar posrednika pod brojem:</p>
-                    <p><strong>{firmaInfo?.brojuregistru || '044'}</strong></p>
+                  <div className="info-right text-right">
+                    <p className="text-sm text-gray-600">Upisan u Registar posrednika pod brojem:</p>
+                    <p className="text-sm"><strong>{firmaInfo?.brojuregistru || '044'}</strong></p>
                   </div>
+                </div>
+                <div className="text-right mt-4">
+                  <p className="text-sm">Potpis odgovornog lica</p>
                 </div>
               </div>
 
               {/* Tabela */}
-              <table className="w-full border-collapse text-[9px]">
+              <table className="w-full border-collapse text-xs">
                 <thead>
                   <tr className="bg-gray-100">
-                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]" rowSpan="2">R.<br/>br</th>
-                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]" rowSpan="2">Broj<br/>ug.<br/>o posr.</th>
-                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]" colSpan="2">Ime i prezime odnosno poslovno ime i<br/>adresa nalogodavca JMBG PIB<br/>podaci zakonskog zastupnika</th>
-                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]" rowSpan="2">Naziv<br/>opštine na<br/>kojoj se<br/>nepokr.<br/>nalazi</th>
-                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]" rowSpan="2">Adresa<br/>nepokretnosti<br/>(mesto, ul i broj,<br/>katastarska parcela<br/>katastarska opština)</th>
-                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]" rowSpan="2">Vrsta<br/>nepo-<br/>kretnosti<br/>čiji je pro-<br/>met<br/>odnosno<br/>zakup<br/>predmet<br/>posre-<br/>dovanja</th>
-                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]" rowSpan="2">Povr-<br/>šina<br/>nepo-<br/>kretno-<br/>sti čiji<br/>je pro-<br/>met<br/>odnosno<br/>zakup<br/>predmet<br/>posre-<br/>dovanja</th>
-                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]" rowSpan="2">Datum<br/>zaklju-<br/>čenja<br/>pravnog<br/>posla</th>
-                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]" rowSpan="2">Datum<br/>transa-<br/>kcije</th>
-                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]" rowSpan="2">Iznos<br/>transakcije</th>
-                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]" rowSpan="2">Način<br/>izvršenja<br/>transakcije</th>
-                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]" rowSpan="2">Banka<br/>u kojoj je<br/>izvršena<br/>transakcija</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">R.<br/>br</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Broj<br/>ug.<br/>o posr.</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center" colSpan="2">Ime i prezime odnosno poslovno ime i<br/>adresa nalogodavca JMBG PIB<br/>podaci zakonskog zastupnika</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Naziv<br/>opštine na<br/>kojoj se<br/>nepokr.<br/>nalazi</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Adresa<br/>nepokretnosti<br/>(mesto, ul i broj,<br/>katastarska parcela<br/>katastarska opština)</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Vrsta<br/>nepo-<br/>kretnosti<br/>čiji je pro-<br/>met<br/>odnosno<br/>zakup<br/>predmet<br/>posre-<br/>dovanja</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Povr-<br/>šina<br/>nepo-<br/>kretno-<br/>sti čiji<br/>je pro-<br/>met<br/>odnosno<br/>zakup<br/>predmet<br/>posre-<br/>dovanja</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Datum<br/>zaklju-<br/>čenja<br/>pravnog<br/>posla</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Datum<br/>transa-<br/>kcije</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Iznos<br/>transakcije</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Način<br/>izvršenja<br/>transakcije</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Banka<br/>u kojoj je<br/>izvršena<br/>transakcija</th>
                   </tr>
                   <tr className="bg-gray-100">
-                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]">Nalogodavac:</th>
-                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]">Zakonski zastupnik:</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center">Nalogodavac:</th>
+                    <th className="border border-gray-300 px-2 py-2 text-center">Zakonski zastupnik:</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="bg-gray-50 text-center text-[8px]">
-                    <td className="border border-gray-300 px-1 py-0.5">1</td>
-                    <td className="border border-gray-300 px-1 py-0.5">2</td>
-                    <td className="border border-gray-300 px-1 py-0.5" colSpan="2">3</td>
-                    <td className="border border-gray-300 px-1 py-0.5">4</td>
-                    <td className="border border-gray-300 px-1 py-0.5">5</td>
-                    <td className="border border-gray-300 px-1 py-0.5">6</td>
-                    <td className="border border-gray-300 px-1 py-0.5">7</td>
-                    <td className="border border-gray-300 px-1 py-0.5">8</td>
-                    <td className="border border-gray-300 px-1 py-0.5">9</td>
-                    <td className="border border-gray-300 px-1 py-0.5">10</td>
-                    <td className="border border-gray-300 px-1 py-0.5">11</td>
-                    <td className="border border-gray-300 px-1 py-0.5">12</td>
+                  <tr className="bg-gray-50 text-center text-[10px]">
+                    <td className="border border-gray-300 px-1 py-1">1</td>
+                    <td className="border border-gray-300 px-1 py-1">2</td>
+                    <td className="border border-gray-300 px-1 py-1" colSpan="2">3</td>
+                    <td className="border border-gray-300 px-1 py-1">4</td>
+                    <td className="border border-gray-300 px-1 py-1">5</td>
+                    <td className="border border-gray-300 px-1 py-1">6</td>
+                    <td className="border border-gray-300 px-1 py-1">7</td>
+                    <td className="border border-gray-300 px-1 py-1">8</td>
+                    <td className="border border-gray-300 px-1 py-1">9</td>
+                    <td className="border border-gray-300 px-1 py-1">10</td>
+                    <td className="border border-gray-300 px-1 py-1">11</td>
+                    <td className="border border-gray-300 px-1 py-1">12</td>
                   </tr>
                   {podaci.map((item, index) => {
                     const isPonuda = item.tip === 'ponuda'
@@ -425,46 +429,46 @@ export default function TransakcijeModule() {
                     return (
                       <tr key={`${item.tip}-${item.id}`} className={`hover:bg-gray-50 ${!isPonuda ? 'bg-amber-50/30' : ''}`}>
                         {/* Kolona 1: R.br */}
-                        <td className="border border-gray-300 px-1 py-1 text-center">{index + 1}</td>
+                        <td className="border border-gray-300 px-2 py-2 text-center">{index + 1}</td>
                         {/* Kolona 2: Broj ugovora */}
-                        <td className="border border-gray-300 px-1 py-1">{item.id}</td>
+                        <td className="border border-gray-300 px-2 py-2">{item.id}</td>
                         {/* Kolona 3a: Nalogodavac */}
-                        <td className="border border-gray-300 px-1 py-1 text-[8px] whitespace-pre-line">
+                        <td className="border border-gray-300 px-2 py-2 text-xs whitespace-pre-line">
                           {nalogodavci.map((n, i) => {
                             const text = formatNalogodavac(n, isPonuda)
                             return text ? (
-                              <div key={i} className={i > 0 ? 'mt-1 pt-1 border-t border-gray-200' : ''}>
+                              <div key={i} className={i > 0 ? 'mt-2 pt-2 border-t border-gray-200' : ''}>
                                 0:vlasnik:{text}
                               </div>
                             ) : null
                           })}
                         </td>
                         {/* Kolona 3b: Zakonski zastupnik */}
-                        <td className="border border-gray-300 px-1 py-1 text-[8px]">
+                        <td className="border border-gray-300 px-2 py-2 text-xs">
                           {zastupnikFormatted}
                         </td>
                         {/* Kolona 4: Naziv opštine */}
-                        <td className="border border-gray-300 px-1 py-1">{opstina}</td>
+                        <td className="border border-gray-300 px-2 py-2">{opstina}</td>
                         {/* Kolona 5: Adresa nepokretnosti */}
-                        <td className="border border-gray-300 px-1 py-1 text-[8px]">{adresaNepokretnosti}</td>
+                        <td className="border border-gray-300 px-2 py-2 text-xs">{adresaNepokretnosti}</td>
                         {/* Kolona 6: Vrsta nepokretnosti */}
-                        <td className="border border-gray-300 px-1 py-1">{vrstaObjekta}</td>
+                        <td className="border border-gray-300 px-2 py-2">{vrstaObjekta}</td>
                         {/* Kolona 7: Površina */}
-                        <td className="border border-gray-300 px-1 py-1 text-right">
+                        <td className="border border-gray-300 px-2 py-2 text-right">
                           {povrsina ? formatNumber(povrsina) : ''}
                         </td>
                         {/* Kolona 8: Datum zaključenja pravnog posla */}
-                        <td className="border border-gray-300 px-1 py-1">{formatDate(datumUgovora)}</td>
+                        <td className="border border-gray-300 px-2 py-2">{formatDate(datumUgovora)}</td>
                         {/* Kolona 9: Datum transakcije */}
-                        <td className="border border-gray-300 px-1 py-1">{formatDate(datumTransakcije)}</td>
+                        <td className="border border-gray-300 px-2 py-2">{formatDate(datumTransakcije)}</td>
                         {/* Kolona 10: Iznos transakcije */}
-                        <td className="border border-gray-300 px-1 py-1 text-right">
+                        <td className="border border-gray-300 px-2 py-2 text-right">
                           {cena ? `${formatNumber(cena)}\neur` : ''}
                         </td>
                         {/* Kolona 11: Način izvršenja */}
-                        <td className="border border-gray-300 px-1 py-1 text-[8px] whitespace-pre-line">{nacinIzvrsenja}</td>
+                        <td className="border border-gray-300 px-2 py-2 text-xs whitespace-pre-line">{nacinIzvrsenja}</td>
                         {/* Kolona 12: Banka */}
-                        <td className="border border-gray-300 px-1 py-1">{banka}</td>
+                        <td className="border border-gray-300 px-2 py-2">{banka}</td>
                       </tr>
                     )
                   })}
@@ -472,8 +476,8 @@ export default function TransakcijeModule() {
               </table>
 
               {/* Potpis */}
-              <div className="signature mt-6 text-right">
-                <div className="signature-line inline-block w-40 border-t border-gray-400 pt-2 text-xs">
+              <div className="signature mt-8 text-right">
+                <div className="signature-line inline-block w-48 border-t border-gray-400 pt-2 text-sm">
                   Potpis odgovornog lica
                 </div>
               </div>
