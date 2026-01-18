@@ -3257,7 +3257,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                           <input type="number" value={metapodaci.realizacija.kupoprodajna_cena} onChange={(e) => handleRealizacijaChange('kupoprodajna_cena', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
                   </div>
                   <div>
-                          <label className="block text-sm text-slate-600 mb-1">Provizija (€)</label>
+                          <label className="block text-sm text-slate-600 mb-1">Provizija u RSD</label>
                           <input type="number" value={metapodaci.realizacija.provizija} onChange={(e) => handleRealizacijaChange('provizija', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
                   </div>
                       </div>

@@ -313,7 +313,7 @@ export default function EOPModule() {
                     <td className="border border-gray-300 px-1 py-1">13</td>
                     <td className="border border-gray-300 px-1 py-1">14</td>
                   </tr>
-                  {podaci.map((item, index) => {
+                      {podaci.map((item, index) => {
                     const isPonuda = item.tip === 'ponuda'
                     const eop = item.metapodaci?.eop || {}
                     const realizacija = item.metapodaci?.realizacija || {}
@@ -332,20 +332,31 @@ export default function EOPModule() {
                       if (eop.katopstina) adresaParts.push(`ko ${eop.katopstina}`)
                     }
                     
-                    // Nalogodavac - različito za ponudu i tražnju
+                    // Datum ugovora - različita polja
+                    const datumUgovora = isPonuda ? eop.datum_ugovora : eop.datumugovora
+                    
+                    // Kolona 2: Datum unošenja u evidenciju = datum ugovora (kolona 4)
+                    const datumUnosenja = datumUgovora
+
+                    // Kolona 5: Nalogodavac - ako nema realizacije, uzmi podatke iz prodavca/zastupnika
                     let nalogodavac = ''
                     if (isPonuda) {
-                      nalogodavac = zastupnik.ime && zastupnik.prezime 
-                        ? `${item.tipOsobe}: ${zastupnik.ime} ${zastupnik.prezime}${zastupnik.adresa ? `, ${zastupnik.adresa}` : ''}`
-                        : `${item.tipOsobe} ID: ${item.id}`
+                      // Za ponudu: ako nema realizacije, uzmi iz zastupnika (prodavac)
+                      if (realizacija.zakljucen) {
+                        nalogodavac = zastupnik.ime && zastupnik.prezime 
+                          ? `${item.tipOsobe}: ${zastupnik.ime} ${zastupnik.prezime}${zastupnik.adresa ? `, ${zastupnik.adresa}` : ''}`
+                          : `${item.tipOsobe} ID: ${item.id}`
+                      } else {
+                        // Nema realizacije - uzmi iz prodavca (zastupnik)
+                        nalogodavac = zastupnik.ime && zastupnik.prezime 
+                          ? `${item.tipOsobe}: ${zastupnik.ime} ${zastupnik.prezime}${zastupnik.adresa ? `, ${zastupnik.adresa}` : ''}`
+                          : `${item.tipOsobe} ID: ${item.id}`
+                      }
                     } else {
                       nalogodavac = item.kontaktosoba 
                         ? `${item.tipOsobe}: ${item.kontaktosoba}${item.kontakttelefon ? `, tel: ${item.kontakttelefon}` : ''}`
                         : `${item.tipOsobe} ID: ${item.id}`
                     }
-
-                    // Datum ugovora - različita polja
-                    const datumUgovora = isPonuda ? eop.datum_ugovora : eop.datumugovora
 
                     // Vrsta nepokretnosti
                     const vrstaObjekta = isPonuda 
@@ -360,12 +371,16 @@ export default function EOPModule() {
                       ? (item.stsrentaprodaja === 'prodaja' ? 'prodaja' : 'zakup')
                       : (item.stskupaczakupac === 'kupac' ? 'kupovina' : 'zakup')
 
-                    // Datum zaključenja
+                    // Kolona 10: Status zaključenja
+                    const jeZakljucen = realizacija.zakljucen === true
+                    const statusZakljucenja = jeZakljucen ? 'zaključen' : 'nije zaključen'
+
+                    // Datum zaključenja - samo ako je zaključen
                     const datumZakljucenja = isPonuda 
                       ? realizacija.datum_zakljucenja 
                       : realizacija.datumzakljucenja
 
-                    // Cena
+                    // Cena - samo ako je zaključen
                     const cena = isPonuda 
                       ? (realizacija.kupoprodajna_cena || item.cena)
                       : (realizacija.kupoprodajnacena || item.cenado)
@@ -373,9 +388,12 @@ export default function EOPModule() {
                     return (
                       <tr key={`${item.tip}-${item.id}`} className={`hover:bg-gray-50 ${!isPonuda ? 'bg-blue-50/30' : ''}`}>
                         <td className="border border-gray-300 px-2 py-2 text-center">{index + 1}</td>
-                        <td className="border border-gray-300 px-2 py-2">{formatDate(item.datumkreiranja)}</td>
+                        {/* Kolona 2: Datum unošenja = datum ugovora */}
+                        <td className="border border-gray-300 px-2 py-2">{formatDate(datumUnosenja)}</td>
                         <td className="border border-gray-300 px-2 py-2">{item.id}</td>
+                        {/* Kolona 4: Datum ugovora */}
                         <td className="border border-gray-300 px-2 py-2">{formatDate(datumUgovora)}</td>
+                        {/* Kolona 5: Nalogodavac */}
                         <td className="border border-gray-300 px-2 py-2 text-xs">{nalogodavac}</td>
                         <td className="border border-gray-300 px-2 py-2">{item.opstina?.opis || item.lokacija?.opis || ''}</td>
                         <td className="border border-gray-300 px-2 py-2 text-xs">{adresaParts.join(', ')}</td>
@@ -383,15 +401,17 @@ export default function EOPModule() {
                         <td className="border border-gray-300 px-2 py-2 text-right">
                           {povrsina ? `${formatNumber(povrsina)}` : ''}
                         </td>
-                        <td className="border border-gray-300 px-2 py-2">{pravniPosao}</td>
+                        {/* Kolona 10: Status zaključenja */}
+                        <td className="border border-gray-300 px-2 py-2">{statusZakljucenja}</td>
+                        {/* Kolone 11, 12, 13: Prazne ako nije zaključen */}
                         <td className="border border-gray-300 px-2 py-2">
-                          {realizacija.zakljucen ? formatDate(datumZakljucenja) : ''}
+                          {jeZakljucen ? formatDate(datumZakljucenja) : ''}
                         </td>
                         <td className="border border-gray-300 px-2 py-2 text-right">
-                          {cena ? formatNumber(cena) : ''}
+                          {jeZakljucen && cena ? formatNumber(cena) : ''}
                         </td>
                         <td className="border border-gray-300 px-2 py-2 text-right">
-                          {realizacija.provizija ? formatNumber(realizacija.provizija) : ''}
+                          {jeZakljucen && realizacija.provizija ? formatNumber(realizacija.provizija) : ''}
                         </td>
                         <td className="border border-gray-300 px-2 py-2 text-xs">{realizacija.primedba || ''}</td>
                       </tr>

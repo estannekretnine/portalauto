@@ -1887,7 +1887,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                               <input type="number" value={metapodaci.realizacija.kupoprodajnacena} onChange={(e) => handleRealizacijaChange('kupoprodajnacena', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
                             </div>
                             <div>
-                              <label className="block text-sm text-slate-600 mb-1">Provizija (€)</label>
+                              <label className="block text-sm text-slate-600 mb-1">Provizija u RSD</label>
                               <input type="number" value={metapodaci.realizacija.provizija} onChange={(e) => handleRealizacijaChange('provizija', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
                             </div>
                           </div>
