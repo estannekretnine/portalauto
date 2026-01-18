@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../utils/supabase'
 import { X, Phone, Save, Loader2, Home, FileSearch, MessageSquare, User, ChevronDown, Brain, Sparkles, Target, MapPin, Euro, Ban, Heart, Users, Briefcase, Car, PawPrint, Wifi } from 'lucide-react'
 import { getCurrentUser } from '../utils/auth'
@@ -7,6 +7,10 @@ export default function PozivForm({ poziv, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false)
   const [loadingPonude, setLoadingPonude] = useState(false)
   const [loadingTraznje, setLoadingTraznje] = useState(false)
+  
+  // Refs za dropdown zatvaranje
+  const ponudaDropdownRef = useRef(null)
+  const traznjaDropdownRef = useRef(null)
   
   // Osnovni podaci
   const [formData, setFormData] = useState({
@@ -110,6 +114,20 @@ export default function PozivForm({ poziv, onClose, onSuccess }) {
     if (poziv?.idtraznja) {
       loadSelectedTraznja(poziv.idtraznja)
     }
+  }, [])
+
+  // Zatvori dropdown kada se klikne van
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (ponudaDropdownRef.current && !ponudaDropdownRef.current.contains(event.target)) {
+        setShowPonudaDropdown(false)
+      }
+      if (traznjaDropdownRef.current && !traznjaDropdownRef.current.contains(event.target)) {
+        setShowTraznjaDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
   const loadSelectedPonuda = async (id) => {
@@ -324,123 +342,153 @@ export default function PozivForm({ poziv, onClose, onSuccess }) {
             </div>
 
             {/* Ponuda (Prodavac) */}
-            <div className="relative">
+            <div className="relative" ref={ponudaDropdownRef}>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Home className="w-4 h-4 inline mr-1 text-amber-500" />
                 Ponuda (Prodavac)
               </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={ponudaSearch}
-                  onChange={(e) => {
-                    setPonudaSearch(e.target.value)
-                    setShowPonudaDropdown(true)
-                  }}
-                  onFocus={() => setShowPonudaDropdown(true)}
-                  placeholder="Pretraži ponude po imenu, telefonu ili ID..."
-                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                />
-                {selectedPonuda && (
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                    <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-lg">
-                      #{selectedPonuda.id} - {selectedPonuda.kontaktosoba}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedPonuda(null)
-                        handleChange('idponude', '')
-                      }}
-                      className="text-gray-400 hover:text-red-500"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+              {selectedPonuda ? (
+                <div className="flex items-center justify-between px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
+                      <Home className="w-4 h-4 text-amber-600" />
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-900">{selectedPonuda.kontaktosoba || 'Bez imena'}</span>
+                      <span className="text-xs text-gray-500 ml-2">{selectedPonuda.kontakttelefon}</span>
+                    </div>
+                    <span className="text-xs bg-amber-200 text-amber-800 px-2 py-1 rounded-lg font-medium">#{selectedPonuda.id}</span>
                   </div>
-                )}
-              </div>
-              {showPonudaDropdown && filteredPonude.length > 0 && (
-                <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto">
-                  {filteredPonude.map(p => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedPonuda(p)
-                        handleChange('idponude', p.id)
-                        setPonudaSearch('')
-                        setShowPonudaDropdown(false)
-                      }}
-                      className="w-full px-4 py-3 text-left hover:bg-amber-50 flex items-center justify-between border-b border-gray-100 last:border-0"
-                    >
-                      <div>
-                        <span className="font-medium text-gray-900">{p.kontaktosoba || 'Bez imena'}</span>
-                        <span className="text-xs text-gray-500 ml-2">{p.kontakttelefon}</span>
-                      </div>
-                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">#{p.id}</span>
-                    </button>
-                  ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedPonuda(null)
+                      handleChange('idponude', '')
+                      setPonudaSearch('')
+                    }}
+                    className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={ponudaSearch}
+                    onChange={(e) => {
+                      setPonudaSearch(e.target.value)
+                      setShowPonudaDropdown(true)
+                    }}
+                    onFocus={() => setShowPonudaDropdown(true)}
+                    placeholder="Pretraži ponude po imenu, telefonu ili ID..."
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                  {showPonudaDropdown && (
+                    <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto">
+                      {loadingPonude ? (
+                        <div className="px-4 py-3 text-center text-gray-500">Učitavanje...</div>
+                      ) : filteredPonude.length > 0 ? (
+                        filteredPonude.map(p => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedPonuda(p)
+                              handleChange('idponude', p.id)
+                              setPonudaSearch('')
+                              setShowPonudaDropdown(false)
+                            }}
+                            className="w-full px-4 py-3 text-left hover:bg-amber-50 flex items-center justify-between border-b border-gray-100 last:border-0"
+                          >
+                            <div>
+                              <span className="font-medium text-gray-900">{p.kontaktosoba || 'Bez imena'}</span>
+                              <span className="text-xs text-gray-500 ml-2">{p.kontakttelefon}</span>
+                            </div>
+                            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">#{p.id}</span>
+                          </button>
+                        ))
+                      ) : (
+                        <div className="px-4 py-3 text-center text-gray-500">Nema rezultata</div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
             {/* Tražnja (Kupac) */}
-            <div className="relative">
+            <div className="relative" ref={traznjaDropdownRef}>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <FileSearch className="w-4 h-4 inline mr-1 text-blue-500" />
                 Tražnja (Kupac)
               </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={traznjaSearch}
-                  onChange={(e) => {
-                    setTraznjaSearch(e.target.value)
-                    setShowTraznjaDropdown(true)
-                  }}
-                  onFocus={() => setShowTraznjaDropdown(true)}
-                  placeholder="Pretraži tražnje po imenu, telefonu ili ID..."
-                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                />
-                {selectedTraznja && (
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-lg">
-                      #{selectedTraznja.id} - {selectedTraznja.kontaktosoba}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedTraznja(null)
-                        handleChange('idtraznja', '')
-                      }}
-                      className="text-gray-400 hover:text-red-500"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+              {selectedTraznja ? (
+                <div className="flex items-center justify-between px-4 py-3 bg-blue-50 border border-blue-200 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <FileSearch className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-900">{selectedTraznja.kontaktosoba || 'Bez imena'}</span>
+                      <span className="text-xs text-gray-500 ml-2">{selectedTraznja.kontakttelefon}</span>
+                    </div>
+                    <span className="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded-lg font-medium">#{selectedTraznja.id}</span>
                   </div>
-                )}
-              </div>
-              {showTraznjaDropdown && filteredTraznje.length > 0 && (
-                <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto">
-                  {filteredTraznje.map(t => (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedTraznja(t)
-                        handleChange('idtraznja', t.id)
-                        setTraznjaSearch('')
-                        setShowTraznjaDropdown(false)
-                      }}
-                      className="w-full px-4 py-3 text-left hover:bg-blue-50 flex items-center justify-between border-b border-gray-100 last:border-0"
-                    >
-                      <div>
-                        <span className="font-medium text-gray-900">{t.kontaktosoba || 'Bez imena'}</span>
-                        <span className="text-xs text-gray-500 ml-2">{t.kontakttelefon}</span>
-                      </div>
-                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">#{t.id}</span>
-                    </button>
-                  ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedTraznja(null)
+                      handleChange('idtraznja', '')
+                      setTraznjaSearch('')
+                    }}
+                    className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={traznjaSearch}
+                    onChange={(e) => {
+                      setTraznjaSearch(e.target.value)
+                      setShowTraznjaDropdown(true)
+                    }}
+                    onFocus={() => setShowTraznjaDropdown(true)}
+                    placeholder="Pretraži tražnje po imenu, telefonu ili ID..."
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                  {showTraznjaDropdown && (
+                    <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-60 overflow-y-auto">
+                      {loadingTraznje ? (
+                        <div className="px-4 py-3 text-center text-gray-500">Učitavanje...</div>
+                      ) : filteredTraznje.length > 0 ? (
+                        filteredTraznje.map(t => (
+                          <button
+                            key={t.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedTraznja(t)
+                              handleChange('idtraznja', t.id)
+                              setTraznjaSearch('')
+                              setShowTraznjaDropdown(false)
+                            }}
+                            className="w-full px-4 py-3 text-left hover:bg-blue-50 flex items-center justify-between border-b border-gray-100 last:border-0"
+                          >
+                            <div>
+                              <span className="font-medium text-gray-900">{t.kontaktosoba || 'Bez imena'}</span>
+                              <span className="text-xs text-gray-500 ml-2">{t.kontakttelefon}</span>
+                            </div>
+                            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">#{t.id}</span>
+                          </button>
+                        ))
+                      ) : (
+                        <div className="px-4 py-3 text-center text-gray-500">Nema rezultata</div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
