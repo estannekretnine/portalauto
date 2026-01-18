@@ -92,7 +92,7 @@ export default function PoziviModule() {
       const userIds = [...new Set((data || []).map(p => p.iduser).filter(Boolean))]
 
       const [ponudeResult, traznjeResult, korisniciResult] = await Promise.all([
-        ponudaIds.length > 0 ? supabase.from('ponuda').select('id, kontaktosoba, kontakttelefon').in('id', ponudaIds) : Promise.resolve({ data: [] }),
+        ponudaIds.length > 0 ? supabase.from('ponuda').select('id, kontaktosoba, naslovaoglasa').in('id', ponudaIds) : Promise.resolve({ data: [] }),
         traznjaIds.length > 0 ? supabase.from('traznja').select('id, kontaktosoba, kontakttelefon').in('id', traznjaIds) : Promise.resolve({ data: [] }),
         userIds.length > 0 ? supabase.from('korisnici').select('id, naziv, email').in('id', userIds) : Promise.resolve({ data: [] })
       ])
@@ -666,8 +666,8 @@ export default function PoziviModule() {
                           <span className="text-sm font-semibold text-gray-900 block">
                             {poziv.ponuda?.kontaktosoba || '-'}
                           </span>
-                          {poziv.ponuda?.kontakttelefon && (
-                            <span className="text-xs text-gray-500">{poziv.ponuda.kontakttelefon}</span>
+                          {poziv.ponuda?.naslovaoglasa && (
+                            <span className="text-xs text-gray-500 truncate max-w-[150px] block">{poziv.ponuda.naslovaoglasa}</span>
                           )}
                         </div>
                       </div>
