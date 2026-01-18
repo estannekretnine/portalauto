@@ -16,6 +16,7 @@ import TraznjaModule from './TraznjaModule'
 import PoziviModule from './PoziviModule'
 import WelcomeDashboard from './WelcomeDashboard'
 import EOPModule from './izvestaji/EOPModule'
+import EOKModule from './izvestaji/EOKModule'
 import { LogOut, Menu, Building2 } from 'lucide-react'
 
 export default function Dashboard() {
@@ -110,15 +111,7 @@ export default function Dashboard() {
             </div>
           )}
           {activeModule === 'izvestaj-eop' && <EOPModule />}
-          {activeModule === 'izvestaj-eok' && (
-            <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/20">
-                <span className="text-3xl">📈</span>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">EOK Izveštaj</h2>
-              <p className="text-gray-500">Evidencija o kupcima - modul u pripremi...</p>
-            </div>
-          )}
+          {activeModule === 'izvestaj-eok' && <EOKModule />}
           {activeModule === 'izvestaj-transakcije' && (
             <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
               <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/20">
