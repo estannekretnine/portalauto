@@ -7,10 +7,27 @@ export default function EOPModule() {
   const [godina, setGodina] = useState(new Date().getFullYear())
   const [podaci, setPodaci] = useState([])
   const [showReport, setShowReport] = useState(false)
+  const [firmaInfo, setFirmaInfo] = useState(null)
   const printRef = useRef()
 
   // Generiši listu godina (zadnjih 10)
   const godine = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i)
+
+  // Učitaj info o firmi pri mount-u
+  useEffect(() => {
+    const fetchInfo = async () => {
+      const { data, error } = await supabase
+        .from('info')
+        .select('*')
+        .limit(1)
+        .single()
+      
+      if (!error && data) {
+        setFirmaInfo(data)
+      }
+    }
+    fetchInfo()
+  }, [])
 
   const fetchData = async () => {
     setLoading(true)
@@ -254,21 +271,23 @@ export default function EOPModule() {
                 <div className="flex justify-between items-start mb-4">
                   <div className="info-left text-left">
                     <p className="text-sm text-gray-600"><strong>Podaci o posredniku:</strong></p>
-                    <p className="text-sm">GIGANT NEKRETNINE DDD</p>
-                    <p className="text-sm">Beograd, Krunska 38</p>
-                    <p className="text-sm">pib: 105363718</p>
+                    <p className="text-sm">{firmaInfo?.Nazivfirme || ''}</p>
+                    <p className="text-sm">{firmaInfo?.adresa || ''}</p>
+                    {firmaInfo?.pib && <p className="text-sm">PIB: {firmaInfo.pib}</p>}
                   </div>
                   <div className="text-center flex-1">
                     <h1 className="text-xl font-bold">EVIDENCIJA O POSREDOVANJU</h1>
                     <h2 className="text-lg font-semibold">U PROMETU I ZAKUPU NEPOKRETNOSTI</h2>
                     <p className="text-sm mt-2">
-                      matični broj: 20365471 &nbsp;&nbsp;&nbsp; PIB: 105363718 &nbsp;&nbsp;&nbsp; za <strong>{godina}</strong>. godinu
+                      {firmaInfo?.maticnibroj && <>matični broj: {firmaInfo.maticnibroj} &nbsp;&nbsp;&nbsp;</>}
+                      {firmaInfo?.pib && <>PIB: {firmaInfo.pib} &nbsp;&nbsp;&nbsp;</>}
+                      za <strong>{godina}</strong>. godinu
                     </p>
                   </div>
                   <div className="info-right text-right">
                     <p className="text-sm text-gray-600">Obrazac EOP</p>
                     <p className="text-sm mt-4">Upisan u Registar posrednika pod brojem:</p>
-                    <p className="text-sm">_______________________</p>
+                    <p className="text-sm">{firmaInfo?.brojuregistru || '_______________________'}</p>
                   </div>
                 </div>
                 <div className="text-right mt-4">
