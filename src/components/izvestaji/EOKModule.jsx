@@ -136,21 +136,18 @@ export default function EOKModule() {
       <head>
         <title>EOK Izveštaj ${godina}</title>
         <style>
-          @page { size: landscape; margin: 10mm; }
-          body { font-family: Arial, sans-serif; font-size: 9px; }
-          .header { text-align: center; margin-bottom: 15px; }
-          .header h1 { font-size: 14px; margin: 0; }
-          .header h2 { font-size: 12px; margin: 5px 0; }
-          .header p { margin: 3px 0; font-size: 10px; }
-          .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
-          .info-left { text-align: left; }
-          .info-right { text-align: right; }
-          table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-          th, td { border: 1px solid #000; padding: 4px; text-align: left; vertical-align: top; }
-          th { background-color: #f0f0f0; font-size: 8px; }
-          td { font-size: 8px; }
-          .signature { margin-top: 30px; text-align: right; }
-          .signature-line { width: 200px; border-top: 1px solid #000; margin-left: auto; padding-top: 5px; }
+          @page { size: landscape; margin: 5mm; }
+          body { font-family: Arial, sans-serif; font-size: 7px; }
+          .header { text-align: center; margin-bottom: 10px; }
+          .header h1 { font-size: 11px; margin: 0; }
+          .header h2 { font-size: 9px; margin: 3px 0; }
+          .header p { margin: 2px 0; font-size: 8px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+          th, td { border: 1px solid #000; padding: 2px; text-align: left; vertical-align: top; }
+          th { background-color: #f0f0f0; font-size: 6px; }
+          td { font-size: 6px; }
+          .signature { margin-top: 20px; text-align: right; }
+          .signature-line { width: 150px; border-top: 1px solid #000; margin-left: auto; padding-top: 3px; font-size: 8px; }
         </style>
       </head>
       <body>
@@ -178,47 +175,61 @@ export default function EOKModule() {
     return new Intl.NumberFormat('sr-RS').format(num)
   }
 
-  // Funkcija za određivanje tipa lica i vraćanje podataka za kolone 4, 5, 6
-  const getLiceData = (nalogodavac, isPonudaFormat) => {
-    const stsLice = isPonudaFormat ? nalogodavac?.sts_lice : nalogodavac?.stslice
-    const jmbg = isPonudaFormat ? nalogodavac?.jmbg : nalogodavac?.matbrojjmbg
-    const pib = nalogodavac?.pib
+  // Funkcija za formatiranje podataka o licu sa svim detaljima
+  const formatLiceData = (n, isPonudaFormat) => {
+    const podaci = []
     
-    // Kolona 4: Fizičko lice (ime, prezime, JMBG)
-    // Kolona 5: Pravno lice (naziv, PIB)
-    // Kolona 6: Preduzetnik (ime, prezime, PIB)
-    
-    let fizickoLice = ''
-    let pravnoLice = ''
-    let preduzetnik = ''
-    
-    const imePrezime = (nalogodavac?.ime || nalogodavac?.prezime) 
-      ? `${nalogodavac?.ime || ''} ${nalogodavac?.prezime || ''}`.trim() 
+    // Ime i prezime / Naziv
+    const imePrezime = (n?.ime || n?.prezime) 
+      ? `${n?.ime || ''} ${n?.prezime || ''}`.trim() 
       : ''
+    if (imePrezime) podaci.push(imePrezime)
     
-    if (stsLice === 'fizicko' || stsLice === 'fizičko' || stsLice === 'Fizičko lice' || (!stsLice && jmbg && !pib)) {
-      // Fizičko lice
-      fizickoLice = imePrezime
-      if (jmbg) fizickoLice += `, JMBG: ${jmbg}`
-      if (nalogodavac?.adresa) fizickoLice += `, ${nalogodavac.adresa}`
-    } else if (stsLice === 'pravno' || stsLice === 'Pravno lice' || (!stsLice && pib && !imePrezime)) {
-      // Pravno lice
-      pravnoLice = imePrezime || nalogodavac?.naziv || ''
-      if (pib) pravnoLice += `, PIB: ${pib}`
-      if (nalogodavac?.adresa) pravnoLice += `, ${nalogodavac.adresa}`
-    } else if (stsLice === 'preduzetnik' || stsLice === 'Preduzetnik' || (!stsLice && pib && imePrezime)) {
-      // Preduzetnik
-      preduzetnik = imePrezime
-      if (pib) preduzetnik += `, PIB: ${pib}`
-      if (nalogodavac?.adresa) preduzetnik += `, ${nalogodavac.adresa}`
+    // Adresa
+    if (n?.adresa) podaci.push(n.adresa)
+    
+    // JMBG/Matični broj
+    const jmbg = isPonudaFormat ? n?.jmbg : n?.matbrojjmbg
+    if (jmbg) podaci.push(`JMBG: ${jmbg}`)
+    
+    // PIB
+    if (n?.pib) podaci.push(`PIB: ${n.pib}`)
+    
+    // LK
+    const lk = isPonudaFormat ? n?.lk : n?.lk
+    if (lk) podaci.push(`LK: ${lk}, mup rs`)
+    
+    // Identifikaciona isprava
+    const identIsprava = isPonudaFormat ? n?.ident_isprava : n?.identisprava
+    if (identIsprava) podaci.push(`ID: ${identIsprava}`)
+    
+    // Datum rođenja
+    const datumRodjenja = isPonudaFormat ? n?.datum_rodjenja : n?.datumrodjenja
+    if (datumRodjenja) podaci.push(formatDate(datumRodjenja))
+    
+    // Mesto rođenja
+    const mestoRodjenja = isPonudaFormat ? n?.mesto_rodjenja : n?.mestorodjenja
+    if (mestoRodjenja) podaci.push(`ps ${mestoRodjenja}`)
+    
+    return podaci.join(', ')
+  }
+
+  // Funkcija za određivanje tipa lica
+  const getLiceType = (n, isPonudaFormat) => {
+    const stsLice = isPonudaFormat ? n?.sts_lice : n?.stslice
+    const jmbg = isPonudaFormat ? n?.jmbg : n?.matbrojjmbg
+    const pib = n?.pib
+    const imePrezime = (n?.ime || n?.prezime) ? `${n?.ime || ''} ${n?.prezime || ''}`.trim() : ''
+    
+    // Određivanje tipa na osnovu sts_lice ili podataka
+    if (stsLice === 'pravno' || stsLice === 'Pravno lice' || (!stsLice && pib && !imePrezime)) {
+      return 'pravno'
+    } else if (stsLice === 'preduzetnik' || stsLice === 'Preduzetnik') {
+      return 'preduzetnik'
     } else {
       // Default - fizičko lice
-      fizickoLice = imePrezime
-      if (jmbg) fizickoLice += `, JMBG: ${jmbg}`
-      if (nalogodavac?.adresa) fizickoLice += `, ${nalogodavac.adresa}`
+      return 'fizicko'
     }
-    
-    return { fizickoLice, pravnoLice, preduzetnik }
   }
 
   return (
@@ -231,7 +242,7 @@ export default function EOKModule() {
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-900">EOK Izveštaj</h2>
-            <p className="text-gray-500">Evidencija o kupcima/zakupcima nepokretnosti</p>
+            <p className="text-gray-500">Evidencija u skladu sa zakonom o SPN/FT o strankama, poslovnim odnosima i transakcijama</p>
           </div>
         </div>
 
@@ -297,104 +308,119 @@ export default function EOKModule() {
           ) : (
             <div ref={printRef}>
               {/* Zaglavlje izveštaja */}
-              <div className="header mb-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="info-left text-left">
-                    <p className="text-sm text-gray-600"><strong>Podaci o posredniku:</strong></p>
-                    <p className="text-sm">{firmaInfo?.Nazivfirme || ''}</p>
-                    <p className="text-sm">{firmaInfo?.adresa || ''}</p>
-                    {firmaInfo?.pib && <p className="text-sm">PIB: {firmaInfo.pib}</p>}
+              <div className="header mb-4">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="info-left text-left text-xs">
+                    <p><strong>Podaci o posredniku:</strong></p>
+                    <p>{firmaInfo?.Nazivfirme || ''}</p>
+                    <p>{firmaInfo?.adresa || ''}</p>
+                    {firmaInfo?.pib && <p>PIB: {firmaInfo.pib}</p>}
                   </div>
                   <div className="text-center flex-1">
-                    <h1 className="text-xl font-bold">EVIDENCIJA O KUPCIMA</h1>
-                    <h2 className="text-lg font-semibold">ODNOSNO ZAKUPCIMA NEPOKRETNOSTI</h2>
-                    <p className="text-sm mt-2">
+                    <h1 className="text-lg font-bold">EVIDENCIJA U SKLADU SA ZAKONOM O SPN/FT</h1>
+                    <h2 className="text-base font-semibold">O STRANKAMA, POSLOVNIM ODNOSIMA I TRANSAKCIJAMA</h2>
+                    <p className="text-xs mt-1">
                       {firmaInfo?.maticnibroj && <>matični broj: {firmaInfo.maticnibroj} &nbsp;&nbsp;&nbsp;</>}
-                      {firmaInfo?.pib && <>PIB: {firmaInfo.pib} &nbsp;&nbsp;&nbsp;</>}
                       za <strong>{godina}</strong>. godinu
                     </p>
                   </div>
-                  <div className="info-right text-right">
-                    <p className="text-sm text-gray-600">Obrazac EOK</p>
-                    <p className="text-sm mt-4">Upisan u Registar posrednika pod brojem:</p>
-                    <p className="text-sm">{firmaInfo?.brojuregistru || '_______________________'}</p>
+                  <div className="info-right text-right text-xs">
+                    <p>Upisan u Registar posrednika pod brojem:</p>
+                    <p>{firmaInfo?.brojuregistru || '_______________________'}</p>
                   </div>
-                </div>
-                <div className="text-right mt-4">
-                  <p className="text-sm">Potpis odgovornog lica</p>
                 </div>
               </div>
 
               {/* Tabela */}
-              <table className="w-full border-collapse text-xs">
+              <table className="w-full border-collapse text-[10px]">
                 <thead>
                   <tr className="bg-gray-100">
-                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">R.<br/>br</th>
-                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Datum<br/>unošenja u<br/>evidenciju</th>
-                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Broj<br/>ugovora</th>
-                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Fizičko lice<br/>(ime, prezime,<br/>JMBG, adresa)</th>
-                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Pravno lice<br/>(naziv, PIB,<br/>adresa)</th>
-                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Preduzetnik<br/>(ime, prezime,<br/>PIB, adresa)</th>
-                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Vrsta<br/>nepo-<br/>kretnosti</th>
-                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Površina<br/>nepo-<br/>kretnosti<br/>m²</th>
-                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Kupo-<br/>prodajna<br/>cena ili<br/>zakupnina<br/>EURO</th>
-                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Fakturisani<br/>iznos<br/>posredničke<br/>provizije<br/>RSD</th>
-                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Namena<br/>transakcije</th>
-                    <th className="border border-gray-300 px-2 py-2 text-center" rowSpan="2">Primedba</th>
+                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]">R.<br/>br</th>
+                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]">Datum<br/>uspostavljanja<br/>posl. odnosa</th>
+                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]">Broj<br/>ug.<br/>o posr.</th>
+                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]">Podaci o<br/>pravnom licu<br/>koje vrši<br/>transakciju<br/>(ime, adresa,<br/>MB, PIB)</th>
+                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]">Podaci o<br/>zastupniku<br/>ili punomoćniku<br/>PL ili drugog<br/>lica gradj.prava</th>
+                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]">Podaci o<br/>fizičkom licu<br/>ili punomoćniku<br/>koje vrši<br/>transakciju</th>
+                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]">Podaci o<br/>preduzetniku<br/>(poslovno ime,<br/>sedište,<br/>MB,PIB)</th>
+                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]">Svrha<br/>i namena<br/>poslovnog<br/>odnosa</th>
+                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]">Datum<br/>izvršenja<br/>transakcije</th>
+                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]">Iznos<br/>transakcije<br/>i valuta</th>
+                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]">Namena transakcije<br/>ime i prezime i prebivalište<br/>odnosno poslovno ime<br/>i sedište lica kome je<br/>namenjena</th>
+                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]">Način<br/>vršenja<br/>transakcije</th>
+                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]">Podaci<br/>info. o<br/>poreklu<br/>imovine</th>
+                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]">Razlozi za<br/>sumnju da<br/>se radi o<br/>pranju novca</th>
+                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]">Podaci<br/>o stvarnom<br/>vlasniku<br/>stranke</th>
+                    <th className="border border-gray-300 px-1 py-1 text-center text-[8px]">Naziv<br/>lica<br/>građanskog<br/>prava</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="bg-gray-50 text-center text-[10px]">
-                    <td className="border border-gray-300 px-1 py-1">1</td>
-                    <td className="border border-gray-300 px-1 py-1">2</td>
-                    <td className="border border-gray-300 px-1 py-1">3</td>
-                    <td className="border border-gray-300 px-1 py-1">4</td>
-                    <td className="border border-gray-300 px-1 py-1">5</td>
-                    <td className="border border-gray-300 px-1 py-1">6</td>
-                    <td className="border border-gray-300 px-1 py-1">7</td>
-                    <td className="border border-gray-300 px-1 py-1">8</td>
-                    <td className="border border-gray-300 px-1 py-1">9</td>
-                    <td className="border border-gray-300 px-1 py-1">10</td>
-                    <td className="border border-gray-300 px-1 py-1">11</td>
-                    <td className="border border-gray-300 px-1 py-1">12</td>
+                  <tr className="bg-gray-50 text-center text-[8px]">
+                    <td className="border border-gray-300 px-1 py-0.5">1</td>
+                    <td className="border border-gray-300 px-1 py-0.5">2</td>
+                    <td className="border border-gray-300 px-1 py-0.5">3</td>
+                    <td className="border border-gray-300 px-1 py-0.5">4</td>
+                    <td className="border border-gray-300 px-1 py-0.5">5</td>
+                    <td className="border border-gray-300 px-1 py-0.5">6</td>
+                    <td className="border border-gray-300 px-1 py-0.5">7</td>
+                    <td className="border border-gray-300 px-1 py-0.5">8</td>
+                    <td className="border border-gray-300 px-1 py-0.5">9</td>
+                    <td className="border border-gray-300 px-1 py-0.5">10</td>
+                    <td className="border border-gray-300 px-1 py-0.5">11</td>
+                    <td className="border border-gray-300 px-1 py-0.5">12</td>
+                    <td className="border border-gray-300 px-1 py-0.5">13</td>
+                    <td className="border border-gray-300 px-1 py-0.5">14</td>
+                    <td className="border border-gray-300 px-1 py-0.5">15</td>
+                    <td className="border border-gray-300 px-1 py-0.5">16</td>
                   </tr>
                   {podaci.map((item, index) => {
                     const isPonuda = item.tip === 'ponuda'
                     const eop = item.metapodaci?.eop || {}
                     const realizacija = item.metapodaci?.realizacija || {}
+                    const zastupnik = item.metapodaci?.zastupnik || {}
                     
                     // Datum ugovora
                     const datumUgovora = isPonuda ? eop.datum_ugovora : eop.datumugovora
                     
-                    // Kolona 2: Datum unošenja = datum ugovora
-                    const datumUnosenja = datumUgovora
-
                     // Uzmi nalogodavce
                     const nalogodavci = isPonuda 
                       ? (item.metapodaci?.vlasnici || [])
                       : (item.metapodaci?.nalogodavci || [])
                     
-                    // Agregiraj podatke za kolone 4, 5, 6
-                    let allFizicko = []
-                    let allPravno = []
-                    let allPreduzetnik = []
+                    // Kolone 4, 6, 7 - u zavisnosti od tipa lica
+                    let pravnaLica = []
+                    let fizickaLica = []
+                    let preduzetnici = []
                     
                     nalogodavci.forEach((n, i) => {
-                      const { fizickoLice, pravnoLice, preduzetnik } = getLiceData(n, isPonuda)
-                      if (fizickoLice) allFizicko.push(`${i + 1}. ${fizickoLice}`)
-                      if (pravnoLice) allPravno.push(`${i + 1}. ${pravnoLice}`)
-                      if (preduzetnik) allPreduzetnik.push(`${i + 1}. ${preduzetnik}`)
+                      const tipLica = getLiceType(n, isPonuda)
+                      const podaciLica = formatLiceData(n, isPonuda)
+                      
+                      if (tipLica === 'pravno') {
+                        pravnaLica.push(`${podaciLica}`)
+                      } else if (tipLica === 'preduzetnik') {
+                        preduzetnici.push(`${podaciLica}`)
+                      } else {
+                        fizickaLica.push(`Ovlasnik: ${podaciLica}`)
+                      }
                     })
 
-                    // Vrsta nepokretnosti
-                    const vrstaObjekta = isPonuda 
-                      ? item.vrstaobjekta?.opis 
-                      : realizacija.vrstaobjekta || ''
+                    // Kolona 5 - Zastupnik
+                    let zastupnikPodaci = ''
+                    if (zastupnik?.ime || zastupnik?.prezime) {
+                      zastupnikPodaci = formatLiceData(zastupnik, isPonuda)
+                    }
 
-                    // Površina
-                    const povrsina = isPonuda ? item.kvadratura : (realizacija.povrsina || item.kvadraturado)
+                    // Svrha i namena poslovnog odnosa (kolona 8)
+                    const svrha = isPonuda 
+                      ? (item.stsrentaprodaja === 'prodaja' ? 'prodaja' : 'zakup')
+                      : (item.stskupaczakupac === 'kupac' ? 'kupovina' : 'zakup')
 
-                    // Cena
+                    // Datum izvršenja transakcije (kolona 9)
+                    const datumIzvrsenja = isPonuda 
+                      ? realizacija.datum_zakljucenja 
+                      : realizacija.datumzakljucenja
+
+                    // Iznos transakcije (kolona 10)
                     const cena = isPonuda 
                       ? (realizacija.kupoprodajna_cena || item.cena)
                       : (realizacija.kupoprodajnacena || item.cenado)
@@ -404,48 +430,77 @@ export default function EOKModule() {
                       ? realizacija.namena_transakcije 
                       : realizacija.namenatransakcije
 
+                    // Kolona 12: Način vršenja transakcije
+                    const nacinVrsenja = realizacija.zakljucen ? 'kupovina' : ''
+
+                    // Kolona 13: Poreklo imovine
+                    const porekloImovine = nalogodavci.length > 0 
+                      ? (isPonuda ? nalogodavci[0]?.poreklo_imovine : nalogodavci[0]?.porekloimovine)
+                      : ''
+
+                    // Kolona 14: Sumnja na pranje novca
+                    const sumnjaPranjeNovca = nalogodavci.some(n => 
+                      isPonuda ? n?.sumnja_pranje_novca : n?.sumnjapranjenovca
+                    ) ? 'postoji sumnja' : 'ne postoji sumnja'
+
+                    // Kolona 15: Stvarni vlasnik stranke
+                    const stvarniVlasnik = nalogodavci.some(n => n?.stvarnivlasnikstranke) 
+                      ? 'nasledjivanje' 
+                      : ''
+
                     return (
                       <tr key={`${item.tip}-${item.id}`} className={`hover:bg-gray-50 ${!isPonuda ? 'bg-purple-50/30' : ''}`}>
-                        <td className="border border-gray-300 px-2 py-2 text-center">{index + 1}</td>
-                        <td className="border border-gray-300 px-2 py-2">{formatDate(datumUnosenja)}</td>
-                        <td className="border border-gray-300 px-2 py-2">{item.id}</td>
-                        {/* Kolona 4: Fizičko lice */}
-                        <td className="border border-gray-300 px-2 py-2 text-xs">
-                          {allFizicko.map((f, i) => (
-                            <div key={i} className={i > 0 ? 'mt-2 pt-2 border-t border-gray-200' : ''}>
-                              {f}
-                            </div>
-                          ))}
-                        </td>
-                        {/* Kolona 5: Pravno lice */}
-                        <td className="border border-gray-300 px-2 py-2 text-xs">
-                          {allPravno.map((p, i) => (
-                            <div key={i} className={i > 0 ? 'mt-2 pt-2 border-t border-gray-200' : ''}>
+                        <td className="border border-gray-300 px-1 py-1 text-center text-[9px]">{index + 1}</td>
+                        {/* Kolona 2: Datum uspostavljanja */}
+                        <td className="border border-gray-300 px-1 py-1 text-[9px]">{formatDate(datumUgovora)}</td>
+                        {/* Kolona 3: Broj ugovora */}
+                        <td className="border border-gray-300 px-1 py-1 text-[9px]">{item.id}</td>
+                        {/* Kolona 4: Pravno lice */}
+                        <td className="border border-gray-300 px-1 py-1 text-[9px]">
+                          {pravnaLica.map((p, i) => (
+                            <div key={i} className={i > 0 ? 'mt-1 pt-1 border-t border-gray-200' : ''}>
                               {p}
                             </div>
                           ))}
                         </td>
-                        {/* Kolona 6: Preduzetnik */}
-                        <td className="border border-gray-300 px-2 py-2 text-xs">
-                          {allPreduzetnik.map((pr, i) => (
-                            <div key={i} className={i > 0 ? 'mt-2 pt-2 border-t border-gray-200' : ''}>
+                        {/* Kolona 5: Zastupnik */}
+                        <td className="border border-gray-300 px-1 py-1 text-[9px]">{zastupnikPodaci}</td>
+                        {/* Kolona 6: Fizičko lice */}
+                        <td className="border border-gray-300 px-1 py-1 text-[9px]">
+                          {fizickaLica.map((f, i) => (
+                            <div key={i} className={i > 0 ? 'mt-1 pt-1 border-t border-gray-200' : ''}>
+                              {f}
+                            </div>
+                          ))}
+                        </td>
+                        {/* Kolona 7: Preduzetnik */}
+                        <td className="border border-gray-300 px-1 py-1 text-[9px]">
+                          {preduzetnici.map((pr, i) => (
+                            <div key={i} className={i > 0 ? 'mt-1 pt-1 border-t border-gray-200' : ''}>
                               {pr}
                             </div>
                           ))}
                         </td>
-                        <td className="border border-gray-300 px-2 py-2">{vrstaObjekta}</td>
-                        <td className="border border-gray-300 px-2 py-2 text-right">
-                          {povrsina ? `${formatNumber(povrsina)}` : ''}
-                        </td>
-                        <td className="border border-gray-300 px-2 py-2 text-right">
-                          {cena ? formatNumber(cena) : ''}
-                        </td>
-                        <td className="border border-gray-300 px-2 py-2 text-right">
-                          {realizacija.provizija ? formatNumber(realizacija.provizija) : ''}
+                        {/* Kolona 8: Svrha i namena */}
+                        <td className="border border-gray-300 px-1 py-1 text-[9px]">{svrha}</td>
+                        {/* Kolona 9: Datum izvršenja */}
+                        <td className="border border-gray-300 px-1 py-1 text-[9px]">{formatDate(datumIzvrsenja)}</td>
+                        {/* Kolona 10: Iznos transakcije */}
+                        <td className="border border-gray-300 px-1 py-1 text-[9px]">
+                          {cena ? `${formatNumber(cena)} E` : ''}
                         </td>
                         {/* Kolona 11: Namena transakcije */}
-                        <td className="border border-gray-300 px-2 py-2 text-xs">{namenaTransakcije || ''}</td>
-                        <td className="border border-gray-300 px-2 py-2 text-xs">{realizacija.primedba || ''}</td>
+                        <td className="border border-gray-300 px-1 py-1 text-[9px]">{namenaTransakcije || ''}</td>
+                        {/* Kolona 12: Način vršenja */}
+                        <td className="border border-gray-300 px-1 py-1 text-[9px]">{nacinVrsenja}</td>
+                        {/* Kolona 13: Poreklo imovine */}
+                        <td className="border border-gray-300 px-1 py-1 text-[9px]">{porekloImovine || ''}</td>
+                        {/* Kolona 14: Sumnja pranje novca */}
+                        <td className="border border-gray-300 px-1 py-1 text-[9px]">{sumnjaPranjeNovca}</td>
+                        {/* Kolona 15: Stvarni vlasnik */}
+                        <td className="border border-gray-300 px-1 py-1 text-[9px]">{stvarniVlasnik}</td>
+                        {/* Kolona 16: Naziv lica građanskog prava */}
+                        <td className="border border-gray-300 px-1 py-1 text-[9px]"></td>
                       </tr>
                     )
                   })}
@@ -453,8 +508,8 @@ export default function EOKModule() {
               </table>
 
               {/* Potpis */}
-              <div className="signature mt-8 text-right">
-                <div className="signature-line inline-block w-48 border-t border-gray-400 pt-2 text-sm">
+              <div className="signature mt-6 text-right">
+                <div className="signature-line inline-block w-40 border-t border-gray-400 pt-2 text-xs">
                   Potpis odgovornog lica
                 </div>
               </div>
