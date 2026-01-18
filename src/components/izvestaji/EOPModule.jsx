@@ -338,24 +338,45 @@ export default function EOPModule() {
                     // Kolona 2: Datum unošenja u evidenciju = datum ugovora (kolona 4)
                     const datumUnosenja = datumUgovora
 
-                    // Kolona 5: Nalogodavac - ako nema realizacije, uzmi podatke iz prodavca/zastupnika
+                    // Kolona 5: Nalogodavci - prikaži sve nalogodavce u formatu "1. podaci, 2. podaci..."
                     let nalogodavac = ''
                     if (isPonuda) {
-                      // Za ponudu: ako nema realizacije, uzmi iz zastupnika (prodavac)
-                      if (realizacija.zakljucen) {
-                        nalogodavac = zastupnik.ime && zastupnik.prezime 
-                          ? `${item.tipOsobe}: ${zastupnik.ime} ${zastupnik.prezime}${zastupnik.adresa ? `, ${zastupnik.adresa}` : ''}`
-                          : `${item.tipOsobe} ID: ${item.id}`
-                      } else {
-                        // Nema realizacije - uzmi iz prodavca (zastupnik)
-                        nalogodavac = zastupnik.ime && zastupnik.prezime 
-                          ? `${item.tipOsobe}: ${zastupnik.ime} ${zastupnik.prezime}${zastupnik.adresa ? `, ${zastupnik.adresa}` : ''}`
-                          : `${item.tipOsobe} ID: ${item.id}`
+                      // Za ponudu: uzmi iz vlasnici niza
+                      const vlasnici = item.metapodaci?.vlasnici || []
+                      if (vlasnici.length > 0) {
+                        nalogodavac = vlasnici
+                          .map((v, i) => {
+                            const imePrezime = (v.ime && v.prezime) ? `${v.ime} ${v.prezime}` : ''
+                            const adresa = v.adresa || ''
+                            const podaci = [imePrezime, adresa].filter(Boolean).join(', ')
+                            return podaci ? `${i + 1}. ${podaci}` : null
+                          })
+                          .filter(Boolean)
+                          .join('; ')
+                      }
+                      if (!nalogodavac) {
+                        nalogodavac = `${item.tipOsobe} ID: ${item.id}`
                       }
                     } else {
-                      nalogodavac = item.kontaktosoba 
-                        ? `${item.tipOsobe}: ${item.kontaktosoba}${item.kontakttelefon ? `, tel: ${item.kontakttelefon}` : ''}`
-                        : `${item.tipOsobe} ID: ${item.id}`
+                      // Za tražnju: uzmi iz nalogodavci niza
+                      const nalogodavci = item.metapodaci?.nalogodavci || []
+                      if (nalogodavci.length > 0) {
+                        nalogodavac = nalogodavci
+                          .map((n, i) => {
+                            const imePrezime = (n.ime && n.prezime) ? `${n.ime} ${n.prezime}` : ''
+                            const adresa = n.adresa || ''
+                            const podaci = [imePrezime, adresa].filter(Boolean).join(', ')
+                            return podaci ? `${i + 1}. ${podaci}` : null
+                          })
+                          .filter(Boolean)
+                          .join('; ')
+                      }
+                      if (!nalogodavac) {
+                        // Fallback na kontaktosoba ako nema nalogodavaca
+                        nalogodavac = item.kontaktosoba 
+                          ? `${item.tipOsobe}: ${item.kontaktosoba}${item.kontakttelefon ? `, tel: ${item.kontakttelefon}` : ''}`
+                          : `${item.tipOsobe} ID: ${item.id}`
+                      }
                     }
 
                     // Vrsta nepokretnosti
