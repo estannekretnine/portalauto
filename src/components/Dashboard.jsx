@@ -17,6 +17,7 @@ import PoziviModule from './PoziviModule'
 import WelcomeDashboard from './WelcomeDashboard'
 import EOPModule from './izvestaji/EOPModule'
 import EOKModule from './izvestaji/EOKModule'
+import TransakcijeModule from './izvestaji/TransakcijeModule'
 import { LogOut, Menu, Building2 } from 'lucide-react'
 
 export default function Dashboard() {
@@ -112,7 +113,8 @@ export default function Dashboard() {
           )}
           {activeModule === 'izvestaj-eop' && <EOPModule />}
           {activeModule === 'izvestaj-eok' && <EOKModule />}
-          {activeModule === 'izvestaj-transakcije' && (
+          {activeModule === 'izvestaj-transakcije' && <TransakcijeModule />}
+          {activeModule === 'izvestaj-transakcije-placeholder' && (
             <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
               <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/20">
                 <span className="text-3xl">💰</span>
