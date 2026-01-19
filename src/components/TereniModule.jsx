@@ -50,7 +50,7 @@ export default function TereniModule() {
           *,
           ponuda:idponude(id, cena, kvadratura, stsrentaprodaja, metapodaci, vrstaobjekta:idvrstaobjekta(opis), opstina:idopstina(opis)),
           traznja:idtraznja(id, kontaktosoba, stskupaczakupac, metapodaci),
-          korisnik:iduser(ime, prezime)
+          korisnik:iduser(id, naziv, email)
         `)
         .order('datumkreiranja', { ascending: false })
 
