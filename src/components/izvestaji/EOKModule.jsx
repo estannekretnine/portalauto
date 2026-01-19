@@ -136,18 +136,18 @@ export default function EOKModule() {
       <head>
         <title>EOK Izveštaj ${godina}</title>
         <style>
-          @page { size: landscape; margin: 5mm; }
-          body { font-family: Arial, sans-serif; font-size: 7px; }
-          .header { text-align: center; margin-bottom: 10px; }
-          .header h1 { font-size: 11px; margin: 0; }
-          .header h2 { font-size: 9px; margin: 3px 0; }
-          .header p { margin: 2px 0; font-size: 8px; }
-          table { width: 100%; border-collapse: collapse; margin-top: 5px; }
-          th, td { border: 1px solid #000; padding: 2px; text-align: left; vertical-align: top; }
-          th { background-color: #f0f0f0; font-size: 6px; }
-          td { font-size: 6px; }
-          .signature { margin-top: 20px; text-align: right; }
-          .signature-line { width: 150px; border-top: 1px solid #000; margin-left: auto; padding-top: 3px; font-size: 8px; }
+          @page { size: landscape; margin: 10mm; }
+          body { font-family: Arial, sans-serif; font-size: 9px; }
+          .header { text-align: center; margin-bottom: 15px; }
+          .header h1 { font-size: 14px; margin: 0; }
+          .header h2 { font-size: 12px; margin: 5px 0; }
+          .header p { margin: 3px 0; font-size: 10px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+          th, td { border: 1px solid #000; padding: 4px; text-align: left; vertical-align: top; }
+          th { background-color: #f0f0f0; font-size: 8px; }
+          td { font-size: 8px; }
+          .signature { margin-top: 30px; text-align: right; }
+          .signature-line { width: 200px; border-top: 1px solid #000; margin-left: auto; padding-top: 5px; }
         </style>
       </head>
       <body>
@@ -308,26 +308,29 @@ export default function EOKModule() {
           ) : (
             <div ref={printRef}>
               {/* Zaglavlje izveštaja */}
-              <div className="header mb-4">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="info-left text-left text-xs">
-                    <p><strong>Podaci o posredniku:</strong></p>
-                    <p>{firmaInfo?.Nazivfirme || ''}</p>
-                    <p>{firmaInfo?.adresa || ''}</p>
-                    {firmaInfo?.pib && <p>PIB: {firmaInfo.pib}</p>}
+              <div className="header mb-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="info-left text-left">
+                    <p className="text-sm text-gray-600"><strong>Podaci o posredniku:</strong></p>
+                    <p className="text-sm">{firmaInfo?.Nazivfirme || ''}</p>
+                    <p className="text-sm">{firmaInfo?.adresa || ''}</p>
+                    {firmaInfo?.pib && <p className="text-sm">PIB: {firmaInfo.pib}</p>}
                   </div>
                   <div className="text-center flex-1">
-                    <h1 className="text-lg font-bold">EVIDENCIJA U SKLADU SA ZAKONOM O SPN/FT</h1>
-                    <h2 className="text-base font-semibold">O STRANKAMA, POSLOVNIM ODNOSIMA I TRANSAKCIJAMA</h2>
-                    <p className="text-xs mt-1">
+                    <h1 className="text-xl font-bold">EVIDENCIJA U SKLADU SA ZAKONOM O SPN/FT</h1>
+                    <h2 className="text-lg font-semibold">O STRANKAMA, POSLOVNIM ODNOSIMA I TRANSAKCIJAMA</h2>
+                    <p className="text-sm mt-2">
                       {firmaInfo?.maticnibroj && <>matični broj: {firmaInfo.maticnibroj} &nbsp;&nbsp;&nbsp;</>}
                       za <strong>{godina}</strong>. godinu
                     </p>
                   </div>
-                  <div className="info-right text-right text-xs">
-                    <p>Upisan u Registar posrednika pod brojem:</p>
-                    <p>{firmaInfo?.brojuregistru || '_______________________'}</p>
+                  <div className="info-right text-right">
+                    <p className="text-sm text-gray-600">Upisan u Registar posrednika pod brojem:</p>
+                    <p className="text-sm">{firmaInfo?.brojuregistru || '_______________________'}</p>
                   </div>
+                </div>
+                <div className="text-right mt-4">
+                  <p className="text-sm">Potpis odgovornog lica</p>
                 </div>
               </div>
 
