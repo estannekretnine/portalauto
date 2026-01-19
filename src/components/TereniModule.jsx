@@ -226,21 +226,24 @@ export default function TereniModule() {
     }
   }
 
-  // Obriši teren
+  // Arhiviraj teren (soft delete)
   const handleDelete = async (id) => {
-    if (!confirm('Da li ste sigurni da želite da obrišete ovaj teren?')) return
+    if (!confirm('Da li ste sigurni da želite da arhivirate ovaj teren?')) return
 
     try {
       const { error } = await supabase
         .from('tereni')
-        .delete()
+        .update({ 
+          arhiviran: true,
+          datumpromene: new Date().toISOString()
+        })
         .eq('id', id)
 
       if (error) throw error
       fetchData()
     } catch (error) {
-      console.error('Greška pri brisanju:', error)
-      alert('Greška pri brisanju: ' + error.message)
+      console.error('Greška pri arhiviranju:', error)
+      alert('Greška pri arhiviranju: ' + error.message)
     }
   }
 
