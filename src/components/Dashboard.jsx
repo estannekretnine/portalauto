@@ -18,6 +18,7 @@ import WelcomeDashboard from './WelcomeDashboard'
 import EOPModule from './izvestaji/EOPModule'
 import EOKModule from './izvestaji/EOKModule'
 import TransakcijeModule from './izvestaji/TransakcijeModule'
+import TereniModule from './TereniModule'
 import { LogOut, Menu, Building2 } from 'lucide-react'
 
 export default function Dashboard() {
@@ -102,15 +103,7 @@ export default function Dashboard() {
           {activeModule === 'ponude' && <PonudeModule />}
           {activeModule === 'traznja' && <TraznjaModule />}
           {activeModule === 'pozivi' && <PoziviModule />}
-          {activeModule === 'tereni' && (
-            <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/20">
-                <span className="text-3xl">🗺️</span>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Tereni</h2>
-              <p className="text-gray-500">Modul u pripremi...</p>
-            </div>
-          )}
+          {activeModule === 'tereni' && <TereniModule />}
           {activeModule === 'izvestaj-eop' && <EOPModule />}
           {activeModule === 'izvestaj-eok' && <EOKModule />}
           {activeModule === 'izvestaj-transakcije' && <TransakcijeModule />}
