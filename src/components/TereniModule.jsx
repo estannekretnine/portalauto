@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../utils/supabase'
-import { Map, Plus, Search, Edit2, Trash2, X, Save, Loader2, Calendar, User, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react'
+import { Map, Plus, Search, Edit2, Trash2, X, Save, Loader2, Calendar, User, MessageSquare, ChevronDown, ChevronUp, ArchiveRestore } from 'lucide-react'
 
 export default function TereniModule() {
   const [tereni, setTereni] = useState([])
@@ -8,6 +8,7 @@ export default function TereniModule() {
   const [traznje, setTraznje] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const [filterArhiviran, setFilterArhiviran] = useState(null) // null = svi, false = aktivni, true = arhivirani
   const [showForm, setShowForm] = useState(false)
   const [editingTeren, setEditingTeren] = useState(null)
   const [saving, setSaving] = useState(false)
@@ -243,6 +244,27 @@ export default function TereniModule() {
     }
   }
 
+  // Vrati teren u aktuelne (dearhiviraj)
+  const handleVratiAktuelne = async (id) => {
+    if (!confirm('Da li želite da vratite ovaj teren u aktuelne?')) return
+
+    try {
+      const { error } = await supabase
+        .from('tereni')
+        .update({ 
+          arhiviran: false,
+          datumpromene: new Date().toISOString()
+        })
+        .eq('id', id)
+
+      if (error) throw error
+      fetchData()
+    } catch (error) {
+      console.error('Greška pri vraćanju terena:', error)
+      alert('Greška pri vraćanju terena: ' + error.message)
+    }
+  }
+
   // Handler za promenu detalja tražnje
   const handleDetaljiChange = (field, value) => {
     setFormData(prev => ({
@@ -256,6 +278,14 @@ export default function TereniModule() {
 
   // Filtriraj terene
   const filteredTereni = tereni.filter(t => {
+    // Filter po arhiviranom statusu
+    if (filterArhiviran !== null) {
+      const isArhiviran = t.arhiviran === true
+      if (filterArhiviran === true && !isArhiviran) return false
+      if (filterArhiviran === false && isArhiviran) return false
+    }
+
+    // Filter po pretrazi
     const searchLower = searchTerm.toLowerCase()
     const kupac = getKupacIme(t.traznja).toLowerCase()
     const prodavac = getProdavacIme(t.ponuda).toLowerCase()
@@ -302,6 +332,42 @@ export default function TereniModule() {
               />
             </div>
 
+            {/* Filter za aktivnost */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setFilterArhiviran(null)}
+                className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  filterArhiviran === null
+                    ? 'bg-gray-900 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                Svi
+              </button>
+              <button
+                onClick={() => setFilterArhiviran(false)}
+                className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${
+                  filterArhiviran === false
+                    ? 'bg-emerald-100 text-emerald-700 border border-emerald-300'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                <span className={`w-2 h-2 rounded-full ${filterArhiviran === false ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
+                Aktivni
+              </button>
+              <button
+                onClick={() => setFilterArhiviran(true)}
+                className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${
+                  filterArhiviran === true
+                    ? 'bg-gray-300 text-gray-700 border border-gray-400'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                <span className={`w-2 h-2 rounded-full ${filterArhiviran === true ? 'bg-gray-500' : 'bg-gray-400'}`}></span>
+                Arhivirani
+              </button>
+            </div>
+
             {/* Dugme za dodavanje */}
             <button
               onClick={handleAdd}
@@ -338,7 +404,7 @@ export default function TereniModule() {
               ) : (
                 filteredTereni.map((teren) => (
                   <>
-                    <tr key={teren.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={teren.id} className={`hover:bg-gray-50 transition-colors ${teren.arhiviran ? 'opacity-60' : ''}`}>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-gray-400" />
@@ -381,6 +447,15 @@ export default function TereniModule() {
                           >
                             {expandedRow === teren.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                           </button>
+                          {teren.arhiviran && (
+                            <button
+                              onClick={() => handleVratiAktuelne(teren.id)}
+                              className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                              title="Vrati u aktuelne"
+                            >
+                              <ArchiveRestore className="w-4 h-4" />
+                            </button>
+                          )}
                           <button
                             onClick={() => handleEdit(teren)}
                             className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
