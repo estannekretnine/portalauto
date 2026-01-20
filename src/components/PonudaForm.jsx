@@ -3186,29 +3186,30 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          {/* Dugme za analizu rizika */}
+                          {/* Dugme za analizu rizika - UOČLJIVO */}
                           <button
                             type="button"
                             onClick={() => openRizikModal(index)}
-                            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm ${
                               vlasnik.analiza_rizika?.ukupna_ocena?.finalna
-                                ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
-                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                ? vlasnik.analiza_rizika.ukupna_ocena.finalna === 'nizak' 
+                                  ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-green-500/25'
+                                  : vlasnik.analiza_rizika.ukupna_ocena.finalna === 'srednji'
+                                  ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white hover:from-yellow-600 hover:to-yellow-700 shadow-yellow-500/25'
+                                  : vlasnik.analiza_rizika.ukupna_ocena.finalna === 'visok'
+                                  ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 shadow-orange-500/25'
+                                  : 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-red-500/25'
+                                : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 shadow-indigo-500/25'
                             }`}
-                            title="Analiza rizika"
+                            title="Analiza rizika stranke"
                           >
                             <Shield className="w-4 h-4" />
-                            <span className="hidden sm:inline">Rizik</span>
+                            <span>Analiza rizika</span>
                             {vlasnik.analiza_rizika?.ukupna_ocena?.finalna && (
-                              <span className={`ml-1 px-1.5 py-0.5 rounded text-xs font-bold ${
-                                vlasnik.analiza_rizika.ukupna_ocena.finalna === 'nizak' ? 'bg-green-200 text-green-800' :
-                                vlasnik.analiza_rizika.ukupna_ocena.finalna === 'srednji' ? 'bg-yellow-200 text-yellow-800' :
-                                vlasnik.analiza_rizika.ukupna_ocena.finalna === 'visok' ? 'bg-orange-200 text-orange-800' :
-                                'bg-red-200 text-red-800'
-                              }`}>
-                                {vlasnik.analiza_rizika.ukupna_ocena.finalna === 'nizak' ? 'N' :
-                                 vlasnik.analiza_rizika.ukupna_ocena.finalna === 'srednji' ? 'S' :
-                                 vlasnik.analiza_rizika.ukupna_ocena.finalna === 'visok' ? 'V' : '!'}
+                              <span className="ml-1 px-2 py-0.5 rounded-md text-xs font-bold bg-white/20">
+                                {vlasnik.analiza_rizika.ukupna_ocena.finalna === 'nizak' ? 'NIZAK' :
+                                 vlasnik.analiza_rizika.ukupna_ocena.finalna === 'srednji' ? 'SREDNJI' :
+                                 vlasnik.analiza_rizika.ukupna_ocena.finalna === 'visok' ? 'VISOK' : 'NEPRIHV.'}
                               </span>
                             )}
                           </button>
@@ -3217,7 +3218,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                             <button
                               type="button"
                               onClick={() => openRizikModal(index)}
-                              className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                              className="p-2.5 text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors"
                               title="Štampaj analizu rizika"
                             >
                               <Printer className="w-4 h-4" />

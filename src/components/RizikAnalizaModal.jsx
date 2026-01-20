@@ -251,6 +251,21 @@ export default function RizikAnalizaModal({ vlasnik, vlasnikIndex, onSave, onClo
     onClose()
   }
 
+  // Helper za dobijanje vrednosti polja (podržava oba formata - vlasnik i nalogodavac)
+  const getField = (field) => {
+    // Mapiranje polja između vlasnik i nalogodavac strukture
+    const fieldMap = {
+      jmbg: vlasnik.jmbg || vlasnik.matbrojjmbg || '',
+      tel: vlasnik.tel || vlasnik.brojtel || '',
+      lk: vlasnik.lk || '',
+      pib: vlasnik.pib || '',
+      ime: vlasnik.ime || '',
+      prezime: vlasnik.prezime || '',
+      adresa: vlasnik.adresa || ''
+    }
+    return fieldMap[field] || vlasnik[field] || ''
+  }
+
   // Broji označene indikatore
   const countMarked = (kategorija) => {
     const data = analizaRizika[kategorija]
@@ -295,7 +310,7 @@ export default function RizikAnalizaModal({ vlasnik, vlasnikIndex, onSave, onClo
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Analiza rizika stranke - ${vlasnik.ime || ''} ${vlasnik.prezime || ''}</title>
+        <title>Analiza rizika stranke - ${getField('ime')} ${getField('prezime')}</title>
         <style>
           @page { size: portrait; margin: 10mm; }
           body { font-family: Arial, sans-serif; font-size: 9px; line-height: 1.3; }
@@ -345,11 +360,11 @@ export default function RizikAnalizaModal({ vlasnik, vlasnikIndex, onSave, onClo
         <div class="info-section">
           <div class="info-box">
             <h3>NAZIV STRANKE</h3>
-            <div class="info-row"><span class="info-label">Ime i prezime:</span> ${vlasnik.ime || ''} ${vlasnik.prezime || ''}</div>
-            <div class="info-row"><span class="info-label">JMBG:</span> ${vlasnik.jmbg || '-'}</div>
-            <div class="info-row"><span class="info-label">Br. LK ili pasoša:</span> ${vlasnik.lk || '-'}</div>
-            <div class="info-row"><span class="info-label">PIB/MB:</span> ${vlasnik.pib || '-'}</div>
-            <div class="info-row"><span class="info-label">Adresa:</span> ${vlasnik.adresa || '-'}</div>
+            <div class="info-row"><span class="info-label">Ime i prezime:</span> ${getField('ime')} ${getField('prezime')}</div>
+            <div class="info-row"><span class="info-label">JMBG:</span> ${getField('jmbg') || '-'}</div>
+            <div class="info-row"><span class="info-label">Br. LK ili pasoša:</span> ${getField('lk') || '-'}</div>
+            <div class="info-row"><span class="info-label">PIB/MB:</span> ${getField('pib') || '-'}</div>
+            <div class="info-row"><span class="info-label">Adresa:</span> ${getField('adresa') || '-'}</div>
           </div>
           <div class="info-box">
             <h3>Vrsta poslovnog odnosa/stranke</h3>
@@ -582,8 +597,8 @@ export default function RizikAnalizaModal({ vlasnik, vlasnikIndex, onSave, onClo
             <div>
               <h3 className="text-lg font-bold text-white">Analiza rizika stranke</h3>
               <p className="text-slate-400 text-xs">
-                {vlasnik.ime || 'Nepoznato'} {vlasnik.prezime || ''} 
-                {vlasnik.jmbg && ` | JMBG: ${vlasnik.jmbg}`}
+                {getField('ime') || 'Nepoznato'} {getField('prezime')} 
+                {getField('jmbg') && ` | JMBG: ${getField('jmbg')}`}
               </p>
             </div>
           </div>

@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../utils/supabase'
 import { getCurrentUser } from '../utils/auth'
-import { Save, X, Building2, MapPin, DollarSign, Ruler, Info, Search, ChevronDown, Users, FileText, Receipt, UserCheck, Brain, Plus, Trash2, Phone, Calendar, Home, Euro } from 'lucide-react'
+import { Save, X, Building2, MapPin, DollarSign, Ruler, Info, Search, ChevronDown, Users, FileText, Receipt, UserCheck, Brain, Plus, Trash2, Phone, Calendar, Home, Euro, Shield, Printer } from 'lucide-react'
+import RizikAnalizaModal, { getInitialAnalizaRizika } from './RizikAnalizaModal'
 
 export default function TraznjaForm({ traznja, onClose, onSuccess }) {
   const currentUser = getCurrentUser()
@@ -42,6 +43,10 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
 
   // Aktivni tab za metapodatke
   const [activeMetaTab, setActiveMetaTab] = useState('nalogodavci')
+
+  // State za modal analize rizika
+  const [showRizikModal, setShowRizikModal] = useState(false)
+  const [selectedNalogodavacIndex, setSelectedNalogodavacIndex] = useState(null)
 
   // State za otvorene sekcije
   const [openSections, setOpenSections] = useState({
@@ -489,6 +494,24 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
         nalogodavci: prev.nalogodavci.filter((_, i) => i !== index)
       }))
     }
+  }
+
+  // Otvori modal za analizu rizika
+  const openRizikModal = (index) => {
+    setSelectedNalogodavacIndex(index)
+    setShowRizikModal(true)
+  }
+
+  // Sačuvaj analizu rizika za nalogodavca
+  const handleSaveAnalizaRizika = (nalogodavacIndex, analizaRizika) => {
+    setMetapodaci(prev => {
+      const newNalogodavci = [...prev.nalogodavci]
+      newNalogodavci[nalogodavacIndex] = { 
+        ...newNalogodavci[nalogodavacIndex], 
+        analiza_rizika: analizaRizika 
+      }
+      return { ...prev, nalogodavci: newNalogodavci }
+    })
   }
 
   const handleEopChange = (field, value) => {
@@ -1684,11 +1707,52 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                                 <p className="text-xs text-slate-500">Podaci o nalogodavcu</p>
                               </div>
                             </div>
-                            {metapodaci.nalogodavci.length > 1 && (
-                              <button type="button" onClick={() => removeNalogodavac(index)} className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors">
-                                <Trash2 className="w-4 h-4" />
+                            <div className="flex items-center gap-2">
+                              {/* Dugme za analizu rizika - UOČLJIVO */}
+                              <button
+                                type="button"
+                                onClick={() => openRizikModal(index)}
+                                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm ${
+                                  nalogodavac.analiza_rizika?.ukupna_ocena?.finalna
+                                    ? nalogodavac.analiza_rizika.ukupna_ocena.finalna === 'nizak' 
+                                      ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-green-500/25'
+                                      : nalogodavac.analiza_rizika.ukupna_ocena.finalna === 'srednji'
+                                      ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white hover:from-yellow-600 hover:to-yellow-700 shadow-yellow-500/25'
+                                      : nalogodavac.analiza_rizika.ukupna_ocena.finalna === 'visok'
+                                      ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 shadow-orange-500/25'
+                                      : 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-red-500/25'
+                                    : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 shadow-indigo-500/25'
+                                }`}
+                                title="Analiza rizika stranke"
+                              >
+                                <Shield className="w-4 h-4" />
+                                <span>Analiza rizika</span>
+                                {nalogodavac.analiza_rizika?.ukupna_ocena?.finalna && (
+                                  <span className="ml-1 px-2 py-0.5 rounded-md text-xs font-bold bg-white/20">
+                                    {nalogodavac.analiza_rizika.ukupna_ocena.finalna === 'nizak' ? 'NIZAK' :
+                                     nalogodavac.analiza_rizika.ukupna_ocena.finalna === 'srednji' ? 'SREDNJI' :
+                                     nalogodavac.analiza_rizika.ukupna_ocena.finalna === 'visok' ? 'VISOK' : 'NEPRIHV.'}
+                                  </span>
+                                )}
                               </button>
-                            )}
+                              {/* Dugme za štampu analize */}
+                              {nalogodavac.analiza_rizika?.ukupna_ocena?.finalna && (
+                                <button
+                                  type="button"
+                                  onClick={() => openRizikModal(index)}
+                                  className="p-2.5 text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors"
+                                  title="Štampaj analizu rizika"
+                                >
+                                  <Printer className="w-4 h-4" />
+                                </button>
+                              )}
+                              {/* Dugme za brisanje nalogodavca */}
+                              {metapodaci.nalogodavci.length > 1 && (
+                                <button type="button" onClick={() => removeNalogodavac(index)} className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors">
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
                           </div>
                           
                           {/* Lični podaci */}
@@ -2019,6 +2083,19 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
           </div>
         </form>
       </div>
+
+      {/* Modal za analizu rizika */}
+      {showRizikModal && selectedNalogodavacIndex !== null && (
+        <RizikAnalizaModal
+          vlasnik={metapodaci.nalogodavci[selectedNalogodavacIndex]}
+          vlasnikIndex={selectedNalogodavacIndex}
+          onSave={handleSaveAnalizaRizika}
+          onClose={() => {
+            setShowRizikModal(false)
+            setSelectedNalogodavacIndex(null)
+          }}
+        />
+      )}
     </div>
   )
 }
