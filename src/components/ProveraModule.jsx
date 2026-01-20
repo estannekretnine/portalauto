@@ -64,8 +64,7 @@ export default function ProveraModule() {
           cena, 
           kvadratura, 
           stsrentaprodaja, 
-          stsaktivan, 
-          stsstorno,
+          stsaktivan,
           datumkreiranja,
           brojtelefona_linija,
           kontaktosoba,
@@ -328,7 +327,7 @@ export default function ProveraModule() {
                     <div 
                       key={ponuda.id} 
                       className={`p-4 rounded-2xl border transition-all ${
-                        ponuda.stsaktivan === false || ponuda.stsstorno === true
+                        ponuda.stsaktivan === false
                           ? 'bg-gray-50 border-gray-200 opacity-70'
                           : 'bg-emerald-50 border-emerald-200'
                       }`}
@@ -346,7 +345,7 @@ export default function ProveraModule() {
                             }`}>
                               {ponuda.stsrentaprodaja === 'prodaja' ? 'Prodaja' : 'Renta'}
                             </span>
-                            {(ponuda.stsaktivan === false || ponuda.stsstorno === true) && (
+                            {ponuda.stsaktivan === false && (
                               <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium bg-gray-200 text-gray-600">
                                 <Archive className="w-3 h-3" />
                                 Arhivirano
@@ -388,7 +387,7 @@ export default function ProveraModule() {
                           </p>
                         </div>
                         
-                        {ponuda.stsaktivan !== false && ponuda.stsstorno !== true && (
+                        {ponuda.stsaktivan !== false && (
                           <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
                         )}
                       </div>
