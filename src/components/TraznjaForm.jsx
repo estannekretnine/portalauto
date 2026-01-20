@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../utils/supabase'
 import { getCurrentUser } from '../utils/auth'
 import { Save, X, Building2, MapPin, DollarSign, Ruler, Info, Search, ChevronDown, Users, FileText, Receipt, UserCheck, Brain, Plus, Trash2, Phone, Calendar, Home, Euro, Shield, Printer } from 'lucide-react'
-import RizikAnalizaModal, { getInitialAnalizaRizika } from './RizikAnalizaModal'
+import RizikAnalizaModal from './RizikAnalizaModal'
+import { getInitialAnalizaRizika } from '../constants/indikatori-rizika'
 
 export default function TraznjaForm({ traznja, onClose, onSuccess }) {
   const currentUser = getCurrentUser()

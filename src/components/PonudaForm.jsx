@@ -4,7 +4,8 @@ import { getCurrentUser } from '../utils/auth'
 import PhotoUpload from './PhotoUpload'
 import { Save, X, Upload, Building2, MapPin, DollarSign, Ruler, Info, Search, ChevronDown, Users, FileText, Receipt, Wallet, UserCheck, Brain, Plus, Trash2, Loader2, Shield, Printer } from 'lucide-react'
 import PropertyMap from './PropertyMap'
-import RizikAnalizaModal, { getInitialAnalizaRizika } from './RizikAnalizaModal'
+import RizikAnalizaModal from './RizikAnalizaModal'
+import { getInitialAnalizaRizika } from '../constants/indikatori-rizika'
 
 // Definicija polja po vrstama objekata
 const FIELD_DEFINITIONS = {
