@@ -15,6 +15,31 @@ export default function ProveraModule() {
     return phone.replace(/[^\d]/g, '')
   }
 
+  // Provera da li telefon odgovara pretrazi
+  const phoneMatches = (phoneValue, searchNormalized) => {
+    if (!phoneValue) return false
+    const phoneNorm = normalizePhone(phoneValue)
+    if (phoneNorm.length < 3 || searchNormalized.length < 3) return false
+    
+    // Direktno podudaranje
+    if (phoneNorm.includes(searchNormalized) || searchNormalized.includes(phoneNorm)) return true
+    
+    // Proveri sa/bez 381 prefiksa
+    const phoneWithout381 = phoneNorm.startsWith('381') ? phoneNorm.slice(3) : phoneNorm
+    const searchWithout381 = searchNormalized.startsWith('381') ? searchNormalized.slice(3) : searchNormalized
+    
+    // Proveri sa/bez 0 prefiksa
+    const phoneWithout0 = phoneNorm.startsWith('0') ? phoneNorm.slice(1) : phoneNorm
+    const searchWithout0 = searchNormalized.startsWith('0') ? searchNormalized.slice(1) : searchNormalized
+    
+    return phoneWithout381.includes(searchWithout381) || 
+           searchWithout381.includes(phoneWithout381) ||
+           phoneWithout0.includes(searchWithout0) ||
+           searchWithout0.includes(phoneWithout0) ||
+           phoneWithout381.includes(searchWithout0) ||
+           searchWithout0.includes(phoneWithout381)
+  }
+
   // Pretraga po telefonu
   const handleSearch = async () => {
     if (!telefon || telefon.length < 3) {
@@ -29,67 +54,10 @@ export default function ProveraModule() {
 
     try {
       const normalizedPhone = normalizePhone(telefon)
-      
-      // Generiši različite varijante telefona za pretragu
-      const variants = []
-      variants.push(`%${normalizedPhone}%`)
-      variants.push(`%${telefon}%`)
-      
-      // Ako počinje sa 381, probaj i bez toga
-      if (normalizedPhone.startsWith('381') && normalizedPhone.length > 3) {
-        const without381 = normalizedPhone.slice(3)
-        variants.push(`%${without381}%`)
-        variants.push(`%0${without381}%`)
-      }
-      
-      // Ako počinje sa 0, probaj i sa 381
-      if (normalizedPhone.startsWith('0') && normalizedPhone.length > 1) {
-        const without0 = normalizedPhone.slice(1)
-        variants.push(`%381${without0}%`)
-      }
 
       // ========== PRETRAGA PONUDA ==========
-      // Pretraga po brojtelefona_linija (direktna kolona)
-      const ponudePromises = variants.map(pattern => 
-        supabase
-          .from('ponuda')
-          .select(`
-            id, 
-            cena, 
-            kvadratura, 
-            stsrentaprodaja, 
-            stsaktivan, 
-            stsstorno,
-            datumkreiranja,
-            brojtelefona_linija,
-            kontaktosoba,
-            metapodaci,
-            vrstaobjekta:idvrstaobjekta(opis),
-            opstina:idopstina(opis)
-          `)
-          .ilike('brojtelefona_linija', pattern)
-      )
-
-      const ponudeResultsArray = await Promise.all(ponudePromises)
-      
-      // Spoji sve rezultate i ukloni duplikate
-      const allPonude = []
-      const ponudeIds = new Set()
-      
-      for (const result of ponudeResultsArray) {
-        if (result.data && result.data.length > 0) {
-          for (const ponuda of result.data) {
-            if (!ponudeIds.has(ponuda.id)) {
-              ponudeIds.add(ponuda.id)
-              allPonude.push(ponuda)
-            }
-          }
-        }
-      }
-      
-      // Dodatno: pretraga po metapodaci.vlasnici[].tel (client-side filter)
-      // Učitaj sve ponude sa metapodacima i filtriraj po telefonu vlasnika
-      const { data: allPonudeWithMeta } = await supabase
+      // Učitaj sve ponude i filtriraj client-side
+      const { data: allPonudeData, error: ponudeError } = await supabase
         .from('ponuda')
         .select(`
           id, 
@@ -106,20 +74,34 @@ export default function ProveraModule() {
           opstina:idopstina(opis)
         `)
       
-      if (allPonudeWithMeta) {
-        for (const ponuda of allPonudeWithMeta) {
-          if (ponudeIds.has(ponuda.id)) continue
+      if (ponudeError) {
+        console.error('Greška pri učitavanju ponuda:', ponudeError)
+      }
+      
+      const allPonude = []
+      
+      if (allPonudeData) {
+        for (const ponuda of allPonudeData) {
+          let found = false
           
-          const vlasnici = ponuda.metapodaci?.vlasnici || []
-          for (const vlasnik of vlasnici) {
-            if (vlasnik.tel) {
-              const vlasnikTelNorm = normalizePhone(vlasnik.tel)
-              if (vlasnikTelNorm.includes(normalizedPhone) || normalizedPhone.includes(vlasnikTelNorm)) {
-                ponudeIds.add(ponuda.id)
-                allPonude.push(ponuda)
+          // Proveri brojtelefona_linija
+          if (phoneMatches(ponuda.brojtelefona_linija, normalizedPhone)) {
+            found = true
+          }
+          
+          // Proveri metapodaci.vlasnici[].tel
+          if (!found) {
+            const vlasnici = ponuda.metapodaci?.vlasnici || []
+            for (const vlasnik of vlasnici) {
+              if (phoneMatches(vlasnik.tel, normalizedPhone)) {
+                found = true
                 break
               }
             }
+          }
+          
+          if (found) {
+            allPonude.push(ponuda)
           }
         }
       }
@@ -127,41 +109,8 @@ export default function ProveraModule() {
       setPonudeResults(allPonude)
 
       // ========== PRETRAGA TRAZNJI ==========
-      // Pretraga po kontakttelefon (direktna kolona)
-      const traznjePromises = variants.map(pattern =>
-        supabase
-          .from('traznja')
-          .select(`
-            id,
-            kontaktosoba,
-            kontakttelefon,
-            stskupaczakupac,
-            stsaktivan,
-            datumkreiranja,
-            metapodaci
-          `)
-          .ilike('kontakttelefon', pattern)
-      )
-
-      const traznjeResultsArray = await Promise.all(traznjePromises)
-      
-      // Spoji sve rezultate i ukloni duplikate
-      const allTraznje = []
-      const traznjeIds = new Set()
-      
-      for (const result of traznjeResultsArray) {
-        if (result.data && result.data.length > 0) {
-          for (const traznja of result.data) {
-            if (!traznjeIds.has(traznja.id)) {
-              traznjeIds.add(traznja.id)
-              allTraznje.push(traznja)
-            }
-          }
-        }
-      }
-      
-      // Dodatno: pretraga po metapodaci.nalogodavci[].brojtel (client-side filter)
-      const { data: allTraznjeWithMeta } = await supabase
+      // Učitaj sve tražnje i filtriraj client-side
+      const { data: allTraznjeData, error: traznjeError } = await supabase
         .from('traznja')
         .select(`
           id,
@@ -173,20 +122,34 @@ export default function ProveraModule() {
           metapodaci
         `)
       
-      if (allTraznjeWithMeta) {
-        for (const traznja of allTraznjeWithMeta) {
-          if (traznjeIds.has(traznja.id)) continue
+      if (traznjeError) {
+        console.error('Greška pri učitavanju tražnji:', traznjeError)
+      }
+      
+      const allTraznje = []
+      
+      if (allTraznjeData) {
+        for (const traznja of allTraznjeData) {
+          let found = false
           
-          const nalogodavci = traznja.metapodaci?.nalogodavci || []
-          for (const nalogodavac of nalogodavci) {
-            if (nalogodavac.brojtel) {
-              const nalogodavacTelNorm = normalizePhone(nalogodavac.brojtel)
-              if (nalogodavacTelNorm.includes(normalizedPhone) || normalizedPhone.includes(nalogodavacTelNorm)) {
-                traznjeIds.add(traznja.id)
-                allTraznje.push(traznja)
+          // Proveri kontakttelefon
+          if (phoneMatches(traznja.kontakttelefon, normalizedPhone)) {
+            found = true
+          }
+          
+          // Proveri metapodaci.nalogodavci[].brojtel
+          if (!found) {
+            const nalogodavci = traznja.metapodaci?.nalogodavci || []
+            for (const nalogodavac of nalogodavci) {
+              if (phoneMatches(nalogodavac.brojtel, normalizedPhone)) {
+                found = true
                 break
               }
             }
+          }
+          
+          if (found) {
+            allTraznje.push(traznja)
           }
         }
       }
