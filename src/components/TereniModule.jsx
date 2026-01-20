@@ -907,12 +907,9 @@ export default function TereniModule() {
           
           {/* Pagination */}
           <div className="bg-gradient-to-r from-gray-900 to-black px-6 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-4">
-              <div className="text-sm text-gray-400 font-medium">
-                Ukupno: <span className="text-emerald-400 font-bold">{totalTereni}</span> terena
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-400">Prikaži:</span>
+            {/* Levo - Prikaži */}
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-400">Prikaži:</span>
               <select
                 value={itemsPerPage}
                 onChange={(e) => {
@@ -926,9 +923,9 @@ export default function TereniModule() {
                 <option value={50}>50</option>
                 <option value={100}>100</option>
               </select>
-              </div>
             </div>
             
+            {/* Sredina - Paginacija */}
             <div className="flex items-center gap-3">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
@@ -951,6 +948,11 @@ export default function TereniModule() {
               >
                 <ChevronRight className="w-4 h-4 text-white" />
               </button>
+            </div>
+            
+            {/* Desno - Ukupno */}
+            <div className="text-sm text-gray-400 font-medium">
+              Ukupno: <span className="text-emerald-400 font-bold">{totalTereni}</span> terena
             </div>
           </div>
         </div>
