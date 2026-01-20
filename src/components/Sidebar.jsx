@@ -21,6 +21,10 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
     { id: 'izvestaj-eop', label: 'EOP' },
     { id: 'izvestaj-eok', label: 'EOK' },
     { id: 'izvestaj-transakcije', label: 'Izvršene transakcije' },
+    { id: 'izvestaj-mesecni', label: 'Mesečni pregled' },
+    { id: 'izvestaj-pozivi', label: 'Analiza poziva' },
+    { id: 'izvestaj-tereni', label: 'Statistika terena' },
+    { id: 'izvestaj-prodaja-renta', label: 'Prodaja vs Renta' },
   ]
 
   const maticniPodaciSubItems = [
