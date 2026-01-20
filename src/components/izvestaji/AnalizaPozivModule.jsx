@@ -84,7 +84,9 @@ export default function AnalizaPozivModule() {
 
       if (error) throw error
 
-      setSviPozivi(data || [])
+      // Osiguraj da su podaci niz
+      const poziviData = Array.isArray(data) ? data : []
+      setSviPozivi(poziviData)
 
       // Grupiši po mesecima i statusu
       const mesecniPodaci = {}
@@ -110,7 +112,7 @@ export default function AnalizaPozivModule() {
       }
 
       // Brojanje poziva po mesecima i statusu
-      (data || []).forEach(poziv => {
+      poziviData.forEach(poziv => {
         const date = new Date(poziv.datumkreiranja)
         const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
         if (mesecniPodaci[key]) {

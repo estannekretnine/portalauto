@@ -76,7 +76,8 @@ export default function StatistikaTerenModule() {
 
       if (error) throw error
 
-      const tereni = data || []
+      // Osiguraj da su podaci niz
+      const tereni = Array.isArray(data) ? data : []
 
       // Grupiši po mesecima
       const mesecniPodaci = {}

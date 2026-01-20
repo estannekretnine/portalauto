@@ -72,6 +72,12 @@ export default function MesecniPregledModule() {
       if (poziviRes.error) throw poziviRes.error
       if (tereniRes.error) throw tereniRes.error
 
+      // Osiguraj da su podaci nizovi
+      const ponudeData = Array.isArray(ponudeRes.data) ? ponudeRes.data : []
+      const traznjaData = Array.isArray(traznjaRes.data) ? traznjaRes.data : []
+      const poziviData = Array.isArray(poziviRes.data) ? poziviRes.data : []
+      const tereniData = Array.isArray(tereniRes.data) ? tereniRes.data : []
+
       // Grupiši po mesecima
       const mesecniPodaci = {}
 
@@ -94,7 +100,7 @@ export default function MesecniPregledModule() {
       }
 
       // Brojanje ponuda po mesecima
-      (ponudeRes.data || []).forEach(item => {
+      ponudeData.forEach(item => {
         const date = new Date(item.datumkreiranja)
         const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
         if (mesecniPodaci[key]) {
@@ -103,7 +109,7 @@ export default function MesecniPregledModule() {
       })
 
       // Brojanje tražnji po mesecima
-      (traznjaRes.data || []).forEach(item => {
+      traznjaData.forEach(item => {
         const date = new Date(item.datumkreiranja)
         const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
         if (mesecniPodaci[key]) {
@@ -112,7 +118,7 @@ export default function MesecniPregledModule() {
       })
 
       // Brojanje poziva po mesecima
-      (poziviRes.data || []).forEach(item => {
+      poziviData.forEach(item => {
         const date = new Date(item.datumkreiranja)
         const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
         if (mesecniPodaci[key]) {
@@ -121,7 +127,7 @@ export default function MesecniPregledModule() {
       })
 
       // Brojanje terena po mesecima
-      (tereniRes.data || []).forEach(item => {
+      tereniData.forEach(item => {
         const date = new Date(item.datumkreiranja)
         const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
         if (mesecniPodaci[key]) {

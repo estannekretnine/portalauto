@@ -60,6 +60,10 @@ export default function ProdajaRentaModule() {
       if (ponudeRes.error) throw ponudeRes.error
       if (traznjaRes.error) throw traznjaRes.error
 
+      // Osiguraj da su podaci nizovi
+      const ponudeData = Array.isArray(ponudeRes.data) ? ponudeRes.data : []
+      const traznjaData = Array.isArray(traznjaRes.data) ? traznjaRes.data : []
+
       // Grupiši po mesecima
       const mesecniPodaci = {}
 
@@ -84,7 +88,7 @@ export default function ProdajaRentaModule() {
       }
 
       // Brojanje ponuda po mesecima i tipu
-      (ponudeRes.data || []).forEach(ponuda => {
+      ponudeData.forEach(ponuda => {
         const date = new Date(ponuda.datumkreiranja)
         const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
         if (mesecniPodaci[key]) {
@@ -97,7 +101,7 @@ export default function ProdajaRentaModule() {
       })
 
       // Brojanje tražnji po mesecima i tipu
-      (traznjaRes.data || []).forEach(traznja => {
+      traznjaData.forEach(traznja => {
         const date = new Date(traznja.datumkreiranja)
         const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
         if (mesecniPodaci[key]) {
