@@ -49,53 +49,26 @@ export default function ProveraModule() {
       }
 
       // ========== PRETRAGA PONUDA ==========
-      const ponudePromises = []
-      
-      // Pretraga po brojtelefona_linija
-      for (const pattern of variants) {
-        ponudePromises.push(
-          supabase
-            .from('ponuda')
-            .select(`
-              id, 
-              cena, 
-              kvadratura, 
-              stsrentaprodaja, 
-              stsaktivan, 
-              stsstorno,
-              datumkreiranja,
-              brojtelefona_linija,
-              kontaktosoba,
-              metapodaci,
-              vrstaobjekta:idvrstaobjekta(opis),
-              opstina:idopstina(opis)
-            `)
-            .ilike('brojtelefona_linija', pattern)
-        )
-      }
-      
-      // Pretraga po metapodaci->vlasnici->tel (JSONB)
-      for (const pattern of variants) {
-        ponudePromises.push(
-          supabase
-            .from('ponuda')
-            .select(`
-              id, 
-              cena, 
-              kvadratura, 
-              stsrentaprodaja, 
-              stsaktivan, 
-              stsstorno,
-              datumkreiranja,
-              brojtelefona_linija,
-              kontaktosoba,
-              metapodaci,
-              vrstaobjekta:idvrstaobjekta(opis),
-              opstina:idopstina(opis)
-            `)
-            .ilike('metapodaci->>vlasnici', pattern)
-        )
-      }
+      // Pretraga po brojtelefona_linija (direktna kolona)
+      const ponudePromises = variants.map(pattern => 
+        supabase
+          .from('ponuda')
+          .select(`
+            id, 
+            cena, 
+            kvadratura, 
+            stsrentaprodaja, 
+            stsaktivan, 
+            stsstorno,
+            datumkreiranja,
+            brojtelefona_linija,
+            kontaktosoba,
+            metapodaci,
+            vrstaobjekta:idvrstaobjekta(opis),
+            opstina:idopstina(opis)
+          `)
+          .ilike('brojtelefona_linija', pattern)
+      )
 
       const ponudeResultsArray = await Promise.all(ponudePromises)
       
@@ -113,47 +86,62 @@ export default function ProveraModule() {
           }
         }
       }
+      
+      // Dodatno: pretraga po metapodaci.vlasnici[].tel (client-side filter)
+      // Učitaj sve ponude sa metapodacima i filtriraj po telefonu vlasnika
+      const { data: allPonudeWithMeta } = await supabase
+        .from('ponuda')
+        .select(`
+          id, 
+          cena, 
+          kvadratura, 
+          stsrentaprodaja, 
+          stsaktivan, 
+          stsstorno,
+          datumkreiranja,
+          brojtelefona_linija,
+          kontaktosoba,
+          metapodaci,
+          vrstaobjekta:idvrstaobjekta(opis),
+          opstina:idopstina(opis)
+        `)
+      
+      if (allPonudeWithMeta) {
+        for (const ponuda of allPonudeWithMeta) {
+          if (ponudeIds.has(ponuda.id)) continue
+          
+          const vlasnici = ponuda.metapodaci?.vlasnici || []
+          for (const vlasnik of vlasnici) {
+            if (vlasnik.tel) {
+              const vlasnikTelNorm = normalizePhone(vlasnik.tel)
+              if (vlasnikTelNorm.includes(normalizedPhone) || normalizedPhone.includes(vlasnikTelNorm)) {
+                ponudeIds.add(ponuda.id)
+                allPonude.push(ponuda)
+                break
+              }
+            }
+          }
+        }
+      }
 
       setPonudeResults(allPonude)
 
       // ========== PRETRAGA TRAZNJI ==========
-      const traznjePromises = []
-      
-      // Pretraga po kontakttelefon
-      for (const pattern of variants) {
-        traznjePromises.push(
-          supabase
-            .from('traznja')
-            .select(`
-              id,
-              kontaktosoba,
-              kontakttelefon,
-              stskupaczakupac,
-              stsaktivan,
-              datumkreiranja,
-              metapodaci
-            `)
-            .ilike('kontakttelefon', pattern)
-        )
-      }
-      
-      // Pretraga po metapodaci->nalogodavci->brojtel (JSONB)
-      for (const pattern of variants) {
-        traznjePromises.push(
-          supabase
-            .from('traznja')
-            .select(`
-              id,
-              kontaktosoba,
-              kontakttelefon,
-              stskupaczakupac,
-              stsaktivan,
-              datumkreiranja,
-              metapodaci
-            `)
-            .ilike('metapodaci->>nalogodavci', pattern)
-        )
-      }
+      // Pretraga po kontakttelefon (direktna kolona)
+      const traznjePromises = variants.map(pattern =>
+        supabase
+          .from('traznja')
+          .select(`
+            id,
+            kontaktosoba,
+            kontakttelefon,
+            stskupaczakupac,
+            stsaktivan,
+            datumkreiranja,
+            metapodaci
+          `)
+          .ilike('kontakttelefon', pattern)
+      )
 
       const traznjeResultsArray = await Promise.all(traznjePromises)
       
@@ -167,6 +155,37 @@ export default function ProveraModule() {
             if (!traznjeIds.has(traznja.id)) {
               traznjeIds.add(traznja.id)
               allTraznje.push(traznja)
+            }
+          }
+        }
+      }
+      
+      // Dodatno: pretraga po metapodaci.nalogodavci[].brojtel (client-side filter)
+      const { data: allTraznjeWithMeta } = await supabase
+        .from('traznja')
+        .select(`
+          id,
+          kontaktosoba,
+          kontakttelefon,
+          stskupaczakupac,
+          stsaktivan,
+          datumkreiranja,
+          metapodaci
+        `)
+      
+      if (allTraznjeWithMeta) {
+        for (const traznja of allTraznjeWithMeta) {
+          if (traznjeIds.has(traznja.id)) continue
+          
+          const nalogodavci = traznja.metapodaci?.nalogodavci || []
+          for (const nalogodavac of nalogodavci) {
+            if (nalogodavac.brojtel) {
+              const nalogodavacTelNorm = normalizePhone(nalogodavac.brojtel)
+              if (nalogodavacTelNorm.includes(normalizedPhone) || normalizedPhone.includes(nalogodavacTelNorm)) {
+                traznjeIds.add(traznja.id)
+                allTraznje.push(traznja)
+                break
+              }
             }
           }
         }
