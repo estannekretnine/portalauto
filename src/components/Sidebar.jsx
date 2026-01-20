@@ -1,4 +1,4 @@
-import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone, Map, BarChart3, PhoneCall } from 'lucide-react'
+import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone, Map, BarChart3, PhoneCall, PieChart } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = false }) => {
@@ -6,6 +6,7 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
   const [isMaticniPodaciOpen, setIsMaticniPodaciOpen] = useState(false)
   const [isLokalitetOpen, setIsLokalitetOpen] = useState(false)
   const [isIzvestajiOpen, setIsIzvestajiOpen] = useState(false)
+  const [isIzvestajiAnalizeOpen, setIsIzvestajiAnalizeOpen] = useState(false)
 
   const isAdmin = user?.email === 'admin@example.com'
 
@@ -21,6 +22,9 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
     { id: 'izvestaj-eop', label: 'EOP' },
     { id: 'izvestaj-eok', label: 'EOK' },
     { id: 'izvestaj-transakcije', label: 'Izvršene transakcije' },
+  ]
+
+  const izvestajiAnalizeSubItems = [
     { id: 'izvestaj-mesecni', label: 'Mesečni pregled' },
     { id: 'izvestaj-pozivi', label: 'Analiza poziva' },
     { id: 'izvestaj-tereni', label: 'Statistika terena' },
@@ -57,6 +61,11 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
     const isIzvestajiActive = izvestajiSubItems.some(item => activeModule === item.id)
     if (isIzvestajiActive) {
       setIsIzvestajiOpen(true)
+    }
+
+    const isIzvestajiAnalizeActive = izvestajiAnalizeSubItems.some(item => activeModule === item.id)
+    if (isIzvestajiAnalizeActive) {
+      setIsIzvestajiAnalizeOpen(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeModule])
@@ -95,6 +104,13 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
       subItems: izvestajiSubItems,
     },
     {
+      id: 'izvestaji-analize',
+      label: 'Izveštaji - Analize',
+      icon: PieChart,
+      hasSubmenu: true,
+      subItems: izvestajiAnalizeSubItems,
+    },
+    {
       id: 'maticni-podaci',
       label: 'Matični podaci',
       icon: Database,
@@ -113,6 +129,8 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
       setIsMaticniPodaciOpen(!isMaticniPodaciOpen)
     } else if (itemId === 'izvestaji') {
       setIsIzvestajiOpen(!isIzvestajiOpen)
+    } else if (itemId === 'izvestaji-analize') {
+      setIsIzvestajiAnalizeOpen(!isIzvestajiAnalizeOpen)
     } else {
       setActiveModule(itemId)
       setIsMobileMenuOpen(false)
@@ -140,6 +158,8 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
   const isLokalitetActive = lokalitetSubItems.some(item => activeModule === item.id)
   
   const isIzvestajiActive = izvestajiSubItems.some(item => activeModule === item.id)
+  
+  const isIzvestajiAnalizeActive = izvestajiAnalizeSubItems.some(item => activeModule === item.id)
 
   return (
     <>
@@ -214,9 +234,11 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
               const Icon = item.icon
               const isActive = activeModule === item.id || 
                 (item.id === 'maticni-podaci' && isMaticniPodaciActive) ||
-                (item.id === 'izvestaji' && isIzvestajiActive)
+                (item.id === 'izvestaji' && isIzvestajiActive) ||
+                (item.id === 'izvestaji-analize' && isIzvestajiAnalizeActive)
               const isExpanded = (item.id === 'maticni-podaci' && isMaticniPodaciOpen) ||
-                (item.id === 'izvestaji' && isIzvestajiOpen)
+                (item.id === 'izvestaji' && isIzvestajiOpen) ||
+                (item.id === 'izvestaji-analize' && isIzvestajiAnalizeOpen)
 
               return (
                 <li key={item.id}>
