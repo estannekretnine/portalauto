@@ -335,6 +335,31 @@ export default function ArhiviraniOglasiModule() {
                 </div>
               </div>
 
+              {/* Objašnjenje kategorija prodaje */}
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Objašnjenje kategorija</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-xl border-2 border-emerald-200 bg-emerald-50">
+                    <div className="flex items-start gap-3">
+                      <span className="text-3xl">🏆</span>
+                      <div>
+                        <h4 className="font-bold text-emerald-800 text-lg">Prodat - Agencija</h4>
+                        <p className="text-emerald-700 mt-1">Nekretnina je prodata <strong>preko naše agencije</strong>. Ovo znači da je agencija uspešno posredovala u prodaji i ostvarila proviziju.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-xl border-2 border-blue-200 bg-blue-50">
+                    <div className="flex items-start gap-3">
+                      <span className="text-3xl">🏠</span>
+                      <div>
+                        <h4 className="font-bold text-blue-800 text-lg">Prodat</h4>
+                        <p className="text-blue-700 mt-1">Nekretnina je prodata <strong>samostalno od strane vlasnika</strong> ili <strong>preko druge agencije</strong>. Agencija nije učestvovala u finalnoj prodaji.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Prikaz po razlozima */}
               <div className="bg-white rounded-2xl shadow-lg p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Razlozi arhiviranja</h3>
@@ -343,6 +368,7 @@ export default function ArhiviraniOglasiModule() {
                     <div
                       key={grupa.id}
                       className={`p-4 rounded-xl border-2 ${getColorClass(grupa.color)}`}
+                      title={grupa.description}
                     >
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-xl">{grupa.icon}</span>
@@ -352,6 +378,7 @@ export default function ArhiviraniOglasiModule() {
                       <p className="text-xs opacity-75">
                         {ukupnoArhivirano > 0 ? ((grupa.broj / ukupnoArhivirano) * 100).toFixed(1) : 0}%
                       </p>
+                      <p className="text-xs mt-1 opacity-60">{grupa.description}</p>
                     </div>
                   ))}
                 </div>
@@ -399,6 +426,21 @@ export default function ArhiviraniOglasiModule() {
                       <div className="p-3 bg-white rounded-lg shadow-sm">
                         <p className="text-2xl font-bold text-amber-600">{ukupnoArhivirano - ukupnoProdato}</p>
                         <p className="text-xs text-gray-500">Ostali razlozi</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Objašnjenje kategorija za print */}
+                  <div className="mb-6 p-4 bg-gray-50 rounded-xl">
+                    <h3 className="font-bold text-gray-900 mb-3">Objašnjenje kategorija prodaje</h3>
+                    <div className="grid grid-cols-2 gap-4 text-xs">
+                      <div className="p-3 bg-white rounded-lg border border-emerald-200">
+                        <p className="font-bold text-emerald-700">🏆 Prodat - Agencija</p>
+                        <p className="text-gray-600 mt-1">Nekretnina je prodata preko naše agencije. Agencija je uspešno posredovala u prodaji.</p>
+                      </div>
+                      <div className="p-3 bg-white rounded-lg border border-blue-200">
+                        <p className="font-bold text-blue-700">🏠 Prodat</p>
+                        <p className="text-gray-600 mt-1">Nekretnina je prodata samostalno od strane vlasnika ili preko druge agencije.</p>
                       </div>
                     </div>
                   </div>
