@@ -63,6 +63,7 @@ export default function ProveraModule() {
               stsrentaprodaja, 
               stsaktivan, 
               stsstorno,
+              datumkreiranja,
               brojtelefona_linija,
               kontaktosoba,
               metapodaci,
@@ -85,6 +86,7 @@ export default function ProveraModule() {
               stsrentaprodaja, 
               stsaktivan, 
               stsstorno,
+              datumkreiranja,
               brojtelefona_linija,
               kontaktosoba,
               metapodaci,
@@ -128,6 +130,7 @@ export default function ProveraModule() {
               kontakttelefon,
               stskupaczakupac,
               stsaktivan,
+              datumkreiranja,
               metapodaci
             `)
             .ilike('kontakttelefon', pattern)
@@ -145,6 +148,7 @@ export default function ProveraModule() {
               kontakttelefon,
               stskupaczakupac,
               stsaktivan,
+              datumkreiranja,
               metapodaci
             `)
             .ilike('metapodaci->>nalogodavci', pattern)
@@ -237,6 +241,16 @@ export default function ProveraModule() {
   const formatCena = (cena) => {
     if (!cena) return '-'
     return new Intl.NumberFormat('sr-RS').format(cena) + ' €'
+  }
+
+  // Format datuma
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '-'
+    return new Date(dateStr).toLocaleDateString('sr-RS', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
   }
 
   // Reset pretrage
@@ -386,6 +400,10 @@ export default function ProveraModule() {
                               </span>
                             ))}
                           </div>
+                          
+                          <p className="text-gray-400 text-xs mt-2">
+                            📅 Kreirano: {formatDate(ponuda.datumkreiranja)}
+                          </p>
                         </div>
                         
                         {ponuda.stsaktivan !== false && ponuda.stsstorno !== true && (
@@ -465,6 +483,10 @@ export default function ProveraModule() {
                               </span>
                             ))}
                           </div>
+                          
+                          <p className="text-gray-400 text-xs mt-2">
+                            📅 Kreirano: {formatDate(traznja.datumkreiranja)}
+                          </p>
                         </div>
                         
                         {traznja.stsaktivan !== false && (
