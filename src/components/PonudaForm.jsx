@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../utils/supabase'
 import { getCurrentUser } from '../utils/auth'
 import PhotoUpload from './PhotoUpload'
-import { Save, X, Upload, Building2, MapPin, DollarSign, Ruler, Info, Search, ChevronDown, Users, FileText, Receipt, Wallet, UserCheck, Brain, Plus, Trash2, Loader2 } from 'lucide-react'
+import { Save, X, Upload, Building2, MapPin, DollarSign, Ruler, Info, Search, ChevronDown, Users, FileText, Receipt, Wallet, UserCheck, Brain, Plus, Trash2, Loader2, Shield, Printer } from 'lucide-react'
 import PropertyMap from './PropertyMap'
+import RizikAnalizaModal, { getInitialAnalizaRizika } from './RizikAnalizaModal'
 
 // Definicija polja po vrstama objekata
 const FIELD_DEFINITIONS = {
@@ -299,6 +300,10 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
   const [isSearchingPhone, setIsSearchingPhone] = useState(false)
   const [showPhoneDropdown, setShowPhoneDropdown] = useState(false)
   const phoneInputRef = useRef(null)
+
+  // State za modal analize rizika
+  const [showRizikModal, setShowRizikModal] = useState(false)
+  const [selectedVlasnikIndex, setSelectedVlasnikIndex] = useState(null)
 
   useEffect(() => {
     loadLookupData()
@@ -1362,6 +1367,104 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
         vlasnici: prev.vlasnici.filter((_, i) => i !== index)
       }))
     }
+  }
+
+  // Otvori modal za analizu rizika
+  const openRizikModal = (index) => {
+    setSelectedVlasnikIndex(index)
+    setShowRizikModal(true)
+  }
+
+  // Sačuvaj analizu rizika za vlasnika
+  const handleSaveAnalizaRizika = (vlasnikIndex, analizaRizika) => {
+    setMetapodaci(prev => {
+      const newVlasnici = [...prev.vlasnici]
+      newVlasnici[vlasnikIndex] = { 
+        ...newVlasnici[vlasnikIndex], 
+        analiza_rizika: analizaRizika 
+      }
+      return { ...prev, vlasnici: newVlasnici }
+    })
+  }
+
+  // Štampaj analizu rizika za vlasnika
+  const handlePrintAnalizaRizika = (vlasnik) => {
+    // Otvori modal pa odmah štampaj
+    // Alternativno, možemo direktno štampati bez otvaranja modala
+    const printWindow = window.open('', '_blank')
+    const analizaRizika = vlasnik.analiza_rizika || getInitialAnalizaRizika()
+    
+    // Import opcija iz RizikAnalizaModal
+    const VRSTA_POSLA_OPCIJE = [
+      { value: 'posredovanje_prodavac', label: 'Posredovanje - Prodavac' },
+      { value: 'posredovanje_kupac', label: 'Posredovanje - Kupac' },
+      { value: 'posredovanje_zakupodavac', label: 'Posredovanje - Zakupodavac' },
+      { value: 'posredovanje_zakupac', label: 'Posredovanje - Zakupac' },
+    ]
+    const VRSTA_STRANKE_OPCIJE = [
+      { value: 'fizicko_lice', label: 'Fizičko lice' },
+      { value: 'pravno_lice', label: 'Pravno lice' },
+      { value: 'preduzetnik', label: 'Preduzetnik' },
+      { value: 'lice_gradjanskog_prava', label: 'Lice građanskog prava' },
+    ]
+    const KATEGORIJA_RIZIKA_OPCIJE = [
+      { value: 'nizak', label: 'Nizak' },
+      { value: 'srednji', label: 'Srednji' },
+      { value: 'visok', label: 'Visok' },
+      { value: 'neprihvatljiv', label: 'Neprihvatljiv' },
+    ]
+    const RADNJE_MERE_OPCIJE = [
+      { value: 'pojednostavljene', label: 'Pojednostavljene' },
+      { value: 'opste', label: 'Opšte' },
+      { value: 'pojacane', label: 'Pojačane' },
+    ]
+    const UCESTALOST_PRACENJA_OPCIJE = [
+      { value: '6_meseci', label: '6 meseci' },
+      { value: '2_meseca', label: '2 meseca' },
+      { value: '1_mesec', label: '1 mesec' },
+    ]
+
+    const getOcenaLabel = (value) => KATEGORIJA_RIZIKA_OPCIJE.find(o => o.value === value)?.label || '-'
+    const getMereLabel = (value) => RADNJE_MERE_OPCIJE.find(o => o.value === value)?.label || '-'
+    const getPracenjeLabel = (value) => UCESTALOST_PRACENJA_OPCIJE.find(o => o.value === value)?.label || '-'
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Analiza rizika - ${vlasnik.ime || ''} ${vlasnik.prezime || ''}</title>
+        <style>
+          body { font-family: Arial, sans-serif; font-size: 11px; padding: 20px; }
+          .header { text-align: center; margin-bottom: 20px; }
+          .header h1 { font-size: 14px; margin: 0; }
+          .info { margin-bottom: 15px; }
+          .info-row { margin-bottom: 3px; }
+          .summary { margin-top: 20px; border: 1px solid #000; padding: 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>ANALIZA RIZIKA STRANKE</h1>
+          <p>${vlasnik.ime || ''} ${vlasnik.prezime || ''}</p>
+        </div>
+        <div class="info">
+          <div class="info-row"><strong>JMBG:</strong> ${vlasnik.jmbg || '-'}</div>
+          <div class="info-row"><strong>Adresa:</strong> ${vlasnik.adresa || '-'}</div>
+        </div>
+        <div class="summary">
+          <p><strong>Finalna kategorizacija:</strong> ${getOcenaLabel(analizaRizika.ukupna_ocena?.finalna)}</p>
+          <p><strong>Radnje i mere:</strong> ${getMereLabel(analizaRizika.ukupna_ocena?.radnje_mere)}</p>
+          <p><strong>Učestalost praćenja:</strong> ${getPracenjeLabel(analizaRizika.ukupna_ocena?.ucestalost_pracenja)}</p>
+          <p><strong>Datum analize:</strong> ${analizaRizika.datum_analize || '-'}</p>
+          <p><strong>Vršilac:</strong> ${analizaRizika.vrsilac_analize || '-'}</p>
+        </div>
+        <p style="margin-top: 20px; font-size: 9px; color: #666;">Za punu analizu sa svim indikatorima, otvorite modal "Analiza rizika" i kliknite "Štampaj".</p>
+      </body>
+      </html>
+    `)
+    printWindow.document.close()
+    printWindow.focus()
+    setTimeout(() => printWindow.print(), 250)
   }
 
   const handleEopChange = (field, value) => {
@@ -3082,15 +3185,55 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                             <p className="text-xs text-slate-500">Podaci o vlasniku nekretnine</p>
                           </div>
                         </div>
-                        {metapodaci.vlasnici.length > 1 && (
+                        <div className="flex items-center gap-2">
+                          {/* Dugme za analizu rizika */}
                           <button
                             type="button"
-                            onClick={() => removeVlasnik(index)}
-                            className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                            onClick={() => openRizikModal(index)}
+                            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              vlasnik.analiza_rizika?.ukupna_ocena?.finalna
+                                ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            }`}
+                            title="Analiza rizika"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Shield className="w-4 h-4" />
+                            <span className="hidden sm:inline">Rizik</span>
+                            {vlasnik.analiza_rizika?.ukupna_ocena?.finalna && (
+                              <span className={`ml-1 px-1.5 py-0.5 rounded text-xs font-bold ${
+                                vlasnik.analiza_rizika.ukupna_ocena.finalna === 'nizak' ? 'bg-green-200 text-green-800' :
+                                vlasnik.analiza_rizika.ukupna_ocena.finalna === 'srednji' ? 'bg-yellow-200 text-yellow-800' :
+                                vlasnik.analiza_rizika.ukupna_ocena.finalna === 'visok' ? 'bg-orange-200 text-orange-800' :
+                                'bg-red-200 text-red-800'
+                              }`}>
+                                {vlasnik.analiza_rizika.ukupna_ocena.finalna === 'nizak' ? 'N' :
+                                 vlasnik.analiza_rizika.ukupna_ocena.finalna === 'srednji' ? 'S' :
+                                 vlasnik.analiza_rizika.ukupna_ocena.finalna === 'visok' ? 'V' : '!'}
+                              </span>
+                            )}
                           </button>
-                        )}
+                          {/* Dugme za štampu analize */}
+                          {vlasnik.analiza_rizika?.ukupna_ocena?.finalna && (
+                            <button
+                              type="button"
+                              onClick={() => openRizikModal(index)}
+                              className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                              title="Štampaj analizu rizika"
+                            >
+                              <Printer className="w-4 h-4" />
+                            </button>
+                          )}
+                          {/* Dugme za brisanje vlasnika */}
+                          {metapodaci.vlasnici.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeVlasnik(index)}
+                              className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
                       </div>
                       
                       {/* Lični podaci */}
@@ -3498,6 +3641,19 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal za analizu rizika */}
+      {showRizikModal && selectedVlasnikIndex !== null && (
+        <RizikAnalizaModal
+          vlasnik={metapodaci.vlasnici[selectedVlasnikIndex]}
+          vlasnikIndex={selectedVlasnikIndex}
+          onSave={handleSaveAnalizaRizika}
+          onClose={() => {
+            setShowRizikModal(false)
+            setSelectedVlasnikIndex(null)
+          }}
+        />
       )}
     </div>
   )
