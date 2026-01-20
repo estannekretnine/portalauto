@@ -26,16 +26,30 @@ export default function PonudeModule() {
   const [archiveReason, setArchiveReason] = useState('')
   
   const archiveReasons = [
-    'prodat',
-    'prodat-agencija',
-    'povucen',
-    'odustali',
-    'nisu dobri papiri',
-    'legalizacija',
-    'pogresan broj',
-    'nepostojeci broj',
-    'nedostupan',
-    'drugo'
+    { 
+      id: 'prodat-agencija', 
+      label: 'Prodat - Agencija', 
+      description: 'Prodat preko naše agencije',
+      icon: '🏆',
+      highlight: true,
+      color: 'green'
+    },
+    { 
+      id: 'prodat', 
+      label: 'Prodat', 
+      description: 'Samostalno ili preko druge agencije',
+      icon: '🏠',
+      highlight: true,
+      color: 'blue'
+    },
+    { id: 'povucen', label: 'Povučen', description: 'Vlasnik povukao ponudu' },
+    { id: 'odustali', label: 'Odustali', description: 'Kupac/vlasnik odustao' },
+    { id: 'nisu dobri papiri', label: 'Nisu dobri papiri', description: 'Problem sa dokumentacijom' },
+    { id: 'legalizacija', label: 'Legalizacija', description: 'Potrebna legalizacija objekta' },
+    { id: 'pogresan broj', label: 'Pogrešan broj', description: 'Neispravan kontakt telefon' },
+    { id: 'nepostojeci broj', label: 'Nepostojeći broj', description: 'Broj telefona ne postoji' },
+    { id: 'nedostupan', label: 'Nedostupan', description: 'Vlasnik nedostupan' },
+    { id: 'drugo', label: 'Drugo', description: 'Ostali razlozi' }
   ]
   
   // Sortiranje i pretraga po kolonama
@@ -1043,7 +1057,7 @@ export default function PonudeModule() {
       {/* Modal za izbor razloga arhiviranja */}
       {showArchiveReasonModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
             <div className="bg-gradient-to-r from-gray-900 to-black px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Archive className="w-5 h-5 text-amber-400" />
@@ -1062,21 +1076,85 @@ export default function PonudeModule() {
             </div>
             <div className="p-6">
               <p className="text-gray-600 mb-4">Izaberite razlog arhiviranja ponude:</p>
-              <div className="grid grid-cols-2 gap-2">
-                {archiveReasons.map((reason) => (
-                  <button
-                    key={reason}
-                    onClick={() => setArchiveReason(reason)}
-                    className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                      archiveReason === reason
-                        ? 'bg-amber-500 text-white shadow-lg'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {reason}
-                  </button>
-                ))}
+              
+              {/* Istaknute opcije za prodaju */}
+              <div className="mb-4">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Prodaja</p>
+                <div className="grid grid-cols-1 gap-2">
+                  {archiveReasons.filter(r => r.highlight).map((reason) => (
+                    <button
+                      key={reason.id}
+                      onClick={() => setArchiveReason(reason.id)}
+                      className={`relative p-4 rounded-xl text-left transition-all border-2 ${
+                        archiveReason === reason.id
+                          ? reason.color === 'green' 
+                            ? 'bg-emerald-50 border-emerald-500 shadow-lg shadow-emerald-100'
+                            : 'bg-blue-50 border-blue-500 shadow-lg shadow-blue-100'
+                          : reason.color === 'green'
+                            ? 'bg-emerald-50/50 border-emerald-200 hover:border-emerald-400 hover:bg-emerald-50'
+                            : 'bg-blue-50/50 border-blue-200 hover:border-blue-400 hover:bg-blue-50'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className="text-2xl">{reason.icon}</span>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className={`font-bold ${
+                              reason.color === 'green' ? 'text-emerald-700' : 'text-blue-700'
+                            }`}>
+                              {reason.label}
+                            </span>
+                            {archiveReason === reason.id && (
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                                reason.color === 'green' 
+                                  ? 'bg-emerald-500 text-white' 
+                                  : 'bg-blue-500 text-white'
+                              }`}>
+                                Izabrano
+                              </span>
+                            )}
+                          </div>
+                          <p className={`text-sm mt-1 ${
+                            reason.color === 'green' ? 'text-emerald-600' : 'text-blue-600'
+                          }`}>
+                            {reason.description}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
+              
+              {/* Ostali razlozi */}
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Ostali razlozi</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {archiveReasons.filter(r => !r.highlight).map((reason) => (
+                    <button
+                      key={reason.id}
+                      onClick={() => setArchiveReason(reason.id)}
+                      className={`p-3 rounded-xl text-left transition-all border ${
+                        archiveReason === reason.id
+                          ? 'bg-amber-50 border-amber-400 shadow-md'
+                          : 'bg-gray-50 border-gray-200 hover:border-gray-300 hover:bg-gray-100'
+                      }`}
+                    >
+                      <span className={`text-sm font-medium block ${
+                        archiveReason === reason.id ? 'text-amber-700' : 'text-gray-700'
+                      }`}>
+                        {reason.label}
+                      </span>
+                      <span className={`text-xs ${
+                        archiveReason === reason.id ? 'text-amber-600' : 'text-gray-500'
+                      }`}>
+                        {reason.description}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={() => {
