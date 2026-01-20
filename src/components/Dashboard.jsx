@@ -22,6 +22,7 @@ import MesecniPregledModule from './izvestaji/MesecniPregledModule'
 import AnalizaPozivModule from './izvestaji/AnalizaPozivModule'
 import StatistikaTerenModule from './izvestaji/StatistikaTerenModule'
 import ProdajaRentaModule from './izvestaji/ProdajaRentaModule'
+import ArhiviraniOglasiModule from './izvestaji/ArhiviraniOglasiModule'
 import TereniModule from './TereniModule'
 import ProveraModule from './ProveraModule'
 import { LogOut, Menu, Building2 } from 'lucide-react'
@@ -117,6 +118,7 @@ export default function Dashboard() {
           {activeModule === 'izvestaj-pozivi' && <AnalizaPozivModule />}
           {activeModule === 'izvestaj-tereni' && <StatistikaTerenModule />}
           {activeModule === 'izvestaj-prodaja-renta' && <ProdajaRentaModule />}
+          {activeModule === 'izvestaj-arhivirani' && <ArhiviraniOglasiModule />}
           {activeModule === 'izvestaj-transakcije-placeholder' && (
             <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
               <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/20">
