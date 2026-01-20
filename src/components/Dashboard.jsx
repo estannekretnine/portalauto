@@ -19,6 +19,7 @@ import EOPModule from './izvestaji/EOPModule'
 import EOKModule from './izvestaji/EOKModule'
 import TransakcijeModule from './izvestaji/TransakcijeModule'
 import TereniModule from './TereniModule'
+import ProveraModule from './ProveraModule'
 import { LogOut, Menu, Building2 } from 'lucide-react'
 
 export default function Dashboard() {
@@ -104,6 +105,7 @@ export default function Dashboard() {
           {activeModule === 'traznja' && <TraznjaModule />}
           {activeModule === 'pozivi' && <PoziviModule />}
           {activeModule === 'tereni' && <TereniModule />}
+          {activeModule === 'provera' && <ProveraModule />}
           {activeModule === 'izvestaj-eop' && <EOPModule />}
           {activeModule === 'izvestaj-eok' && <EOKModule />}
           {activeModule === 'izvestaj-transakcije' && <TransakcijeModule />}

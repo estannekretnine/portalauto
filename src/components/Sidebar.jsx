@@ -1,4 +1,4 @@
-import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone, Map, BarChart3 } from 'lucide-react'
+import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone, Map, BarChart3, PhoneCall } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = false }) => {
@@ -76,6 +76,11 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
       id: 'tereni',
       label: 'Tereni',
       icon: Map,
+    },
+    {
+      id: 'provera',
+      label: 'Provera',
+      icon: PhoneCall,
     },
     {
       id: 'izvestaji',
