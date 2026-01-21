@@ -197,6 +197,18 @@ serve(async (req) => {
 
     const html = await response.text()
     
+    // DEBUG: Logirati HTML strukturu
+    console.log('HTML duzina:', html.length)
+    console.log('HTML preview (prvih 5000 karaktera):', html.substring(0, 5000))
+    
+    // Proveri da li ima bilo kakvih oglasa u HTML-u
+    const hasProductItem = html.includes('product-item')
+    const hasListingCard = html.includes('listing-card')
+    const hasAdCard = html.includes('ad-card')
+    const hasOglasItem = html.includes('oglas-item')
+    const hasClassAd = html.includes('classad')
+    console.log('Pronadjene klase:', { hasProductItem, hasListingCard, hasAdCard, hasOglasItem, hasClassAd })
+    
     // 3. Parsiraj oglase
     let oglasi = parseOglasi(html)
     console.log(`Pronađeno ${oglasi.length} današnjih oglasa`)
@@ -294,7 +306,19 @@ serve(async (req) => {
       novi: noviOglasi,
       preskoceni: preskoceniOglasi,
       trajanje: `${Math.floor(trajanje / 60)}m ${trajanje % 60}s`,
-      detalji: rezultati
+      detalji: rezultati,
+      // DEBUG info
+      debug: {
+        htmlLength: html.length,
+        htmlPreview: html.substring(0, 3000),
+        foundClasses: {
+          productItem: html.includes('product-item'),
+          listingCard: html.includes('listing-card'),
+          adCard: html.includes('ad-card'),
+          oglasItem: html.includes('oglas-item'),
+          classad: html.includes('classad'),
+        }
+      }
     }
 
     console.log('Scraping završen:', result)
