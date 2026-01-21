@@ -1,4 +1,4 @@
-import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone, Map, BarChart3, PhoneCall, PieChart, Info, Tv, Globe, Clock, UserCheck, FileInput } from 'lucide-react'
+import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone, Map, BarChart3, PhoneCall, PieChart, Info, Tv, Globe, Clock, UserCheck, FileInput, List } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = false }) => {
@@ -57,6 +57,7 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
   ]
 
   const scrapingSubItems = [
+    { id: 'scraping-config', label: 'Lista portala i linkova', icon: List },
     { 
       id: 'halo-oglas', 
       label: 'HaloOglas', 
