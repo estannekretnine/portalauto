@@ -79,6 +79,8 @@ async function parseOglasDetalji(url: string): Promise<{
   email: string | null,
   imevlasnika: string | null,
   rentaProdaja: string,
+  hasViber: boolean,
+  isAgencija: boolean,
 }> {
   try {
     const response = await fetch(url, {
@@ -96,6 +98,33 @@ async function parseOglasDetalji(url: string): Promise<{
     }
     
     const html = await response.text()
+    
+    // ========== PROVERA DA LI JE AGENCIJA ==========
+    // Agencije imaju "Svi oglasi" link i "godina na 4zida" badge
+    const isAgencija = html.includes('Svi oglasi') || 
+                       html.includes('godina na 4zida') || 
+                       html.includes('godine na 4zida')
+    
+    if (isAgencija) {
+      console.log(`Preskačem oglas - agencija/profesionalac: ${url}`)
+      return {
+        naslov: null,
+        cena: null,
+        kvadratura: null,
+        brojSoba: null,
+        grad: null,
+        opstina: null,
+        lokacija: null,
+        opis: null,
+        telefon1: null,
+        telefon2: null,
+        email: null,
+        imevlasnika: null,
+        rentaProdaja: 'prodaja',
+        hasViber: false,
+        isAgencija: true,
+      }
+    }
     
     // ========== NASLOV ==========
     let naslov: string | null = null
@@ -142,33 +171,58 @@ async function parseOglasDetalji(url: string): Promise<{
       console.log(`Broj soba: ${brojSoba}`)
     }
     
-    // ========== LOKACIJA (GRAD, OPŠTINA, ULICA) ==========
+    // ========== LOKACIJA (GRAD, OPŠTINA, ULICA) IZ URL-a ==========
+    // URL format: /prodaja-stanova/beograd/stari-grad/123456
+    // Najpouzdaniji izvor za grad i opštinu je URL
     let grad: string | null = null
     let opstina: string | null = null
     let lokacija: string | null = null
     
-    // Traži breadcrumb ili adresu
-    // 4zida struktura: Beograd > Stari Grad > Gundulićev Venac
-    const breadcrumbMatch = html.match(/Beograd|Novi Sad|Niš|Kragujevac|Subotica|Zrenjanin|Pančevo|Čačak|Kruševac|Kraljevo|Leskovac|Smederevo|Valjevo|Vranje|Šabac|Užice|Sombor|Požarevac|Pirot|Zaječar/gi)
-    if (breadcrumbMatch) {
-      grad = breadcrumbMatch[0].charAt(0).toUpperCase() + breadcrumbMatch[0].slice(1).toLowerCase()
-      console.log(`Grad: ${grad}`)
+    // Izvuci grad i opštinu iz URL-a
+    const urlParts = url.split('/')
+    // urlParts: ['https:', '', 'www.4zida.rs', 'prodaja-stanova', 'beograd', 'stari-grad', '123456']
+    if (urlParts.length >= 5) {
+      // Grad je obično na poziciji 4 (posle 'prodaja-stanova')
+      const gradSlug = urlParts[4]
+      if (gradSlug && !gradSlug.match(/^\d+$/)) {
+        // Pretvori slug u čitljiv naziv (beograd -> Beograd, novi-sad -> Novi Sad)
+        grad = gradSlug
+          .split('-')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ')
+        console.log(`Grad iz URL-a: ${grad}`)
+      }
+      
+      // Opština je obično na poziciji 5
+      if (urlParts.length >= 6) {
+        const opstinaSlug = urlParts[5]
+        if (opstinaSlug && !opstinaSlug.match(/^\d+$/)) {
+          // Pretvori slug u čitljiv naziv (stari-grad -> Stari Grad)
+          opstina = opstinaSlug
+            .split('-')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ')
+          console.log(`Opština iz URL-a: ${opstina}`)
+        }
+      }
     }
     
-    // Opština - traži u naslovu ili meta podacima
-    const opstinaMatch = html.match(/(?:opština|opstina|MO|mesna zajednica)[:\s]*([^,<]+)/i) ||
-                         html.match(/(?:Stari Grad|Novi Beograd|Vračar|Zvezdara|Palilula|Voždovac|Čukarica|Savski Venac|Rakovica|Zemun|Surčin|Grocka|Barajevo|Lazarevac|Mladenovac|Obrenovac|Sopot)/i)
-    if (opstinaMatch) {
-      opstina = opstinaMatch[1] ? opstinaMatch[1].trim() : opstinaMatch[0].trim()
-      console.log(`Opština: ${opstina}`)
+    // Fallback: traži grad u HTML-u ako nije pronađen u URL-u
+    if (!grad) {
+      const breadcrumbMatch = html.match(/Beograd|Novi Sad|Niš|Kragujevac|Subotica|Zrenjanin|Pančevo|Čačak|Kruševac|Kraljevo|Leskovac|Smederevo|Valjevo|Vranje|Šabac|Užice|Sombor|Požarevac|Pirot|Zaječar/gi)
+      if (breadcrumbMatch) {
+        grad = breadcrumbMatch[0].charAt(0).toUpperCase() + breadcrumbMatch[0].slice(1).toLowerCase()
+        console.log(`Grad iz HTML-a: ${grad}`)
+      }
     }
     
-    // Lokacija/ulica
-    const ulicaMatch = html.match(/(?:ulica|adresa)[:\s]*([^,<]+)/i) ||
-                       naslov?.match(/,\s*([^,]+)$/i)
-    if (ulicaMatch) {
-      lokacija = ulicaMatch[1]?.trim() || null
-      console.log(`Lokacija: ${lokacija}`)
+    // Lokacija/ulica iz naslova (poslednji deo posle zareza)
+    if (naslov) {
+      const naslovParts = naslov.split(',')
+      if (naslovParts.length > 1) {
+        lokacija = naslovParts[naslovParts.length - 1].trim()
+        console.log(`Lokacija iz naslova: ${lokacija}`)
+      }
     }
     
     // ========== OPIS ==========
@@ -190,17 +244,54 @@ async function parseOglasDetalji(url: string): Promise<{
       console.log(`Opis: ${opis.substring(0, 100)}...`)
     }
     
-    // ========== TELEFON ==========
+    // ========== TELEFON IZ JSON OBJEKTA ==========
     const telefoni: string[] = []
-    // Srpski formati: 063 331 702, 063/331-702, +381 63 331702, 063331702
-    const telefonRegex = /(?:\+381|0)[\s.-]?[1-9][0-9][\s.-]?\d{3}[\s.-]?\d{3,4}/g
-    const telefonMatches = html.match(telefonRegex)
-    if (telefonMatches) {
-      for (const tel of telefonMatches) {
-        const cleaned = tel.replace(/[\s.-]/g, '')
-        if (!telefoni.includes(cleaned) && telefoni.length < 2) {
-          telefoni.push(cleaned)
-          console.log(`Telefon: ${cleaned}`)
+    let hasViber = false
+    
+    // 4zida čuva telefone u JSON objektu: "phones":[{"full":"+38163619588","isViber":true,"national":"063 619588",...}]
+    // Takođe postoje "publicPhones" i "publicPhones2"
+    const phonesPatterns = [
+      /"phones"\s*:\s*\[([\s\S]*?)\]/,
+      /"publicPhones"\s*:\s*\[([\s\S]*?)\]/,
+      /"publicPhones2"\s*:\s*\[([\s\S]*?)\]/
+    ]
+    
+    for (const pattern of phonesPatterns) {
+      const phonesMatch = html.match(pattern)
+      if (phonesMatch && telefoni.length < 2) {
+        // Izvuci sve telefone iz niza
+        const phonesJson = phonesMatch[1]
+        
+        // Izvuci "national" vrednosti (format: "063 619588")
+        const nationalRegex = /"national"\s*:\s*"([^"]+)"/g
+        let nationalMatch
+        while ((nationalMatch = nationalRegex.exec(phonesJson)) !== null && telefoni.length < 2) {
+          const tel = nationalMatch[1].replace(/\s/g, '') // Ukloni razmake: "063 619588" -> "063619588"
+          if (!telefoni.includes(tel)) {
+            telefoni.push(tel)
+            console.log(`Telefon iz JSON (national): ${tel}`)
+          }
+        }
+        
+        // Proveri da li ima Viber
+        if (phonesJson.includes('"isViber":true')) {
+          hasViber = true
+          console.log('Ima Viber kontakt')
+        }
+      }
+    }
+    
+    // Fallback: ako nismo našli u JSON-u, traži standardnim regex-om
+    if (telefoni.length === 0) {
+      const telefonRegex = /(?:\+381|0)[\s.-]?[1-9][0-9][\s.-]?\d{3}[\s.-]?\d{3,4}/g
+      const telefonMatches = html.match(telefonRegex)
+      if (telefonMatches) {
+        for (const tel of telefonMatches) {
+          const cleaned = tel.replace(/[\s.-]/g, '')
+          if (!telefoni.includes(cleaned) && telefoni.length < 2) {
+            telefoni.push(cleaned)
+            console.log(`Telefon (fallback regex): ${cleaned}`)
+          }
         }
       }
     }
@@ -222,13 +313,23 @@ async function parseOglasDetalji(url: string): Promise<{
       }
     }
     
-    // ========== IME VLASNIKA ==========
+    // ========== IME VLASNIKA IZ JSON-a ==========
     let imevlasnika: string | null = null
-    const imeMatch = html.match(/(?:oglašivač|vlasnik|kontakt)[:\s]*<[^>]*>([^<]+)/i) ||
-                     html.match(/<span[^>]*class="[^"]*name[^"]*"[^>]*>([^<]+)/i)
-    if (imeMatch) {
-      imevlasnika = imeMatch[1].trim()
-      console.log(`Ime vlasnika: ${imevlasnika}`)
+    // Traži "fullName" u author objektu: "author":{"id":1118665,"fullName":"Ime Prezime",...}
+    const fullNameMatch = html.match(/"author"\s*:\s*\{[^}]*"fullName"\s*:\s*"([^"]+)"/i)
+    if (fullNameMatch && fullNameMatch[1].trim()) {
+      imevlasnika = fullNameMatch[1].trim()
+      console.log(`Ime vlasnika iz JSON: ${imevlasnika}`)
+    }
+    
+    // Fallback: traži u HTML-u
+    if (!imevlasnika) {
+      const imeMatch = html.match(/(?:oglašivač|vlasnik|kontakt)[:\s]*<[^>]*>([^<]+)/i) ||
+                       html.match(/<span[^>]*class="[^"]*name[^"]*"[^>]*>([^<]+)/i)
+      if (imeMatch) {
+        imevlasnika = imeMatch[1].trim()
+        console.log(`Ime vlasnika iz HTML: ${imevlasnika}`)
+      }
     }
     
     // ========== TIP OGLASA (PRODAJA/RENTA) ==========
@@ -248,6 +349,8 @@ async function parseOglasDetalji(url: string): Promise<{
       email,
       imevlasnika,
       rentaProdaja,
+      hasViber,
+      isAgencija: false,
     }
   } catch (e) {
     console.error('Greška pri učitavanju detalja oglasa:', e)
@@ -265,6 +368,8 @@ async function parseOglasDetalji(url: string): Promise<{
       email: null,
       imevlasnika: null,
       rentaProdaja: 'prodaja',
+      hasViber: false,
+      isAgencija: false,
     }
   }
 }
@@ -349,6 +454,8 @@ serve(async (req) => {
     let preskoceniOglasi = oglasi.length - noviOglasiZaObradu.length
     const rezultati: any[] = []
 
+    let preskoceneAgencije = 0
+
     // 5. Za svaki novi oglas - učitaj detalje i sačuvaj
     for (let i = 0; i < noviOglasiZaObradu.length; i++) {
       const oglas = noviOglasiZaObradu[i]
@@ -360,6 +467,20 @@ serve(async (req) => {
       
       // Učitaj detalje oglasa
       const detalji = await parseOglasDetalji(oglas.link)
+
+      // Preskoči ako je agencija/profesionalac
+      if (detalji.isAgencija) {
+        preskoceneAgencije++
+        rezultati.push({ id: oglas.id, link: oglas.link, status: 'preskocen', reason: 'Agencija/profesionalac' })
+        console.log(`Preskočen oglas ${oglas.id} - agencija/profesionalac`)
+        continue
+      }
+
+      // Dodaj Viber info u opis ako postoji
+      let dodatniOpis = detalji.opis || ''
+      if (detalji.hasViber && detalji.telefon1) {
+        dodatniOpis = `[VIBER: ${detalji.telefon1}] ${dodatniOpis}`.trim()
+      }
 
       // Insert novog vlasnika
       const { error: insertError } = await supabase
@@ -380,7 +501,7 @@ serve(async (req) => {
           linkoglasa: oglas.link,
           oglasnik: '4zida',
           opisoglasa: detalji.naslov || null,
-          dodatniopis: detalji.opis || null,
+          dodatniopis: dodatniOpis || null,
           oglas_id: oglas.id,
           idoglasa: oglas.id
         })
@@ -414,6 +535,7 @@ serve(async (req) => {
       ukupno: oglasi.length,
       novi: noviOglasi,
       preskoceni: preskoceniOglasi,
+      agencije: preskoceneAgencije,
       trajanje: `${Math.floor(trajanje / 60)}m ${trajanje % 60}s`,
       detalji: rezultati
     }
