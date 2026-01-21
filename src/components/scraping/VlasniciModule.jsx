@@ -247,34 +247,29 @@ export default function VlasniciModule() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-2xl shadow-lg p-6">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-            <UserCheck className="w-7 h-7 text-white" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Vlasnici</h2>
-            <p className="text-gray-500">Pregled svih vlasnika iz scraping-a</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Vlasnici</h2>
+          <p className="text-gray-500 text-sm mt-1">Pregled svih vlasnika iz scraping-a</p>
+        </div>
+        <div className="flex items-center gap-3">
+          {/* Statistika kao badge-evi */}
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+              Ukupno: {stats.ukupno}
+            </span>
+            <span className="px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+              Aktivni: {stats.aktivni}
+            </span>
+            <span className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+              Arhivirani: {stats.arhivirani}
+            </span>
           </div>
         </div>
+      </div>
 
-        {/* Statistika */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-            <div className="text-sm text-blue-600">Ukupno</div>
-            <div className="text-2xl font-bold text-blue-700">{stats.ukupno}</div>
-          </div>
-          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-            <div className="text-sm text-green-600">Aktivni</div>
-            <div className="text-2xl font-bold text-green-700">{stats.aktivni}</div>
-          </div>
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
-            <div className="text-sm text-gray-600">Arhivirani</div>
-            <div className="text-2xl font-bold text-gray-700">{stats.arhivirani}</div>
-          </div>
-        </div>
-
-        {/* Filteri */}
+      {/* Filteri */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
         <div className="flex flex-wrap gap-4">
           <div className="flex-1 min-w-[200px]">
             <div className="relative">
@@ -284,7 +279,7 @@ export default function VlasniciModule() {
                 placeholder="Pretraži po imenu, telefonu, lokaciji..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -292,7 +287,7 @@ export default function VlasniciModule() {
           <select
             value={filterGrad}
             onChange={(e) => setFilterGrad(e.target.value)}
-            className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500"
           >
             <option value="">Svi gradovi</option>
             {uniqueGradovi.map(grad => (
@@ -303,7 +298,7 @@ export default function VlasniciModule() {
           <select
             value={filterOglasnik}
             onChange={(e) => setFilterOglasnik(e.target.value)}
-            className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500"
           >
             <option value="">Svi oglasnici</option>
             {uniqueOglasnici.map(oglasnik => (
@@ -314,7 +309,7 @@ export default function VlasniciModule() {
           <select
             value={filterRentaProdaja}
             onChange={(e) => setFilterRentaProdaja(e.target.value)}
-            className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500"
           >
             <option value="">Sve vrste</option>
             <option value="prodaja">Prodaja</option>
@@ -326,7 +321,7 @@ export default function VlasniciModule() {
               type="checkbox"
               checked={showArhivirani}
               onChange={(e) => setShowArhivirani(e.target.checked)}
-              className="w-4 h-4 text-blue-600 rounded"
+              className="w-4 h-4 text-amber-600 rounded"
             />
             <span className="text-sm text-gray-700">Prikaži arhivirane</span>
           </label>
@@ -349,7 +344,7 @@ export default function VlasniciModule() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+              <thead className="bg-gradient-to-r from-amber-500 to-amber-600 text-white">
                 <tr>
                   <th className="px-4 py-3 text-left text-sm font-semibold">
                     <button onClick={() => handleSort('datumkreiranja')} className="flex items-center gap-1">
