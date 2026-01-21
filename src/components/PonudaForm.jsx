@@ -2397,6 +2397,19 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                 )}
                 </div>
               </div>
+              <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">📥 Način dobijanja oglasa</label>
+                <select
+                  value={formData.idnacindobijanja}
+                  onChange={(e) => handleFieldChange('idnacindobijanja', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                >
+                  <option value="">Izaberite način dobijanja</option>
+                  {naciniDobijanja.map(nacin => (
+                    <option key={nacin.id} value={nacin.id}>{nacin.opis}</option>
+                  ))}
+                </select>
+              </div>
               </div>
 
             </div>
@@ -2946,22 +2959,6 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                   <option value="">Izaberite investitora</option>
                   {investitori.map(investitor => (
                     <option key={investitor.id} value={investitor.id}>{investitor.naziv}</option>
-                  ))}
-                </select>
-              </div>
-
-                <div className="bg-slate-50 rounded-xl p-3">
-                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
-                    <span>📥</span> Način dobijanja oglasa
-                </label>
-                <select
-                  value={formData.idnacindobijanja}
-                  onChange={(e) => handleFieldChange('idnacindobijanja', e.target.value)}
-                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
-                >
-                  <option value="">Izaberite način dobijanja</option>
-                  {naciniDobijanja.map(nacin => (
-                    <option key={nacin.id} value={nacin.id}>{nacin.opis}</option>
                   ))}
                 </select>
               </div>
