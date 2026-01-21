@@ -23,7 +23,7 @@ export default function ScrapingConfigModule() {
 
   // Forma - pojednostavljena (bez kategorija, tip, grad)
   const [formData, setFormData] = useState({
-    portal: 'halooglasi',
+    portal: '',
     url: '',
     opis: '',
     samo_vlasnici: true,
@@ -31,8 +31,6 @@ export default function ScrapingConfigModule() {
     prioritet: 5,
     aktivan: true
   })
-
-  const portali = ['halooglasi', 'nekretnine.rs', '4zida', 'cityexpert', 'sasomange', 'oglasi.rs', 'ostalo']
 
   useEffect(() => {
     loadConfigs()
@@ -106,7 +104,7 @@ export default function ScrapingConfigModule() {
   const handleEdit = (config) => {
     setEditingConfig(config)
     setFormData({
-      portal: config.portal || 'halooglasi',
+      portal: config.portal || '',
       url: config.url || '',
       opis: config.opis || '',
       samo_vlasnici: config.samo_vlasnici ?? true,
@@ -183,7 +181,7 @@ export default function ScrapingConfigModule() {
 
   const resetForm = () => {
     setFormData({
-      portal: 'halooglasi',
+      portal: '',
       url: '',
       opis: '',
       samo_vlasnici: true,
@@ -443,16 +441,14 @@ export default function ScrapingConfigModule() {
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               {/* Portal */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Portal *</label>
-                <select
+                <label className="block text-sm font-medium text-gray-700 mb-1">Portal</label>
+                <input
+                  type="text"
                   value={formData.portal}
                   onChange={(e) => setFormData({ ...formData, portal: e.target.value })}
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                >
-                  {portali.map(p => (
-                    <option key={p} value={p}>{p}</option>
-                  ))}
-                </select>
+                  placeholder="npr. halooglasi, nekretnine.rs..."
+                />
               </div>
 
               {/* URL */}
