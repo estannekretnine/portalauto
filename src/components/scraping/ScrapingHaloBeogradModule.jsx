@@ -60,8 +60,9 @@ export default function ScrapingHaloBeogradModule() {
       setProgress({ current: 0, total: 0, status: 'Pozivam Edge Function za scraping...' })
 
       // 2. Pozovi Edge Function za pravi scraping
+      // Limit: 5 za test, povećaj na 20-50 za produkciju
       const { data: scrapingResult, error: scrapingError } = await supabase.functions.invoke('scrape-halooglasi', {
-        body: { url: SCRAPING_URL, limit: 20 }
+        body: { url: SCRAPING_URL, limit: 5 }
       })
 
       if (scrapingError) {
