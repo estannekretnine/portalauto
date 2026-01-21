@@ -268,12 +268,19 @@ export default function ScrapingConfigModule() {
     setSingleResult(null)
   }
 
-  // Pokreni sve aktivne linkove redom
+  // Pokreni scraping za selektovani portal (ili sve ako nije selektovan)
   const handleRunAllScraping = async () => {
-    const aktivniConfigs = configs.filter(c => c.aktivan)
+    const aktivniConfigs = configs.filter(c => {
+      if (!c.aktivan) return false
+      if (filterPortal && c.portal !== filterPortal) return false
+      return true
+    })
     
     if (aktivniConfigs.length === 0) {
-      alert('Nema aktivnih linkova za scraping.')
+      alert(filterPortal 
+        ? `Nema aktivnih linkova za portal "${filterPortal}".`
+        : 'Nema aktivnih linkova za scraping.'
+      )
       return
     }
 
@@ -418,6 +425,13 @@ export default function ScrapingConfigModule() {
   // Unique values za filtere
   const uniquePortali = [...new Set(configs.map(c => c.portal).filter(Boolean))]
 
+  // Dinamički broj linkova za scraping na osnovu selekcije portala
+  const filteredActiveCount = configs.filter(c => {
+    if (!c.aktivan) return false
+    if (filterPortal && c.portal !== filterPortal) return false
+    return true
+  }).length
+
   const formatDate = (dateStr) => {
     if (!dateStr) return '-'
     return new Date(dateStr).toLocaleString('sr-RS', {
@@ -434,8 +448,8 @@ export default function ScrapingConfigModule() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Lista portala i linkova</h2>
-          <p className="text-gray-500 text-sm mt-1">Konfiguracija URL-ova za scraping nekretnina</p>
+          <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Start scraping</h2>
+          <p className="text-gray-500 text-sm mt-1">Pokretanje scrapinga po portalima</p>
         </div>
         <div className="flex items-center gap-3">
           {/* Statistika kao badge-evi */}
@@ -540,7 +554,7 @@ export default function ScrapingConfigModule() {
         <div className="flex flex-wrap items-center gap-4 mb-4">
           <button
             onClick={handleRunAllScraping}
-            disabled={batchRunning || stats.aktivnih === 0}
+            disabled={batchRunning || filteredActiveCount === 0}
             className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-600 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-500/25"
           >
             {batchRunning ? (
@@ -551,7 +565,7 @@ export default function ScrapingConfigModule() {
             ) : (
               <>
                 <PlayCircle className="w-5 h-5" />
-                Pokreni sve aktivne ({stats.aktivnih})
+                Pokreni scraping ({filteredActiveCount})
               </>
             )}
           </button>
