@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../utils/supabase'
-import { X, Phone, Save, Loader2, Home, User, MessageSquare, CheckCircle, UserPlus, Users, MapPin, Euro, Ruler, Building2, Brain } from 'lucide-react'
+import { X, Phone, Save, Loader2, Home, User, MessageSquare, CheckCircle, UserPlus, Users, MapPin, Euro, Ruler, Building2, Brain, Tv } from 'lucide-react'
 import { getCurrentUser } from '../utils/auth'
 
 export default function PonudaDetaljiForm({ ponuda, onClose, onSuccess }) {
@@ -8,11 +8,14 @@ export default function PonudaDetaljiForm({ ponuda, onClose, onSuccess }) {
   const [searchingKupac, setSearchingKupac] = useState(false)
   const [kupacStatus, setKupacStatus] = useState(null) // 'novi' | 'stari' | null
   const [existingTraznja, setExistingTraznja] = useState(null)
+  const [mediji, setMediji] = useState([])
+  const [loadingMediji, setLoadingMediji] = useState(false)
   
   // Podaci o kupcu
   const [kupacData, setKupacData] = useState({
     kontakttelefon: '',
-    kontaktosoba: ''
+    kontaktosoba: '',
+    idmedij: ''
   })
   
   // Podaci za poziv
@@ -56,6 +59,29 @@ export default function PonudaDetaljiForm({ ponuda, onClose, onSuccess }) {
       prioritet_kvadratura: '', prioritet_sprat: ''
     }
   })
+
+  // Učitaj medije
+  useEffect(() => {
+    loadMediji()
+  }, [])
+
+  const loadMediji = async () => {
+    setLoadingMediji(true)
+    try {
+      const { data, error } = await supabase
+        .from('mediji')
+        .select('id, opis')
+        .or('stsarhiva.is.null,stsarhiva.eq.false')
+        .order('opis', { ascending: true })
+
+      if (error) throw error
+      setMediji(data || [])
+    } catch (error) {
+      console.error('Greška pri učitavanju medija:', error)
+    } finally {
+      setLoadingMediji(false)
+    }
+  }
 
   // Pretraga kupca po telefonu
   const searchKupac = async () => {
@@ -233,6 +259,7 @@ export default function PonudaDetaljiForm({ ponuda, onClose, onSuccess }) {
         komentar: pozivData.komentar || null,
         ai_karakteristike: aiKarakteristike,
         iduser: currentUser?.id || null,
+        idmedij: kupacData.idmedij ? parseInt(kupacData.idmedij) : null,
         arhiviran: false
       }
 
@@ -377,6 +404,33 @@ export default function PonudaDetaljiForm({ ponuda, onClose, onSuccess }) {
                     placeholder="Ime i prezime kupca..."
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Medij - Iz kog ste medija saznali za nas */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Tv className="w-4 h-4 inline mr-1 text-purple-500" />
+                Iz kog ste medija saznali za nas?
+              </label>
+              <div className="relative">
+                <Tv className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <select
+                  value={kupacData.idmedij}
+                  onChange={(e) => handleKupacChange('idmedij', e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                  disabled={loadingMediji}
+                >
+                  <option value="">-- Izaberite medij --</option>
+                  {mediji.map(medij => (
+                    <option key={medij.id} value={medij.id}>
+                      {medij.opis}
+                    </option>
+                  ))}
+                </select>
+                {loadingMediji && (
+                  <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 animate-spin" />
+                )}
               </div>
             </div>
 
