@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { supabase } from '../../utils/supabase'
-import { Phone, Loader2, Calendar, Filter, Printer, ChevronDown, ChevronUp } from 'lucide-react'
+import { Phone, Loader2, Calendar, Filter, Printer, ChevronDown, ChevronUp, Tv } from 'lucide-react'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,7 +11,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js'
-import { Bar, Pie } from 'react-chartjs-2'
+import { Bar, Pie, Doughnut } from 'react-chartjs-2'
 
 ChartJS.register(
   CategoryScale,
@@ -29,8 +29,10 @@ export default function AnalizaPozivModule() {
   const [datumDo, setDatumDo] = useState('')
   const [podaci, setPodaci] = useState([])
   const [sviPozivi, setSviPozivi] = useState([])
+  const [medijPodaci, setMedijPodaci] = useState([])
   const [showReport, setShowReport] = useState(false)
   const [showAnaliticki, setShowAnaliticki] = useState(false)
+  const [showMedijiAnaliticki, setShowMedijiAnaliticki] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
   const printRef = useRef()
@@ -76,7 +78,9 @@ export default function AnalizaPozivModule() {
           stspoziv,
           komentar,
           idponude,
-          idtraznja
+          idtraznja,
+          idmedij,
+          mediji:idmedij (id, opis)
         `)
         .gte('datumkreiranja', datumOd)
         .lte('datumkreiranja', datumDo + 'T23:59:59')
@@ -87,6 +91,20 @@ export default function AnalizaPozivModule() {
       // Osiguraj da su podaci niz
       const poziviData = Array.isArray(data) ? data : []
       setSviPozivi(poziviData)
+
+      // Grupiši po medijima
+      const medijStats = {}
+      poziviData.forEach(poziv => {
+        const medijNaziv = poziv.mediji?.opis || 'Nije navedeno'
+        if (!medijStats[medijNaziv]) {
+          medijStats[medijNaziv] = { naziv: medijNaziv, count: 0 }
+        }
+        medijStats[medijNaziv].count++
+      })
+      
+      // Sortiraj po broju poziva (opadajuće)
+      const medijArray = Object.values(medijStats).sort((a, b) => b.count - a.count)
+      setMedijPodaci(medijArray)
 
       // Grupiši po mesecima i statusu
       const mesecniPodaci = {}
@@ -273,6 +291,54 @@ export default function AnalizaPozivModule() {
     }
   }
 
+  // Mediji chart boje
+  const medijChartColors = [
+    'rgba(59, 130, 246, 0.8)',   // blue
+    'rgba(16, 185, 129, 0.8)',   // emerald
+    'rgba(245, 158, 11, 0.8)',   // amber
+    'rgba(139, 92, 246, 0.8)',   // purple
+    'rgba(236, 72, 153, 0.8)',   // pink
+    'rgba(20, 184, 166, 0.8)',   // teal
+    'rgba(249, 115, 22, 0.8)',   // orange
+    'rgba(99, 102, 241, 0.8)',   // indigo
+    'rgba(34, 197, 94, 0.8)',    // green
+    'rgba(107, 114, 128, 0.8)',  // gray
+  ]
+
+  // Doughnut chart za medije
+  const medijChartData = {
+    labels: medijPodaci.map(m => m.naziv),
+    datasets: [{
+      data: medijPodaci.map(m => m.count),
+      backgroundColor: medijPodaci.map((_, i) => medijChartColors[i % medijChartColors.length]),
+      borderWidth: 2,
+      borderColor: '#fff'
+    }]
+  }
+
+  const medijChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'right',
+      },
+      title: {
+        display: true,
+        text: 'Distribucija poziva po medijima',
+        font: {
+          size: 16,
+          weight: 'bold'
+        }
+      },
+    }
+  }
+
+  // Ukupno poziva sa medijima
+  const ukupnoSaMedijima = medijPodaci.reduce((acc, m) => acc + m.count, 0)
+  const ukupnoBezMedija = medijPodaci.find(m => m.naziv === 'Nije navedeno')?.count || 0
+  const ukupnoSaNavedenim = ukupnoSaMedijima - ukupnoBezMedija
+
   // Paginacija za analitički prikaz
   const totalPages = Math.ceil(sviPozivi.length / itemsPerPage)
   const paginatedPozivi = sviPozivi.slice(
@@ -355,7 +421,7 @@ export default function AnalizaPozivModule() {
       {/* Izveštaj */}
       {showReport && (
         <>
-          {/* Grafikoni */}
+          {/* Grafikoni - Status */}
           {podaci.length > 0 && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="bg-white rounded-2xl shadow-lg p-6">
@@ -368,6 +434,111 @@ export default function AnalizaPozivModule() {
                   <Pie data={pieChartData} options={pieChartOptions} />
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Grafikoni i statistika - Mediji */}
+          {medijPodaci.length > 0 && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Doughnut chart za medije */}
+              <div className="bg-white rounded-2xl shadow-lg p-6 lg:col-span-2">
+                <div className="h-[350px]">
+                  <Doughnut data={medijChartData} options={medijChartOptions} />
+                </div>
+              </div>
+
+              {/* Statistika medija */}
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center">
+                    <Tv className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="font-bold text-gray-900">Statistika medija</h3>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-4">
+                    <div className="text-sm text-blue-600 font-medium">Ukupno poziva</div>
+                    <div className="text-2xl font-bold text-blue-900">{ukupnoSaMedijima}</div>
+                  </div>
+                  <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl p-4">
+                    <div className="text-sm text-emerald-600 font-medium">Sa navedenim medijem</div>
+                    <div className="text-2xl font-bold text-emerald-900">{ukupnoSaNavedenim}</div>
+                  </div>
+                  <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-4">
+                    <div className="text-sm text-gray-600 font-medium">Bez navedenog medija</div>
+                    <div className="text-2xl font-bold text-gray-900">{ukupnoBezMedija}</div>
+                  </div>
+                  {ukupnoSaMedijima > 0 && (
+                    <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-4">
+                      <div className="text-sm text-purple-600 font-medium">% sa medijem</div>
+                      <div className="text-2xl font-bold text-purple-900">
+                        {((ukupnoSaNavedenim / ukupnoSaMedijima) * 100).toFixed(1)}%
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tabela medija */}
+          {medijPodaci.length > 0 && (
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+              <button
+                onClick={() => setShowMedijiAnaliticki(!showMedijiAnaliticki)}
+                className="w-full px-6 py-4 flex items-center justify-between bg-gradient-to-r from-purple-50 to-indigo-50 hover:from-purple-100 hover:to-indigo-100 transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <Tv className="w-5 h-5 text-purple-600" />
+                  <span className="font-semibold text-gray-900">Analiza po medijima</span>
+                  <span className="text-sm text-gray-500">({medijPodaci.length} izvora)</span>
+                </div>
+                {showMedijiAnaliticki ? (
+                  <ChevronUp className="w-5 h-5 text-gray-500" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-gray-500" />
+                )}
+              </button>
+
+              {showMedijiAnaliticki && (
+                <div className="p-6">
+                  <table className="w-full border-collapse text-sm">
+                    <thead>
+                      <tr className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                        <th className="border border-purple-400 px-4 py-3 text-left">R.br.</th>
+                        <th className="border border-purple-400 px-4 py-3 text-left">Medij</th>
+                        <th className="border border-purple-400 px-4 py-3 text-center">Broj poziva</th>
+                        <th className="border border-purple-400 px-4 py-3 text-center">Procenat</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {medijPodaci.map((medij, index) => (
+                        <tr key={medij.naziv} className={index % 2 === 0 ? 'bg-white' : 'bg-purple-50'}>
+                          <td className="border border-gray-200 px-4 py-3 font-medium text-gray-500">{index + 1}</td>
+                          <td className="border border-gray-200 px-4 py-3 font-medium">
+                            <div className="flex items-center gap-2">
+                              <div 
+                                className="w-3 h-3 rounded-full" 
+                                style={{ backgroundColor: medijChartColors[index % medijChartColors.length] }}
+                              />
+                              {medij.naziv}
+                            </div>
+                          </td>
+                          <td className="border border-gray-200 px-4 py-3 text-center">
+                            <span className="inline-flex items-center justify-center min-w-[50px] h-8 bg-purple-100 text-purple-800 font-bold rounded-lg">
+                              {medij.count}
+                            </span>
+                          </td>
+                          <td className="border border-gray-200 px-4 py-3 text-center font-medium">
+                            {ukupnoSaMedijima > 0 ? ((medij.count / ukupnoSaMedijima) * 100).toFixed(1) : 0}%
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
 
@@ -484,6 +655,7 @@ export default function AnalizaPozivModule() {
                         <th className="border border-gray-200 px-3 py-2 text-left">ID</th>
                         <th className="border border-gray-200 px-3 py-2 text-left">Datum</th>
                         <th className="border border-gray-200 px-3 py-2 text-left">Status</th>
+                        <th className="border border-gray-200 px-3 py-2 text-left">Medij</th>
                         <th className="border border-gray-200 px-3 py-2 text-left">Komentar</th>
                         <th className="border border-gray-200 px-3 py-2 text-center">Ponuda ID</th>
                         <th className="border border-gray-200 px-3 py-2 text-center">Tražnja ID</th>
@@ -498,6 +670,16 @@ export default function AnalizaPozivModule() {
                             <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-bold ${getStatusColor(poziv.stspoziv)}`}>
                               {getStatusLabel(poziv.stspoziv)}
                             </span>
+                          </td>
+                          <td className="border border-gray-200 px-3 py-2">
+                            {poziv.mediji?.opis ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium bg-purple-100 text-purple-800">
+                                <Tv className="w-3 h-3" />
+                                {poziv.mediji.opis}
+                              </span>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
                           </td>
                           <td className="border border-gray-200 px-3 py-2 max-w-xs truncate">{poziv.komentar || '-'}</td>
                           <td className="border border-gray-200 px-3 py-2 text-center">{poziv.idponude || '-'}</td>
