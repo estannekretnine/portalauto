@@ -34,53 +34,79 @@ function randomDelay(): number {
 function parseOglasi(html: string): any[] {
   const oglasi: any[] = []
   
-  // Regex za pronalaženje oglasa
-  // HaloOglasi koristi specifičnu strukturu - ovo je pojednostavljena verzija
-  // U produkciji bi trebalo koristiti pravi HTML parser
+  // HaloOglasi koristi <div class="product-item"> za oglase
+  // Probamo više varijanti regex-a
+  const regexPatterns = [
+    /<div[^>]*class="[^"]*product-item[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>\s*<\/div>/gi,
+    /<div[^>]*class="[^"]*product-item[^"]*"[^>]*data-id="(\d+)"[^>]*>([\s\S]*?)(?=<div[^>]*class="[^"]*product-item|$)/gi,
+  ]
   
-  // Pronađi sve product-item elemente
-  const oglasRegex = /<article[^>]*class="[^"]*product-item[^"]*"[^>]*>([\s\S]*?)<\/article>/gi
-  let match
+  // Prvo probaj da nađemo sve oglase korišćenjem data-id atributa
+  const dataIdRegex = /data-id="(\d+)"/g
+  const allDataIds: string[] = []
+  let dataIdMatch
+  while ((dataIdMatch = dataIdRegex.exec(html)) !== null) {
+    if (!allDataIds.includes(dataIdMatch[1])) {
+      allDataIds.push(dataIdMatch[1])
+    }
+  }
+  console.log(`Pronađeno ${allDataIds.length} data-id atributa`)
   
-  while ((match = oglasRegex.exec(html)) !== null) {
-    const oglasHtml = match[1]
-    
+  // Pronađi svaki oglas po data-id
+  for (const dataId of allDataIds) {
     try {
-      // Izvuci ID oglasa iz linka
+      // Nađi deo HTML-a koji sadrži ovaj oglas
+      const oglasStartRegex = new RegExp(`<div[^>]*class="[^"]*product-item[^"]*"[^>]*data-id="${dataId}"`, 'i')
+      const startMatch = oglasStartRegex.exec(html)
+      
+      if (!startMatch) continue
+      
+      const startIndex = startMatch.index
+      // Uzmi sledećih 3000 karaktera kao kontekst oglasa
+      const oglasHtml = html.substring(startIndex, startIndex + 3000)
+      
+      // Izvuci link i ID oglasa
       const linkMatch = oglasHtml.match(/href="([^"]*\/nekretnine\/[^"]+)"/i)
-      const link = linkMatch ? 'https://www.halooglasi.com' + linkMatch[1] : null
-      const idMatch = link?.match(/\/(\d+)(?:\?|$)/)
-      const idoglasa = idMatch ? idMatch[1] : null
+      const link = linkMatch ? (linkMatch[1].startsWith('http') ? linkMatch[1] : 'https://www.halooglasi.com' + linkMatch[1]) : null
+      const idoglasa = dataId
       
-      if (!idoglasa) continue
-      
-      // Izvuci cenu
-      const cenaMatch = oglasHtml.match(/data-value="(\d+)"/i) || 
-                        oglasHtml.match(/class="[^"]*price[^"]*"[^>]*>[\s]*([0-9.,]+)/i)
-      const cena = cenaMatch ? parseInt(cenaMatch[1].replace(/[.,]/g, '')) : null
+      // Izvuci cenu - HaloOglasi koristi data-value ili prikazuje cenu u EUR
+      const cenaDataMatch = oglasHtml.match(/data-value="(\d+)"/i)
+      const cenaTextMatch = oglasHtml.match(/(\d{1,3}(?:[.,]\d{3})*)\s*(?:EUR|€)/i)
+      let cena: number | null = null
+      if (cenaDataMatch) {
+        cena = parseInt(cenaDataMatch[1])
+      } else if (cenaTextMatch) {
+        cena = parseInt(cenaTextMatch[1].replace(/[.,]/g, ''))
+      }
       
       // Izvuci kvadraturu
       const kvadraturaMatch = oglasHtml.match(/(\d+(?:[.,]\d+)?)\s*m²/i)
       const kvadratura = kvadraturaMatch ? parseFloat(kvadraturaMatch[1].replace(',', '.')) : null
       
-      // Izvuci lokaciju
-      const lokacijaMatch = oglasHtml.match(/class="[^"]*subtitle[^"]*"[^>]*>([^<]+)/i)
+      // Izvuci lokaciju iz subtitle ili geo-info
+      const lokacijaMatch = oglasHtml.match(/class="[^"]*subtitle[^"]*"[^>]*>([^<]+)/i) ||
+                           oglasHtml.match(/class="[^"]*product-info[^"]*"[^>]*>[\s\S]*?<a[^>]*>([^<]+)/i)
       const lokacijaText = lokacijaMatch ? lokacijaMatch[1].trim() : ''
-      const lokacijaParts = lokacijaText.split(',').map(s => s.trim())
+      const lokacijaParts = lokacijaText.split(',').map((s: string) => s.trim())
       
       // Izvuci naslov/opis
-      const naslovMatch = oglasHtml.match(/class="[^"]*product-title[^"]*"[^>]*>([^<]+)/i)
+      const naslovMatch = oglasHtml.match(/class="[^"]*product-title[^"]*"[^>]*>[\s\S]*?<a[^>]*>([^<]+)/i) ||
+                         oglasHtml.match(/class="[^"]*product-title[^"]*"[^>]*>([^<]+)/i)
       const opisoglasa = naslovMatch ? naslovMatch[1].trim() : ''
       
-      // Proveri datum - da li je danas ili juče
-      const datumMatch = oglasHtml.match(/class="[^"]*publish-date[^"]*"[^>]*>([^<]+)/i)
+      // Proveri datum objave - "publish-date" ili "posted" ili slično
+      const datumMatch = oglasHtml.match(/class="[^"]*publish-date[^"]*"[^>]*>([^<]+)/i) ||
+                        oglasHtml.match(/class="[^"]*date[^"]*"[^>]*>([^<]+)/i) ||
+                        oglasHtml.match(/class="[^"]*time[^"]*"[^>]*>([^<]+)/i)
       const datumText = datumMatch ? datumMatch[1].trim().toLowerCase() : ''
       
-      // Današnji i jučerašnji oglasi
-      const isDanas = datumText.includes('danas') || datumText.includes('today')
-      const isJuce = datumText.includes('juče') || datumText.includes('juce') || datumText.includes('yesterday')
+      // Za sada prihvatamo sve oglase (bez filtriranja po datumu)
+      // jer datum može biti u različitim formatima
+      // Kasnije možemo dodati filter ako treba
       
-      if (!isDanas && !isJuce) continue
+      // Preskoči ako nemamo osnovne podatke
+      if (!idoglasa) continue
       
       oglasi.push({
         idoglasa,
@@ -90,16 +116,20 @@ function parseOglasi(html: string): any[] {
         opstina: lokacijaParts[0] || null,
         lokacija: lokacijaParts[1] || null,
         opisoglasa,
-        // Ovi podaci se obično dobijaju tek kad se otvori pojedinačni oglas
+        datumObjave: datumText,
         imevlasnika: null,
         kontakttelefon1: null,
         kontakttelefon2: null,
       })
+      
+      console.log(`Parsiran oglas: ${idoglasa}, cena: ${cena}, m2: ${kvadratura}`)
+      
     } catch (e) {
       console.error('Greška pri parsiranju oglasa:', e)
     }
   }
   
+  console.log(`Ukupno parsirano ${oglasi.length} oglasa`)
   return oglasi
 }
 
