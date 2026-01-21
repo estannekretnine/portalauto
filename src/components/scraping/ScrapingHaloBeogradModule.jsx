@@ -192,14 +192,18 @@ export default function ScrapingHaloBeogradModule() {
   }
 
   // Mock funkcija - u produkciji ovo zamenjuje Edge Function
+  // NAPOMENA: Za pravi scraping potrebno je deploy-ovati Supabase Edge Function
+  // i pozvati je umesto ove mock funkcije
   const fetchOglasiMock = async () => {
     // Simulacija učitavanja
     await sleep(2000)
     
-    // Mock podaci za testiranje
+    // Mock podaci za testiranje sa FIKSNIM ID-ovima (kao pravi ID-ovi sa portala)
+    // Ovi ID-ovi simuliraju prave ID-ove oglasa sa HaloOglasi
+    // Deduplikacija radi po ovom polju - ako oglas sa istim ID-om već postoji, biće preskočen
     return [
       {
-        idoglasa: 'test-' + Date.now() + '-1',
+        idoglasa: '5521234567890',  // Fiksni ID - simulira pravi ID sa portala
         imevlasnika: 'Petar Petrović',
         kontakttelefon1: '0641234567',
         kontakttelefon2: null,
@@ -207,11 +211,11 @@ export default function ScrapingHaloBeogradModule() {
         kvadratura: 65,
         opstina: 'Vračar',
         lokacija: 'Crveni Krst',
-        linkoglasa: 'https://www.halooglasi.com/nekretnine/prodaja-stanova/test-1',
+        linkoglasa: 'https://www.halooglasi.com/nekretnine/prodaja-stanova/stan-vracar-65m2/5521234567890',
         opisoglasa: 'Prodajem stan na Vračaru, 65m2, renoviran'
       },
       {
-        idoglasa: 'test-' + Date.now() + '-2',
+        idoglasa: '5521234567891',  // Fiksni ID - simulira pravi ID sa portala
         imevlasnika: 'Marko Marković',
         kontakttelefon1: '0659876543',
         kontakttelefon2: '0112345678',
@@ -219,8 +223,20 @@ export default function ScrapingHaloBeogradModule() {
         kvadratura: 85,
         opstina: 'Novi Beograd',
         lokacija: 'Blok 45',
-        linkoglasa: 'https://www.halooglasi.com/nekretnine/prodaja-stanova/test-2',
+        linkoglasa: 'https://www.halooglasi.com/nekretnine/prodaja-stanova/lux-stan-nbgd/5521234567891',
         opisoglasa: 'Lux stan na Novom Beogradu'
+      },
+      {
+        idoglasa: '5521234567892',  // Fiksni ID - simulira pravi ID sa portala
+        imevlasnika: 'Jovan Jovanović',
+        kontakttelefon1: '0631112233',
+        kontakttelefon2: null,
+        cena: 95000,
+        kvadratura: 72,
+        opstina: 'Zvezdara',
+        lokacija: 'Vukov Spomenik',
+        linkoglasa: 'https://www.halooglasi.com/nekretnine/prodaja-stanova/stan-zvezdara/5521234567892',
+        opisoglasa: 'Trosoban stan kod Vukovog spomenika'
       }
     ]
   }
@@ -457,7 +473,7 @@ export default function ScrapingHaloBeogradModule() {
             </li>
             <li className="flex items-start gap-3">
               <span className="w-6 h-6 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
-              <span>Filtrira samo današnje oglase</span>
+              <span>Filtrira današnje i jučerašnje oglase</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="w-6 h-6 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>

@@ -72,14 +72,15 @@ function parseOglasi(html: string): any[] {
       const naslovMatch = oglasHtml.match(/class="[^"]*product-title[^"]*"[^>]*>([^<]+)/i)
       const opisoglasa = naslovMatch ? naslovMatch[1].trim() : ''
       
-      // Proveri datum - da li je danas
+      // Proveri datum - da li je danas ili juče
       const datumMatch = oglasHtml.match(/class="[^"]*publish-date[^"]*"[^>]*>([^<]+)/i)
       const datumText = datumMatch ? datumMatch[1].trim().toLowerCase() : ''
       
-      // Samo današnji oglasi
+      // Današnji i jučerašnji oglasi
       const isDanas = datumText.includes('danas') || datumText.includes('today')
+      const isJuce = datumText.includes('juče') || datumText.includes('juce') || datumText.includes('yesterday')
       
-      if (!isDanas) continue
+      if (!isDanas && !isJuce) continue
       
       oglasi.push({
         idoglasa,
