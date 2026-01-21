@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../utils/supabase'
-import { UserCheck, Search, Filter, ChevronDown, ChevronUp, ExternalLink, Phone, MapPin, Euro, Ruler, Calendar, Archive, ArchiveRestore, Eye } from 'lucide-react'
+import { getCurrentUser } from '../../utils/auth'
+import { UserCheck, Search, Filter, ChevronDown, ChevronUp, ExternalLink, Phone, MapPin, Euro, Ruler, Calendar, Archive, ArchiveRestore, Eye, MessageSquare, Send, X } from 'lucide-react'
 
 export default function VlasniciModule() {
   const [vlasnici, setVlasnici] = useState([])
@@ -14,10 +15,30 @@ export default function VlasniciModule() {
   const [sortDirection, setSortDirection] = useState('desc')
   const [selectedVlasnik, setSelectedVlasnik] = useState(null)
   const [stats, setStats] = useState({ ukupno: 0, aktivni: 0, arhivirani: 0 })
+  
+  // Komentari state
+  const [vlasnicISaKomentarima, setVlasnicISaKomentarima] = useState(new Set())
+  const [showKomentarPopup, setShowKomentarPopup] = useState(null)
+  const [komentariZaVlasnika, setKomentariZaVlasnika] = useState([])
+  const [noviKomentar, setNoviKomentar] = useState('')
+  const [loadingKomentari, setLoadingKomentari] = useState(false)
+  const [savingKomentar, setSavingKomentar] = useState(false)
+  const popupRef = useRef(null)
 
   useEffect(() => {
     loadVlasnici()
   }, [showArhivirani])
+
+  // Zatvori popup kad se klikne van njega
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (popupRef.current && !popupRef.current.contains(event.target)) {
+        setShowKomentarPopup(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const loadVlasnici = async () => {
     setLoading(true)
@@ -53,11 +74,91 @@ export default function VlasniciModule() {
         arhivirani: arhiviraniCount || 0
       })
 
+      // Učitaj koji vlasnici imaju komentare
+      const { data: komentariData } = await supabase
+        .from('komentar')
+        .select('idvlasnici')
+      
+      if (komentariData) {
+        setVlasnicISaKomentarima(new Set(komentariData.map(k => k.idvlasnici)))
+      }
+
     } catch (error) {
       console.error('Greška pri učitavanju vlasnika:', error)
     } finally {
       setLoading(false)
     }
+  }
+
+  // Učitaj komentare za određenog vlasnika
+  const loadKomentariZaVlasnika = async (vlasnikId) => {
+    setLoadingKomentari(true)
+    try {
+      const { data, error } = await supabase
+        .from('komentar')
+        .select(`
+          *,
+          korisnici:userid (naziv, email)
+        `)
+        .eq('idvlasnici', vlasnikId)
+        .order('datumkreiranja', { ascending: false })
+
+      if (error) throw error
+      setKomentariZaVlasnika(data || [])
+    } catch (error) {
+      console.error('Greška pri učitavanju komentara:', error)
+    } finally {
+      setLoadingKomentari(false)
+    }
+  }
+
+  // Otvori popup za komentare
+  const openKomentarPopup = async (vlasnikId) => {
+    setShowKomentarPopup(vlasnikId)
+    setNoviKomentar('')
+    await loadKomentariZaVlasnika(vlasnikId)
+  }
+
+  // Dodaj novi komentar
+  const handleDodajKomentar = async (vlasnikId) => {
+    if (!noviKomentar.trim()) return
+    
+    setSavingKomentar(true)
+    try {
+      const currentUser = getCurrentUser()
+      
+      const { error } = await supabase
+        .from('komentar')
+        .insert({
+          datumkreiranja: new Date().toISOString(),
+          userid: currentUser?.id || null,
+          idvlasnici: vlasnikId,
+          komentar: noviKomentar.trim()
+        })
+
+      if (error) throw error
+
+      // Osveži komentare i listu vlasnika sa komentarima
+      setNoviKomentar('')
+      await loadKomentariZaVlasnika(vlasnikId)
+      setVlasnicISaKomentarima(prev => new Set([...prev, vlasnikId]))
+    } catch (error) {
+      console.error('Greška pri dodavanju komentara:', error)
+      alert('Greška pri dodavanju komentara: ' + error.message)
+    } finally {
+      setSavingKomentar(false)
+    }
+  }
+
+  const formatDateTime = (dateStr) => {
+    if (!dateStr) return '-'
+    return new Date(dateStr).toLocaleString('sr-RS', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
   }
 
   const handleArchive = async (vlasnik) => {
@@ -340,7 +441,7 @@ export default function VlasniciModule() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center justify-center gap-2">
+                      <div className="flex items-center justify-center gap-2 relative">
                         {vlasnik.linkoglasa && (
                           <a
                             href={vlasnik.linkoglasa}
@@ -359,6 +460,88 @@ export default function VlasniciModule() {
                         >
                           <Eye className="w-4 h-4" />
                         </button>
+                        
+                        {/* Dugme za komentar */}
+                        <div className="relative">
+                          <button
+                            onClick={() => openKomentarPopup(vlasnik.id)}
+                            className={`p-2 rounded-lg transition-colors ${
+                              vlasnicISaKomentarima.has(vlasnik.id)
+                                ? 'text-red-600 bg-red-50 hover:bg-red-100'
+                                : 'text-gray-600 hover:bg-gray-100'
+                            }`}
+                            title={vlasnicISaKomentarima.has(vlasnik.id) ? 'Ima komentare' : 'Dodaj komentar'}
+                          >
+                            <MessageSquare className="w-4 h-4" />
+                          </button>
+
+                          {/* Inline popup za komentare */}
+                          {showKomentarPopup === vlasnik.id && (
+                            <div 
+                              ref={popupRef}
+                              className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-200 z-50"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {/* Header */}
+                              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50 rounded-t-xl">
+                                <h4 className="font-semibold text-gray-900 text-sm">Komentari</h4>
+                                <button
+                                  onClick={() => setShowKomentarPopup(null)}
+                                  className="p-1 hover:bg-gray-200 rounded"
+                                >
+                                  <X className="w-4 h-4 text-gray-500" />
+                                </button>
+                              </div>
+
+                              {/* Lista komentara */}
+                              <div className="max-h-48 overflow-y-auto p-3 space-y-2">
+                                {loadingKomentari ? (
+                                  <div className="text-center py-4">
+                                    <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                                  </div>
+                                ) : komentariZaVlasnika.length === 0 ? (
+                                  <p className="text-sm text-gray-500 text-center py-4">Nema komentara</p>
+                                ) : (
+                                  komentariZaVlasnika.map((k) => (
+                                    <div key={k.id} className="bg-gray-50 rounded-lg p-3">
+                                      <p className="text-sm text-gray-900">{k.komentar}</p>
+                                      <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+                                        <span>{k.korisnici?.naziv || k.korisnici?.email || 'Nepoznat'}</span>
+                                        <span>{formatDateTime(k.datumkreiranja)}</span>
+                                      </div>
+                                    </div>
+                                  ))
+                                )}
+                              </div>
+
+                              {/* Forma za novi komentar */}
+                              <div className="border-t border-gray-100 p-3">
+                                <textarea
+                                  value={noviKomentar}
+                                  onChange={(e) => setNoviKomentar(e.target.value)}
+                                  placeholder="Dodaj komentar..."
+                                  className="w-full text-sm border border-gray-200 rounded-lg p-2 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                  rows={2}
+                                />
+                                <button
+                                  onClick={() => handleDodajKomentar(vlasnik.id)}
+                                  disabled={!noviKomentar.trim() || savingKomentar}
+                                  className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                  {savingKomentar ? (
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                  ) : (
+                                    <>
+                                      <Send className="w-4 h-4" />
+                                      Dodaj
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
                         <button
                           onClick={() => handleArchive(vlasnik)}
                           className={`p-2 rounded-lg transition-colors ${

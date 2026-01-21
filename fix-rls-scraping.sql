@@ -70,6 +70,40 @@ CREATE POLICY "Allow public delete vremetrajanja" ON public.vremetrajanja
     USING (true);
 
 -- ============================================
+-- TABELA: komentar
+-- ============================================
+
+-- Omogući RLS za komentar tabelu
+ALTER TABLE public.komentar ENABLE ROW LEVEL SECURITY;
+
+-- Obriši postojeće politike ako postoje
+DROP POLICY IF EXISTS "Allow public read komentar" ON public.komentar;
+DROP POLICY IF EXISTS "Allow public insert komentar" ON public.komentar;
+DROP POLICY IF EXISTS "Allow public update komentar" ON public.komentar;
+DROP POLICY IF EXISTS "Allow public delete komentar" ON public.komentar;
+
+-- Politika za čitanje - svi mogu čitati
+CREATE POLICY "Allow public read komentar" ON public.komentar
+    FOR SELECT
+    USING (true);
+
+-- Politika za insert - svi mogu dodavati
+CREATE POLICY "Allow public insert komentar" ON public.komentar
+    FOR INSERT
+    WITH CHECK (true);
+
+-- Politika za update - svi mogu menjati
+CREATE POLICY "Allow public update komentar" ON public.komentar
+    FOR UPDATE
+    USING (true)
+    WITH CHECK (true);
+
+-- Politika za delete - svi mogu brisati
+CREATE POLICY "Allow public delete komentar" ON public.komentar
+    FOR DELETE
+    USING (true);
+
+-- ============================================
 -- PROVERA
 -- ============================================
 
@@ -89,4 +123,13 @@ SELECT
   cmd as command
 FROM pg_policies 
 WHERE tablename = 'vremetrajanja'
+ORDER BY policyname;
+
+-- Proveri kreirane politike za komentar
+SELECT 
+  tablename,
+  policyname,
+  cmd as command
+FROM pg_policies 
+WHERE tablename = 'komentar'
 ORDER BY policyname;
