@@ -28,7 +28,6 @@ import ProdajaRentaModule from './izvestaji/ProdajaRentaModule'
 import ArhiviraniOglasiModule from './izvestaji/ArhiviraniOglasiModule'
 import TereniModule from './TereniModule'
 import ProveraModule from './ProveraModule'
-import ScrapingHaloBeogradModule from './scraping/ScrapingHaloBeogradModule'
 import VlasniciModule from './scraping/VlasniciModule'
 import VremeTrajanjModule from './scraping/VremeTrajanjModule'
 import ScrapingConfigModule from './scraping/ScrapingConfigModule'
@@ -157,7 +156,6 @@ export default function Dashboard() {
             </div>
           ))}
           {activeModule === 'scraping-config' && <ScrapingConfigModule />}
-          {activeModule === 'scraping-halo-beograd-stan' && <ScrapingHaloBeogradModule />}
           {activeModule === 'scraping-vlasnici' && <VlasniciModule />}
           {activeModule === 'scraping-vreme-trajanja' && <VremeTrajanjModule />}
         </main>

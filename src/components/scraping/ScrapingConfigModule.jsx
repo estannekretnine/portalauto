@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../utils/supabase'
-import { List, Plus, Pencil, Trash2, Search, Play, Power, PowerOff, ExternalLink, X, Save, Loader2, PlayCircle, CheckCircle, XCircle, AlertTriangle, RefreshCw } from 'lucide-react'
+import { List, Plus, Pencil, Trash2, Search, Play, Power, PowerOff, ExternalLink, X, Save, Loader2, PlayCircle, CheckCircle, XCircle, AlertTriangle, RefreshCw, Clock, Users } from 'lucide-react'
 
 export default function ScrapingConfigModule() {
   const [configs, setConfigs] = useState([])
@@ -26,6 +26,13 @@ export default function ScrapingConfigModule() {
     neaktivnih: 0
   })
 
+  // Globalna statistika scrapinga
+  const [globalStats, setGlobalStats] = useState({
+    ukupnoVlasnika: 0,
+    danasnjiOglasi: 0,
+    poslednjiScraping: null
+  })
+
   // Forma - pojednostavljena (bez kategorija, tip, grad)
   const [formData, setFormData] = useState({
     portal: '',
@@ -39,7 +46,41 @@ export default function ScrapingConfigModule() {
 
   useEffect(() => {
     loadConfigs()
+    loadGlobalStats()
   }, [])
+
+  const loadGlobalStats = async () => {
+    try {
+      // Ukupan broj vlasnika
+      const { count: ukupnoVlasnika } = await supabase
+        .from('vlasnici')
+        .select('*', { count: 'exact', head: true })
+
+      // Današnji oglasi
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const { count: danasnjiOglasi } = await supabase
+        .from('vlasnici')
+        .select('*', { count: 'exact', head: true })
+        .gte('datumkreiranja', today.toISOString())
+
+      // Poslednji scraping
+      const { data: poslednjiScraping } = await supabase
+        .from('vremetrajanja')
+        .select('*')
+        .order('datumpocetak', { ascending: false })
+        .limit(1)
+        .single()
+
+      setGlobalStats({
+        ukupnoVlasnika: ukupnoVlasnika || 0,
+        danasnjiOglasi: danasnjiOglasi || 0,
+        poslednjiScraping
+      })
+    } catch (error) {
+      console.error('Greška pri učitavanju globalne statistike:', error)
+    }
+  }
 
   const loadConfigs = async () => {
     setLoading(true)
@@ -185,8 +226,9 @@ export default function ScrapingConfigModule() {
         })
         .eq('id', config.id)
 
-      alert(`Scraping završen!\nUkupno: ${data.ukupno}\nNovih: ${data.novi}`)
+      alert(`Scraping završen!\nUkupno: ${data.ukupno}\nNovih: ${data.novi}${data.agencije ? `\nPreskoočeno agencija: ${data.agencije}` : ''}`)
       loadConfigs()
+      loadGlobalStats()
     } catch (error) {
       console.error('Greška pri scrapingu:', error)
       alert('Greška: ' + error.message)
@@ -303,6 +345,7 @@ export default function ScrapingConfigModule() {
 
     setBatchRunning(false)
     loadConfigs()
+    loadGlobalStats()
   }
 
   const resetBatchResults = () => {
@@ -382,6 +425,84 @@ export default function ScrapingConfigModule() {
           </button>
         </div>
       </div>
+
+      {/* Globalna statistika */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-2xl shadow-lg p-4 border border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+              <Users className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <div className="text-sm text-gray-500">Ukupno vlasnika</div>
+              <div className="text-2xl font-bold text-gray-900">{globalStats.ukupnoVlasnika.toLocaleString()}</div>
+            </div>
+          </div>
+        </div>
+        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl shadow-lg p-4 border border-green-200">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-200 rounded-xl flex items-center justify-center">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <div className="text-sm text-green-600">Danas dodato</div>
+              <div className="text-2xl font-bold text-green-700">{globalStats.danasnjiOglasi}</div>
+            </div>
+          </div>
+        </div>
+        <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl shadow-lg p-4 border border-amber-200">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-amber-200 rounded-xl flex items-center justify-center">
+              <Clock className="w-5 h-5 text-amber-600" />
+            </div>
+            <div>
+              <div className="text-sm text-amber-600">Poslednji scraping</div>
+              <div className="text-lg font-bold text-amber-700">
+                {globalStats.poslednjiScraping ? formatDate(globalStats.poslednjiScraping.datumpocetak) : '-'}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl shadow-lg p-4 border border-purple-200">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-purple-200 rounded-xl flex items-center justify-center">
+              <List className="w-5 h-5 text-purple-600" />
+            </div>
+            <div>
+              <div className="text-sm text-purple-600">Aktivnih linkova</div>
+              <div className="text-2xl font-bold text-purple-700">{stats.aktivnih}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Poslednja sesija info */}
+      {globalStats.poslednjiScraping && (
+        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
+          <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+            <Clock className="w-4 h-4" />
+            Poslednja sesija
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+              <span className="text-blue-600">Početak:</span>
+              <p className="font-medium text-blue-900">{formatDate(globalStats.poslednjiScraping.datumpocetak)}</p>
+            </div>
+            <div>
+              <span className="text-blue-600">Trajanje:</span>
+              <p className="font-medium text-blue-900">{globalStats.poslednjiScraping.vremetrajanja || '-'}</p>
+            </div>
+            <div>
+              <span className="text-blue-600">Novih oglasa:</span>
+              <p className="font-medium text-green-700">{globalStats.poslednjiScraping.brojnovihoglasa || 0}</p>
+            </div>
+            <div>
+              <span className="text-blue-600">Preskočeno:</span>
+              <p className="font-medium text-gray-700">{globalStats.poslednjiScraping.brojarhiviranih || 0}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Dugme za pokretanje svih + Progress */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
