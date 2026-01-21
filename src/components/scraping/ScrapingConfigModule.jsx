@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../utils/supabase'
-import { List, Plus, Pencil, Trash2, Search, Play, Power, PowerOff, ExternalLink, X, Save, Loader2 } from 'lucide-react'
+import { List, Plus, Pencil, Trash2, Search, Play, Power, PowerOff, ExternalLink, X, Save, Loader2, PlayCircle, CheckCircle, XCircle, AlertTriangle, RefreshCw } from 'lucide-react'
 
 export default function ScrapingConfigModule() {
   const [configs, setConfigs] = useState([])
@@ -9,6 +9,11 @@ export default function ScrapingConfigModule() {
   const [editingConfig, setEditingConfig] = useState(null)
   const [saving, setSaving] = useState(false)
   const [runningId, setRunningId] = useState(null)
+  
+  // Batch scraping state
+  const [batchRunning, setBatchRunning] = useState(false)
+  const [batchProgress, setBatchProgress] = useState({ current: 0, total: 0, currentLink: '', status: '' })
+  const [batchResults, setBatchResults] = useState(null)
   
   // Filteri
   const [filterPortal, setFilterPortal] = useState('')
@@ -179,6 +184,120 @@ export default function ScrapingConfigModule() {
     }
   }
 
+  // Pokreni sve aktivne linkove redom
+  const handleRunAllScraping = async () => {
+    const aktivniConfigs = configs.filter(c => c.aktivan)
+    
+    if (aktivniConfigs.length === 0) {
+      alert('Nema aktivnih linkova za scraping.')
+      return
+    }
+
+    setBatchRunning(true)
+    setBatchResults(null)
+    
+    const results = []
+    let ukupnoNovih = 0
+    let ukupnoPronadjeno = 0
+    let uspesnih = 0
+    let neuspesnih = 0
+    const startTime = new Date()
+
+    for (let i = 0; i < aktivniConfigs.length; i++) {
+      const config = aktivniConfigs[i]
+      
+      setBatchProgress({
+        current: i + 1,
+        total: aktivniConfigs.length,
+        currentLink: config.opis || config.url,
+        status: `Obrađujem ${i + 1}/${aktivniConfigs.length}...`
+      })
+
+      try {
+        const { data, error } = await supabase.functions.invoke('scrape-halooglasi', {
+          body: { url: config.url, limit: config.limit_oglasa }
+        })
+
+        if (error) throw error
+
+        // Ažuriraj poslednji scraping u bazi
+        await supabase
+          .from('scraping_config')
+          .update({
+            poslednji_scraping: new Date().toISOString(),
+            poslednji_status: data.success ? 'uspeh' : 'greska',
+            ukupno_pronadjeno: (config.ukupno_pronadjeno || 0) + (data.ukupno || 0),
+            ukupno_novih: (config.ukupno_novih || 0) + (data.novi || 0)
+          })
+          .eq('id', config.id)
+
+        results.push({
+          config,
+          success: true,
+          ukupno: data.ukupno || 0,
+          novi: data.novi || 0,
+          preskoceni: data.preskoceni || 0
+        })
+
+        ukupnoPronadjeno += data.ukupno || 0
+        ukupnoNovih += data.novi || 0
+        uspesnih++
+
+      } catch (error) {
+        console.error(`Greška za ${config.opis}:`, error)
+        
+        results.push({
+          config,
+          success: false,
+          error: error.message
+        })
+        
+        neuspesnih++
+
+        // Ažuriraj status greške
+        await supabase
+          .from('scraping_config')
+          .update({
+            poslednji_scraping: new Date().toISOString(),
+            poslednji_status: 'greska'
+          })
+          .eq('id', config.id)
+      }
+
+      // Pauza između linkova (2 sekunde)
+      if (i < aktivniConfigs.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 2000))
+      }
+    }
+
+    const endTime = new Date()
+    const trajanje = Math.round((endTime - startTime) / 1000)
+
+    setBatchProgress({
+      current: aktivniConfigs.length,
+      total: aktivniConfigs.length,
+      currentLink: '',
+      status: 'Završeno!'
+    })
+
+    setBatchResults({
+      results,
+      ukupnoPronadjeno,
+      ukupnoNovih,
+      uspesnih,
+      neuspesnih,
+      trajanje: `${Math.floor(trajanje / 60)}m ${trajanje % 60}s`
+    })
+
+    setBatchRunning(false)
+    loadConfigs()
+  }
+
+  const resetBatchResults = () => {
+    setBatchResults(null)
+    setBatchProgress({ current: 0, total: 0, currentLink: '', status: '' })
+  }
+
   const resetForm = () => {
     setFormData({
       portal: '',
@@ -241,9 +360,6 @@ export default function ScrapingConfigModule() {
             <span className="px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-sm font-medium">
               Aktivnih: {stats.aktivnih}
             </span>
-            <span className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
-              Neaktivnih: {stats.neaktivnih}
-            </span>
           </div>
           <button
             onClick={handleAddNew}
@@ -253,6 +369,131 @@ export default function ScrapingConfigModule() {
             Dodaj
           </button>
         </div>
+      </div>
+
+      {/* Dugme za pokretanje svih + Progress */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="flex flex-wrap items-center gap-4 mb-4">
+          <button
+            onClick={handleRunAllScraping}
+            disabled={batchRunning || stats.aktivnih === 0}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-600 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-500/25"
+          >
+            {batchRunning ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Scraping u toku...
+              </>
+            ) : (
+              <>
+                <PlayCircle className="w-5 h-5" />
+                Pokreni sve aktivne ({stats.aktivnih})
+              </>
+            )}
+          </button>
+
+          {batchResults && (
+            <button
+              onClick={resetBatchResults}
+              className="flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-all"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Resetuj
+            </button>
+          )}
+        </div>
+
+        {/* Progress bar */}
+        {batchRunning && (
+          <div className="space-y-3">
+            <div className="flex justify-between text-sm text-gray-600">
+              <span>{batchProgress.status}</span>
+              <span>{batchProgress.current}/{batchProgress.total}</span>
+            </div>
+            <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-green-500 to-emerald-600 transition-all duration-500"
+                style={{ width: batchProgress.total > 0 ? `${(batchProgress.current / batchProgress.total) * 100}%` : '0%' }}
+              />
+            </div>
+            {batchProgress.currentLink && (
+              <p className="text-sm text-gray-500 truncate">
+                Trenutno: {batchProgress.currentLink}
+              </p>
+            )}
+            
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mt-4">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-yellow-800">
+                  <p className="font-medium mb-1">Molimo sačekajte</p>
+                  <p>Scraping se izvršava sa pauzama između linkova. Ne zatvarajte stranicu.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Rezultati batch scrapinga */}
+        {batchResults && (
+          <div className="space-y-4 mt-4">
+            {/* Sumarni rezultati */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
+                <div className="text-xs text-blue-600 mb-1">Pronađeno</div>
+                <div className="text-2xl font-bold text-blue-700">{batchResults.ukupnoPronadjeno}</div>
+              </div>
+              <div className="bg-green-50 rounded-xl p-3 border border-green-100">
+                <div className="text-xs text-green-600 mb-1">Novih</div>
+                <div className="text-2xl font-bold text-green-700">{batchResults.ukupnoNovih}</div>
+              </div>
+              <div className="bg-emerald-50 rounded-xl p-3 border border-emerald-100">
+                <div className="text-xs text-emerald-600 mb-1">Uspešnih</div>
+                <div className="text-2xl font-bold text-emerald-700">{batchResults.uspesnih}</div>
+              </div>
+              <div className="bg-red-50 rounded-xl p-3 border border-red-100">
+                <div className="text-xs text-red-600 mb-1">Neuspešnih</div>
+                <div className="text-2xl font-bold text-red-700">{batchResults.neuspesnih}</div>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                <div className="text-xs text-gray-600 mb-1">Trajanje</div>
+                <div className="text-2xl font-bold text-gray-700">{batchResults.trajanje}</div>
+              </div>
+            </div>
+
+            {/* Detalji po linku */}
+            <div className="border border-gray-200 rounded-xl overflow-hidden">
+              <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                <span className="font-medium text-gray-700">Detalji po linku</span>
+              </div>
+              <div className="divide-y divide-gray-100 max-h-64 overflow-y-auto">
+                {batchResults.results.map((result, index) => (
+                  <div key={index} className="px-4 py-3 flex items-center justify-between hover:bg-gray-50">
+                    <div className="flex items-center gap-3 min-w-0">
+                      {result.success ? (
+                        <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                      ) : (
+                        <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                      )}
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-gray-800 truncate">
+                          {result.config.opis || result.config.portal || 'Link'}
+                        </p>
+                        {result.success ? (
+                          <p className="text-xs text-gray-500">
+                            Pronađeno: {result.ukupno} | Novih: {result.novi} | Preskočeno: {result.preskoceni}
+                          </p>
+                        ) : (
+                          <p className="text-xs text-red-500">{result.error}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Filteri - pojednostavljeni */}
@@ -321,7 +562,7 @@ export default function ScrapingConfigModule() {
                   <tr key={config.id} className={`hover:bg-gray-50 transition-colors ${!config.aktivan ? 'opacity-50' : ''}`}>
                     <td className="px-4 py-3">
                       <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-sm font-medium">
-                        {config.portal}
+                        {config.portal || '-'}
                       </span>
                       {config.samo_vlasnici && (
                         <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">
@@ -388,7 +629,7 @@ export default function ScrapingConfigModule() {
                       <div className="flex items-center justify-center gap-1">
                         <button
                           onClick={() => handleRunScraping(config)}
-                          disabled={runningId === config.id || !config.aktivan}
+                          disabled={runningId === config.id || !config.aktivan || batchRunning}
                           className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50"
                           title="Pokreni scraping"
                         >
