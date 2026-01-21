@@ -70,14 +70,23 @@ function parseOglasi(html: string): any[] {
       const link = linkMatch ? (linkMatch[1].startsWith('http') ? linkMatch[1] : 'https://www.halooglasi.com' + linkMatch[1]) : null
       const idoglasa = dataId
       
-      // Izvuci cenu - HaloOglasi koristi data-value ili prikazuje cenu u EUR
-      const cenaDataMatch = oglasHtml.match(/data-value="(\d+)"/i)
-      const cenaTextMatch = oglasHtml.match(/(\d{1,3}(?:[.,]\d{3})*)\s*(?:EUR|€)/i)
+      // Izvuci cenu - tražimo najveću cenu jer je to ukupna cena (ne cena po m²)
+      // Format: "275.000 €" ili "275,000 EUR"
+      const cenaRegex = /(\d{1,3}(?:[.,]\d{3})*)\s*(?:EUR|€)/gi
+      const ceneLista: number[] = []
+      let cenaTextMatch
+      while ((cenaTextMatch = cenaRegex.exec(oglasHtml)) !== null) {
+        const cenaStr = cenaTextMatch[1].replace(/\./g, '').replace(',', '')
+        const cenaNum = parseInt(cenaStr)
+        if (cenaNum > 0) {
+          ceneLista.push(cenaNum)
+        }
+      }
+      // Uzmi najveću cenu (to je ukupna cena, ne cena po m²)
       let cena: number | null = null
-      if (cenaDataMatch) {
-        cena = parseInt(cenaDataMatch[1])
-      } else if (cenaTextMatch) {
-        cena = parseInt(cenaTextMatch[1].replace(/[.,]/g, ''))
+      if (ceneLista.length > 0) {
+        cena = Math.max(...ceneLista)
+        console.log(`Pronađene cene na listi: ${ceneLista.join(', ')} -> max: ${cena}`)
       }
       
       // Izvuci kvadraturu
