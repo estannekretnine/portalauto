@@ -510,13 +510,20 @@ serve(async (req) => {
           }
         }
 
+        // Odredi tip oglasa iz URL-a (prodaja ili izdavanje/renta)
+        const rentaProdaja = url.includes('izdavanje') ? 'renta' : 'prodaja'
+        
+        // Odredi grad iz URL-a
+        const gradMatch = url.match(/\/([^\/]+)\?/) || url.match(/\/([^\/]+)$/)
+        const gradIzUrla = gradMatch ? gradMatch[1].charAt(0).toUpperCase() + gradMatch[1].slice(1) : 'Beograd'
+
         // Insert novog vlasnika
         const { error: insertError } = await supabase
           .from('vlasnici')
           .insert({
             datumkreiranja: new Date().toISOString(),
-            rentaprodaja: 'prodaja',
-            grad: 'Beograd',
+            rentaprodaja: rentaProdaja,
+            grad: gradIzUrla,
             opstina: oglas.opstina || null,
             lokacija: oglas.lokacija || null,
             cena: oglas.cena || null,
