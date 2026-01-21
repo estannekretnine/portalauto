@@ -934,25 +934,30 @@ export default function ScrapingConfigModule() {
                   <div className="divide-y divide-gray-100 max-h-64 overflow-y-auto">
                     {singleResult.detalji.map((item, index) => (
                       <div key={index} className="px-4 py-3 hover:bg-gray-50">
-                        <div className="flex items-center gap-2 mb-1">
-                          {item.status === 'dodat' && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full">
-                              <CheckCircle className="w-3 h-3" />
-                              Dodat
-                            </span>
-                          )}
-                          {item.status === 'preskocen' && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">
-                              Preskočen
-                            </span>
-                          )}
-                          {item.status === 'greska' && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">
-                              <XCircle className="w-3 h-3" />
-                              Greška
-                            </span>
-                          )}
-                          <span className="font-medium text-gray-900 text-sm">{item.imevlasnika || 'Nepoznat'}</span>
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <div className="flex items-center gap-2">
+                            {item.status === 'dodat' && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                                <CheckCircle className="w-3 h-3" />
+                                Dodat
+                              </span>
+                            )}
+                            {item.status === 'preskocen' && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">
+                                Preskočen
+                              </span>
+                            )}
+                            {item.status === 'greska' && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">
+                                <XCircle className="w-3 h-3" />
+                                Greška
+                              </span>
+                            )}
+                            <span className="font-medium text-gray-900 text-sm">{item.imevlasnika || 'Nepoznat'}</span>
+                          </div>
+                          <span className="text-xs text-gray-400">
+                            {new Date().toLocaleString('sr-RS', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </span>
                         </div>
                         <div className="text-xs text-gray-500">
                           {item.opstina && <span>{item.opstina}</span>}
@@ -960,6 +965,11 @@ export default function ScrapingConfigModule() {
                           {item.cena && <span> • {item.cena.toLocaleString()}€</span>}
                           {item.kvadratura && <span> • {item.kvadratura}m²</span>}
                         </div>
+                        {item.telefon1 && (
+                          <div className="text-xs text-blue-600 mt-1">
+                            Tel: {item.telefon1}{item.telefon2 && `, ${item.telefon2}`}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

@@ -248,6 +248,13 @@ async function parseOglasDetalji(url: string): Promise<{
     const telefoni: string[] = []
     let hasViber = false
     
+    // Poznate centrale i dummy brojevi 4zida koje treba ignorisati
+    const ignoredPhones = [
+      '061056335', '0610563350', '+381610563350',
+      '0483308770', '+381483308770',
+      '0800100200', // Besplatni brojevi
+    ]
+    
     // 4zida čuva telefone u JSON objektu: "phones":[{"full":"+38163619588","isViber":true,"national":"063 619588",...}]
     // Takođe postoje "publicPhones" i "publicPhones2"
     const phonesPatterns = [
@@ -267,9 +274,13 @@ async function parseOglasDetalji(url: string): Promise<{
         let nationalMatch
         while ((nationalMatch = nationalRegex.exec(phonesJson)) !== null && telefoni.length < 2) {
           const tel = nationalMatch[1].replace(/\s/g, '') // Ukloni razmake: "063 619588" -> "063619588"
-          if (!telefoni.includes(tel)) {
+          // Ignoriši poznate centrale
+          const isIgnored = ignoredPhones.some(p => tel.includes(p) || p.includes(tel))
+          if (!telefoni.includes(tel) && !isIgnored) {
             telefoni.push(tel)
             console.log(`Telefon iz JSON (national): ${tel}`)
+          } else if (isIgnored) {
+            console.log(`Ignorisan centralni telefon: ${tel}`)
           }
         }
         
@@ -288,7 +299,8 @@ async function parseOglasDetalji(url: string): Promise<{
       if (telefonMatches) {
         for (const tel of telefonMatches) {
           const cleaned = tel.replace(/[\s.-]/g, '')
-          if (!telefoni.includes(cleaned) && telefoni.length < 2) {
+          const isIgnored = ignoredPhones.some(p => cleaned.includes(p) || p.includes(cleaned))
+          if (!telefoni.includes(cleaned) && telefoni.length < 2 && !isIgnored) {
             telefoni.push(cleaned)
             console.log(`Telefon (fallback regex): ${cleaned}`)
           }
@@ -300,12 +312,14 @@ async function parseOglasDetalji(url: string): Promise<{
     let email: string | null = null
     const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]{2,})/gi
     const ignoredDomains = ['4zida.rs', 'google.com', 'facebook.com', 'twitter.com', 'instagram.com']
+    const ignoredEmails = ['info@inspiragrupa.com', 'info@4zida.rs', 'podrska@4zida.rs']
     const emailMatches = html.match(emailRegex)
     if (emailMatches) {
       for (const e of emailMatches) {
         const emailLower = e.toLowerCase()
-        const isIgnored = ignoredDomains.some(d => emailLower.includes(d))
-        if (!isIgnored) {
+        const isIgnoredDomain = ignoredDomains.some(d => emailLower.includes(d))
+        const isIgnoredEmail = ignoredEmails.includes(emailLower)
+        if (!isIgnoredDomain && !isIgnoredEmail) {
           email = emailLower
           console.log(`Email: ${email}`)
           break
