@@ -154,10 +154,21 @@ export default function ScrapingConfigModule() {
     }
   }
 
+  // Odredi koju Edge Function da pozove na osnovu URL-a
+  const getEdgeFunctionName = (url) => {
+    if (url.includes('4zida.rs')) return 'scrape-4zida'
+    if (url.includes('halooglasi.com')) return 'scrape-halooglasi'
+    // Fallback na halooglasi za nepoznate portale
+    return 'scrape-halooglasi'
+  }
+
   const handleRunScraping = async (config) => {
     setRunningId(config.id)
+    const functionName = getEdgeFunctionName(config.url)
+    console.log(`Pokrećem ${functionName} za ${config.url}`)
+    
     try {
-      const { data, error } = await supabase.functions.invoke('scrape-halooglasi', {
+      const { data, error } = await supabase.functions.invoke(functionName, {
         body: { url: config.url, limit: config.limit_oglasa }
       })
 
@@ -205,16 +216,17 @@ export default function ScrapingConfigModule() {
 
     for (let i = 0; i < aktivniConfigs.length; i++) {
       const config = aktivniConfigs[i]
+      const functionName = getEdgeFunctionName(config.url)
       
       setBatchProgress({
         current: i + 1,
         total: aktivniConfigs.length,
         currentLink: config.opis || config.url,
-        status: `Obrađujem ${i + 1}/${aktivniConfigs.length}...`
+        status: `Obrađujem ${i + 1}/${aktivniConfigs.length} (${functionName})...`
       })
 
       try {
-        const { data, error } = await supabase.functions.invoke('scrape-halooglasi', {
+        const { data, error } = await supabase.functions.invoke(functionName, {
           body: { url: config.url, limit: config.limit_oglasa }
         })
 
