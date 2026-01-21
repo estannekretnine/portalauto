@@ -142,7 +142,14 @@ function parseOglasi(html: string): any[] {
 }
 
 // Parsiranje pojedinačnog oglasa za kontakt podatke
-async function parseOglasDetalji(url: string): Promise<{ imevlasnika: string | null, kontakttelefon1: string | null, kontakttelefon2: string | null, cenaUkupna: number | null }> {
+async function parseOglasDetalji(url: string): Promise<{ 
+  imevlasnika: string | null, 
+  kontakttelefon1: string | null, 
+  kontakttelefon2: string | null, 
+  cenaUkupna: number | null,
+  dodatniOpis: string | null,
+  email: string | null 
+}> {
   try {
     const response = await fetch(url, {
       headers: {
@@ -178,28 +185,71 @@ async function parseOglasDetalji(url: string): Promise<{ imevlasnika: string | n
       }
     }
     
-    // Izvuci ukupnu cenu - obično je prikazana kao "XXX.XXX €" ili "XXX,XXX EUR"
-    // HaloOglasi prikazuje cenu u formatu "182.900 €"
-    const cenaMatch = html.match(/(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?)\s*€/i) ||
-                      html.match(/(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?)\s*EUR/i)
-    let cenaUkupna: number | null = null
-    if (cenaMatch) {
-      // Ukloni tačke kao separator hiljada, zarez tretiramo kao decimalni separator
+    // Izvuci ukupnu cenu - tražimo SVE cene i uzimamo NAJVEĆU
+    // jer je ukupna cena uvek veća od cene po m²
+    // HaloOglasi prikazuje cenu u formatu "275.000 €" i "4.583 €/m2"
+    const cenaRegex = /(\d{1,3}(?:[.,]\d{3})*)\s*€/gi
+    const sveCene: number[] = []
+    let cenaMatch
+    while ((cenaMatch = cenaRegex.exec(html)) !== null) {
       const cenaStr = cenaMatch[1].replace(/\./g, '').replace(',', '.')
-      cenaUkupna = Math.round(parseFloat(cenaStr))
+      const cenaNum = Math.round(parseFloat(cenaStr))
+      if (cenaNum > 1000) { // Ignoriši jako male brojeve
+        sveCene.push(cenaNum)
+      }
+    }
+    // Uzmi najveću cenu (to je ukupna cena)
+    let cenaUkupna: number | null = null
+    if (sveCene.length > 0) {
+      cenaUkupna = Math.max(...sveCene)
+      console.log(`Pronađene cene: ${sveCene.join(', ')} -> uzimam max: ${cenaUkupna}`)
     }
     
-    console.log(`Detalji oglasa: ime=${imevlasnika}, tel1=${telefoni[0]}, tel2=${telefoni[1]}, cena=${cenaUkupna}`)
+    // Izvuci dodatni opis - obično je u "oglas-description" ili "ad-description" ili "description-content"
+    let dodatniOpis: string | null = null
+    const opisMatch = html.match(/class="[^"]*oglas-description[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
+                      html.match(/class="[^"]*ad-description[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
+                      html.match(/class="[^"]*description-content[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
+                      html.match(/id="TextContent"[^>]*>([\s\S]*?)<\/div>/i) ||
+                      html.match(/<div[^>]*class="[^"]*product-description[^"]*"[^>]*>([\s\S]*?)<\/div>/i)
+    if (opisMatch) {
+      // Ukloni HTML tagove i očisti tekst
+      dodatniOpis = opisMatch[1]
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<[^>]+>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/\s+/g, ' ')
+        .trim()
+      if (dodatniOpis.length > 2000) {
+        dodatniOpis = dodatniOpis.substring(0, 2000) + '...'
+      }
+      console.log(`Dodatni opis: ${dodatniOpis.substring(0, 100)}...`)
+    }
+    
+    // Izvuci email adresu iz teksta
+    let email: string | null = null
+    const emailMatch = html.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]{2,})/i)
+    if (emailMatch) {
+      email = emailMatch[1].toLowerCase()
+      console.log(`Email: ${email}`)
+    }
+    
+    console.log(`Detalji oglasa: ime=${imevlasnika}, tel1=${telefoni[0]}, tel2=${telefoni[1]}, cena=${cenaUkupna}, email=${email}`)
     
     return {
       imevlasnika,
       kontakttelefon1: telefoni[0] || null,
       kontakttelefon2: telefoni[1] || null,
       cenaUkupna,
+      dodatniOpis,
+      email,
     }
   } catch (e) {
     console.error('Greška pri učitavanju detalja oglasa:', e)
-    return { imevlasnika: null, kontakttelefon1: null, kontakttelefon2: null, cenaUkupna: null }
+    return { imevlasnika: null, kontakttelefon1: null, kontakttelefon2: null, cenaUkupna: null, dodatniOpis: null, email: null }
   }
 }
 
@@ -297,13 +347,17 @@ serve(async (req) => {
         rezultati.push({ ...oglas, status: 'preskocen', reason: 'Već postoji' })
         console.log(`Oglas ${oglas.idoglasa} već postoji, preskačem`)
       } else {
-        // Učitaj detalje oglasa (ime, telefon, cena)
+        // Učitaj detalje oglasa (ime, telefon, cena, opis, email)
+        let dodatniOpis: string | null = null
+        let email: string | null = null
         if (oglas.linkoglasa) {
           await sleep(randomDelay()) // Pauza pre učitavanja detalja
           const detalji = await parseOglasDetalji(oglas.linkoglasa)
           oglas.imevlasnika = detalji.imevlasnika
           oglas.kontakttelefon1 = detalji.kontakttelefon1
           oglas.kontakttelefon2 = detalji.kontakttelefon2
+          dodatniOpis = detalji.dodatniOpis
+          email = detalji.email
           // Ako smo dobili ukupnu cenu sa stranice oglasa, koristi nju umesto cene sa liste
           if (detalji.cenaUkupna) {
             oglas.cena = detalji.cenaUkupna
@@ -324,10 +378,12 @@ serve(async (req) => {
             imevlasnika: oglas.imevlasnika || null,
             kontakttelefon1: oglas.kontakttelefon1 || null,
             kontakttelefon2: oglas.kontakttelefon2 || null,
+            email: email || null,
             stsarhiviran: false,
             linkoglasa: oglas.linkoglasa || null,
             oglasnik: 'HaloOglasi',
             opisoglasa: oglas.opisoglasa || null,
+            dodatniopis: dodatniOpis || null,
             idoglasa: oglas.idoglasa
           })
 
