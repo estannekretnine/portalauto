@@ -252,6 +252,8 @@ async function parseOglasDetalji(url: string): Promise<{
     const ignoredPhones = [
       '061056335', '0610563350', '+381610563350',
       '0483308770', '+381483308770',
+      '0221800122', '+381221800122', // Nova centrala
+      '+381244155869', '0244155869', '244155869', // Nova centrala
       '0800100200', // Besplatni brojevi
     ]
     
