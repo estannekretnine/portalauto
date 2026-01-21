@@ -12,8 +12,6 @@ export default function ScrapingConfigModule() {
   
   // Filteri
   const [filterPortal, setFilterPortal] = useState('')
-  const [filterKategorija, setFilterKategorija] = useState('')
-  const [filterTip, setFilterTip] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   
   // Statistika
@@ -23,12 +21,9 @@ export default function ScrapingConfigModule() {
     neaktivnih: 0
   })
 
-  // Forma
+  // Forma - pojednostavljena (bez kategorija, tip, grad)
   const [formData, setFormData] = useState({
     portal: 'halooglasi',
-    kategorija: 'stan',
-    tip: 'prodaja',
-    grad: 'beograd',
     url: '',
     opis: '',
     samo_vlasnici: true,
@@ -37,9 +32,7 @@ export default function ScrapingConfigModule() {
     aktivan: true
   })
 
-  const portali = ['halooglasi', 'nekretnine.rs', '4zida', 'cityexpert', 'sasomange', 'oglasi.rs']
-  const kategorije = ['stan', 'kuca', 'lokal', 'zemljiste', 'garaza', 'poslovni_prostor']
-  const tipovi = ['prodaja', 'izdavanje']
+  const portali = ['halooglasi', 'nekretnine.rs', '4zida', 'cityexpert', 'sasomange', 'oglasi.rs', 'ostalo']
 
   useEffect(() => {
     loadConfigs()
@@ -114,9 +107,6 @@ export default function ScrapingConfigModule() {
     setEditingConfig(config)
     setFormData({
       portal: config.portal || 'halooglasi',
-      kategorija: config.kategorija || 'stan',
-      tip: config.tip || 'prodaja',
-      grad: config.grad || 'beograd',
       url: config.url || '',
       opis: config.opis || '',
       samo_vlasnici: config.samo_vlasnici ?? true,
@@ -194,9 +184,6 @@ export default function ScrapingConfigModule() {
   const resetForm = () => {
     setFormData({
       portal: 'halooglasi',
-      kategorija: 'stan',
-      tip: 'prodaja',
-      grad: 'beograd',
       url: '',
       opis: '',
       samo_vlasnici: true,
@@ -212,16 +199,13 @@ export default function ScrapingConfigModule() {
     setShowForm(true)
   }
 
-  // Filtriranje
+  // Filtriranje - pojednostavljeno
   const filteredConfigs = configs.filter(config => {
     if (filterPortal && config.portal !== filterPortal) return false
-    if (filterKategorija && config.kategorija !== filterKategorija) return false
-    if (filterTip && config.tip !== filterTip) return false
     if (searchTerm) {
       const search = searchTerm.toLowerCase()
       if (!config.url?.toLowerCase().includes(search) && 
-          !config.opis?.toLowerCase().includes(search) &&
-          !config.grad?.toLowerCase().includes(search)) {
+          !config.opis?.toLowerCase().includes(search)) {
         return false
       }
     }
@@ -230,7 +214,6 @@ export default function ScrapingConfigModule() {
 
   // Unique values za filtere
   const uniquePortali = [...new Set(configs.map(c => c.portal).filter(Boolean))]
-  const uniqueKategorije = [...new Set(configs.map(c => c.kategorija).filter(Boolean))]
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '-'
@@ -274,7 +257,7 @@ export default function ScrapingConfigModule() {
         </div>
       </div>
 
-      {/* Filteri */}
+      {/* Filteri - pojednostavljeni */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
         <div className="flex flex-wrap gap-4">
           <div className="flex-1 min-w-[200px]">
@@ -282,7 +265,7 @@ export default function ScrapingConfigModule() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Pretraži po URL-u, opisu, gradu..."
+                placeholder="Pretraži po URL-u ili opisu..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
@@ -300,31 +283,10 @@ export default function ScrapingConfigModule() {
               <option key={p} value={p}>{p}</option>
             ))}
           </select>
-
-          <select
-            value={filterKategorija}
-            onChange={(e) => setFilterKategorija(e.target.value)}
-            className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500"
-          >
-            <option value="">Sve kategorije</option>
-            {uniqueKategorije.map(k => (
-              <option key={k} value={k}>{k}</option>
-            ))}
-          </select>
-
-          <select
-            value={filterTip}
-            onChange={(e) => setFilterTip(e.target.value)}
-            className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500"
-          >
-            <option value="">Svi tipovi</option>
-            <option value="prodaja">Prodaja</option>
-            <option value="izdavanje">Izdavanje</option>
-          </select>
         </div>
       </div>
 
-      {/* Tabela */}
+      {/* Tabela - pojednostavljena */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         {loading ? (
           <div className="p-12 text-center">
@@ -348,11 +310,9 @@ export default function ScrapingConfigModule() {
               <thead className="bg-gradient-to-r from-amber-500 to-amber-600 text-white">
                 <tr>
                   <th className="px-4 py-3 text-left text-sm font-semibold">Portal</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">Kategorija</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">Tip</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">Grad</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">Opis</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">Opis / Link</th>
                   <th className="px-4 py-3 text-center text-sm font-semibold">Prioritet</th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold">Limit</th>
                   <th className="px-4 py-3 text-center text-sm font-semibold">Status</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold">Poslednji scraping</th>
                   <th className="px-4 py-3 text-center text-sm font-semibold">Akcije</th>
@@ -365,31 +325,26 @@ export default function ScrapingConfigModule() {
                       <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-sm font-medium">
                         {config.portal}
                       </span>
+                      {config.samo_vlasnici && (
+                        <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">
+                          vlasnici
+                        </span>
+                      )}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-700 capitalize">{config.kategorija}</td>
                     <td className="px-4 py-3">
-                      <span className={`px-2 py-1 rounded text-sm font-medium ${
-                        config.tip === 'prodaja' 
-                          ? 'bg-green-100 text-green-700' 
-                          : 'bg-purple-100 text-purple-700'
-                      }`}>
-                        {config.tip}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-700 capitalize">{config.grad}</td>
-                    <td className="px-4 py-3">
-                      <div className="max-w-[200px]">
-                        <p className="text-sm text-gray-700 truncate" title={config.opis}>
-                          {config.opis || '-'}
+                      <div className="max-w-[300px]">
+                        <p className="text-sm font-medium text-gray-800 truncate" title={config.opis}>
+                          {config.opis || 'Bez opisa'}
                         </p>
                         <a 
                           href={config.url} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-xs text-blue-500 hover:underline flex items-center gap-1 mt-1"
+                          className="text-xs text-blue-500 hover:underline flex items-center gap-1 mt-1 truncate"
+                          title={config.url}
                         >
-                          <ExternalLink className="w-3 h-3" />
-                          Link
+                          <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">{config.url}</span>
                         </a>
                       </div>
                     </td>
@@ -401,6 +356,9 @@ export default function ScrapingConfigModule() {
                       }`}>
                         {config.prioritet}
                       </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="text-sm text-gray-600">{config.limit_oglasa}</span>
                     </td>
                     <td className="px-4 py-3 text-center">
                       <button
@@ -423,6 +381,7 @@ export default function ScrapingConfigModule() {
                             config.poslednji_status === 'uspeh' ? 'text-green-600' : 'text-red-600'
                           }`}>
                             {config.poslednji_status}
+                            {config.ukupno_novih > 0 && ` (${config.ukupno_novih} novih)`}
                           </span>
                         )}
                       </div>
@@ -465,10 +424,10 @@ export default function ScrapingConfigModule() {
         )}
       </div>
 
-      {/* Modal forma */}
+      {/* Modal forma - pojednostavljena */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
               <h3 className="text-xl font-bold text-gray-900">
                 {editingConfig ? 'Izmeni konfiguraciju' : 'Nova konfiguracija'}
@@ -481,66 +440,24 @@ export default function ScrapingConfigModule() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                {/* Portal */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Portal</label>
-                  <select
-                    value={formData.portal}
-                    onChange={(e) => setFormData({ ...formData, portal: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                  >
-                    {portali.map(p => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Kategorija */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Kategorija</label>
-                  <select
-                    value={formData.kategorija}
-                    onChange={(e) => setFormData({ ...formData, kategorija: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                  >
-                    {kategorije.map(k => (
-                      <option key={k} value={k}>{k}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Tip */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tip</label>
-                  <select
-                    value={formData.tip}
-                    onChange={(e) => setFormData({ ...formData, tip: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                  >
-                    {tipovi.map(t => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Grad */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Grad</label>
-                  <input
-                    type="text"
-                    value={formData.grad}
-                    onChange={(e) => setFormData({ ...formData, grad: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="beograd"
-                  />
-                </div>
+            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+              {/* Portal */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Portal *</label>
+                <select
+                  value={formData.portal}
+                  onChange={(e) => setFormData({ ...formData, portal: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                >
+                  {portali.map(p => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
               </div>
 
               {/* URL */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">URL</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">URL *</label>
                 <input
                   type="url"
                   value={formData.url}
@@ -559,12 +476,12 @@ export default function ScrapingConfigModule() {
                   value={formData.opis}
                   onChange={(e) => setFormData({ ...formData, opis: e.target.value })}
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                  placeholder="npr. HaloOglasi - Stanovi prodaja - Beograd - Vlasnici"
+                  placeholder="npr. Stanovi prodaja Beograd - Vlasnici"
                 />
               </div>
 
+              {/* Limit i Prioritet */}
               <div className="grid grid-cols-2 gap-4">
-                {/* Limit oglasa */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Limit oglasa</label>
                   <input
@@ -575,9 +492,9 @@ export default function ScrapingConfigModule() {
                     min="1"
                     max="100"
                   />
+                  <p className="text-xs text-gray-500 mt-1">Max oglasa po pokretanju</p>
                 </div>
 
-                {/* Prioritet */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Prioritet (1-10)</label>
                   <input
@@ -588,11 +505,12 @@ export default function ScrapingConfigModule() {
                     min="1"
                     max="10"
                   />
+                  <p className="text-xs text-gray-500 mt-1">Viši = prvi u listi</p>
                 </div>
               </div>
 
               {/* Checkboxes */}
-              <div className="flex flex-wrap gap-6">
+              <div className="flex flex-wrap gap-6 pt-2">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
@@ -633,7 +551,7 @@ export default function ScrapingConfigModule() {
                   ) : (
                     <Save className="w-5 h-5" />
                   )}
-                  {editingConfig ? 'Sačuvaj izmene' : 'Dodaj'}
+                  {editingConfig ? 'Sačuvaj' : 'Dodaj'}
                 </button>
               </div>
             </form>
