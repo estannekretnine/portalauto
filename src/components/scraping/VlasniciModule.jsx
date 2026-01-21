@@ -381,9 +381,12 @@ export default function VlasniciModule() {
                     className={`hover:bg-gray-50 ${vlasnik.stsarhiviran ? 'bg-gray-50 opacity-60' : ''} ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
                   >
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        {formatDate(vlasnik.datumkreiranja)}
+                      <div className="flex items-start gap-2 text-sm">
+                        <Calendar className="w-4 h-4 text-gray-400 mt-0.5" />
+                        <div>
+                          <div className="text-gray-900">{vlasnik.datumkreiranja ? new Date(vlasnik.datumkreiranja).toLocaleDateString('sr-RS', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-'}</div>
+                          <div className="text-gray-500 text-xs">{vlasnik.datumkreiranja ? new Date(vlasnik.datumkreiranja).toLocaleTimeString('sr-RS', { hour: '2-digit', minute: '2-digit' }) : ''}</div>
+                        </div>
                       </div>
                     </td>
                     <td className="px-4 py-3">
