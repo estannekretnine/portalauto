@@ -15,6 +15,10 @@ export default function ScrapingConfigModule() {
   const [batchProgress, setBatchProgress] = useState({ current: 0, total: 0, currentLink: '', status: '' })
   const [batchResults, setBatchResults] = useState(null)
   
+  // Pojedinačni scraping state
+  const [singleResult, setSingleResult] = useState(null)
+  const [singleRunningConfig, setSingleRunningConfig] = useState(null)
+  
   // Filteri
   const [filterPortal, setFilterPortal] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
@@ -205,8 +209,11 @@ export default function ScrapingConfigModule() {
 
   const handleRunScraping = async (config) => {
     setRunningId(config.id)
+    setSingleRunningConfig(config)
+    setSingleResult(null)
     const functionName = getEdgeFunctionName(config.url)
     console.log(`Pokrećem ${functionName} za ${config.url}`)
+    const startTime = new Date()
     
     try {
       const { data, error } = await supabase.functions.invoke(functionName, {
@@ -214,6 +221,10 @@ export default function ScrapingConfigModule() {
       })
 
       if (error) throw error
+
+      const endTime = new Date()
+      const trajanjeSekunde = Math.round((endTime - startTime) / 1000)
+      const trajanjeFormatted = `${Math.floor(trajanjeSekunde / 60)}m ${trajanjeSekunde % 60}s`
 
       // Ažuriraj poslednji scraping
       await supabase
@@ -226,15 +237,35 @@ export default function ScrapingConfigModule() {
         })
         .eq('id', config.id)
 
-      alert(`Scraping završen!\nUkupno: ${data.ukupno}\nNovih: ${data.novi}${data.agencije ? `\nPreskoočeno agencija: ${data.agencije}` : ''}`)
+      // Postavi rezultate u state umesto alert()
+      setSingleResult({
+        success: true,
+        config: config,
+        ukupno: data.ukupno || 0,
+        novi: data.novi || 0,
+        preskoceni: data.preskoceni || 0,
+        agencije: data.agencije || 0,
+        trajanje: trajanjeFormatted,
+        detalji: data.detalji || []
+      })
+      
       loadConfigs()
       loadGlobalStats()
     } catch (error) {
       console.error('Greška pri scrapingu:', error)
-      alert('Greška: ' + error.message)
+      setSingleResult({
+        success: false,
+        config: config,
+        error: error.message
+      })
     } finally {
       setRunningId(null)
+      setSingleRunningConfig(null)
     }
+  }
+
+  const resetSingleResult = () => {
+    setSingleResult(null)
   }
 
   // Pokreni sve aktivne linkove redom
@@ -795,6 +826,159 @@ export default function ScrapingConfigModule() {
           </div>
         )}
       </div>
+
+      {/* Progress pojedinačnog scrapinga */}
+      {singleRunningConfig && (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Loader2 className="w-5 h-5 animate-spin text-amber-600" />
+            Scraping u toku...
+          </h3>
+          
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Play className="w-5 h-5 text-amber-600" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-medium text-amber-900">
+                  {singleRunningConfig.opis || singleRunningConfig.portal || 'Scraping'}
+                </p>
+                <p className="text-sm text-amber-700 truncate mt-1">
+                  {singleRunningConfig.url}
+                </p>
+                <p className="text-xs text-amber-600 mt-2">
+                  Limit: {singleRunningConfig.limit_oglasa} oglasa
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mt-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-yellow-800">
+                <p className="font-medium mb-1">Molimo sačekajte</p>
+                <p>Scraping se izvršava. Ne zatvarajte stranicu.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rezultati pojedinačnog scrapinga */}
+      {singleResult && (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+              {singleResult.success ? (
+                <CheckCircle className="w-5 h-5 text-green-600" />
+              ) : (
+                <XCircle className="w-5 h-5 text-red-600" />
+              )}
+              Rezultat scrapinga
+            </h3>
+            <button
+              onClick={resetSingleResult}
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+              title="Zatvori"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Info o portalu */}
+          <div className="bg-gray-50 rounded-xl p-3 mb-4">
+            <p className="font-medium text-gray-800">
+              {singleResult.config.opis || singleResult.config.portal || 'Link'}
+            </p>
+            <p className="text-sm text-gray-500 truncate">
+              {singleResult.config.url}
+            </p>
+          </div>
+
+          {singleResult.success ? (
+            <>
+              {/* Statistika kartice */}
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+                <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
+                  <div className="text-xs text-blue-600 mb-1">Pronađeno</div>
+                  <div className="text-2xl font-bold text-blue-700">{singleResult.ukupno}</div>
+                </div>
+                <div className="bg-green-50 rounded-xl p-3 border border-green-100">
+                  <div className="text-xs text-green-600 mb-1">Novih</div>
+                  <div className="text-2xl font-bold text-green-700">{singleResult.novi}</div>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-3 border border-gray-200">
+                  <div className="text-xs text-gray-600 mb-1">Preskočeno</div>
+                  <div className="text-2xl font-bold text-gray-700">{singleResult.preskoceni}</div>
+                </div>
+                {singleResult.agencije > 0 && (
+                  <div className="bg-orange-50 rounded-xl p-3 border border-orange-100">
+                    <div className="text-xs text-orange-600 mb-1">Agencije</div>
+                    <div className="text-2xl font-bold text-orange-700">{singleResult.agencije}</div>
+                  </div>
+                )}
+                <div className="bg-purple-50 rounded-xl p-3 border border-purple-100">
+                  <div className="text-xs text-purple-600 mb-1">Trajanje</div>
+                  <div className="text-2xl font-bold text-purple-700">{singleResult.trajanje}</div>
+                </div>
+              </div>
+
+              {/* Lista detalja ako postoji */}
+              {singleResult.detalji && singleResult.detalji.length > 0 && (
+                <div className="border border-gray-200 rounded-xl overflow-hidden">
+                  <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                    <span className="font-medium text-gray-700">Detalji ({singleResult.detalji.length})</span>
+                  </div>
+                  <div className="divide-y divide-gray-100 max-h-64 overflow-y-auto">
+                    {singleResult.detalji.map((item, index) => (
+                      <div key={index} className="px-4 py-3 hover:bg-gray-50">
+                        <div className="flex items-center gap-2 mb-1">
+                          {item.status === 'dodat' && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                              <CheckCircle className="w-3 h-3" />
+                              Dodat
+                            </span>
+                          )}
+                          {item.status === 'preskocen' && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">
+                              Preskočen
+                            </span>
+                          )}
+                          {item.status === 'greska' && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">
+                              <XCircle className="w-3 h-3" />
+                              Greška
+                            </span>
+                          )}
+                          <span className="font-medium text-gray-900 text-sm">{item.imevlasnika || 'Nepoznat'}</span>
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {item.opstina && <span>{item.opstina}</span>}
+                          {item.lokacija && <span> • {item.lokacija}</span>}
+                          {item.cena && <span> • {item.cena.toLocaleString()}€</span>}
+                          {item.kvadratura && <span> • {item.kvadratura}m²</span>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <XCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-red-900">Scraping nije uspeo</p>
+                  <p className="text-sm text-red-700 mt-1">{singleResult.error}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Modal forma - pojednostavljena */}
       {showForm && (
