@@ -33,19 +33,6 @@ export default function ScrapingHaloBeogradModule() {
     }
   }
 
-  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
-
-  const randomDelay = () => {
-    // Random pauza između 3 i 7 sekundi
-    return Math.floor(Math.random() * 4000) + 3000
-  }
-
-  const parseOglasId = (url) => {
-    // Izvuci ID oglasa iz URL-a
-    const match = url.match(/\/(\d+)(?:\?|$)/)
-    return match ? match[1] : null
-  }
-
   const startScraping = async () => {
     setLoading(true)
     setError(null)
@@ -70,106 +57,45 @@ export default function ScrapingHaloBeogradModule() {
       if (vremeError) throw vremeError
       vremeTrajanjaId = vremeData.id
 
-      setProgress({ current: 0, total: 0, status: 'Učitavam oglase sa HaloOglasi...' })
+      setProgress({ current: 0, total: 0, status: 'Pozivam Edge Function za scraping...' })
 
-      // 2. Fetch HTML sa HaloOglasi preko proxy-ja ili direktno
-      // NAPOMENA: Ovo neće raditi direktno iz browsera zbog CORS-a
-      // Za pravu implementaciju potreban je backend (Edge Function)
-      
-      // Simulacija za sada - u produkciji ovo ide preko Edge Function
-      const mockOglasi = await fetchOglasiMock()
-      
-      setProgress({ current: 0, total: mockOglasi.length, status: `Pronađeno ${mockOglasi.length} oglasa. Obrađujem...` })
+      // 2. Pozovi Edge Function za pravi scraping
+      const { data: scrapingResult, error: scrapingError } = await supabase.functions.invoke('scrape-halooglasi', {
+        body: { url: SCRAPING_URL, limit: 20 }
+      })
 
-      let noviOglasi = 0
-      let preskoceniOglasi = 0
-      const rezultati = []
-
-      // 3. Za svaki oglas
-      for (let i = 0; i < mockOglasi.length; i++) {
-        const oglas = mockOglasi[i]
-        
-        setProgress({ 
-          current: i + 1, 
-          total: mockOglasi.length, 
-          status: `Obrađujem oglas ${i + 1}/${mockOglasi.length}...` 
-        })
-
-        // Proveri da li već postoji
-        const { data: existing } = await supabase
-          .from('vlasnici')
-          .select('id')
-          .eq('idoglasa', oglas.idoglasa)
-          .single()
-
-        if (existing) {
-          preskoceniOglasi++
-          rezultati.push({ ...oglas, status: 'preskocen', reason: 'Već postoji' })
-        } else {
-          // Insert novog vlasnika
-          const { error: insertError } = await supabase
-            .from('vlasnici')
-            .insert({
-              datumkreiranja: new Date().toISOString(),
-              rentaprodaja: 'prodaja',
-              grad: 'Beograd',
-              opstina: oglas.opstina || null,
-              lokacija: oglas.lokacija || null,
-              cena: oglas.cena || null,
-              kvadratura: oglas.kvadratura || null,
-              imevlasnika: oglas.imevlasnika || null,
-              kontakttelefon1: oglas.kontakttelefon1 || null,
-              kontakttelefon2: oglas.kontakttelefon2 || null,
-              stsarhiviran: false,
-              linkoglasa: oglas.linkoglasa || null,
-              oglasnik: 'HaloOglasi',
-              opisoglasa: oglas.opisoglasa || null,
-              idoglasa: oglas.idoglasa
-            })
-
-          if (insertError) {
-            rezultati.push({ ...oglas, status: 'greska', reason: insertError.message })
-          } else {
-            noviOglasi++
-            rezultati.push({ ...oglas, status: 'dodat' })
-          }
-        }
-
-        // Pauza između oglasa (osim za poslednji)
-        if (i < mockOglasi.length - 1) {
-          const delay = randomDelay()
-          setProgress({ 
-            current: i + 1, 
-            total: mockOglasi.length, 
-            status: `Pauza ${(delay/1000).toFixed(1)}s pre sledećeg oglasa...` 
-          })
-          await sleep(delay)
-        }
+      if (scrapingError) {
+        throw new Error(scrapingError.message || 'Greška pri pozivu Edge Function')
       }
 
-      // 4. Update vremetrajanja sa završetkom
+      if (!scrapingResult.success) {
+        throw new Error(scrapingResult.error || 'Scraping nije uspeo')
+      }
+
+      // Edge Function vraća kompletne rezultate
       const endTime = new Date()
       const trajanje = Math.round((endTime - startTime) / 1000)
       
+      // Update vremetrajanja sa završetkom (Edge Function već radi svoj zapis, ali ažuriramo naš)
       await supabase
         .from('vremetrajanja')
         .update({
           datuzavrsetka: endTime.toISOString(),
           vremetrajanja: `${Math.floor(trajanje / 60)}m ${trajanje % 60}s`,
-          brojnovihoglasa: noviOglasi,
-          brojarhiviranih: preskoceniOglasi
+          brojnovihoglasa: scrapingResult.novi,
+          brojarhiviranih: scrapingResult.preskoceni
         })
         .eq('id', vremeTrajanjaId)
 
       setResults({
-        ukupno: mockOglasi.length,
-        novi: noviOglasi,
-        preskoceni: preskoceniOglasi,
-        trajanje: `${Math.floor(trajanje / 60)}m ${trajanje % 60}s`,
-        detalji: rezultati
+        ukupno: scrapingResult.ukupno,
+        novi: scrapingResult.novi,
+        preskoceni: scrapingResult.preskoceni,
+        trajanje: scrapingResult.trajanje,
+        detalji: scrapingResult.detalji || []
       })
 
-      setProgress({ current: mockOglasi.length, total: mockOglasi.length, status: 'Završeno!' })
+      setProgress({ current: scrapingResult.ukupno, total: scrapingResult.ukupno, status: 'Završeno!' })
       loadLastSession()
 
     } catch (err) {
@@ -191,60 +117,11 @@ export default function ScrapingHaloBeogradModule() {
     }
   }
 
-  // Mock funkcija - u produkciji ovo zamenjuje Edge Function
-  // NAPOMENA: Za pravi scraping potrebno je deploy-ovati Supabase Edge Function
-  // i pozvati je umesto ove mock funkcije
-  const fetchOglasiMock = async () => {
-    // Simulacija učitavanja
-    await sleep(2000)
-    
-    // Mock podaci za testiranje sa FIKSNIM ID-ovima (kao pravi ID-ovi sa portala)
-    // Ovi ID-ovi simuliraju prave ID-ove oglasa sa HaloOglasi
-    // Deduplikacija radi po ovom polju - ako oglas sa istim ID-om već postoji, biće preskočen
-    return [
-      {
-        idoglasa: '5521234567890',  // Fiksni ID - simulira pravi ID sa portala
-        imevlasnika: 'Petar Petrović',
-        kontakttelefon1: '0641234567',
-        kontakttelefon2: null,
-        cena: 85000,
-        kvadratura: 65,
-        opstina: 'Vračar',
-        lokacija: 'Crveni Krst',
-        linkoglasa: 'https://www.halooglasi.com/nekretnine/prodaja-stanova/stan-vracar-65m2/5521234567890',
-        opisoglasa: 'Prodajem stan na Vračaru, 65m2, renoviran'
-      },
-      {
-        idoglasa: '5521234567891',  // Fiksni ID - simulira pravi ID sa portala
-        imevlasnika: 'Marko Marković',
-        kontakttelefon1: '0659876543',
-        kontakttelefon2: '0112345678',
-        cena: 120000,
-        kvadratura: 85,
-        opstina: 'Novi Beograd',
-        lokacija: 'Blok 45',
-        linkoglasa: 'https://www.halooglasi.com/nekretnine/prodaja-stanova/lux-stan-nbgd/5521234567891',
-        opisoglasa: 'Lux stan na Novom Beogradu'
-      },
-      {
-        idoglasa: '5521234567892',  // Fiksni ID - simulira pravi ID sa portala
-        imevlasnika: 'Jovan Jovanović',
-        kontakttelefon1: '0631112233',
-        kontakttelefon2: null,
-        cena: 95000,
-        kvadratura: 72,
-        opstina: 'Zvezdara',
-        lokacija: 'Vukov Spomenik',
-        linkoglasa: 'https://www.halooglasi.com/nekretnine/prodaja-stanova/stan-zvezdara/5521234567892',
-        opisoglasa: 'Trosoban stan kod Vukovog spomenika'
-      }
-    ]
-  }
-
   const formatDate = (dateStr) => {
     if (!dateStr) return '-'
     return new Date(dateStr).toLocaleString('sr-RS')
   }
+
 
   return (
     <div className="space-y-6">
