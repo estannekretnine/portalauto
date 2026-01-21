@@ -52,7 +52,7 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
   ]
 
   const scrapingSubItems = [
-    { id: 'scraping-config', label: 'Lista portala i linkova', icon: List },
+    { id: 'scraping-config', label: 'Start scraping', icon: List },
     { id: 'scraping-vlasnici', label: 'Vlasnici', icon: UserCheck },
     { id: 'scraping-vreme-trajanja', label: 'Vreme trajanja', icon: Clock },
   ]
