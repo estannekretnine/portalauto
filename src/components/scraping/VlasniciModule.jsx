@@ -479,35 +479,50 @@ export default function VlasniciModule() {
                           {showKomentarPopup === vlasnik.id && (
                             <div 
                               ref={popupRef}
-                              className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-200 z-50"
+                              className="absolute right-0 top-full mt-2 w-96 bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border-2 border-orange-200 z-50 overflow-hidden"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              {/* Header */}
-                              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50 rounded-t-xl">
-                                <h4 className="font-semibold text-gray-900 text-sm">Komentari</h4>
+                              {/* Header - narandžasti gradient */}
+                              <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-orange-500 to-amber-500">
+                                <div className="flex items-center gap-2">
+                                  <MessageSquare className="w-5 h-5 text-white" />
+                                  <h4 className="font-bold text-white">Komentari</h4>
+                                  {komentariZaVlasnika.length > 0 && (
+                                    <span className="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                      {komentariZaVlasnika.length}
+                                    </span>
+                                  )}
+                                </div>
                                 <button
                                   onClick={() => setShowKomentarPopup(null)}
-                                  className="p-1 hover:bg-gray-200 rounded"
+                                  className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
                                 >
-                                  <X className="w-4 h-4 text-gray-500" />
+                                  <X className="w-5 h-5 text-white" />
                                 </button>
                               </div>
 
                               {/* Lista komentara */}
-                              <div className="max-h-48 overflow-y-auto p-3 space-y-2">
+                              <div className="max-h-56 overflow-y-auto p-4 space-y-3 bg-orange-50/50">
                                 {loadingKomentari ? (
-                                  <div className="text-center py-4">
-                                    <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                                  <div className="text-center py-6">
+                                    <div className="w-8 h-8 border-3 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                                    <p className="text-sm text-orange-600 mt-2">Učitavam...</p>
                                   </div>
                                 ) : komentariZaVlasnika.length === 0 ? (
-                                  <p className="text-sm text-gray-500 text-center py-4">Nema komentara</p>
+                                  <div className="text-center py-6">
+                                    <MessageSquare className="w-12 h-12 text-orange-200 mx-auto mb-2" />
+                                    <p className="text-sm text-orange-400 font-medium">Nema komentara</p>
+                                    <p className="text-xs text-orange-300">Budite prvi koji će ostaviti komentar</p>
+                                  </div>
                                 ) : (
                                   komentariZaVlasnika.map((k) => (
-                                    <div key={k.id} className="bg-gray-50 rounded-lg p-3">
-                                      <p className="text-sm text-gray-900">{k.komentar}</p>
-                                      <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-                                        <span>{k.korisnici?.naziv || k.korisnici?.email || 'Nepoznat'}</span>
-                                        <span>{formatDateTime(k.datumkreiranja)}</span>
+                                    <div key={k.id} className="bg-white rounded-xl p-3 shadow-sm border border-orange-100">
+                                      <p className="text-sm text-gray-800 leading-relaxed">{k.komentar}</p>
+                                      <div className="flex items-center justify-between mt-2 pt-2 border-t border-orange-100">
+                                        <span className="text-xs font-medium text-orange-600">
+                                          {k.korisnici?.naziv || k.korisnici?.email || 'Nepoznat'}
+                                        </span>
+                                        <span className="text-xs text-gray-400">{formatDateTime(k.datumkreiranja)}</span>
                                       </div>
                                     </div>
                                   ))
@@ -515,25 +530,26 @@ export default function VlasniciModule() {
                               </div>
 
                               {/* Forma za novi komentar */}
-                              <div className="border-t border-gray-100 p-3">
+                              <div className="border-t-2 border-orange-200 p-4 bg-white">
+                                <label className="block text-xs font-semibold text-orange-600 mb-2">Novi komentar</label>
                                 <textarea
                                   value={noviKomentar}
                                   onChange={(e) => setNoviKomentar(e.target.value)}
-                                  placeholder="Dodaj komentar..."
-                                  className="w-full text-sm border border-gray-200 rounded-lg p-2 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                  rows={2}
+                                  placeholder="Unesite komentar..."
+                                  className="w-full text-sm border-2 border-orange-200 rounded-xl p-3 resize-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-orange-50/50 placeholder-orange-300"
+                                  rows={3}
                                 />
                                 <button
                                   onClick={() => handleDodajKomentar(vlasnik.id)}
                                   disabled={!noviKomentar.trim() || savingKomentar}
-                                  className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                  className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-sm font-bold rounded-xl hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-orange-500/30"
                                 >
                                   {savingKomentar ? (
-                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                   ) : (
                                     <>
-                                      <Send className="w-4 h-4" />
-                                      Dodaj
+                                      <Send className="w-5 h-5" />
+                                      Dodaj komentar
                                     </>
                                   )}
                                 </button>
