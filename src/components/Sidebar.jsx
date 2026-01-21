@@ -27,6 +27,7 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
   const izvestajiAnalizeSubItems = [
     { id: 'izvestaj-mesecni', label: 'Mesečni pregled' },
     { id: 'izvestaj-pozivi', label: 'Analiza poziva' },
+    { id: 'izvestaj-mediji', label: 'Analiza medija' },
     { id: 'izvestaj-tereni', label: 'Statistika terena' },
     { id: 'izvestaj-prodaja-renta', label: 'Prodaja vs Renta' },
     { id: 'izvestaj-arhivirani', label: 'Arhivirani oglasi' },

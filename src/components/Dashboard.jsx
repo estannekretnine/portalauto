@@ -22,6 +22,7 @@ import EOKModule from './izvestaji/EOKModule'
 import TransakcijeModule from './izvestaji/TransakcijeModule'
 import MesecniPregledModule from './izvestaji/MesecniPregledModule'
 import AnalizaPozivModule from './izvestaji/AnalizaPozivModule'
+import AnalizaMedijaModule from './izvestaji/AnalizaMedijaModule'
 import StatistikaTerenModule from './izvestaji/StatistikaTerenModule'
 import ProdajaRentaModule from './izvestaji/ProdajaRentaModule'
 import ArhiviraniOglasiModule from './izvestaji/ArhiviraniOglasiModule'
@@ -118,6 +119,7 @@ export default function Dashboard() {
           {activeModule === 'izvestaj-transakcije' && <TransakcijeModule />}
           {activeModule === 'izvestaj-mesecni' && <MesecniPregledModule />}
           {activeModule === 'izvestaj-pozivi' && <AnalizaPozivModule />}
+          {activeModule === 'izvestaj-mediji' && <AnalizaMedijaModule />}
           {activeModule === 'izvestaj-tereni' && <StatistikaTerenModule />}
           {activeModule === 'izvestaj-prodaja-renta' && <ProdajaRentaModule />}
           {activeModule === 'izvestaj-arhivirani' && <ArhiviraniOglasiModule />}
