@@ -1,4 +1,4 @@
-import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone, Map, BarChart3, PhoneCall, PieChart, Info, Tv } from 'lucide-react'
+import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone, Map, BarChart3, PhoneCall, PieChart, Info, Tv, Globe, Clock, UserCheck } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = false }) => {
@@ -7,6 +7,8 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
   const [isLokalitetOpen, setIsLokalitetOpen] = useState(false)
   const [isIzvestajiOpen, setIsIzvestajiOpen] = useState(false)
   const [isIzvestajiAnalizeOpen, setIsIzvestajiAnalizeOpen] = useState(false)
+  const [isScrapingOpen, setIsScrapingOpen] = useState(false)
+  const [isHaloOglasOpen, setIsHaloOglasOpen] = useState(false)
 
   const isAdmin = user?.email === 'admin@example.com'
 
@@ -48,6 +50,22 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
     { id: 'mediji', label: 'Mediji', icon: Tv },
   ]
 
+  const haloOglasSubItems = [
+    { id: 'scraping-halo-beograd-stan', label: 'Oglasi Beograd prodaja stan' },
+  ]
+
+  const scrapingSubItems = [
+    { 
+      id: 'halo-oglas', 
+      label: 'HaloOglas', 
+      icon: Globe, 
+      hasSubmenu: true, 
+      subItems: haloOglasSubItems 
+    },
+    { id: 'scraping-vlasnici', label: 'Vlasnici', icon: UserCheck },
+    { id: 'scraping-vreme-trajanja', label: 'Vreme trajanja', icon: Clock },
+  ]
+
   useEffect(() => {
     const isMaticniPodaciActive = maticniPodaciSubItems.some(item => 
       item.id === activeModule || (item.hasSubmenu && item.subItems.some(subItem => subItem.id === activeModule))
@@ -69,6 +87,18 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
     const isIzvestajiAnalizeActive = izvestajiAnalizeSubItems.some(item => activeModule === item.id)
     if (isIzvestajiAnalizeActive) {
       setIsIzvestajiAnalizeOpen(true)
+    }
+
+    const isScrapingActive = scrapingSubItems.some(item => 
+      item.id === activeModule || (item.hasSubmenu && item.subItems.some(subItem => subItem.id === activeModule))
+    )
+    if (isScrapingActive) {
+      setIsScrapingOpen(true)
+    }
+
+    const isHaloOglasActive = haloOglasSubItems.some(item => activeModule === item.id)
+    if (isHaloOglasActive) {
+      setIsHaloOglasOpen(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeModule])
@@ -125,6 +155,13 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
       label: 'Korisnici',
       icon: Users,
     }] : []),
+    {
+      id: 'scraping',
+      label: 'Scraping',
+      icon: Globe,
+      hasSubmenu: true,
+      subItems: scrapingSubItems,
+    },
   ]
 
   const handleMenuItemClick = (itemId) => {
@@ -134,6 +171,8 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
       setIsIzvestajiOpen(!isIzvestajiOpen)
     } else if (itemId === 'izvestaji-analize') {
       setIsIzvestajiAnalizeOpen(!isIzvestajiAnalizeOpen)
+    } else if (itemId === 'scraping') {
+      setIsScrapingOpen(!isScrapingOpen)
     } else {
       setActiveModule(itemId)
       setIsMobileMenuOpen(false)
@@ -143,6 +182,8 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
   const handleSubItemClick = (subItemId, hasSubmenu) => {
     if (hasSubmenu && subItemId === 'lokalitet') {
       setIsLokalitetOpen(!isLokalitetOpen)
+    } else if (hasSubmenu && subItemId === 'halo-oglas') {
+      setIsHaloOglasOpen(!isHaloOglasOpen)
     } else {
       setActiveModule(subItemId)
       setIsMobileMenuOpen(false)
@@ -163,6 +204,12 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
   const isIzvestajiActive = izvestajiSubItems.some(item => activeModule === item.id)
   
   const isIzvestajiAnalizeActive = izvestajiAnalizeSubItems.some(item => activeModule === item.id)
+
+  const isScrapingActive = scrapingSubItems.some(item => 
+    item.id === activeModule || (item.hasSubmenu && item.subItems.some(subItem => subItem.id === activeModule))
+  )
+
+  const isHaloOglasActive = haloOglasSubItems.some(item => activeModule === item.id)
 
   return (
     <>
@@ -238,10 +285,12 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
               const isActive = activeModule === item.id || 
                 (item.id === 'maticni-podaci' && isMaticniPodaciActive) ||
                 (item.id === 'izvestaji' && isIzvestajiActive) ||
-                (item.id === 'izvestaji-analize' && isIzvestajiAnalizeActive)
+                (item.id === 'izvestaji-analize' && isIzvestajiAnalizeActive) ||
+                (item.id === 'scraping' && isScrapingActive)
               const isExpanded = (item.id === 'maticni-podaci' && isMaticniPodaciOpen) ||
                 (item.id === 'izvestaji' && isIzvestajiOpen) ||
-                (item.id === 'izvestaji-analize' && isIzvestajiAnalizeOpen)
+                (item.id === 'izvestaji-analize' && isIzvestajiAnalizeOpen) ||
+                (item.id === 'scraping' && isScrapingOpen)
 
               return (
                 <li key={item.id}>
@@ -277,8 +326,12 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
                         const SubIcon = subItem.icon
                         const hasSubmenu = subItem.hasSubmenu || false
                         const isLokalitetItem = subItem.id === 'lokalitet'
-                        const isSubItemActive = hasSubmenu ? isLokalitetActive : activeModule === subItem.id
-                        const isSubItemExpanded = hasSubmenu && isLokalitetItem && isLokalitetOpen
+                        const isHaloOglasItem = subItem.id === 'halo-oglas'
+                        const isSubItemActive = hasSubmenu 
+                          ? (isLokalitetItem ? isLokalitetActive : (isHaloOglasItem ? isHaloOglasActive : false))
+                          : activeModule === subItem.id
+                        const isSubItemExpanded = (hasSubmenu && isLokalitetItem && isLokalitetOpen) ||
+                          (hasSubmenu && isHaloOglasItem && isHaloOglasOpen)
                         
                         // Za stavke bez ikone (npr. izveštaji)
                         if (!SubIcon) {

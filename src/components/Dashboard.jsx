@@ -28,6 +28,9 @@ import ProdajaRentaModule from './izvestaji/ProdajaRentaModule'
 import ArhiviraniOglasiModule from './izvestaji/ArhiviraniOglasiModule'
 import TereniModule from './TereniModule'
 import ProveraModule from './ProveraModule'
+import ScrapingHaloBeogradModule from './scraping/ScrapingHaloBeogradModule'
+import VlasniciModule from './scraping/VlasniciModule'
+import VremeTrajanjModule from './scraping/VremeTrajanjModule'
 import { LogOut, Menu, Building2 } from 'lucide-react'
 
 export default function Dashboard() {
@@ -148,6 +151,9 @@ export default function Dashboard() {
               <p className="text-gray-500">Samo admin korisnici mogu pristupiti modulu Korisnici.</p>
             </div>
           ))}
+          {activeModule === 'scraping-halo-beograd-stan' && <ScrapingHaloBeogradModule />}
+          {activeModule === 'scraping-vlasnici' && <VlasniciModule />}
+          {activeModule === 'scraping-vreme-trajanja' && <VremeTrajanjModule />}
         </main>
       </div>
     </div>
