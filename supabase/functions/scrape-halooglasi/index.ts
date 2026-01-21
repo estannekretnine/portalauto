@@ -151,13 +151,17 @@ function parseOglasi(html: string): any[] {
 }
 
 // Parsiranje pojedinačnog oglasa za kontakt podatke
+// Koristi JSON-LD strukturu i QuidditaEnvironment.CurrentClassified JavaScript objekat
 async function parseOglasDetalji(url: string): Promise<{ 
   imevlasnika: string | null, 
   kontakttelefon1: string | null, 
   kontakttelefon2: string | null, 
   cenaUkupna: number | null,
   dodatniOpis: string | null,
-  email: string | null 
+  email: string | null,
+  kvadratura: number | null,
+  lokacija: string | null,
+  opstina: string | null,
 }> {
   try {
     const response = await fetch(url, {
@@ -176,74 +180,185 @@ async function parseOglasDetalji(url: string): Promise<{
     
     const html = await response.text()
     
-    // Izvuci ime vlasnika/oglašivača - klasa "contact-name"
-    const imeMatch = html.match(/class="[^"]*contact-name[^"]*"[^>]*>([^<]+)/i) ||
-                     html.match(/class="[^"]*advertiser-name[^"]*"[^>]*>([^<]+)/i)
-    const imevlasnika = imeMatch ? imeMatch[1].trim() : null
-    
-    // Izvuci telefon - klasa "phone-number-link" sa href="tel:..."
-    const telefonMatches = html.match(/class="[^"]*phone-number-link[^"]*"[^>]*href="tel:([^"]+)"/gi) ||
-                          html.match(/href="tel:([^"]+)"[^>]*class="[^"]*phone-number-link[^"]*"/gi) ||
-                          html.match(/href="tel:([^"]+)"/gi) || []
-    
-    const telefoni: string[] = []
-    for (const t of telefonMatches) {
-      const m = t.match(/tel:([^"]+)/)
-      if (m && m[1] && !telefoni.includes(m[1])) {
-        telefoni.push(m[1])
-      }
-    }
-    
-    // Izvuci ukupnu cenu - tražimo SVE cene i uzimamo NAJVEĆU
-    // jer je ukupna cena uvek veća od cene po m²
-    // HaloOglasi prikazuje cenu u formatu "275.000 €" i "4.583 €/m2"
-    const cenaRegex = /(\d{1,3}(?:[.,]\d{3})*)\s*€/gi
-    const sveCene: number[] = []
-    let cenaMatch
-    while ((cenaMatch = cenaRegex.exec(html)) !== null) {
-      const cenaStr = cenaMatch[1].replace(/\./g, '').replace(',', '.')
-      const cenaNum = Math.round(parseFloat(cenaStr))
-      if (cenaNum > 1000) { // Ignoriši jako male brojeve
-        sveCene.push(cenaNum)
-      }
-    }
-    // Uzmi najveću cenu (to je ukupna cena)
+    // ========== 1. IZVUCI CENU IZ JSON-LD (najpouzdanije) ==========
     let cenaUkupna: number | null = null
-    if (sveCene.length > 0) {
-      cenaUkupna = Math.max(...sveCene)
-      console.log(`Pronađene cene: ${sveCene.join(', ')} -> uzimam max: ${cenaUkupna}`)
-    }
-    
-    // Izvuci dodatni opis - obično je u "oglas-description" ili "ad-description" ili "description-content"
-    let dodatniOpis: string | null = null
-    const opisMatch = html.match(/class="[^"]*oglas-description[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
-                      html.match(/class="[^"]*ad-description[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
-                      html.match(/class="[^"]*description-content[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
-                      html.match(/id="TextContent"[^>]*>([\s\S]*?)<\/div>/i) ||
-                      html.match(/<div[^>]*class="[^"]*product-description[^"]*"[^>]*>([\s\S]*?)<\/div>/i)
-    if (opisMatch) {
-      // Ukloni HTML tagove i očisti tekst
-      dodatniOpis = opisMatch[1]
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<[^>]+>/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/\s+/g, ' ')
-        .trim()
-      if (dodatniOpis.length > 2000) {
-        dodatniOpis = dodatniOpis.substring(0, 2000) + '...'
+    const jsonLdMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/i)
+    if (jsonLdMatch) {
+      try {
+        const jsonLd = JSON.parse(jsonLdMatch[1])
+        if (jsonLd.offers && jsonLd.offers.price) {
+          cenaUkupna = Math.round(parseFloat(jsonLd.offers.price))
+          console.log(`Cena iz JSON-LD: ${cenaUkupna}`)
+        }
+      } catch (e) {
+        console.log('Greška pri parsiranju JSON-LD:', e)
       }
-      console.log(`Dodatni opis: ${dodatniOpis.substring(0, 100)}...`)
     }
     
-    // Izvuci email adresu iz teksta
+    // ========== 2. IZVUCI PODATKE IZ QuidditaEnvironment.CurrentClassified ==========
+    let dodatniOpis: string | null = null
+    let kvadratura: number | null = null
+    let lokacija: string | null = null
+    let opstina: string | null = null
+    let imevlasnika: string | null = null
+    
+    // Regex za CurrentClassified JavaScript objekat
+    const classifiedMatch = html.match(/QuidditaEnvironment\.CurrentClassified\s*=\s*(\{[\s\S]*?\});/i)
+    if (classifiedMatch) {
+      try {
+        // Parsiramo JSON iz JavaScript objekta
+        const classifiedStr = classifiedMatch[1]
+        
+        // Izvuci TextHtml (dodatni opis)
+        const textHtmlMatch = classifiedStr.match(/"TextHtml"\s*:\s*"((?:[^"\\]|\\.)*)"/i)
+        if (textHtmlMatch) {
+          dodatniOpis = textHtmlMatch[1]
+            .replace(/\\u003c/gi, '<')
+            .replace(/\\u003e/gi, '>')
+            .replace(/\\n/g, '\n')
+            .replace(/&nbsp;/g, ' ')
+            .replace(/<br\s*\/?>/gi, '\n')
+            .replace(/<p>/gi, '\n')
+            .replace(/<\/p>/gi, '')
+            .replace(/<[^>]+>/g, '')
+            .replace(/&amp;/g, '&')
+            .replace(/\s+/g, ' ')
+            .trim()
+          if (dodatniOpis.length > 2000) {
+            dodatniOpis = dodatniOpis.substring(0, 2000) + '...'
+          }
+          console.log(`Dodatni opis: ${dodatniOpis.substring(0, 100)}...`)
+        }
+        
+        // Izvuci cenu ako nije već pronađena
+        if (!cenaUkupna) {
+          const cenaMatch = classifiedStr.match(/"cena_d"\s*:\s*(\d+(?:\.\d+)?)/i)
+          if (cenaMatch) {
+            cenaUkupna = Math.round(parseFloat(cenaMatch[1]))
+            console.log(`Cena iz CurrentClassified: ${cenaUkupna}`)
+          }
+        }
+        
+        // Izvuci kvadraturu
+        const kvMatch = classifiedStr.match(/"kvadratura_d"\s*:\s*(\d+(?:\.\d+)?)/i)
+        if (kvMatch) {
+          kvadratura = parseFloat(kvMatch[1])
+          console.log(`Kvadratura: ${kvadratura}`)
+        }
+        
+        // Izvuci lokaciju (mikrolokacija_s)
+        const lokMatch = classifiedStr.match(/"mikrolokacija_s"\s*:\s*"([^"]+)"/i)
+        if (lokMatch) {
+          lokacija = lokMatch[1]
+          console.log(`Lokacija: ${lokacija}`)
+        }
+        
+        // Izvuci opštinu (lokacija_s)
+        const opstMatch = classifiedStr.match(/"lokacija_s"\s*:\s*"([^"]+)"/i)
+        if (opstMatch) {
+          opstina = opstMatch[1]
+          console.log(`Opština: ${opstina}`)
+        }
+        
+      } catch (e) {
+        console.log('Greška pri parsiranju CurrentClassified:', e)
+      }
+    }
+    
+    // ========== 3. IZVUCI PODATKE IZ CurrentContactData ==========
+    const contactMatch = html.match(/QuidditaEnvironment\.CurrentContactData\s*=\s*(\{[\s\S]*?\});/i)
+    if (contactMatch) {
+      try {
+        const contactStr = contactMatch[1]
+        
+        // Izvuci ime oglašivača
+        const displayNameMatch = contactStr.match(/"DisplayName"\s*:\s*"([^"]+)"/i)
+        if (displayNameMatch) {
+          imevlasnika = displayNameMatch[1]
+          console.log(`Ime vlasnika: ${imevlasnika}`)
+        }
+      } catch (e) {
+        console.log('Greška pri parsiranju CurrentContactData:', e)
+      }
+    }
+    
+    // Fallback: Izvuci ime iz HTML klase "contact-name"
+    if (!imevlasnika) {
+      const imeMatch = html.match(/class="[^"]*contact-name[^"]*"[^>]*>([^<]+)/i)
+      if (imeMatch) {
+        imevlasnika = imeMatch[1].trim()
+        console.log(`Ime vlasnika (HTML): ${imevlasnika}`)
+      }
+    }
+    
+    // ========== 4. IZVUCI TELEFON I EMAIL IZ TEKSTA OPISA ==========
+    // Telefon se učitava JavaScript-om, ali može biti u tekstu opisa
+    const telefoni: string[] = []
     let email: string | null = null
-    const emailMatch = html.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]{2,})/i)
-    if (emailMatch) {
-      email = emailMatch[1].toLowerCase()
-      console.log(`Email: ${email}`)
+    
+    // Pretraži ceo HTML za telefone u različitim formatima
+    // Srpski formati: 063 331 702, 063/331-702, +381 63 331702, 063331702
+    const telefonRegex = /(?:\+381|0)[\s.-]?6[0-9][\s.-]?\d{3}[\s.-]?\d{3,4}/g
+    const telefonMatches = html.match(telefonRegex)
+    if (telefonMatches) {
+      for (const tel of telefonMatches) {
+        const cleaned = tel.replace(/[\s.-]/g, '')
+        if (!telefoni.includes(cleaned)) {
+          telefoni.push(cleaned)
+          console.log(`Pronađen telefon: ${cleaned}`)
+        }
+      }
+    }
+    
+    // Specifično pretraži opis za telefone
+    if (dodatniOpis) {
+      const opisTelefoni = dodatniOpis.match(/(?:\+381|0)[\s.-]?6[0-9][\s.-]?\d{3}[\s.-]?\d{3,4}/g)
+      if (opisTelefoni) {
+        for (const tel of opisTelefoni) {
+          const cleaned = tel.replace(/[\s.-]/g, '')
+          if (!telefoni.includes(cleaned)) {
+            telefoni.push(cleaned)
+            console.log(`Pronađen telefon u opisu: ${cleaned}`)
+          }
+        }
+      }
+    }
+    
+    // Izvuci email adresu - prvo iz opisa, pa iz HTML-a
+    // Ignoriši sistemske email adrese (halooglasi, google, facebook, itd)
+    const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]{2,})/gi
+    const ignoredDomains = ['halooglasi.com', 'google.com', 'facebook.com', 'twitter.com', 'instagram.com', 'youtube.com']
+    
+    // Prvo pretraži opis
+    if (dodatniOpis) {
+      const opisEmailMatch = dodatniOpis.match(emailRegex)
+      if (opisEmailMatch) {
+        for (const e of opisEmailMatch) {
+          const emailLower = e.toLowerCase()
+          const isIgnored = ignoredDomains.some(d => emailLower.includes(d))
+          if (!isIgnored) {
+            email = emailLower
+            console.log(`Email iz opisa: ${email}`)
+            break
+          }
+        }
+      }
+    }
+    
+    // Ako nije pronađen u opisu, pretraži ceo HTML
+    if (!email) {
+      const htmlEmailMatches = html.match(emailRegex)
+      if (htmlEmailMatches) {
+        for (const e of htmlEmailMatches) {
+          const emailLower = e.toLowerCase()
+          const isIgnored = ignoredDomains.some(d => emailLower.includes(d))
+          if (!isIgnored) {
+            email = emailLower
+            console.log(`Email iz HTML: ${email}`)
+            break
+          }
+        }
+      }
     }
     
     console.log(`Detalji oglasa: ime=${imevlasnika}, tel1=${telefoni[0]}, tel2=${telefoni[1]}, cena=${cenaUkupna}, email=${email}`)
@@ -255,10 +370,23 @@ async function parseOglasDetalji(url: string): Promise<{
       cenaUkupna,
       dodatniOpis,
       email,
+      kvadratura,
+      lokacija,
+      opstina,
     }
   } catch (e) {
     console.error('Greška pri učitavanju detalja oglasa:', e)
-    return { imevlasnika: null, kontakttelefon1: null, kontakttelefon2: null, cenaUkupna: null, dodatniOpis: null, email: null }
+    return { 
+      imevlasnika: null, 
+      kontakttelefon1: null, 
+      kontakttelefon2: null, 
+      cenaUkupna: null, 
+      dodatniOpis: null, 
+      email: null,
+      kvadratura: null,
+      lokacija: null,
+      opstina: null,
+    }
   }
 }
 
@@ -356,7 +484,7 @@ serve(async (req) => {
         rezultati.push({ ...oglas, status: 'preskocen', reason: 'Već postoji' })
         console.log(`Oglas ${oglas.idoglasa} već postoji, preskačem`)
       } else {
-        // Učitaj detalje oglasa (ime, telefon, cena, opis, email)
+        // Učitaj detalje oglasa (ime, telefon, cena, opis, email, kvadratura, lokacija)
         let dodatniOpis: string | null = null
         let email: string | null = null
         if (oglas.linkoglasa) {
@@ -367,9 +495,18 @@ serve(async (req) => {
           oglas.kontakttelefon2 = detalji.kontakttelefon2
           dodatniOpis = detalji.dodatniOpis
           email = detalji.email
-          // Ako smo dobili ukupnu cenu sa stranice oglasa, koristi nju umesto cene sa liste
+          // Koristi podatke sa stranice oglasa ako su bolji od onih sa liste
           if (detalji.cenaUkupna) {
             oglas.cena = detalji.cenaUkupna
+          }
+          if (detalji.kvadratura) {
+            oglas.kvadratura = detalji.kvadratura
+          }
+          if (detalji.lokacija) {
+            oglas.lokacija = detalji.lokacija
+          }
+          if (detalji.opstina) {
+            oglas.opstina = detalji.opstina
           }
         }
 

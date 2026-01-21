@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../utils/supabase'
 import { getCurrentUser } from '../../utils/auth'
-import { UserCheck, Search, Filter, ChevronDown, ChevronUp, ExternalLink, Phone, MapPin, Euro, Ruler, Calendar, Archive, ArchiveRestore, Eye, MessageSquare, Send, X } from 'lucide-react'
+import { UserCheck, Search, Filter, ChevronDown, ChevronUp, ExternalLink, Phone, MapPin, Euro, Ruler, Calendar, Archive, ArchiveRestore, Eye, MessageSquare, Send, X, Mail, FileText } from 'lucide-react'
 
 export default function VlasniciModule() {
   const [vlasnici, setVlasnici] = useState([])
@@ -411,6 +411,12 @@ export default function VlasniciModule() {
                             {vlasnik.kontakttelefon2}
                           </div>
                         )}
+                        {vlasnik.email && (
+                          <div className="flex items-center gap-1 text-sm text-purple-600">
+                            <Mail className="w-3 h-3" />
+                            <a href={`mailto:${vlasnik.email}`} className="hover:underline">{vlasnik.email}</a>
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="px-4 py-3">
@@ -621,6 +627,22 @@ export default function VlasniciModule() {
                   <label className="text-sm text-gray-500">Telefon 2</label>
                   <p className="font-medium text-blue-600">{selectedVlasnik.kontakttelefon2 || '-'}</p>
                 </div>
+                <div className="col-span-2">
+                  <label className="text-sm text-gray-500 flex items-center gap-1">
+                    <Mail className="w-4 h-4" />
+                    Email
+                  </label>
+                  {selectedVlasnik.email ? (
+                    <a 
+                      href={`mailto:${selectedVlasnik.email}`}
+                      className="font-medium text-purple-600 hover:underline"
+                    >
+                      {selectedVlasnik.email}
+                    </a>
+                  ) : (
+                    <p className="font-medium text-gray-400">-</p>
+                  )}
+                </div>
                 <div>
                   <label className="text-sm text-gray-500">Grad</label>
                   <p className="font-medium text-gray-900">{selectedVlasnik.grad || '-'}</p>
@@ -654,10 +676,25 @@ export default function VlasniciModule() {
                   <p className="font-medium text-gray-500 text-xs">{selectedVlasnik.idoglasa || '-'}</p>
                 </div>
               </div>
+              
+              {/* Opis oglasa (naslov) */}
               {selectedVlasnik.opisoglasa && (
                 <div>
-                  <label className="text-sm text-gray-500">Opis oglasa</label>
+                  <label className="text-sm text-gray-500">Naslov oglasa</label>
                   <p className="font-medium text-gray-900 mt-1 p-3 bg-gray-50 rounded-lg">{selectedVlasnik.opisoglasa}</p>
+                </div>
+              )}
+              
+              {/* Dodatni opis (puni tekst) */}
+              {selectedVlasnik.dodatniopis && (
+                <div>
+                  <label className="text-sm text-gray-500 flex items-center gap-1">
+                    <FileText className="w-4 h-4" />
+                    Dodatni opis
+                  </label>
+                  <div className="mt-1 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                    <p className="text-gray-700 whitespace-pre-wrap text-sm leading-relaxed">{selectedVlasnik.dodatniopis}</p>
+                  </div>
                 </div>
               )}
               {selectedVlasnik.linkoglasa && (
