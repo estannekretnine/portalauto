@@ -5,6 +5,7 @@ import Sidebar from './Sidebar'
 import VrstaObjektaModule from './VrstaObjektaModule'
 import GrejanjeModule from './GrejanjeModule'
 import InvestitorModule from './InvestitorModule'
+import InfoFirmaModule from './InfoFirmaModule'
 import KorisniciModule from './KorisniciModule'
 import DrzavaModule from './lokalitet/DrzavaModule'
 import GradModule from './lokalitet/GradModule'
@@ -136,6 +137,7 @@ export default function Dashboard() {
           {activeModule === 'lokalitet-ulica' && <UlicaModule />}
           {activeModule === 'grejanje' && <GrejanjeModule />}
           {activeModule === 'investitor' && <InvestitorModule />}
+          {activeModule === 'info-firma' && <InfoFirmaModule />}
           {activeModule === 'korisnici' && (isAdmin ? <KorisniciModule /> : (
             <div className="bg-white rounded-lg shadow p-12 text-center">
               <p className="text-gray-600 text-lg">Nemate pristup ovom modulu.</p>
