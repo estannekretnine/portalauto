@@ -118,6 +118,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
     spratnostzgrade: '',
     idgrejanje: '',
     idinvestitor: '',
+    idnacindobijanja: '',
     cena: '',
     godinagradnje: '',
     opis: '',
@@ -283,6 +284,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
   const [ulice, setUlice] = useState([])
   const [grejanja, setGrejanja] = useState([])
   const [investitori, setInvestitori] = useState([])
+  const [naciniDobijanja, setNaciniDobijanja] = useState([])
   
   // Autocomplete za ulice
   const [ulicaSearchTerm, setUlicaSearchTerm] = useState('')
@@ -356,6 +358,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
         spratnostzgrade: ponudaData.spratnostzgrade || '',
         idgrejanje: ponudaData.idgrejanje || '',
         idinvestitor: ponudaData.idinvestitor || '',
+        idnacindobijanja: ponudaData.idnacindobijanja || '',
         cena: ponudaData.cena || '',
         godinagradnje: ponudaData.godinagradnje || '',
         opis: ponudaData.opis || '',
@@ -614,12 +617,14 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
         { data: vrsteData },
         { data: drzaveData },
         { data: grejanjaData },
-        { data: investitoriData, error: investitoriError }
+        { data: investitoriData, error: investitoriError },
+        { data: naciniDobijanjaData, error: naciniDobijanjaError }
       ] = await Promise.all([
         supabase.from('vrstaobjekta').select('*').order('opis'),
         supabase.from('drzava').select('*').order('opis'),
         supabase.from('grejanje').select('*').order('opis'),
-        supabase.from('investitor').select('*').order('naziv')
+        supabase.from('investitor').select('*').order('naziv'),
+        supabase.from('vrstanacinadobijanjaoglasa').select('*').or('stsarhiva.is.null,stsarhiva.eq.false').order('opis')
       ])
 
       // Ako ima grešku sa investitor tabelom, loguj je ali ne prekidaj učitavanje
@@ -628,11 +633,18 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
         console.warn('Investitori error details:', JSON.stringify(investitoriError, null, 2))
       }
 
+      // Ako ima grešku sa načinima dobijanja, loguj je
+      if (naciniDobijanjaError) {
+        console.warn('⚠️ Greška pri učitavanju načina dobijanja:', naciniDobijanjaError)
+      }
+
       console.log('📊 Učitani investitori:', investitoriData)
+      console.log('📊 Učitani načini dobijanja:', naciniDobijanjaData)
       setVrsteObjekata(vrsteData || [])
       setDrzave(drzaveData || [])
       setGrejanja(grejanjaData || [])
       setInvestitori(investitoriData || []) // Može biti prazan array ako ima RLS problem
+      setNaciniDobijanja(naciniDobijanjaData || [])
     } catch (error) {
       console.error('Greška pri učitavanju lookup podataka:', error)
     }
@@ -1639,6 +1651,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
         spratnostzgrade: formData.spratnostzgrade ? parseInt(formData.spratnostzgrade) : null,
         idgrejanje: formData.idgrejanje ? parseInt(formData.idgrejanje) : null,
         idinvestitor: formData.idinvestitor ? parseInt(formData.idinvestitor) : null,
+        idnacindobijanja: formData.idnacindobijanja ? parseInt(formData.idnacindobijanja) : null,
         godinagradnje: formData.godinagradnje || null,
         opis: formData.opis || null,
         internenapomene: formData.internenapomene || null,
@@ -2933,6 +2946,22 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                   <option value="">Izaberite investitora</option>
                   {investitori.map(investitor => (
                     <option key={investitor.id} value={investitor.id}>{investitor.naziv}</option>
+                  ))}
+                </select>
+              </div>
+
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+                    <span>📥</span> Način dobijanja oglasa
+                </label>
+                <select
+                  value={formData.idnacindobijanja}
+                  onChange={(e) => handleFieldChange('idnacindobijanja', e.target.value)}
+                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                >
+                  <option value="">Izaberite način dobijanja</option>
+                  {naciniDobijanja.map(nacin => (
+                    <option key={nacin.id} value={nacin.id}>{nacin.opis}</option>
                   ))}
                 </select>
               </div>

@@ -31,6 +31,8 @@ import ProveraModule from './ProveraModule'
 import ScrapingHaloBeogradModule from './scraping/ScrapingHaloBeogradModule'
 import VlasniciModule from './scraping/VlasniciModule'
 import VremeTrajanjModule from './scraping/VremeTrajanjModule'
+import NacinDobijanjaModule from './NacinDobijanjaModule'
+import AnalizaNacinaDobijanjaModule from './izvestaji/AnalizaNacinaDobijanjaModule'
 import { LogOut, Menu, Building2 } from 'lucide-react'
 
 export default function Dashboard() {
@@ -123,6 +125,7 @@ export default function Dashboard() {
           {activeModule === 'izvestaj-mesecni' && <MesecniPregledModule />}
           {activeModule === 'izvestaj-pozivi' && <AnalizaPozivModule />}
           {activeModule === 'izvestaj-mediji' && <AnalizaMedijaModule />}
+          {activeModule === 'izvestaj-nacin-dobijanja' && <AnalizaNacinaDobijanjaModule />}
           {activeModule === 'izvestaj-tereni' && <StatistikaTerenModule />}
           {activeModule === 'izvestaj-prodaja-renta' && <ProdajaRentaModule />}
           {activeModule === 'izvestaj-arhivirani' && <ArhiviraniOglasiModule />}
@@ -145,6 +148,7 @@ export default function Dashboard() {
           {activeModule === 'investitor' && <InvestitorModule />}
           {activeModule === 'info-firma' && <InfoFirmaModule />}
           {activeModule === 'mediji' && <MedijiModule />}
+          {activeModule === 'nacin-dobijanja' && <NacinDobijanjaModule />}
           {activeModule === 'korisnici' && (isAdmin ? <KorisniciModule /> : (
             <div className="bg-white rounded-lg shadow p-12 text-center">
               <p className="text-gray-600 text-lg">Nemate pristup ovom modulu.</p>

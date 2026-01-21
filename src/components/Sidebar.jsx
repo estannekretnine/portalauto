@@ -1,4 +1,4 @@
-import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone, Map, BarChart3, PhoneCall, PieChart, Info, Tv, Globe, Clock, UserCheck } from 'lucide-react'
+import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone, Map, BarChart3, PhoneCall, PieChart, Info, Tv, Globe, Clock, UserCheck, FileInput } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = false }) => {
@@ -30,6 +30,7 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
     { id: 'izvestaj-mesecni', label: 'Mesečni pregled' },
     { id: 'izvestaj-pozivi', label: 'Analiza poziva' },
     { id: 'izvestaj-mediji', label: 'Analiza medija' },
+    { id: 'izvestaj-nacin-dobijanja', label: 'Analiza dobijanja oglasa' },
     { id: 'izvestaj-tereni', label: 'Statistika terena' },
     { id: 'izvestaj-prodaja-renta', label: 'Prodaja vs Renta' },
     { id: 'izvestaj-arhivirani', label: 'Arhivirani oglasi' },
@@ -48,6 +49,7 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
     { id: 'investitor', label: 'Investitor', icon: Briefcase },
     { id: 'info-firma', label: 'Info-Firma', icon: Info },
     { id: 'mediji', label: 'Mediji', icon: Tv },
+    { id: 'nacin-dobijanja', label: 'Način dobijanja oglasa', icon: FileInput },
   ]
 
   const haloOglasSubItems = [
