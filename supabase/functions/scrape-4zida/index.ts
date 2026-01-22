@@ -26,41 +26,74 @@ function sleep(ms: number): Promise<void> {
 }
 
 function randomDelay(): number {
-  // Random pauza između 1 i 3 sekundi
   return Math.floor(Math.random() * 2000) + 1000
 }
 
 // Parsiranje liste oglasa sa 4zida.rs
-// Izvlači linkove i ID-eve oglasa
 function parseListaOglasa(html: string): { id: string, link: string }[] {
   const oglasi: { id: string, link: string }[] = []
   
-  // 4zida koristi Next.js, oglasi su u <a> tagovima sa href="/prodaja-stanova/..."
-  // ID je poslednji deo URL-a (npr. /prodaja-stanova/beograd/centar/123456)
-  
-  // Regex za linkove oglasa
-  const linkRegex = /href="(\/(?:prodaja|izdavanje)-(?:stanova|kuca|poslovnih-prostora|garaza|placeva|zemljista)[^"]+)"/gi
+  const urlPattern = /https:\/\/www\.4zida\.rs\/(prodaja|izdavanje)-stanova\/[^"'\s]+\/([a-f0-9]{24})/gi
   
   let match
-  while ((match = linkRegex.exec(html)) !== null) {
-    const link = match[1]
+  while ((match = urlPattern.exec(html)) !== null) {
+    const fullUrl = match[0]
+    const id = match[2]
     
-    // Izvuci ID iz URL-a (poslednji segment koji je broj)
-    const idMatch = link.match(/(\d+)(?:\?|$|\/?)/)
-    if (idMatch) {
-      const id = idMatch[1]
+    if (fullUrl.includes('/vlasnik') || 
+        fullUrl.includes('/agencija') || 
+        fullUrl.includes('?') ||
+        fullUrl.includes('#')) {
+      continue
+    }
+    
+    if (!oglasi.some(o => o.id === id)) {
+      oglasi.push({ id, link: fullUrl })
+      console.log(`Pronađen oglas: ${id} -> ${fullUrl}`)
+    }
+  }
+  
+  if (oglasi.length === 0) {
+    const urlPattern2 = /https:\/\/www\.4zida\.rs\/(prodaja|izdavanje)-(kuca|poslovnih-prostora|garaza|placeva|zemljista)\/[^"'\s]+\/([a-f0-9]{24})/gi
+    
+    while ((match = urlPattern2.exec(html)) !== null) {
+      const fullUrl = match[0]
+      const id = match[3]
       
-      // Proveri da nije duplikat
+      if (fullUrl.includes('/vlasnik') || 
+          fullUrl.includes('/agencija') || 
+          fullUrl.includes('?')) {
+        continue
+      }
+      
       if (!oglasi.some(o => o.id === id)) {
-        oglasi.push({
-          id,
-          link: `https://www.4zida.rs${link}`
-        })
+        oglasi.push({ id, link: fullUrl })
+        console.log(`Pronađen oglas (tip2): ${id} -> ${fullUrl}`)
       }
     }
   }
   
-  console.log(`Pronađeno ${oglasi.length} oglasa na listi`)
+  if (oglasi.length === 0) {
+    console.log('URL pattern nije dao rezultate, tražim u JSON strukturama...')
+    
+    const jsonUrlPattern = /"url"\s*:\s*"(https:\/\/www\.4zida\.rs\/(prodaja|izdavanje)-[^"]+\/([a-f0-9]{24}))"/gi
+    
+    while ((match = jsonUrlPattern.exec(html)) !== null) {
+      const fullUrl = match[1]
+      const id = match[3]
+      
+      if (fullUrl.includes('/vlasnik') || fullUrl.includes('/agencija')) {
+        continue
+      }
+      
+      if (!oglasi.some(o => o.id === id)) {
+        oglasi.push({ id, link: fullUrl })
+        console.log(`Pronađen oglas (JSON): ${id} -> ${fullUrl}`)
+      }
+    }
+  }
+  
+  console.log(`Pronađeno ukupno ${oglasi.length} oglasa`)
   return oglasi
 }
 
@@ -100,7 +133,6 @@ async function parseOglasDetalji(url: string): Promise<{
     const html = await response.text()
     
     // ========== PROVERA DA LI JE AGENCIJA ==========
-    // Agencije imaju "Svi oglasi" link i "godina na 4zida" badge
     const isAgencija = html.includes('Svi oglasi') || 
                        html.includes('godina na 4zida') || 
                        html.includes('godine na 4zida')
@@ -108,21 +140,10 @@ async function parseOglasDetalji(url: string): Promise<{
     if (isAgencija) {
       console.log(`Preskačem oglas - agencija/profesionalac: ${url}`)
       return {
-        naslov: null,
-        cena: null,
-        kvadratura: null,
-        brojSoba: null,
-        grad: null,
-        opstina: null,
-        lokacija: null,
-        opis: null,
-        telefon1: null,
-        telefon2: null,
-        email: null,
-        imevlasnika: null,
-        rentaProdaja: 'prodaja',
-        hasViber: false,
-        isAgencija: true,
+        naslov: null, cena: null, kvadratura: null, brojSoba: null,
+        grad: null, opstina: null, lokacija: null, opis: null,
+        telefon1: null, telefon2: null, email: null, imevlasnika: null,
+        rentaProdaja: 'prodaja', hasViber: false, isAgencija: true,
       }
     }
     
@@ -138,19 +159,17 @@ async function parseOglasDetalji(url: string): Promise<{
     
     // ========== CENA ==========
     let cena: number | null = null
-    // Traži cenu u EUR formatu: 110.000 €, 110,000 EUR, 110000€
     const cenaRegex = /(\d{1,3}(?:[.,]\d{3})*)\s*(?:EUR|€)/gi
     const ceneLista: number[] = []
     let cenaMatch
     while ((cenaMatch = cenaRegex.exec(html)) !== null) {
       const cenaStr = cenaMatch[1].replace(/\./g, '').replace(',', '')
       const cenaNum = parseInt(cenaStr)
-      if (cenaNum > 100 && cenaNum < 50000000) { // Razumna cena
+      if (cenaNum > 100 && cenaNum < 50000000) {
         ceneLista.push(cenaNum)
       }
     }
     if (ceneLista.length > 0) {
-      // Uzmi najčešću cenu ili prvu ako su sve različite
       cena = ceneLista[0]
       console.log(`Cena: ${cena} EUR`)
     }
@@ -171,21 +190,15 @@ async function parseOglasDetalji(url: string): Promise<{
       console.log(`Broj soba: ${brojSoba}`)
     }
     
-    // ========== LOKACIJA (GRAD, OPŠTINA, ULICA) IZ URL-a ==========
-    // URL format: /prodaja-stanova/beograd/stari-grad/123456
-    // Najpouzdaniji izvor za grad i opštinu je URL
+    // ========== LOKACIJA ==========
     let grad: string | null = null
     let opstina: string | null = null
     let lokacija: string | null = null
     
-    // Izvuci grad i opštinu iz URL-a
     const urlParts = url.split('/')
-    // urlParts: ['https:', '', 'www.4zida.rs', 'prodaja-stanova', 'beograd', 'stari-grad', '123456']
     if (urlParts.length >= 5) {
-      // Grad je obično na poziciji 4 (posle 'prodaja-stanova')
       const gradSlug = urlParts[4]
       if (gradSlug && !gradSlug.match(/^\d+$/)) {
-        // Pretvori slug u čitljiv naziv (beograd -> Beograd, novi-sad -> Novi Sad)
         grad = gradSlug
           .split('-')
           .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -193,11 +206,9 @@ async function parseOglasDetalji(url: string): Promise<{
         console.log(`Grad iz URL-a: ${grad}`)
       }
       
-      // Opština je obično na poziciji 5
       if (urlParts.length >= 6) {
         const opstinaSlug = urlParts[5]
         if (opstinaSlug && !opstinaSlug.match(/^\d+$/)) {
-          // Pretvori slug u čitljiv naziv (stari-grad -> Stari Grad)
           opstina = opstinaSlug
             .split('-')
             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -207,7 +218,6 @@ async function parseOglasDetalji(url: string): Promise<{
       }
     }
     
-    // Fallback: traži grad u HTML-u ako nije pronađen u URL-u
     if (!grad) {
       const breadcrumbMatch = html.match(/Beograd|Novi Sad|Niš|Kragujevac|Subotica|Zrenjanin|Pančevo|Čačak|Kruševac|Kraljevo|Leskovac|Smederevo|Valjevo|Vranje|Šabac|Užice|Sombor|Požarevac|Pirot|Zaječar/gi)
       if (breadcrumbMatch) {
@@ -216,7 +226,6 @@ async function parseOglasDetalji(url: string): Promise<{
       }
     }
     
-    // Lokacija/ulica iz naslova (poslednji deo posle zareza)
     if (naslov) {
       const naslovParts = naslov.split(',')
       if (naslovParts.length > 1) {
@@ -227,7 +236,6 @@ async function parseOglasDetalji(url: string): Promise<{
     
     // ========== OPIS ==========
     let opis: string | null = null
-    // Traži opis u različitim formatima
     const opisMatch = html.match(/<div[^>]*class="[^"]*description[^"]*"[^>]*>([\s\S]*?)<\/div>/i) ||
                       html.match(/<p[^>]*class="[^"]*description[^"]*"[^>]*>([\s\S]*?)<\/p>/i) ||
                       html.match(/<section[^>]*>\s*<h[23][^>]*>Opis[^<]*<\/h[23]>\s*([\s\S]*?)<\/section>/i)
@@ -248,17 +256,15 @@ async function parseOglasDetalji(url: string): Promise<{
     const telefoni: string[] = []
     let hasViber = false
     
-    // Poznate centrale i dummy brojevi 4zida koje treba ignorisati
     const ignoredPhones = [
       '061056335', '0610563350', '+381610563350',
       '0483308770', '+381483308770',
-      '0221800122', '+381221800122', // Nova centrala
-      '+381244155869', '0244155869', '244155869', // Nova centrala
-      '0800100200', // Besplatni brojevi
+      '0221800122', '+381221800122',
+      '+381244155869', '0244155869', '244155869',
+      '0800100200',
     ]
     
-    // 4zida čuva telefone u JSON objektu: "phones":[{"full":"+38163619588","isViber":true,"national":"063 619588",...}]
-    // Takođe postoje "publicPhones" i "publicPhones2"
+    // 4zida čuva telefone u JSON objektu
     const phonesPatterns = [
       /"phones"\s*:\s*\[([\s\S]*?)\]/,
       /"publicPhones"\s*:\s*\[([\s\S]*?)\]/,
@@ -268,25 +274,37 @@ async function parseOglasDetalji(url: string): Promise<{
     for (const pattern of phonesPatterns) {
       const phonesMatch = html.match(pattern)
       if (phonesMatch && telefoni.length < 2) {
-        // Izvuci sve telefone iz niza
         const phonesJson = phonesMatch[1]
         
-        // Izvuci "national" vrednosti (format: "063 619588")
-        const nationalRegex = /"national"\s*:\s*"([^"]+)"/g
-        let nationalMatch
-        while ((nationalMatch = nationalRegex.exec(phonesJson)) !== null && telefoni.length < 2) {
-          const tel = nationalMatch[1].replace(/\s/g, '') // Ukloni razmake: "063 619588" -> "063619588"
-          // Ignoriši poznate centrale
+        // PRIORITET: Izvuci "full" vrednosti
+        const fullRegex = /"full"\s*:\s*"([^"]+)"/g
+        let fullMatch
+        while ((fullMatch = fullRegex.exec(phonesJson)) !== null && telefoni.length < 2) {
+          const tel = fullMatch[1].replace(/\s/g, '')
           const isIgnored = ignoredPhones.some(p => tel.includes(p) || p.includes(tel))
           if (!telefoni.includes(tel) && !isIgnored) {
             telefoni.push(tel)
-            console.log(`Telefon iz JSON (national): ${tel}`)
-          } else if (isIgnored) {
-            console.log(`Ignorisan centralni telefon: ${tel}`)
+            console.log(`Telefon iz JSON (full): ${tel}`)
           }
         }
         
-        // Proveri da li ima Viber
+        // FALLBACK: Ako nema "full", koristi "national"
+        if (telefoni.length === 0) {
+          const nationalRegex = /"national"\s*:\s*"([^"]+)"/g
+          let nationalMatch
+          while ((nationalMatch = nationalRegex.exec(phonesJson)) !== null && telefoni.length < 2) {
+            let tel = nationalMatch[1].replace(/\s/g, '')
+            if (tel.startsWith('0')) {
+              tel = '+381' + tel.substring(1)
+            }
+            const isIgnored = ignoredPhones.some(p => tel.includes(p) || p.includes(tel))
+            if (!telefoni.includes(tel) && !isIgnored) {
+              telefoni.push(tel)
+              console.log(`Telefon iz JSON (national->full): ${tel}`)
+            }
+          }
+        }
+        
         if (phonesJson.includes('"isViber":true')) {
           hasViber = true
           console.log('Ima Viber kontakt')
@@ -294,13 +312,16 @@ async function parseOglasDetalji(url: string): Promise<{
       }
     }
     
-    // Fallback: ako nismo našli u JSON-u, traži standardnim regex-om
+    // Fallback regex
     if (telefoni.length === 0) {
-      const telefonRegex = /(?:\+381|0)[\s.-]?[1-9][0-9][\s.-]?\d{3}[\s.-]?\d{3,4}/g
+      const telefonRegex = /(?:\+\d{1,4}[\s.-]?\d{2,3}[\s.-]?\d{3}[\s.-]?\d{3,4})|(?:0[1-9][0-9][\s.-]?\d{3}[\s.-]?\d{3,4})/g
       const telefonMatches = html.match(telefonRegex)
       if (telefonMatches) {
         for (const tel of telefonMatches) {
-          const cleaned = tel.replace(/[\s.-]/g, '')
+          let cleaned = tel.replace(/[\s.-]/g, '')
+          if (cleaned.startsWith('0') && !cleaned.startsWith('+')) {
+            cleaned = '+381' + cleaned.substring(1)
+          }
           const isIgnored = ignoredPhones.some(p => cleaned.includes(p) || p.includes(cleaned))
           if (!telefoni.includes(cleaned) && telefoni.length < 2 && !isIgnored) {
             telefoni.push(cleaned)
@@ -329,26 +350,34 @@ async function parseOglasDetalji(url: string): Promise<{
       }
     }
     
-    // ========== IME VLASNIKA IZ JSON-a ==========
+    // ========== IME VLASNIKA ==========
     let imevlasnika: string | null = null
-    // Traži "fullName" u author objektu: "author":{"id":1118665,"fullName":"Ime Prezime",...}
     const fullNameMatch = html.match(/"author"\s*:\s*\{[^}]*"fullName"\s*:\s*"([^"]+)"/i)
     if (fullNameMatch && fullNameMatch[1].trim()) {
-      imevlasnika = fullNameMatch[1].trim()
-      console.log(`Ime vlasnika iz JSON: ${imevlasnika}`)
+      const potencijalnoIme = fullNameMatch[1].trim()
+      // Proveri da nije telefon (ne počinje sa + i nije samo brojevi)
+      if (!potencijalnoIme.startsWith('+') && !/^\d+$/.test(potencijalnoIme) && !/^\+?\d[\d\s-]+$/.test(potencijalnoIme)) {
+        imevlasnika = potencijalnoIme
+        console.log(`Ime vlasnika iz JSON: ${imevlasnika}`)
+      } else {
+        console.log(`Preskočeno ime (izgleda kao telefon): ${potencijalnoIme}`)
+      }
     }
     
-    // Fallback: traži u HTML-u
     if (!imevlasnika) {
       const imeMatch = html.match(/(?:oglašivač|vlasnik|kontakt)[:\s]*<[^>]*>([^<]+)/i) ||
                        html.match(/<span[^>]*class="[^"]*name[^"]*"[^>]*>([^<]+)/i)
       if (imeMatch) {
-        imevlasnika = imeMatch[1].trim()
-        console.log(`Ime vlasnika iz HTML: ${imevlasnika}`)
+        const potencijalnoIme = imeMatch[1].trim()
+        if (!potencijalnoIme.startsWith('+') && !/^\d+$/.test(potencijalnoIme) && !/^\+?\d[\d\s-]+$/.test(potencijalnoIme)) {
+          imevlasnika = potencijalnoIme
+          console.log(`Ime vlasnika iz HTML: ${imevlasnika}`)
+        } else {
+          console.log(`Preskočeno ime iz HTML (izgleda kao telefon): ${potencijalnoIme}`)
+        }
       }
     }
     
-    // ========== TIP OGLASA (PRODAJA/RENTA) ==========
     const rentaProdaja = url.includes('izdavanje') ? 'renta' : 'prodaja'
     
     return {
@@ -371,27 +400,15 @@ async function parseOglasDetalji(url: string): Promise<{
   } catch (e) {
     console.error('Greška pri učitavanju detalja oglasa:', e)
     return {
-      naslov: null,
-      cena: null,
-      kvadratura: null,
-      brojSoba: null,
-      grad: null,
-      opstina: null,
-      lokacija: null,
-      opis: null,
-      telefon1: null,
-      telefon2: null,
-      email: null,
-      imevlasnika: null,
-      rentaProdaja: 'prodaja',
-      hasViber: false,
-      isAgencija: false,
+      naslov: null, cena: null, kvadratura: null, brojSoba: null,
+      grad: null, opstina: null, lokacija: null, opis: null,
+      telefon1: null, telefon2: null, email: null, imevlasnika: null,
+      rentaProdaja: 'prodaja', hasViber: false, isAgencija: false,
     }
   }
 }
 
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -403,14 +420,12 @@ serve(async (req) => {
       throw new Error('URL je obavezan')
     }
 
-    // Inicijalizuj Supabase klijent
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseKey)
 
     const startTime = new Date()
     
-    // 1. Zapiši početak u vremetrajanja
     const { data: vremeData, error: vremeError } = await supabase
       .from('vremetrajanja')
       .insert({
@@ -424,7 +439,6 @@ serve(async (req) => {
     if (vremeError) throw vremeError
     const vremeTrajanjaId = vremeData.id
 
-    // 2. Fetch HTML sa 4zida liste oglasa
     console.log('Učitavam stranicu:', url)
     
     const response = await fetch(url, {
@@ -444,15 +458,12 @@ serve(async (req) => {
     const html = await response.text()
     console.log('HTML dužina:', html.length)
     
-    // 3. Parsiraj listu oglasa
     let oglasi = parseListaOglasa(html)
     console.log(`Pronađeno ${oglasi.length} oglasa na listi`)
     
-    // Limitiraj broj oglasa
     oglasi = oglasi.slice(0, limit)
     console.log(`Obrađujem ${oglasi.length} oglasa (limit: ${limit})`)
 
-    // 4. Proveri koji oglasi već postoje u bazi
     const oglasiIds = oglasi.map(o => o.id)
     const { data: postojeciOglasi } = await supabase
       .from('vlasnici')
@@ -462,29 +473,23 @@ serve(async (req) => {
     const postojeciIdsSet = new Set(postojeciOglasi?.map(o => o.oglas_id) || [])
     console.log(`${postojeciIdsSet.size} oglasa već postoji u bazi`)
     
-    // Filtriraj samo nove oglase
     const noviOglasiZaObradu = oglasi.filter(o => !postojeciIdsSet.has(o.id))
     console.log(`${noviOglasiZaObradu.length} novih oglasa za obradu`)
 
     let noviOglasi = 0
     let preskoceniOglasi = oglasi.length - noviOglasiZaObradu.length
     const rezultati: any[] = []
-
     let preskoceneAgencije = 0
 
-    // 5. Za svaki novi oglas - učitaj detalje i sačuvaj
     for (let i = 0; i < noviOglasiZaObradu.length; i++) {
       const oglas = noviOglasiZaObradu[i]
       
       console.log(`Obrađujem oglas ${i + 1}/${noviOglasiZaObradu.length}: ${oglas.id}`)
 
-      // Pauza pre učitavanja detalja
       await sleep(randomDelay())
       
-      // Učitaj detalje oglasa
       const detalji = await parseOglasDetalji(oglas.link)
 
-      // Preskoči ako je agencija/profesionalac
       if (detalji.isAgencija) {
         preskoceneAgencije++
         rezultati.push({ id: oglas.id, link: oglas.link, status: 'preskocen', reason: 'Agencija/profesionalac' })
@@ -492,13 +497,11 @@ serve(async (req) => {
         continue
       }
 
-      // Dodaj Viber info u opis ako postoji
       let dodatniOpis = detalji.opis || ''
       if (detalji.hasViber && detalji.telefon1) {
         dodatniOpis = `[VIBER: ${detalji.telefon1}] ${dodatniOpis}`.trim()
       }
 
-      // Insert novog vlasnika
       const { error: insertError } = await supabase
         .from('vlasnici')
         .insert({
@@ -532,7 +535,6 @@ serve(async (req) => {
       }
     }
 
-    // 6. Update vremetrajanja sa završetkom
     const endTime = new Date()
     const trajanje = Math.round((endTime.getTime() - startTime.getTime()) / 1000)
     

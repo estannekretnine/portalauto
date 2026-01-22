@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../utils/supabase'
 import { getCurrentUser } from '../../utils/auth'
-import { UserCheck, Search, Filter, ChevronDown, ChevronUp, ExternalLink, Phone, MapPin, Euro, Ruler, Calendar, Archive, ArchiveRestore, Eye, MessageSquare, Send, X, Mail, FileText } from 'lucide-react'
+import { UserCheck, Search, Filter, ChevronDown, ChevronUp, ExternalLink, Phone, MapPin, Euro, Ruler, Calendar, Archive, ArchiveRestore, Eye, MessageSquare, Send, X, Mail, FileText, Plus, Edit, Save } from 'lucide-react'
 
 export default function VlasniciModule() {
   const [vlasnici, setVlasnici] = useState([])
@@ -24,6 +24,27 @@ export default function VlasniciModule() {
   const [loadingKomentari, setLoadingKomentari] = useState(false)
   const [savingKomentar, setSavingKomentar] = useState(false)
   const popupRef = useRef(null)
+  
+  // Dodavanje/Izmena vlasnika state
+  const [showForm, setShowForm] = useState(false)
+  const [editingVlasnik, setEditingVlasnik] = useState(null)
+  const [savingVlasnik, setSavingVlasnik] = useState(false)
+  const [formData, setFormData] = useState({
+    imevlasnika: '',
+    kontakttelefon1: '',
+    kontakttelefon2: '',
+    email: '',
+    grad: '',
+    opstina: '',
+    lokacija: '',
+    cena: '',
+    kvadratura: '',
+    rentaprodaja: 'prodaja',
+    oglasnik: 'Ručni unos',
+    linkoglasa: '',
+    opisoglasa: '',
+    dodatniopis: ''
+  })
 
   useEffect(() => {
     loadVlasnici()
@@ -188,6 +209,113 @@ export default function VlasniciModule() {
     }
   }
 
+  // Resetuj formu
+  const resetForm = () => {
+    setFormData({
+      imevlasnika: '',
+      kontakttelefon1: '',
+      kontakttelefon2: '',
+      email: '',
+      grad: '',
+      opstina: '',
+      lokacija: '',
+      cena: '',
+      kvadratura: '',
+      rentaprodaja: 'prodaja',
+      oglasnik: 'Ručni unos',
+      linkoglasa: '',
+      opisoglasa: '',
+      dodatniopis: ''
+    })
+    setEditingVlasnik(null)
+  }
+
+  // Otvori formu za dodavanje
+  const handleOpenAddForm = () => {
+    resetForm()
+    setShowForm(true)
+  }
+
+  // Otvori formu za izmenu
+  const handleOpenEditForm = (vlasnik) => {
+    setFormData({
+      imevlasnika: vlasnik.imevlasnika || '',
+      kontakttelefon1: vlasnik.kontakttelefon1 || '',
+      kontakttelefon2: vlasnik.kontakttelefon2 || '',
+      email: vlasnik.email || '',
+      grad: vlasnik.grad || '',
+      opstina: vlasnik.opstina || '',
+      lokacija: vlasnik.lokacija || '',
+      cena: vlasnik.cena || '',
+      kvadratura: vlasnik.kvadratura || '',
+      rentaprodaja: vlasnik.rentaprodaja || 'prodaja',
+      oglasnik: vlasnik.oglasnik || 'Ručni unos',
+      linkoglasa: vlasnik.linkoglasa || '',
+      opisoglasa: vlasnik.opisoglasa || '',
+      dodatniopis: vlasnik.dodatniopis || ''
+    })
+    setEditingVlasnik(vlasnik)
+    setShowForm(true)
+  }
+
+  // Sačuvaj vlasnika (dodaj ili izmeni)
+  const handleSaveVlasnik = async () => {
+    setSavingVlasnik(true)
+    try {
+      const dataToSave = {
+        imevlasnika: formData.imevlasnika || null,
+        kontakttelefon1: formData.kontakttelefon1 || null,
+        kontakttelefon2: formData.kontakttelefon2 || null,
+        email: formData.email || null,
+        grad: formData.grad || null,
+        opstina: formData.opstina || null,
+        lokacija: formData.lokacija || null,
+        cena: formData.cena ? parseFloat(formData.cena) : null,
+        kvadratura: formData.kvadratura ? parseFloat(formData.kvadratura) : null,
+        rentaprodaja: formData.rentaprodaja,
+        oglasnik: formData.oglasnik || 'Ručni unos',
+        linkoglasa: formData.linkoglasa || null,
+        opisoglasa: formData.opisoglasa || null,
+        dodatniopis: formData.dodatniopis || null,
+        datumpromene: new Date().toISOString()
+      }
+
+      if (editingVlasnik) {
+        // Izmena postojećeg
+        const { error } = await supabase
+          .from('vlasnici')
+          .update(dataToSave)
+          .eq('id', editingVlasnik.id)
+
+        if (error) throw error
+      } else {
+        // Dodavanje novog
+        dataToSave.datumkreiranja = new Date().toISOString()
+        dataToSave.stsarhiviran = false
+
+        const { error } = await supabase
+          .from('vlasnici')
+          .insert(dataToSave)
+
+        if (error) throw error
+      }
+
+      setShowForm(false)
+      resetForm()
+      loadVlasnici()
+    } catch (error) {
+      console.error('Greška pri čuvanju vlasnika:', error)
+      alert('Greška pri čuvanju: ' + error.message)
+    } finally {
+      setSavingVlasnik(false)
+    }
+  }
+
+  // Handle form input change
+  const handleFormChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
   const formatDate = (dateStr) => {
     if (!dateStr) return '-'
     return new Date(dateStr).toLocaleString('sr-RS', {
@@ -271,6 +399,14 @@ export default function VlasniciModule() {
               Arhivirani: {stats.arhivirani}
             </span>
           </div>
+          {/* Dugme za dodavanje */}
+          <button
+            onClick={handleOpenAddForm}
+            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg shadow-amber-500/30"
+          >
+            <Plus className="w-5 h-5" />
+            Dodaj vlasnika
+          </button>
         </div>
       </div>
 
@@ -470,6 +606,13 @@ export default function VlasniciModule() {
                         >
                           <Eye className="w-4 h-4" />
                         </button>
+                        <button
+                          onClick={() => handleOpenEditForm(vlasnik)}
+                          className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                          title="Izmeni"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
                         
                         {/* Dugme za komentar */}
                         <div className="relative">
@@ -597,6 +740,217 @@ export default function VlasniciModule() {
           </div>
         )}
       </div>
+
+      {/* Modal za dodavanje/izmenu vlasnika */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-amber-500 to-amber-600">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold text-white">
+                  {editingVlasnik ? 'Izmeni vlasnika' : 'Dodaj novog vlasnika'}
+                </h3>
+                <button
+                  onClick={() => { setShowForm(false); resetForm(); }}
+                  className="p-2 hover:bg-white/20 rounded-lg text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            <div className="p-6 space-y-6">
+              {/* Red 1: Ime i Tip */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Ime vlasnika</label>
+                  <input
+                    type="text"
+                    value={formData.imevlasnika}
+                    onChange={(e) => handleFormChange('imevlasnika', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    placeholder="Ime i prezime"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Tip</label>
+                  <select
+                    value={formData.rentaprodaja}
+                    onChange={(e) => handleFormChange('rentaprodaja', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  >
+                    <option value="prodaja">Prodaja</option>
+                    <option value="renta">Renta</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Red 2: Telefoni */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Telefon 1</label>
+                  <input
+                    type="text"
+                    value={formData.kontakttelefon1}
+                    onChange={(e) => handleFormChange('kontakttelefon1', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    placeholder="06x xxx xxxx"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Telefon 2</label>
+                  <input
+                    type="text"
+                    value={formData.kontakttelefon2}
+                    onChange={(e) => handleFormChange('kontakttelefon2', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    placeholder="06x xxx xxxx"
+                  />
+                </div>
+              </div>
+
+              {/* Red 3: Email */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleFormChange('email', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  placeholder="email@primer.com"
+                />
+              </div>
+
+              {/* Red 4: Lokacija */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Grad</label>
+                  <input
+                    type="text"
+                    value={formData.grad}
+                    onChange={(e) => handleFormChange('grad', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    placeholder="Beograd"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Opština</label>
+                  <input
+                    type="text"
+                    value={formData.opstina}
+                    onChange={(e) => handleFormChange('opstina', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    placeholder="Vračar"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Lokacija</label>
+                  <input
+                    type="text"
+                    value={formData.lokacija}
+                    onChange={(e) => handleFormChange('lokacija', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    placeholder="Crveni krst"
+                  />
+                </div>
+              </div>
+
+              {/* Red 5: Cena i Kvadratura */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Cena (EUR)</label>
+                  <input
+                    type="number"
+                    value={formData.cena}
+                    onChange={(e) => handleFormChange('cena', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    placeholder="150000"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Kvadratura (m²)</label>
+                  <input
+                    type="number"
+                    value={formData.kvadratura}
+                    onChange={(e) => handleFormChange('kvadratura', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    placeholder="65"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Oglasnik</label>
+                  <input
+                    type="text"
+                    value={formData.oglasnik}
+                    onChange={(e) => handleFormChange('oglasnik', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    placeholder="Ručni unos"
+                  />
+                </div>
+              </div>
+
+              {/* Red 6: Link oglasa */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Link oglasa</label>
+                <input
+                  type="url"
+                  value={formData.linkoglasa}
+                  onChange={(e) => handleFormChange('linkoglasa', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  placeholder="https://..."
+                />
+              </div>
+
+              {/* Red 7: Opis oglasa */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Naslov/Opis oglasa</label>
+                <input
+                  type="text"
+                  value={formData.opisoglasa}
+                  onChange={(e) => handleFormChange('opisoglasa', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  placeholder="Trosoban stan na Vračaru"
+                />
+              </div>
+
+              {/* Red 8: Dodatni opis */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Dodatni opis</label>
+                <textarea
+                  value={formData.dodatniopis}
+                  onChange={(e) => handleFormChange('dodatniopis', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                  rows={4}
+                  placeholder="Detaljan opis nekretnine..."
+                />
+              </div>
+
+              {/* Dugmad */}
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                <button
+                  onClick={() => { setShowForm(false); resetForm(); }}
+                  className="px-6 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors font-medium"
+                >
+                  Otkaži
+                </button>
+                <button
+                  onClick={handleSaveVlasnik}
+                  disabled={savingVlasnik}
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all disabled:opacity-50"
+                >
+                  {savingVlasnik ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      <Save className="w-5 h-5" />
+                      {editingVlasnik ? 'Sačuvaj izmene' : 'Dodaj vlasnika'}
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal za detalje */}
       {selectedVlasnik && (
