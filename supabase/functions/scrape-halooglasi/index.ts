@@ -307,99 +307,172 @@ async function parseOglasDetalji(url: string): Promise<{
       return true
     }
 
-    // Pokušaj da nađeš ID oglasa (Guid) za API poziv
-    // Tražimo: "Id":"f8c9c0b1-..." ili unutar CurrentClassified
-    let oglasGuid = null
-    const guidMatch = html.match(/"Id"\s*:\s*"([a-f0-9-]{36})"/i)
-    if (guidMatch) {
-      oglasGuid = guidMatch[1]
-        console.log(`Pronađen GUID oglasa: ${oglasGuid}`)
+    // ========== NOVI API ZA TELEFONE (POST /AdAdvertiserInfoWidget/AdvertiserPhones) ==========
+    // Izvuci potrebne parametre iz HTML-a: adId, partyId, adKindId
+    
+    // adId - numerički ID oglasa (iz URL-a ili iz HTML-a)
+    let adId: string | null = null
+    // Probaj iz URL-a (poslednji segment pre query stringa)
+    const urlAdIdMatch = url.match(/\/(\d{10,})(?:\?|$)/)
+    if (urlAdIdMatch) {
+      adId = urlAdIdMatch[1]
+      console.log(`adId iz URL-a: ${adId}`)
     }
-
-    // Ako imamo GUID, pravimo dodatni poziv ka API-ju za telefone
-    if (oglasGuid) {
-      // Probaj više endpoint varijanti koje HaloOglasi može koristiti
-      const apiEndpoints = [
-        `https://www.halooglasi.com/AdAdvertiserInfoWidget.ashx?adId=${oglasGuid}`,
-        `https://www.halooglasi.com/quiddita/widgets/ad/adadvertiserinfo/AdAdvertiserInfoWidget498498?adId=${oglasGuid}`,
-        `https://www.halooglasi.com/Widgets/Ad/AdAdvertiserInfo?adId=${oglasGuid}`,
-      ]
-      
-      // Generišemo nasumičan ID sesije da imitiramo browser
-      const sessionId = Math.random().toString(36).substring(2, 15)
-      const requestHeaders = {
-        'User-Agent': getRandomUserAgent(),
-        'Accept': 'text/html, */*; q=0.01',
-        'Accept-Language': 'sr-RS,sr;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Referer': url,
-        'X-Requested-With': 'XMLHttpRequest',
-        'Host': 'www.halooglasi.com',
-        'Origin': 'https://www.halooglasi.com',
-        'Connection': 'keep-alive',
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-origin',
-        'Sec-Ch-Ua': '"Google Chrome";v="120", "Chromium";v="120"',
-        'Sec-Ch-Ua-Mobile': '?0',
-        'Sec-Ch-Ua-Platform': '"Windows"',
-        'Cookie': `ASP.NET_SessionId=${sessionId}; __RequestVerificationToken=abc123; HaloOglasi_Consent=true; _ga=GA1.2.${Math.random().toString().slice(2,12)}.${Date.now()}`
+    // Fallback: traži u HTML-u
+    if (!adId) {
+      const htmlAdIdMatch = html.match(/"adId"\s*:\s*"?(\d+)"?/i) || 
+                            html.match(/data-id="(\d+)"/i) ||
+                            html.match(/"Id"\s*:\s*"(\d+)"/i)
+      if (htmlAdIdMatch) {
+        adId = htmlAdIdMatch[1]
+        console.log(`adId iz HTML-a: ${adId}`)
       }
-      
-      for (const apiUrl of apiEndpoints) {
-        if (telefoni.length > 0) break // Već imamo telefone
+    }
+    
+    // partyId - ID oglašivača (iz QuidditaEnvironment ili HTML-a)
+    let partyId: string | null = null
+    const partyIdMatch = html.match(/"partyId"\s*:\s*"?(\d+)"?/i) ||
+                         html.match(/"PartyId"\s*:\s*"?(\d+)"?/i) ||
+                         html.match(/data-party-id="(\d+)"/i) ||
+                         html.match(/"advertiserId"\s*:\s*"?(\d+)"?/i)
+    if (partyIdMatch) {
+      partyId = partyIdMatch[1]
+      console.log(`partyId: ${partyId}`)
+    }
+    
+    // adKindId - tip oglasa (obično 4 za nekretnine)
+    let adKindId: string | null = null
+    const adKindIdMatch = html.match(/"adKindId"\s*:\s*"?(\d+)"?/i) ||
+                          html.match(/"AdKindId"\s*:\s*"?(\d+)"?/i) ||
+                          html.match(/"categoryId"\s*:\s*"?(\d+)"?/i)
+    if (adKindIdMatch) {
+      adKindId = adKindIdMatch[1]
+      console.log(`adKindId: ${adKindId}`)
+    } else {
+      // Default za nekretnine
+      adKindId = "4"
+      console.log(`adKindId (default): ${adKindId}`)
+    }
+    
+    // Ako imamo sve parametre, pozovi API za telefone
+    if (adId && partyId) {
+      try {
+        console.log(`Pozivam AdvertiserPhones API: adId=${adId}, partyId=${partyId}, adKindId=${adKindId}`)
         
-        try {
-          console.log(`Pokušavam endpoint: ${apiUrl}`)
+        const apiUrl = 'https://www.halooglasi.com/AdAdvertiserInfoWidget/AdvertiserPhones'
+        const requestBody = JSON.stringify({
+          adId: adId,
+          partyId: partyId,
+          adKindId: adKindId || "4"
+        })
+        
+        const apiResponse = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'User-Agent': getRandomUserAgent(),
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Accept-Language': 'sr-RS,sr;q=0.9,en-US;q=0.8,en;q=0.7',
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Referer': url,
+            'Origin': 'https://www.halooglasi.com',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-origin',
+          },
+          body: requestBody
+        })
+        
+        console.log(`API status: ${apiResponse.status}`)
+        
+        if (apiResponse.ok) {
+          // Prvo pročitaj kao text da vidimo šta vraća
+          const rawText = await apiResponse.text()
+          console.log(`API RAW response: ${rawText.substring(0, 500)}`)
           
-          const apiResponse = await fetch(apiUrl, { headers: requestHeaders })
-          
-          console.log(`API status: ${apiResponse.status}`)
-          
-          if (apiResponse.ok) {
-            const apiHtml = await apiResponse.text()
-            console.log(`API response length: ${apiHtml.length}`)
-            
-            // DEBUG: Ispiši deo odgovora da vidimo strukturu
-            if (apiHtml.length > 0) {
-              console.log(`API preview: ${apiHtml.substring(0, 300)}`)
-            } else {
-              console.log('API vratio prazan response')
-              continue
-            }
-            
-            // API vraća HTML fragment sa telefonima u <a href="tel:...">
-            const phoneLinkRegex = /href="tel:([^"]+)"/gi
-            let pMatch
-            while ((pMatch = phoneLinkRegex.exec(apiHtml)) !== null) {
-              let tel = pMatch[1].replace(/[\s.\-\/]/g, '')
-              if (tel.startsWith('00381')) tel = '+381' + tel.substring(5)
-              if (tel.startsWith('381')) tel = '+' + tel
-              
-              if (isValidPhone(tel) && !telefoni.includes(tel)) {
-                telefoni.push(tel)
-                console.log(`API TELEFON PRONAĐEN: ${tel}`)
-              }
-            }
-            
-            // Ako nema tel: linkova, probaj raw regex
-            if (telefoni.length === 0) {
-              const rawPhoneRegex = /(?:\+381|0)[\s.\-\/]?[1-9][0-9][\s.\-\/]?\d{3}[\s.\-\/]?\d{3,4}/g
-              const rawMatches = apiHtml.match(rawPhoneRegex)
-              if (rawMatches) {
-                for (const t of rawMatches) {
-                  const cl = t.replace(/[\s.\-\/]/g, '')
-                  if (isValidPhone(cl) && !telefoni.includes(cl)) {
-                    telefoni.push(cl)
-                    console.log(`API RAW TELEFON: ${cl}`)
+          // Parsiraj JSON
+          let apiData: any
+          try {
+            apiData = JSON.parse(rawText)
+            console.log(`API parsed:`, JSON.stringify(apiData))
+          } catch (parseErr) {
+            console.error(`API JSON parse error:`, parseErr)
+            // Ako nije JSON, možda je HTML sa telefonima
+            const phoneLinkMatch = rawText.match(/href="tel:([^"]+)"/gi)
+            if (phoneLinkMatch) {
+              for (const match of phoneLinkMatch) {
+                const telMatch = match.match(/tel:([^"]+)/)
+                if (telMatch) {
+                  let tel = telMatch[1].replace(/[\s.\-\/]/g, '')
+                  if (isValidPhone(tel) && !telefoni.includes(tel)) {
+                    telefoni.push(tel)
+                    console.log(`TELEFON IZ HTML: ${tel}`)
                   }
                 }
               }
             }
+            apiData = null
           }
-        } catch (apiErr) {
-          console.error(`Greška pri pozivu ${apiUrl}:`, apiErr)
+          
+          if (apiData) {
+            // API vraća JSON u formatu: { phone1: "<a href='tel:063/846-1684'>063/846-1684</a>", phone2: null }
+            // Potrebno je izvući broj iz HTML stringa
+            
+            const extractPhoneFromHtml = (htmlStr: string | null): string | null => {
+              if (!htmlStr) return null
+              // Izvuci broj iz href='tel:XXX' ili href="tel:XXX"
+              const telMatch = htmlStr.match(/href=['"]?tel:([^'">\s]+)['"]?/i)
+              if (telMatch) {
+                return telMatch[1]
+              }
+              // Fallback: izvuci bilo koji broj koji liči na telefon
+              const numMatch = htmlStr.match(/(\d[\d\s\-\/]{7,})/);
+              return numMatch ? numMatch[1] : null
+            }
+            
+            // Proveri phone1 i phone2 (HaloOglasi format)
+            const phone1Raw = apiData.phone1 || apiData.Phone1
+            const phone2Raw = apiData.phone2 || apiData.Phone2
+            
+            const phone1 = extractPhoneFromHtml(phone1Raw)
+            const phone2 = extractPhoneFromHtml(phone2Raw)
+            
+            console.log(`Izvučeni telefoni: phone1=${phone1}, phone2=${phone2}`)
+            
+            // Obradi phone1
+            if (phone1) {
+              let tel = phone1.replace(/[\s.\-\/]/g, '')
+              if (tel.startsWith('00381')) tel = '+381' + tel.substring(5)
+              else if (tel.startsWith('381') && !tel.startsWith('+')) tel = '+' + tel
+              else if (tel.startsWith('0') && tel.length >= 9) tel = '+381' + tel.substring(1)
+              
+              if (isValidPhone(tel) && !telefoni.includes(tel)) {
+                telefoni.push(tel)
+                console.log(`API TELEFON 1 PRONAĐEN: ${tel}`)
+              }
+            }
+            
+            // Obradi phone2
+            if (phone2) {
+              let tel = phone2.replace(/[\s.\-\/]/g, '')
+              if (tel.startsWith('00381')) tel = '+381' + tel.substring(5)
+              else if (tel.startsWith('381') && !tel.startsWith('+')) tel = '+' + tel
+              else if (tel.startsWith('0') && tel.length >= 9) tel = '+381' + tel.substring(1)
+              
+              if (isValidPhone(tel) && !telefoni.includes(tel)) {
+                telefoni.push(tel)
+                console.log(`API TELEFON 2 PRONAĐEN: ${tel}`)
+              }
+            }
+          }
+        } else {
+          console.log(`API error: ${apiResponse.status} ${apiResponse.statusText}`)
         }
+      } catch (apiErr) {
+        console.error('Greška pri API pozivu za telefone:', apiErr)
       }
+    } else {
+      console.log(`Nedostaju parametri za API: adId=${adId}, partyId=${partyId}`)
     }
 
     // FALLBACK 1: Ako API nije vratio ništa, probaj contact-info iz glavnog HTML-a
