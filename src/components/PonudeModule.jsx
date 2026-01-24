@@ -855,75 +855,74 @@ export default function PonudeModule() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Ponude</h2>
-          <p className="text-gray-500 text-sm mt-1">Upravljanje nekretninama</p>
-        </div>
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <button
-            onClick={handleAddPonuda}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-2xl hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg shadow-amber-500/25 font-semibold"
-          >
-            <Plus className="w-5 h-5" />
-            <span className="hidden sm:inline">Dodaj ponudu</span>
-            <span className="sm:hidden">Dodaj</span>
-          </button>
-          <button
-            onClick={() => setShowAISearch(true)}
-            className={`flex items-center gap-2 px-5 py-3 rounded-2xl transition-all font-medium ${
-              aiSearchResults !== null
-                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/25'
-                : 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 shadow-lg shadow-purple-500/25'
-            }`}
-          >
-            <Sparkles className="w-4 h-4" />
-            <span className="hidden sm:inline">AI pretraga</span>
-            <span className="sm:hidden">AI</span>
-          </button>
-          {aiSearchResults !== null && (
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Ponude</h2>
+            <p className="text-gray-500 text-sm mt-1">Upravljanje nekretninama</p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
             <button
-              onClick={resetAISearch}
-              className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all font-medium"
-              title="Poništi AI pretragu"
+              onClick={handleAddPonuda}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg shadow-amber-500/25 font-semibold text-sm"
             >
-              <RotateCcw className="w-4 h-4" />
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Dodaj</span>
             </button>
-          )}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 px-5 py-3 rounded-2xl transition-all font-medium ${
-              showFilters
-                ? 'bg-gray-900 text-white'
-                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 shadow-sm'
-            }`}
-          >
-            <Filter className="w-4 h-4" />
-            <span className="hidden sm:inline">Filteri</span>
-          </button>
-          <div className="flex items-center bg-white border border-gray-200 rounded-2xl p-1.5 shadow-sm">
             <button
-              onClick={() => setViewMode('table')}
-              className={`p-2.5 rounded-xl transition-all ${
-                viewMode === 'table'
-                  ? 'bg-gray-900 text-white shadow-sm'
-                  : 'text-gray-500 hover:bg-gray-100'
+              onClick={() => setShowAISearch(true)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all font-medium text-sm ${
+                aiSearchResults !== null
+                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/25'
+                  : 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 shadow-lg shadow-purple-500/25'
               }`}
-              title="Tabelarni prikaz"
             >
-              <List className="w-4 h-4" />
+              <Sparkles className="w-4 h-4" />
+              <span className="hidden sm:inline">AI</span>
             </button>
+            {aiSearchResults !== null && (
+              <button
+                onClick={resetAISearch}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all font-medium"
+                title="Poništi AI pretragu"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
+            )}
             <button
-              onClick={() => setViewMode('grid')}
-              className={`p-2.5 rounded-xl transition-all ${
-                viewMode === 'grid'
-                  ? 'bg-gray-900 text-white shadow-sm'
-                  : 'text-gray-500 hover:bg-gray-100'
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all font-medium text-sm ${
+                showFilters
+                  ? 'bg-gray-900 text-white'
+                  : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 shadow-sm'
               }`}
-              title="Grid prikaz"
             >
-              <Grid className="w-4 h-4" />
+              <Filter className="w-4 h-4" />
             </button>
+            <div className="flex items-center bg-white border border-gray-200 rounded-xl p-1 shadow-sm">
+              <button
+                onClick={() => setViewMode('table')}
+                className={`p-2 rounded-lg transition-all ${
+                  viewMode === 'table'
+                    ? 'bg-gray-900 text-white shadow-sm'
+                    : 'text-gray-500 hover:bg-gray-100'
+                }`}
+                title="Tabelarni prikaz"
+              >
+                <List className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded-lg transition-all ${
+                  viewMode === 'grid'
+                    ? 'bg-gray-900 text-white shadow-sm'
+                    : 'text-gray-500 hover:bg-gray-100'
+                }`}
+                title="Grid prikaz"
+              >
+                <Grid className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1486,16 +1485,16 @@ export default function PonudeModule() {
         </div>
       ) : viewMode === 'table' ? (
         /* Table View - Compass Style */
-        <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto max-w-full">
+            <table className="w-full min-w-[1200px]">
               <thead>
                 <tr className="bg-gradient-to-r from-gray-900 to-black text-white">
                   <th 
-                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider w-16 cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider w-12 cursor-pointer hover:bg-white/10 transition-colors select-none"
                     onClick={() => handleSort('id')}
                   >
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5">
                       ID
                       {sortConfig.key === 'id' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
@@ -1503,10 +1502,10 @@ export default function PonudeModule() {
                     </div>
                   </th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
                     onClick={() => handleSort('vrsta')}
                   >
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5">
                       Vrsta
                       {sortConfig.key === 'vrsta' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
@@ -1514,10 +1513,10 @@ export default function PonudeModule() {
                     </div>
                   </th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
                     onClick={() => handleSort('opstina')}
                   >
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5">
                       Opština
                       {sortConfig.key === 'opstina' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
@@ -1525,10 +1524,10 @@ export default function PonudeModule() {
                     </div>
                   </th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
                     onClick={() => handleSort('lokacija')}
                   >
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5">
                       Lokacija
                       {sortConfig.key === 'lokacija' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
@@ -1536,10 +1535,10 @@ export default function PonudeModule() {
                     </div>
                   </th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
                     onClick={() => handleSort('ulica')}
                   >
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5">
                       Ulica
                       {sortConfig.key === 'ulica' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
@@ -1547,11 +1546,11 @@ export default function PonudeModule() {
                     </div>
                   </th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none w-14"
                     onClick={() => handleSort('kvadratura')}
                     title="Kvadratura nekretnine"
                   >
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5">
                       m²
                       {sortConfig.key === 'kvadratura' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
@@ -1559,10 +1558,10 @@ export default function PonudeModule() {
                     </div>
                   </th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none w-12"
                     onClick={() => handleSort('struktura')}
                   >
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5">
                       STR
                       {sortConfig.key === 'struktura' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
@@ -1570,120 +1569,120 @@ export default function PonudeModule() {
                     </div>
                   </th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
                     onClick={() => handleSort('cena')}
                   >
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5">
                       Cena
                       {sortConfig.key === 'cena' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                       )}
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider" title="Vidljivo na sajtu">Vid</th>
-                  <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider" title="Ugovor potpisan">Ug</th>
+                  <th className="px-1 py-2 text-center text-[10px] font-bold uppercase tracking-wider w-8" title="Vidljivo na sajtu">V</th>
+                  <th className="px-1 py-2 text-center text-[10px] font-bold uppercase tracking-wider w-8" title="Ugovor potpisan">U</th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none w-20"
                     onClick={() => handleSort('datumkreiranja')}
                   >
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5">
                       Datum
                       {sortConfig.key === 'datumkreiranja' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                       )}
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
+                  <th className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider w-20">Status</th>
                   {filters.statusFilter !== 'aktivne' && (
-                    <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Dat.Bris.</th>
+                    <th className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider w-20">Arh.</th>
                   )}
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
-                  <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider w-10"></th>
+                  <th className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider w-16">Tip</th>
+                  <th className="px-1 py-2 text-center text-[10px] font-bold uppercase tracking-wider w-10"></th>
                 </tr>
                 {/* Red sa filterima */}
                 <tr className="bg-gray-800">
-                  <th className="px-2 py-2">
+                  <th className="px-1 py-1.5">
                     <input
                       type="text"
                       value={columnFilters.id}
                       onChange={(e) => handleColumnFilterChange('id', e.target.value)}
                       placeholder="🔍"
-                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-1.5 py-1 text-[10px] bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-2 py-2">
+                  <th className="px-1 py-1.5">
                     <input
                       type="text"
                       value={columnFilters.vrsta}
                       onChange={(e) => handleColumnFilterChange('vrsta', e.target.value)}
                       placeholder="🔍"
-                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-1.5 py-1 text-[10px] bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-2 py-2">
+                  <th className="px-1 py-1.5">
                     <input
                       type="text"
                       value={columnFilters.opstina}
                       onChange={(e) => handleColumnFilterChange('opstina', e.target.value)}
                       placeholder="🔍"
-                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-1.5 py-1 text-[10px] bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-2 py-2">
+                  <th className="px-1 py-1.5">
                     <input
                       type="text"
                       value={columnFilters.lokacija}
                       onChange={(e) => handleColumnFilterChange('lokacija', e.target.value)}
                       placeholder="🔍"
-                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-1.5 py-1 text-[10px] bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-2 py-2">
+                  <th className="px-1 py-1.5">
                     <input
                       type="text"
                       value={columnFilters.ulica}
                       onChange={(e) => handleColumnFilterChange('ulica', e.target.value)}
                       placeholder="🔍"
-                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-1.5 py-1 text-[10px] bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-2 py-2">
+                  <th className="px-1 py-1.5">
                     <input
                       type="number"
                       value={columnFilters.kvadratura}
                       onChange={(e) => handleColumnFilterChange('kvadratura', e.target.value)}
                       placeholder="≥"
-                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-1.5 py-1 text-[10px] bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-2 py-2">
+                  <th className="px-1 py-1.5">
                     <input
                       type="number"
                       step="0.5"
                       value={columnFilters.struktura}
                       onChange={(e) => handleColumnFilterChange('struktura', e.target.value)}
                       placeholder="≥"
-                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-1.5 py-1 text-[10px] bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-2 py-2">
+                  <th className="px-1 py-1.5">
                     <input
                       type="number"
                       value={columnFilters.cena}
                       onChange={(e) => handleColumnFilterChange('cena', e.target.value)}
                       placeholder="≥"
-                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-1.5 py-1 text-[10px] bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-2 py-2 bg-gray-800"></th>{/* Vid */}
-                  <th className="px-2 py-2 bg-gray-800"></th>{/* Ug */}
-                  <th className="px-2 py-2 bg-gray-800"></th>{/* Datum */}
-                  <th className="px-2 py-2 bg-gray-800"></th>{/* Status */}
+                  <th className="px-1 py-1.5 bg-gray-800"></th>{/* Vid */}
+                  <th className="px-1 py-1.5 bg-gray-800"></th>{/* Ug */}
+                  <th className="px-1 py-1.5 bg-gray-800"></th>{/* Datum */}
+                  <th className="px-1 py-1.5 bg-gray-800"></th>{/* Status */}
                   {filters.statusFilter !== 'aktivne' && (
-                    <th className="px-2 py-2 bg-gray-800"></th>
+                    <th className="px-1 py-1.5 bg-gray-800"></th>
                   )}{/* Dat.Bris. */}
-                  <th className="px-2 py-2 bg-gray-800"></th>{/* Tip */}
-                  <th className="px-2 py-2 bg-gray-800 w-10"></th>{/* Tri tačke */}
+                  <th className="px-1 py-1.5 bg-gray-800"></th>{/* Tip */}
+                  <th className="px-1 py-1.5 bg-gray-800 w-10"></th>{/* Tri tačke */}
                 </tr>
               </thead>
               <tbody>
@@ -1691,127 +1690,100 @@ export default function PonudeModule() {
                   <tr 
                     key={ponuda.id} 
                     className={`
-                      hover:bg-amber-50 transition-all cursor-pointer border-l-4 border-l-transparent hover:border-l-amber-500
+                      hover:bg-amber-50 transition-all cursor-pointer border-l-2 border-l-transparent hover:border-l-amber-500
                       ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}
                     `}
                   >
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center justify-center min-w-[40px] h-7 bg-gradient-to-r from-gray-900 to-black text-white text-xs font-bold rounded-lg px-2">
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <span className="inline-flex items-center justify-center min-w-[32px] h-6 bg-gradient-to-r from-gray-900 to-black text-white text-[10px] font-bold rounded px-1.5">
                         {ponuda.id}
                       </span>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl flex items-center justify-center">
-                          <Building2 className="w-4 h-4 text-amber-700" />
-                        </div>
-                        <span className="text-sm font-semibold text-gray-900">{ponuda.vrstaobjekta?.opis || '-'}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-700">{ponuda.opstina?.opis || '-'}</span>
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-amber-500" />
-                        <span className="text-sm font-medium text-gray-700">{ponuda.lokacija?.opis || '-'}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">{ponuda.ulica?.opis || '-'}</td>
-                    <td className="px-4 py-4 whitespace-nowrap">
+                    <td className="px-2 py-2 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
-                        <Ruler className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm font-bold text-gray-900">{ponuda.kvadratura ? `${ponuda.kvadratura}` : '-'}</span>
+                        <div className="w-6 h-6 bg-gradient-to-br from-amber-100 to-amber-200 rounded flex items-center justify-center flex-shrink-0">
+                          <Building2 className="w-3 h-3 text-amber-700" />
+                        </div>
+                        <span className="text-xs font-semibold text-gray-900 truncate max-w-[80px]">{ponuda.vrstaobjekta?.opis || '-'}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-3 py-1.5 bg-gray-100 rounded-xl text-sm font-semibold text-gray-700">
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <span className="text-xs text-gray-700 truncate max-w-[80px] block">{ponuda.opstina?.opis || '-'}</span>
+                    </td>
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <span className="text-xs font-medium text-gray-700 truncate max-w-[80px] block">{ponuda.lokacija?.opis || '-'}</span>
+                    </td>
+                    <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-600 truncate max-w-[80px]">{ponuda.ulica?.opis || '-'}</td>
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <span className="text-xs font-bold text-gray-900">{ponuda.kvadratura || '-'}</span>
+                    </td>
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <span className="text-xs font-semibold text-gray-700">
                         {ponuda.struktura ? parseFloat(ponuda.struktura).toFixed(1) : '-'}
                       </span>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-1.5">
-                        <Euro className="w-4 h-4 text-amber-600" />
-                        <span className="text-sm font-bold text-gray-900">{ponuda.cena ? new Intl.NumberFormat('sr-RS').format(ponuda.cena) : '-'}</span>
-                      </div>
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <span className="text-xs font-bold text-gray-900">{ponuda.cena ? new Intl.NumberFormat('sr-RS').format(ponuda.cena) : '-'}</span>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-center">
-                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${
-                        ponuda.vidljivostnasajtu
-                          ? 'bg-emerald-100 text-emerald-600'
-                          : 'bg-gray-100 text-gray-400'
-                      }`}>
-                        {ponuda.vidljivostnasajtu ? '👁️' : '🚫'}
+                    <td className="px-1 py-2 whitespace-nowrap text-center">
+                      <span className="text-xs">
+                        {ponuda.vidljivostnasajtu ? '✓' : '—'}
                       </span>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-center">
-                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${
-                        ponuda.metapodaci?.eop?.sts_ugovor_potpisan
-                          ? 'bg-blue-100 text-blue-600'
-                          : 'bg-gray-100 text-gray-400'
-                      }`}>
-                        {ponuda.metapodaci?.eop?.sts_ugovor_potpisan ? '📝' : '—'}
+                    <td className="px-1 py-2 whitespace-nowrap text-center">
+                      <span className="text-xs">
+                        {ponuda.metapodaci?.eop?.sts_ugovor_potpisan ? '✓' : '—'}
                       </span>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      {ponuda.datumkreiranja ? (
-                        <span className="text-sm text-gray-600">
-                          {new Date(ponuda.datumkreiranja).toLocaleDateString('sr-RS')}
-                        </span>
-                      ) : (
-                        <span className="text-gray-400">-</span>
-                      )}
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <span className="text-[10px] text-gray-600">
+                        {ponuda.datumkreiranja ? new Date(ponuda.datumkreiranja).toLocaleDateString('sr-RS') : '-'}
+                      </span>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="flex flex-col gap-1">
-                        <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${
-                          ponuda.stsstorniran
-                            ? 'bg-red-100 text-red-800'
-                            : ponuda.stsaktivan
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-gray-200 text-gray-600'
-                        }`}>
-                          <span className={`w-2 h-2 rounded-full ${
-                            ponuda.stsstorniran 
-                              ? 'bg-red-500' 
-                              : ponuda.stsaktivan 
-                                ? 'bg-emerald-500' 
-                                : 'bg-gray-400'
-                          }`}></span>
-                          {ponuda.stsstorniran ? 'Storno' : ponuda.stsaktivan ? 'Aktivan' : 'Neaktivan'}
-                        </span>
-                      </div>
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                        ponuda.stsstorniran
+                          ? 'bg-red-100 text-red-800'
+                          : ponuda.stsaktivan
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-gray-200 text-gray-600'
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${
+                          ponuda.stsstorniran 
+                            ? 'bg-red-500' 
+                            : ponuda.stsaktivan 
+                              ? 'bg-emerald-500' 
+                              : 'bg-gray-400'
+                        }`}></span>
+                        {ponuda.stsstorniran ? 'Storno' : ponuda.stsaktivan ? 'Akt' : 'Neak'}
+                      </span>
                     </td>
                     {filters.statusFilter !== 'aktivne' && (
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        {ponuda.datumbrisanja ? (
-                          <span className="text-sm text-gray-600">
-                            {new Date(ponuda.datumbrisanja).toLocaleDateString('sr-RS')}
-                          </span>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
+                      <td className="px-2 py-2 whitespace-nowrap">
+                        <span className="text-[10px] text-gray-600">
+                          {ponuda.datumbrisanja ? new Date(ponuda.datumbrisanja).toLocaleDateString('sr-RS') : '-'}
+                        </span>
                       </td>
                     )}
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold ${
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold ${
                         ponuda.stsrentaprodaja === 'prodaja'
                           ? 'bg-blue-100 text-blue-800'
                           : 'bg-amber-100 text-amber-800'
                       }`}>
-                        {ponuda.stsrentaprodaja === 'prodaja' ? '🏠 Prodaja' : '🔑 Renta'}
+                        {ponuda.stsrentaprodaja === 'prodaja' ? 'P' : 'R'}
                       </span>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-center">
+                    <td className="px-1 py-2 whitespace-nowrap text-center">
                       <div className="relative inline-block">
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
                             setOpenActionMenu(openActionMenu === ponuda.id ? null : ponuda.id)
                           }}
-                          className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all"
+                          className="inline-flex items-center justify-center w-7 h-7 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition-all"
                         >
-                          <MoreVertical className="w-5 h-5" />
+                          <MoreVertical className="w-4 h-4" />
                         </button>
                         
                         {/* Dropdown meni - prikaži iznad za poslednja 2 reda */}
@@ -1822,10 +1794,10 @@ export default function PonudeModule() {
                               className="fixed inset-0 z-40" 
                               onClick={() => setOpenActionMenu(null)}
                             />
-                            <div className={`absolute right-0 w-44 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50 ${
+                            <div className={`absolute right-0 w-36 bg-white rounded-lg shadow-2xl border border-gray-100 py-1 z-50 ${
                               index >= paginatedPonude.length - 2 
-                                ? 'bottom-full mb-2' 
-                                : 'top-full mt-2'
+                                ? 'bottom-full mb-1' 
+                                : 'top-full mt-1'
                             }`}>
                               <button
                                 onClick={(e) => {
@@ -1834,9 +1806,9 @@ export default function PonudeModule() {
                                   setShowForm(true)
                                   setOpenActionMenu(null)
                                 }}
-                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
+                                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
                               >
-                                <Pencil className="w-4 h-4" />
+                                <Pencil className="w-3 h-3" />
                                 Promeni
                               </button>
                               <button
@@ -1846,9 +1818,9 @@ export default function PonudeModule() {
                                   setShowDetaljiForm(true)
                                   setOpenActionMenu(null)
                                 }}
-                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
                               >
-                                <Phone className="w-4 h-4" />
+                                <Phone className="w-3 h-3" />
                                 Detalji
                               </button>
                               {ponuda.stsaktivan ? (
@@ -1857,9 +1829,9 @@ export default function PonudeModule() {
                                     e.stopPropagation()
                                     handleArhiviraj(ponuda.id)
                                   }}
-                                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                                  className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
                                 >
-                                  <Archive className="w-4 h-4" />
+                                  <Archive className="w-3 h-3" />
                                   Arhiviraj
                                 </button>
                               ) : (
@@ -1868,9 +1840,9 @@ export default function PonudeModule() {
                                     e.stopPropagation()
                                     handleDearhiviraj(ponuda.id)
                                   }}
-                                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-emerald-700 hover:bg-emerald-50 transition-colors"
+                                  className="w-full flex items-center gap-2 px-3 py-2 text-xs text-emerald-700 hover:bg-emerald-50 transition-colors"
                                 >
-                                  <ArchiveRestore className="w-4 h-4" />
+                                  <ArchiveRestore className="w-3 h-3" />
                                   Dearhiviraj
                                 </button>
                               )}
@@ -1879,9 +1851,9 @@ export default function PonudeModule() {
                                   e.stopPropagation()
                                   handleStorniraj(ponuda.id)
                                 }}
-                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-600 hover:bg-red-50 transition-colors"
                               >
-                                <XCircle className="w-4 h-4" />
+                                <XCircle className="w-3 h-3" />
                                 Storniraj
                               </button>
                             </div>
@@ -1896,16 +1868,16 @@ export default function PonudeModule() {
           </div>
           
           {/* Pagination - Compass Style */}
-          <div className="bg-gradient-to-r from-gray-900 to-black px-6 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-400">Prikaži:</span>
+          <div className="bg-gradient-to-r from-gray-900 to-black px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-400">Prikaži:</span>
               <select
                 value={itemsPerPage}
                 onChange={(e) => {
                   setItemsPerPage(Number(e.target.value))
                   setCurrentPage(1)
                 }}
-                className="px-4 py-2 bg-white/10 border border-white/20 text-white rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent backdrop-blur-sm"
+                className="px-2 py-1.5 bg-white/10 border border-white/20 text-white rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-transparent backdrop-blur-sm"
               >
                 <option value={10}>10</option>
                 <option value={20}>20</option>
@@ -1914,46 +1886,46 @@ export default function PonudeModule() {
               </select>
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-white/10"
+                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-white/10"
               >
                 <ChevronLeft className="w-4 h-4 text-white" />
               </button>
               
-              <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/10">
-                <span className="text-sm font-bold text-amber-400">{currentPage}</span>
-                <span className="text-gray-500">/</span>
-                <span className="text-sm text-gray-400">{totalPages || 1}</span>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 rounded-lg border border-white/10">
+                <span className="text-xs font-bold text-amber-400">{currentPage}</span>
+                <span className="text-gray-500 text-xs">/</span>
+                <span className="text-xs text-gray-400">{totalPages || 1}</span>
               </div>
               
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages || totalPages === 0}
-                className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-white/10"
+                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-white/10"
               >
                 <ChevronRight className="w-4 h-4 text-white" />
               </button>
             </div>
             
-            <div className="text-sm text-gray-400 font-medium">
-              Ukupno: <span className="text-amber-400 font-bold">{totalPonude}</span> nekretnina
+            <div className="text-xs text-gray-400 font-medium">
+              Ukupno: <span className="text-amber-400 font-bold">{totalPonude}</span>
             </div>
           </div>
         </div>
       ) : (
         /* Grid View - Compass Style */
-        <div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="w-full overflow-hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {paginatedPonude.map((ponuda) => (
               <div
                 key={ponuda.id}
-                className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl hover:border-amber-200 transition-all duration-300 cursor-pointer group"
+                className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl hover:border-amber-200 transition-all duration-300 cursor-pointer group"
               >
                 {/* Image */}
-                <div className="relative h-52 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+                <div className="relative h-40 sm:h-44 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
                   {ponuda.fotografija?.url ? (
                     <img
                       src={ponuda.fotografija.url}
@@ -1970,13 +1942,13 @@ export default function PonudeModule() {
                   )}
                   
                   {/* Price badge */}
-                  <div className="absolute top-4 right-4 bg-gradient-to-r from-gray-900 to-black backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1.5 shadow-lg">
-                    <Euro className="w-4 h-4 text-amber-400" />
+                  <div className="absolute top-3 right-3 bg-gradient-to-r from-gray-900 to-black backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow-lg">
+                    <Euro className="w-3 h-3 text-amber-400" />
                     {ponuda.cena ? new Intl.NumberFormat('sr-RS').format(ponuda.cena) : '-'}
                   </div>
                   
                   {/* Type badge */}
-                  <div className={`absolute top-4 left-4 px-3 py-1.5 rounded-xl text-xs font-bold shadow-lg ${
+                  <div className={`absolute top-3 left-3 px-2 py-1 rounded-lg text-[10px] font-bold shadow-lg ${
                     ponuda.stsrentaprodaja === 'prodaja'
                       ? 'bg-blue-500 text-white'
                       : 'bg-gradient-to-r from-amber-500 to-amber-600 text-white'
@@ -1986,44 +1958,44 @@ export default function PonudeModule() {
                 </div>
 
                 {/* Content */}
-                <div className="p-5">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="w-8 h-8 bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-4 h-4 text-amber-700" />
+                <div className="p-3 sm:p-4">
+                  <div className="flex items-start gap-2 mb-3">
+                    <div className="w-6 h-6 bg-gradient-to-br from-amber-100 to-amber-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-3 h-3 text-amber-700" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-gray-900 truncate">
+                      <p className="text-xs font-bold text-gray-900 truncate">
                         {ponuda.lokacija?.opis || ponuda.opstina?.opis || '-'}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-[10px] text-gray-500 truncate">
                         {ponuda.ulica?.opis || '-'}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-xl">
-                      <Ruler className="w-4 h-4 text-gray-500" />
+                  <div className="flex items-center gap-2 text-xs text-gray-600 flex-wrap">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-lg">
+                      <Ruler className="w-3 h-3 text-gray-500" />
                       <span className="font-semibold text-gray-800">{ponuda.kvadratura || '-'} m²</span>
                     </div>
                     {ponuda.struktura && (
-                      <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-xl">
-                        <Building2 className="w-4 h-4 text-gray-500" />
+                      <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-lg">
+                        <Building2 className="w-3 h-3 text-gray-500" />
                         <span className="font-semibold text-gray-800">{parseFloat(ponuda.struktura).toFixed(1)}</span>
                       </div>
                     )}
                   </div>
 
                   {/* Status aktivnosti */}
-                  <div className="mt-3 pt-3 border-t border-gray-100">
-                    <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${
+                  <div className="mt-2 pt-2 border-t border-gray-100">
+                    <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-bold ${
                       ponuda.stsstorniran
                         ? 'bg-red-100 text-red-800'
                         : ponuda.stsaktivan
                           ? 'bg-emerald-100 text-emerald-800'
                           : 'bg-gray-200 text-gray-600'
                     }`}>
-                      <span className={`w-2 h-2 rounded-full ${
+                      <span className={`w-1.5 h-1.5 rounded-full ${
                         ponuda.stsstorniran 
                           ? 'bg-red-500' 
                           : ponuda.stsaktivan 
@@ -2034,8 +2006,8 @@ export default function PonudeModule() {
                     </span>
                     {/* Prikaz datuma brisanja za neaktivne */}
                     {filters.statusFilter !== 'aktivne' && ponuda.datumbrisanja && (
-                      <div className="text-xs text-gray-500 mt-1">
-                        Arhivirano: {new Date(ponuda.datumbrisanja).toLocaleDateString('sr-RS')}
+                      <div className="text-[10px] text-gray-500 mt-1">
+                        Arh: {new Date(ponuda.datumbrisanja).toLocaleDateString('sr-RS')}
                       </div>
                     )}
                   </div>
@@ -2045,16 +2017,16 @@ export default function PonudeModule() {
           </div>
           
           {/* Pagination - Compass Style */}
-          <div className="bg-gradient-to-r from-gray-900 to-black rounded-3xl shadow-lg mt-6 px-6 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-400">Prikaži:</span>
+          <div className="bg-gradient-to-r from-gray-900 to-black rounded-2xl shadow-lg mt-4 px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-400">Prikaži:</span>
               <select
                 value={itemsPerPage}
                 onChange={(e) => {
                   setItemsPerPage(Number(e.target.value))
                   setCurrentPage(1)
                 }}
-                className="px-4 py-2 bg-white/10 border border-white/20 text-white rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent backdrop-blur-sm"
+                className="px-2 py-1.5 bg-white/10 border border-white/20 text-white rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-transparent backdrop-blur-sm"
               >
                 <option value={10}>10</option>
                 <option value={20}>20</option>
@@ -2063,32 +2035,32 @@ export default function PonudeModule() {
               </select>
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-white/10"
+                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-white/10"
               >
                 <ChevronLeft className="w-4 h-4 text-white" />
               </button>
               
-              <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/10">
-                <span className="text-sm font-bold text-amber-400">{currentPage}</span>
-                <span className="text-gray-500">/</span>
-                <span className="text-sm text-gray-400">{totalPages || 1}</span>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 rounded-lg border border-white/10">
+                <span className="text-xs font-bold text-amber-400">{currentPage}</span>
+                <span className="text-gray-500 text-xs">/</span>
+                <span className="text-xs text-gray-400">{totalPages || 1}</span>
               </div>
               
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages || totalPages === 0}
-                className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-white/10"
+                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-white/10"
               >
                 <ChevronRight className="w-4 h-4 text-white" />
               </button>
             </div>
             
-            <div className="text-sm text-gray-400 font-medium">
-              Ukupno: <span className="text-amber-400 font-bold">{totalPonude}</span> nekretnina
+            <div className="text-xs text-gray-400 font-medium">
+              Ukupno: <span className="text-amber-400 font-bold">{totalPonude}</span>
             </div>
           </div>
         </div>
