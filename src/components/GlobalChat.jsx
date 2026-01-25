@@ -63,7 +63,18 @@ const GlobalChat = ({ isOpen, onClose }) => {
         .limit(100)
 
       if (error) throw error
-      setMessages(data || [])
+      
+      // Uporedi sa postojećim porukama da izbegneš nepotrebno renderovanje
+      setMessages(prev => {
+        const newData = data || []
+        // Ako je isti broj poruka i poslednja poruka ima isti ID, ne menjaj stanje
+        if (prev.length === newData.length && 
+            prev.length > 0 && 
+            prev[prev.length - 1]?.id === newData[newData.length - 1]?.id) {
+          return prev
+        }
+        return newData
+      })
     } catch (error) {
       console.error('Greška pri učitavanju poruka:', error)
     } finally {
@@ -71,25 +82,19 @@ const GlobalChat = ({ isOpen, onClose }) => {
     }
   }
 
-  // Real-time pretplata
+  // Polling umesto Realtime (osvežava svakih 3 sekunde)
   useEffect(() => {
     if (!isOpen) return
 
     fetchMessages()
 
-    const channel = supabase
-      .channel('global-chat')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages' },
-        (payload) => {
-          setMessages((prev) => [...prev, payload.new])
-        }
-      )
-      .subscribe()
+    // Polling interval - osvežava poruke svakih 3 sekunde
+    const pollInterval = setInterval(() => {
+      fetchMessages()
+    }, 3000)
 
     return () => {
-      supabase.removeChannel(channel)
+      clearInterval(pollInterval)
     }
   }, [isOpen])
 
@@ -109,20 +114,33 @@ const GlobalChat = ({ isOpen, onClose }) => {
       return
     }
 
+    const messageText = newMessage.trim()
+    setNewMessage('') // Očisti input odmah
     setIsSending(true)
+    
     try {
-      const { error } = await supabase.from('messages').insert({
-        text: newMessage.trim(),
+      const { data, error } = await supabase.from('messages').insert({
+        text: messageText,
         user_id: user.id,
         user_email: user.email,
         role: user.role || 'kupac'
-      })
+      }).select().single()
 
       if (error) throw error
-      setNewMessage('')
+      
+      // Dodaj poruku lokalno ako nije već stigla preko realtime-a
+      if (data) {
+        setMessages((prev) => {
+          // Proveri da li poruka već postoji (stigla preko realtime)
+          const exists = prev.some(msg => msg.id === data.id)
+          if (exists) return prev
+          return [...prev, data]
+        })
+      }
     } catch (error) {
       console.error('Greška pri slanju poruke:', error)
       alert('Greška pri slanju poruke. Pokušajte ponovo.')
+      setNewMessage(messageText) // Vrati tekst ako nije uspelo
     } finally {
       setIsSending(false)
     }
