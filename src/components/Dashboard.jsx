@@ -33,12 +33,14 @@ import VremeTrajanjModule from './scraping/VremeTrajanjModule'
 import ScrapingConfigModule from './scraping/ScrapingConfigModule'
 import NacinDobijanjaModule from './NacinDobijanjaModule'
 import AnalizaNacinaDobijanjaModule from './izvestaji/AnalizaNacinaDobijanjaModule'
+import GlobalChat from './GlobalChat'
 import { LogOut, Menu, Building2 } from 'lucide-react'
 
 export default function Dashboard() {
   const [activeModule, setActiveModule] = useState(null)
   const [user, setUser] = useState(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [isChatOpen, setIsChatOpen] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -65,6 +67,8 @@ export default function Dashboard() {
         setActiveModule={setActiveModule}
         user={user}
         collapsed={sidebarCollapsed}
+        onChatToggle={() => setIsChatOpen(!isChatOpen)}
+        isChatOpen={isChatOpen}
       />
       
       <div className="flex-1 flex flex-col lg:ml-0">
@@ -160,6 +164,12 @@ export default function Dashboard() {
           {activeModule === 'scraping-vreme-trajanja' && <VremeTrajanjModule />}
         </main>
       </div>
+
+      {/* Global Chat */}
+      <GlobalChat 
+        isOpen={isChatOpen} 
+        onClose={() => setIsChatOpen(false)} 
+      />
     </div>
   )
 }
