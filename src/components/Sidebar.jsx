@@ -1,13 +1,14 @@
-import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone, Map, BarChart3, PhoneCall, PieChart, Info, Tv, Globe, Clock, UserCheck, FileInput, List, MessageCircle } from 'lucide-react'
+import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone, Map, BarChart3, PhoneCall, PieChart, Info, Tv, Globe, Clock, UserCheck, FileInput, List, MessageCircle, Shield } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
-const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = false, onChatToggle, isChatOpen = false }) => {
+const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = false }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMaticniPodaciOpen, setIsMaticniPodaciOpen] = useState(false)
   const [isLokalitetOpen, setIsLokalitetOpen] = useState(false)
   const [isIzvestajiOpen, setIsIzvestajiOpen] = useState(false)
   const [isIzvestajiAnalizeOpen, setIsIzvestajiAnalizeOpen] = useState(false)
   const [isScrapingOpen, setIsScrapingOpen] = useState(false)
+  const [isAdminOpen, setIsAdminOpen] = useState(false)
 
   const isAdmin = user?.email === 'admin@example.com'
 
@@ -57,6 +58,11 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
     { id: 'scraping-vreme-trajanja', label: 'Vreme trajanja', icon: Clock },
   ]
 
+  const adminSubItems = [
+    { id: 'admin-korisnici', label: 'Korisnici', icon: Users },
+    { id: 'admin-poruke', label: 'Poruke', icon: MessageCircle },
+  ]
+
   useEffect(() => {
     const isMaticniPodaciActive = maticniPodaciSubItems.some(item => 
       item.id === activeModule || (item.hasSubmenu && item.subItems.some(subItem => subItem.id === activeModule))
@@ -83,6 +89,11 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
     const isScrapingActive = scrapingSubItems.some(item => item.id === activeModule)
     if (isScrapingActive) {
       setIsScrapingOpen(true)
+    }
+
+    const isAdminActive = adminSubItems.some(item => item.id === activeModule)
+    if (isAdminActive) {
+      setIsAdminOpen(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeModule])
@@ -134,11 +145,6 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
       hasSubmenu: true,
       subItems: maticniPodaciSubItems,
     },
-    ...(isAdmin ? [{
-      id: 'korisnici',
-      label: 'Korisnici',
-      icon: Users,
-    }] : []),
     {
       id: 'scraping',
       label: 'Scraping',
@@ -146,6 +152,13 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
       hasSubmenu: true,
       subItems: scrapingSubItems,
     },
+    ...(isAdmin ? [{
+      id: 'admin',
+      label: 'Administracija',
+      icon: Shield,
+      hasSubmenu: true,
+      subItems: adminSubItems,
+    }] : []),
   ]
 
   const handleMenuItemClick = (itemId) => {
@@ -157,6 +170,8 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
       setIsIzvestajiAnalizeOpen(!isIzvestajiAnalizeOpen)
     } else if (itemId === 'scraping') {
       setIsScrapingOpen(!isScrapingOpen)
+    } else if (itemId === 'admin') {
+      setIsAdminOpen(!isAdminOpen)
     } else {
       setActiveModule(itemId)
       setIsMobileMenuOpen(false)
@@ -188,6 +203,8 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
   const isIzvestajiAnalizeActive = izvestajiAnalizeSubItems.some(item => activeModule === item.id)
 
   const isScrapingActive = scrapingSubItems.some(item => item.id === activeModule)
+
+  const isAdminActive = adminSubItems.some(item => item.id === activeModule)
 
   return (
     <>
@@ -264,11 +281,13 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
                 (item.id === 'maticni-podaci' && isMaticniPodaciActive) ||
                 (item.id === 'izvestaji' && isIzvestajiActive) ||
                 (item.id === 'izvestaji-analize' && isIzvestajiAnalizeActive) ||
-                (item.id === 'scraping' && isScrapingActive)
+                (item.id === 'scraping' && isScrapingActive) ||
+                (item.id === 'admin' && isAdminActive)
               const isExpanded = (item.id === 'maticni-podaci' && isMaticniPodaciOpen) ||
                 (item.id === 'izvestaji' && isIzvestajiOpen) ||
                 (item.id === 'izvestaji-analize' && isIzvestajiAnalizeOpen) ||
-                (item.id === 'scraping' && isScrapingOpen)
+                (item.id === 'scraping' && isScrapingOpen) ||
+                (item.id === 'admin' && isAdminOpen)
 
               return (
                 <li key={item.id}>
@@ -388,32 +407,9 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
           </ul>
         </nav>
 
-        {/* Chat button */}
-        {onChatToggle && (
-          <div className="px-4 pb-2">
-            <button
-              onClick={onChatToggle}
-              className={`w-full flex items-center ${collapsed ? 'justify-center' : 'justify-between'} gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 ${
-                isChatOpen
-                  ? 'bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-white border border-amber-500/30 shadow-lg shadow-amber-500/10'
-                  : 'text-gray-400 hover:bg-white/5 hover:text-white border border-transparent'
-              }`}
-              title={collapsed ? 'Zajednica' : undefined}
-              type="button"
-            >
-              <div className={`flex items-center ${collapsed ? 'justify-center' : ''} gap-3`}>
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${isChatOpen ? 'bg-gradient-to-br from-amber-400 to-amber-600 shadow-md shadow-amber-500/30' : 'bg-white/5'}`}>
-                  <MessageCircle className={`w-4 h-4 ${isChatOpen ? 'text-white' : ''}`} aria-hidden="true" />
-                </div>
-                {!collapsed && <span className="font-medium">Zajednica</span>}
-              </div>
-            </button>
-          </div>
-        )}
-
         {/* Logout button */}
         {onLogout && (
-          <div className="p-6 pt-2 border-t border-white/5">
+          <div className="p-6 border-t border-white/5">
             <button
               onClick={onLogout}
               className={`w-full flex items-center ${collapsed ? 'justify-center' : ''} gap-3 px-4 py-4 rounded-2xl text-gray-400 hover:bg-red-500/10 hover:text-red-400 border border-transparent hover:border-red-500/20 transition-all duration-300`}

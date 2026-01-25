@@ -34,6 +34,8 @@ import ScrapingConfigModule from './scraping/ScrapingConfigModule'
 import NacinDobijanjaModule from './NacinDobijanjaModule'
 import AnalizaNacinaDobijanjaModule from './izvestaji/AnalizaNacinaDobijanjaModule'
 import GlobalChat from './GlobalChat'
+import ChatButton from './ChatButton'
+import AdminPorukeModule from './admin/AdminPorukeModule'
 import { LogOut, Menu, Building2 } from 'lucide-react'
 
 export default function Dashboard() {
@@ -67,8 +69,6 @@ export default function Dashboard() {
         setActiveModule={setActiveModule}
         user={user}
         collapsed={sidebarCollapsed}
-        onChatToggle={() => setIsChatOpen(!isChatOpen)}
-        isChatOpen={isChatOpen}
       />
       
       <div className="flex-1 flex flex-col lg:ml-0">
@@ -153,10 +153,16 @@ export default function Dashboard() {
           {activeModule === 'info-firma' && <InfoFirmaModule />}
           {activeModule === 'mediji' && <MedijiModule />}
           {activeModule === 'nacin-dobijanja' && <NacinDobijanjaModule />}
-          {activeModule === 'korisnici' && (isAdmin ? <KorisniciModule /> : (
+          {activeModule === 'admin-korisnici' && (isAdmin ? <KorisniciModule /> : (
             <div className="bg-white rounded-lg shadow p-12 text-center">
               <p className="text-gray-600 text-lg">Nemate pristup ovom modulu.</p>
               <p className="text-gray-500">Samo admin korisnici mogu pristupiti modulu Korisnici.</p>
+            </div>
+          ))}
+          {activeModule === 'admin-poruke' && (isAdmin ? <AdminPorukeModule /> : (
+            <div className="bg-white rounded-lg shadow p-12 text-center">
+              <p className="text-gray-600 text-lg">Nemate pristup ovom modulu.</p>
+              <p className="text-gray-500">Samo admin korisnici mogu pristupiti modulu Poruke.</p>
             </div>
           ))}
           {activeModule === 'scraping-config' && <ScrapingConfigModule />}
@@ -164,6 +170,12 @@ export default function Dashboard() {
           {activeModule === 'scraping-vreme-trajanja' && <VremeTrajanjModule />}
         </main>
       </div>
+
+      {/* Floating Chat Button */}
+      <ChatButton 
+        onClick={() => setIsChatOpen(!isChatOpen)} 
+        isOpen={isChatOpen}
+      />
 
       {/* Global Chat */}
       <GlobalChat 
