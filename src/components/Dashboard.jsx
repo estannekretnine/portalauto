@@ -35,9 +35,11 @@ import ScrapingConfigModule from './scraping/ScrapingConfigModule'
 import NacinDobijanjaModule from './NacinDobijanjaModule'
 import AnalizaNacinaDobijanjaModule from './izvestaji/AnalizaNacinaDobijanjaModule'
 import GlobalChat from './GlobalChat'
-import ChatButton from './ChatButton'
+import QuickAddButton from './QuickAddButton'
+import QuickCalendarModal from './QuickCalendarModal'
 import AdminPorukeModule from './admin/AdminPorukeModule'
 import KalendarModule from './KalendarModule'
+import TipDogadjajaModule from './calendar/TipDogadjajaModule'
 import { LogOut, Menu, Building2 } from 'lucide-react'
 
 export default function Dashboard() {
@@ -45,6 +47,7 @@ export default function Dashboard() {
   const [user, setUser] = useState(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [isChatOpen, setIsChatOpen] = useState(false)
+  const [isQuickCalendarOpen, setIsQuickCalendarOpen] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -133,6 +136,7 @@ export default function Dashboard() {
           {activeModule === 'pozivi' && <PoziviModule />}
           {activeModule === 'tereni' && <TereniModule />}
           {activeModule === 'kalendar' && <KalendarModule />}
+          {activeModule === 'kalendar-tip-dogadjaja' && <TipDogadjajaModule />}
           {activeModule === 'provera' && <ProveraModule />}
           {activeModule === 'izvestaj-eop' && <EOPModule />}
           {activeModule === 'izvestaj-eok' && <EOKModule />}
@@ -182,16 +186,23 @@ export default function Dashboard() {
         </main>
       </div>
 
-      {/* Floating Chat Button */}
-      <ChatButton 
-        onClick={() => setIsChatOpen(!isChatOpen)} 
-        isOpen={isChatOpen}
+      {/* Quick Add Button (Speed Dial) */}
+      <QuickAddButton 
+        onChatClick={() => setIsChatOpen(!isChatOpen)}
+        onCalendarClick={() => setIsQuickCalendarOpen(true)}
+        isChatOpen={isChatOpen}
       />
 
       {/* Global Chat */}
       <GlobalChat 
         isOpen={isChatOpen} 
         onClose={() => setIsChatOpen(false)} 
+      />
+
+      {/* Quick Calendar Modal */}
+      <QuickCalendarModal
+        isOpen={isQuickCalendarOpen}
+        onClose={() => setIsQuickCalendarOpen(false)}
       />
     </div>
   )

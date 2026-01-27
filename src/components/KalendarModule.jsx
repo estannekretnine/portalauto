@@ -38,8 +38,8 @@ const localizer = dateFnsLocalizer({
 // Drag and Drop kalendar
 const DnDCalendar = withDragAndDrop(Calendar)
 
-// Boje po tipu događaja
-const eventColors = {
+// Default boje po tipu događaja (fallback)
+const defaultEventColors = {
   poziv: { bg: '#3B82F6', text: '#FFFFFF', light: '#DBEAFE' },
   teren: { bg: '#10B981', text: '#FFFFFF', light: '#D1FAE5' },
   sastanak: { bg: '#8B5CF6', text: '#FFFFFF', light: '#EDE9FE' },
@@ -71,12 +71,15 @@ export default function KalendarModule() {
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [showEventForm, setShowEventForm] = useState(false)
   const [editingEvent, setEditingEvent] = useState(null)
+  const [tipoviDogadjaja, setTipoviDogadjaja] = useState([])
+  const [eventColors, setEventColors] = useState(defaultEventColors)
   const [formData, setFormData] = useState({
     naslov: '',
     opis: '',
     pocetak: '',
     kraj: '',
     tip: 'ostalo',
+    idtipdogadjaja: null,
     ceo_dan: false,
     podseti_pre: 15,
     kontakt_ime: '',
@@ -84,6 +87,34 @@ export default function KalendarModule() {
   })
 
   const currentUser = getCurrentUser()
+
+  // Učitaj tipove događaja
+  const loadTipoviDogadjaja = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tipdogadjaja')
+        .select('*')
+        .eq('aktivan', true)
+        .order('redosled', { ascending: true })
+
+      if (error) throw error
+      setTipoviDogadjaja(data || [])
+
+      // Kreiraj mapu boja iz baze
+      const colorsFromDb = {}
+      ;(data || []).forEach(tip => {
+        colorsFromDb[tip.naziv.toLowerCase()] = {
+          bg: tip.boja || '#6B7280',
+          text: '#FFFFFF',
+          light: tip.boja ? `${tip.boja}20` : '#F3F4F6'
+        }
+      })
+      // Spoji sa default bojama
+      setEventColors({ ...defaultEventColors, ...colorsFromDb })
+    } catch (error) {
+      console.error('Greška pri učitavanju tipova događaja:', error)
+    }
+  }, [])
 
   // Učitaj događaje
   const loadEvents = useCallback(async () => {
@@ -123,12 +154,13 @@ export default function KalendarModule() {
   }, [])
 
   useEffect(() => {
+    loadTipoviDogadjaja()
     loadEvents()
-  }, [loadEvents])
+  }, [loadEvents, loadTipoviDogadjaja])
 
   // Stilizacija događaja
   const eventStyleGetter = (event) => {
-    const color = event.resource?.color || eventColors.ostalo
+    const color = event.resource?.color || defaultEventColors.ostalo
     return {
       style: {
         backgroundColor: color.bg,
@@ -150,12 +182,14 @@ export default function KalendarModule() {
   // Klik na prazan slot
   const handleSelectSlot = ({ start, end }) => {
     setEditingEvent(null)
+    const defaultTip = tipoviDogadjaja.length > 0 ? tipoviDogadjaja[0] : null
     setFormData({
       naslov: '',
       opis: '',
       pocetak: format(start, "yyyy-MM-dd'T'HH:mm"),
       kraj: format(end, "yyyy-MM-dd'T'HH:mm"),
-      tip: 'ostalo',
+      tip: defaultTip ? defaultTip.naziv.toLowerCase() : 'ostalo',
+      idtipdogadjaja: defaultTip ? defaultTip.id : null,
       ceo_dan: false,
       podseti_pre: 15,
       kontakt_ime: '',
@@ -207,12 +241,14 @@ export default function KalendarModule() {
   // Sačuvaj događaj
   const handleSaveEvent = async () => {
     try {
+      const selectedTip = tipoviDogadjaja.find(t => t.id === formData.idtipdogadjaja)
       const eventData = {
         naslov: formData.naslov,
         opis: formData.opis,
         pocetak: new Date(formData.pocetak).toISOString(),
         kraj: new Date(formData.kraj).toISOString(),
-        tip: formData.tip,
+        tip: selectedTip ? selectedTip.naziv.toLowerCase() : formData.tip,
+        idtipdogadjaja: formData.idtipdogadjaja,
         ceo_dan: formData.ceo_dan,
         podseti_pre: formData.podseti_pre,
         kontakt_ime: formData.kontakt_ime,
@@ -273,6 +309,7 @@ export default function KalendarModule() {
       pocetak: format(event.start, "yyyy-MM-dd'T'HH:mm"),
       kraj: format(event.end, "yyyy-MM-dd'T'HH:mm"),
       tip: event.resource.tip,
+      idtipdogadjaja: event.resource.idtipdogadjaja || null,
       ceo_dan: event.resource.ceo_dan,
       podseti_pre: event.resource.podseti_pre || 15,
       kontakt_ime: event.resource.kontakt_ime || '',
@@ -327,12 +364,14 @@ export default function KalendarModule() {
           onClick={() => {
             setEditingEvent(null)
             const now = new Date()
+            const defaultTip = tipoviDogadjaja.length > 0 ? tipoviDogadjaja[0] : null
             setFormData({
               naslov: '',
               opis: '',
               pocetak: format(now, "yyyy-MM-dd'T'HH:mm"),
               kraj: format(addMinutes(now, 30), "yyyy-MM-dd'T'HH:mm"),
-              tip: 'ostalo',
+              tip: defaultTip ? defaultTip.naziv.toLowerCase() : 'ostalo',
+              idtipdogadjaja: defaultTip ? defaultTip.id : null,
               ceo_dan: false,
               podseti_pre: 15,
               kontakt_ime: '',
@@ -385,12 +424,21 @@ export default function KalendarModule() {
 
       {/* Legenda */}
       <div className="flex flex-wrap gap-3">
-        {Object.entries(eventColors).map(([tip, color]) => (
-          <div key={tip} className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg shadow-sm border border-gray-100">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color.bg }}></div>
-            <span className="text-sm font-medium text-gray-700 capitalize">{tip}</span>
-          </div>
-        ))}
+        {tipoviDogadjaja.length > 0 ? (
+          tipoviDogadjaja.map((tip) => (
+            <div key={tip.id} className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg shadow-sm border border-gray-100">
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: tip.boja || '#6B7280' }}></div>
+              <span className="text-sm font-medium text-gray-700">{tip.naziv}</span>
+            </div>
+          ))
+        ) : (
+          Object.entries(defaultEventColors).map(([tip, color]) => (
+            <div key={tip} className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg shadow-sm border border-gray-100">
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color.bg }}></div>
+              <span className="text-sm font-medium text-gray-700 capitalize">{tip}</span>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Kalendar */}
@@ -585,26 +633,53 @@ export default function KalendarModule() {
               {/* Tip događaja */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Tip događaja</label>
-                <div className="grid grid-cols-4 gap-2">
-                  {Object.entries(eventColors).map(([tip, color]) => (
-                    <button
-                      key={tip}
-                      onClick={() => setFormData({ ...formData, tip })}
-                      className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
-                        formData.tip === tip 
-                          ? 'border-amber-500 bg-amber-50' 
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <div 
-                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
-                        style={{ backgroundColor: color.bg }}
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  {tipoviDogadjaja.length > 0 ? (
+                    tipoviDogadjaja.map((tip) => (
+                      <button
+                        key={tip.id}
+                        onClick={() => setFormData({ 
+                          ...formData, 
+                          tip: tip.naziv.toLowerCase(),
+                          idtipdogadjaja: tip.id 
+                        })}
+                        className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                          formData.idtipdogadjaja === tip.id 
+                            ? 'border-amber-500 bg-amber-50' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
                       >
-                        {getTypeIcon(tip)}
-                      </div>
-                      <span className="text-xs font-medium capitalize">{tip}</span>
-                    </button>
-                  ))}
+                        <div 
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
+                          style={{ backgroundColor: tip.boja || '#6B7280' }}
+                        >
+                          {getTypeIcon(tip.naziv.toLowerCase())}
+                        </div>
+                        <span className="text-xs font-medium">{tip.naziv}</span>
+                      </button>
+                    ))
+                  ) : (
+                    // Fallback ako nema tipova u bazi
+                    Object.entries(defaultEventColors).map(([tip, color]) => (
+                      <button
+                        key={tip}
+                        onClick={() => setFormData({ ...formData, tip, idtipdogadjaja: null })}
+                        className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                          formData.tip === tip 
+                            ? 'border-amber-500 bg-amber-50' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div 
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
+                          style={{ backgroundColor: color.bg }}
+                        >
+                          {getTypeIcon(tip)}
+                        </div>
+                        <span className="text-xs font-medium capitalize">{tip}</span>
+                      </button>
+                    ))
+                  )}
                 </div>
               </div>
 

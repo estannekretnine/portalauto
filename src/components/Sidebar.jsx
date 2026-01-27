@@ -1,4 +1,4 @@
-import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone, Map, BarChart3, PhoneCall, PieChart, Info, Tv, Globe, Clock, UserCheck, FileInput, List, MessageCircle, Shield, Calendar } from 'lucide-react'
+import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone, Map, BarChart3, PhoneCall, PieChart, Info, Tv, Globe, Clock, UserCheck, FileInput, List, MessageCircle, Shield, Calendar, Tags } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = false }) => {
@@ -9,6 +9,7 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
   const [isIzvestajiAnalizeOpen, setIsIzvestajiAnalizeOpen] = useState(false)
   const [isScrapingOpen, setIsScrapingOpen] = useState(false)
   const [isAdminOpen, setIsAdminOpen] = useState(false)
+  const [isKalendarOpen, setIsKalendarOpen] = useState(false)
 
   const isAdmin = user?.email === 'admin@example.com'
 
@@ -58,6 +59,11 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
     { id: 'scraping-vreme-trajanja', label: 'Vreme trajanja', icon: Clock },
   ]
 
+  const kalendarSubItems = [
+    { id: 'kalendar', label: 'Kalendar' },
+    { id: 'kalendar-tip-dogadjaja', label: 'Tip događaja' },
+  ]
+
   const adminSubItems = [
     { id: 'admin-korisnici', label: 'Korisnici', icon: Users },
     { id: 'admin-poruke', label: 'Poruke', icon: MessageCircle },
@@ -95,6 +101,11 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
     if (isAdminActive) {
       setIsAdminOpen(true)
     }
+
+    const isKalendarActive = kalendarSubItems.some(item => item.id === activeModule)
+    if (isKalendarActive) {
+      setIsKalendarOpen(true)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeModule])
 
@@ -120,9 +131,11 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
       icon: Map,
     },
     {
-      id: 'kalendar',
+      id: 'kalendar-menu',
       label: 'Kalendar',
       icon: Calendar,
+      hasSubmenu: true,
+      subItems: kalendarSubItems,
     },
     {
       id: 'provera',
@@ -177,6 +190,8 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
       setIsScrapingOpen(!isScrapingOpen)
     } else if (itemId === 'admin') {
       setIsAdminOpen(!isAdminOpen)
+    } else if (itemId === 'kalendar-menu') {
+      setIsKalendarOpen(!isKalendarOpen)
     } else {
       setActiveModule(itemId)
       setIsMobileMenuOpen(false)
@@ -210,6 +225,8 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
   const isScrapingActive = scrapingSubItems.some(item => item.id === activeModule)
 
   const isAdminActive = adminSubItems.some(item => item.id === activeModule)
+
+  const isKalendarActive = kalendarSubItems.some(item => item.id === activeModule)
 
   return (
     <>
@@ -287,12 +304,14 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
                 (item.id === 'izvestaji' && isIzvestajiActive) ||
                 (item.id === 'izvestaji-analize' && isIzvestajiAnalizeActive) ||
                 (item.id === 'scraping' && isScrapingActive) ||
-                (item.id === 'admin' && isAdminActive)
+                (item.id === 'admin' && isAdminActive) ||
+                (item.id === 'kalendar-menu' && isKalendarActive)
               const isExpanded = (item.id === 'maticni-podaci' && isMaticniPodaciOpen) ||
                 (item.id === 'izvestaji' && isIzvestajiOpen) ||
                 (item.id === 'izvestaji-analize' && isIzvestajiAnalizeOpen) ||
                 (item.id === 'scraping' && isScrapingOpen) ||
-                (item.id === 'admin' && isAdminOpen)
+                (item.id === 'admin' && isAdminOpen) ||
+                (item.id === 'kalendar-menu' && isKalendarOpen)
 
               return (
                 <li key={item.id}>
