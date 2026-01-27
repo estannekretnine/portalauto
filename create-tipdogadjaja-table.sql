@@ -14,9 +14,16 @@ CREATE TABLE IF NOT EXISTS tipdogadjaja (
 -- Dodaj RLS polise
 ALTER TABLE tipdogadjaja ENABLE ROW LEVEL SECURITY;
 
--- Polisa za čitanje - svi autentifikovani korisnici mogu čitati
-CREATE POLICY "tipdogadjaja_select_policy" ON tipdogadjaja
-    FOR SELECT TO authenticated
+-- Ukloni postojeće politike ako postoje
+DROP POLICY IF EXISTS "tipdogadjaja_select_policy" ON tipdogadjaja;
+DROP POLICY IF EXISTS "tipdogadjaja_insert_policy" ON tipdogadjaja;
+DROP POLICY IF EXISTS "tipdogadjaja_update_policy" ON tipdogadjaja;
+DROP POLICY IF EXISTS "tipdogadjaja_delete_policy" ON tipdogadjaja;
+DROP POLICY IF EXISTS "tipdogadjaja_select_all" ON tipdogadjaja;
+
+-- Polisa za čitanje - svi korisnici (uključujući anon) mogu čitati
+CREATE POLICY "tipdogadjaja_select_all" ON tipdogadjaja
+    FOR SELECT
     USING (true);
 
 -- Polisa za insert - svi autentifikovani korisnici mogu dodavati

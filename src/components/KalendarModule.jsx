@@ -88,7 +88,7 @@ export default function KalendarModule() {
 
   const currentUser = getCurrentUser()
 
-  // Učitaj tipove događaja
+  // Učitaj tipove događaja i vrati mapu boja
   const loadTipoviDogadjaja = useCallback(async () => {
     try {
       const { data, error } = await supabase
@@ -98,6 +98,7 @@ export default function KalendarModule() {
         .order('redosled', { ascending: true })
 
       if (error) throw error
+      
       setTipoviDogadjaja(data || [])
 
       // Kreiraj mapu boja iz baze
@@ -108,22 +109,33 @@ export default function KalendarModule() {
           text: '#FFFFFF',
           light: tip.boja ? `${tip.boja}20` : '#F3F4F6'
         }
+        // Takođe dodaj po ID-u za direktno mapiranje
+        colorsFromDb[`id_${tip.id}`] = {
+          bg: tip.boja || '#6B7280',
+          text: '#FFFFFF',
+          light: tip.boja ? `${tip.boja}20` : '#F3F4F6'
+        }
       })
-      // Spoji sa default bojama
-      setEventColors({ ...defaultEventColors, ...colorsFromDb })
+      
+      const mergedColors = { ...defaultEventColors, ...colorsFromDb }
+      setEventColors(mergedColors)
+      
+      return { tipovi: data || [], colors: mergedColors }
     } catch (error) {
       console.error('Greška pri učitavanju tipova događaja:', error)
+      return { tipovi: [], colors: defaultEventColors }
     }
   }, [])
 
-  // Učitaj događaje
-  const loadEvents = useCallback(async () => {
+  // Učitaj događaje sa bojama iz tipova
+  const loadEvents = useCallback(async (colors = eventColors) => {
     try {
       setLoading(true)
       const { data, error } = await supabase
         .from('dogadjaji')
         .select(`
           *,
+          tipdogadjaja:idtipdogadjaja (id, naziv, boja, ikona),
           vlasnici:idvlasnik (imevlasnika, kontakttelefon1),
           ponuda:idponude (naslovaoglasa, kontaktosoba),
           traznja:idtraznja (kontaktosoba, kontakttelefon)
@@ -133,17 +145,33 @@ export default function KalendarModule() {
       if (error) throw error
 
       // Transformiši u format za react-big-calendar
-      const formattedEvents = (data || []).map(event => ({
-        id: event.id,
-        title: event.naslov,
-        start: new Date(event.pocetak),
-        end: new Date(event.kraj),
-        allDay: event.ceo_dan,
-        resource: {
-          ...event,
-          color: eventColors[event.tip] || eventColors.ostalo
+      const formattedEvents = (data || []).map(event => {
+        // Prvo pokušaj da dobiješ boju iz povezanog tipa događaja
+        let color = colors.ostalo
+        if (event.tipdogadjaja) {
+          color = {
+            bg: event.tipdogadjaja.boja || '#6B7280',
+            text: '#FFFFFF',
+            light: event.tipdogadjaja.boja ? `${event.tipdogadjaja.boja}20` : '#F3F4F6'
+          }
+        } else if (event.idtipdogadjaja && colors[`id_${event.idtipdogadjaja}`]) {
+          color = colors[`id_${event.idtipdogadjaja}`]
+        } else if (event.tip && colors[event.tip.toLowerCase()]) {
+          color = colors[event.tip.toLowerCase()]
         }
-      }))
+        
+        return {
+          id: event.id,
+          title: event.naslov,
+          start: new Date(event.pocetak),
+          end: new Date(event.kraj),
+          allDay: event.ceo_dan,
+          resource: {
+            ...event,
+            color
+          }
+        }
+      })
 
       setEvents(formattedEvents)
     } catch (error) {
@@ -151,12 +179,16 @@ export default function KalendarModule() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [eventColors])
 
+  // Inicijalno učitavanje - prvo tipovi, pa događaji
   useEffect(() => {
-    loadTipoviDogadjaja()
-    loadEvents()
-  }, [loadEvents, loadTipoviDogadjaja])
+    const loadAll = async () => {
+      const { colors } = await loadTipoviDogadjaja()
+      await loadEvents(colors)
+    }
+    loadAll()
+  }, [])
 
   // Stilizacija događaja
   const eventStyleGetter = (event) => {
@@ -388,14 +420,38 @@ export default function KalendarModule() {
     </div>
   )
 
-  // Tip ikonica
-  const getTypeIcon = (tip) => {
-    switch (tip) {
-      case 'poziv': return <Phone className="w-4 h-4" />
-      case 'teren': return <Map className="w-4 h-4" />
-      case 'sastanak': return <Users className="w-4 h-4" />
-      default: return <MoreHorizontal className="w-4 h-4" />
+  // Mapa ikonica
+  const iconMap = {
+    phone: Phone,
+    map: Map,
+    users: Users,
+    calendar: CalendarIcon,
+    other: MoreHorizontal
+  }
+
+  // Tip ikonica - koristi ikonu iz baze ili fallback
+  const getTypeIcon = (tipOrIkona, size = "w-4 h-4") => {
+    // Ako je prosleđen naziv ikone direktno
+    if (iconMap[tipOrIkona]) {
+      const IconComponent = iconMap[tipOrIkona]
+      return <IconComponent className={size} />
     }
+    
+    // Fallback na stare nazive tipova
+    switch (tipOrIkona) {
+      case 'poziv': return <Phone className={size} />
+      case 'teren': return <Map className={size} />
+      case 'sastanak': return <Users className={size} />
+      default: return <MoreHorizontal className={size} />
+    }
+  }
+
+  // Funkcija za dobijanje ikone tipa iz baze
+  const getTypeIconFromTip = (tip) => {
+    if (tip && tip.ikona) {
+      return getTypeIcon(tip.ikona)
+    }
+    return getTypeIcon(tip?.naziv?.toLowerCase() || 'other')
   }
 
   if (loading) {
@@ -632,55 +688,39 @@ export default function KalendarModule() {
 
               {/* Tip događaja */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tip događaja</label>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                  {tipoviDogadjaja.length > 0 ? (
-                    tipoviDogadjaja.map((tip) => (
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tip događaja *</label>
+                {tipoviDogadjaja.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {tipoviDogadjaja.map((tip) => (
                       <button
                         key={tip.id}
+                        type="button"
                         onClick={() => setFormData({ 
                           ...formData, 
                           tip: tip.naziv.toLowerCase(),
                           idtipdogadjaja: tip.id 
                         })}
-                        className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                        className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
                           formData.idtipdogadjaja === tip.id 
                             ? 'border-amber-500 bg-amber-50' 
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
                         <div 
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
+                          className="w-10 h-10 rounded-lg flex items-center justify-center text-white flex-shrink-0"
                           style={{ backgroundColor: tip.boja || '#6B7280' }}
                         >
-                          {getTypeIcon(tip.naziv.toLowerCase())}
+                          {getTypeIcon(tip.ikona || tip.naziv.toLowerCase())}
                         </div>
-                        <span className="text-xs font-medium">{tip.naziv}</span>
+                        <span className="text-sm font-medium text-gray-900">{tip.naziv}</span>
                       </button>
-                    ))
-                  ) : (
-                    // Fallback ako nema tipova u bazi
-                    Object.entries(defaultEventColors).map(([tip, color]) => (
-                      <button
-                        key={tip}
-                        onClick={() => setFormData({ ...formData, tip, idtipdogadjaja: null })}
-                        className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
-                          formData.tip === tip 
-                            ? 'border-amber-500 bg-amber-50' 
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <div 
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
-                          style={{ backgroundColor: color.bg }}
-                        >
-                          {getTypeIcon(tip)}
-                        </div>
-                        <span className="text-xs font-medium capitalize">{tip}</span>
-                      </button>
-                    ))
-                  )}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-sm">
+                    Nema definisanih tipova događaja. Dodajte tipove u sekciji Kalendar → Tip događaja.
+                  </div>
+                )}
               </div>
 
               {/* Datum i vreme */}
@@ -779,7 +819,7 @@ export default function KalendarModule() {
               </button>
               <button
                 onClick={handleSaveEvent}
-                disabled={!formData.naslov || !formData.pocetak || !formData.kraj}
+                disabled={!formData.naslov || !formData.pocetak || !formData.kraj || (tipoviDogadjaja.length > 0 && !formData.idtipdogadjaja)}
                 className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {editingEvent ? 'Sačuvaj izmene' : 'Kreiraj događaj'}
