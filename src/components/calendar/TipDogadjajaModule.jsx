@@ -300,9 +300,9 @@ export default function TipDogadjajaModule() {
 
       {/* Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
-            <div className="px-6 py-4 bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-between rounded-t-2xl">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-50 p-4 pt-8 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full my-auto">
+            <div className="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-between rounded-t-2xl sticky top-0">
               <h3 className="font-bold text-white text-lg">
                 {editingTip ? 'Izmeni tip događaja' : 'Novi tip događaja'}
               </h3>
@@ -314,122 +314,119 @@ export default function TipDogadjajaModule() {
               </button>
             </div>
 
-            <div className="p-6 space-y-5">
+            <div className="p-5 space-y-4">
               {/* Naziv */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Naziv *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Naziv *</label>
                 <input
                   type="text"
                   value={formData.naziv}
                   onChange={(e) => setFormData({ ...formData, naziv: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   placeholder="Npr. Sastanak"
                 />
               </div>
 
-              {/* Boja */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Boja</label>
-                <div className="flex flex-wrap gap-2">
-                  {predefinedColors.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setFormData({ ...formData, boja: color })}
-                      className={`w-10 h-10 rounded-xl transition-all ${
-                        formData.boja === color 
-                          ? 'ring-2 ring-offset-2 ring-gray-400 scale-110' 
-                          : 'hover:scale-105'
-                      }`}
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
-                  <input
-                    type="color"
-                    value={formData.boja}
-                    onChange={(e) => setFormData({ ...formData, boja: e.target.value })}
-                    className="w-10 h-10 rounded-xl cursor-pointer"
-                    title="Prilagođena boja"
-                  />
+              {/* Boja i Ikona u istom redu */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Boja */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Boja</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {predefinedColors.map((color) => (
+                      <button
+                        key={color}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, boja: color })}
+                        className={`w-8 h-8 rounded-lg transition-all ${
+                          formData.boja === color 
+                            ? 'ring-2 ring-offset-1 ring-gray-400 scale-110' 
+                            : 'hover:scale-105'
+                        }`}
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Ikona */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Ikona</label>
-                <div className="flex gap-2">
-                  {Object.entries(iconMap).map(([key, Icon]) => (
-                    <button
-                      key={key}
-                      onClick={() => setFormData({ ...formData, ikona: key })}
-                      className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
-                        formData.ikona === key 
-                          ? 'bg-gray-900 text-white' 
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      <Icon className="w-5 h-5" />
-                    </button>
-                  ))}
+                {/* Ikona */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Ikona</label>
+                  <div className="flex gap-1.5">
+                    {Object.entries(iconMap).map(([key, Icon]) => (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, ikona: key })}
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${
+                          formData.ikona === key 
+                            ? 'bg-gray-900 text-white' 
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
               {/* Opis */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Opis</label>
-                <textarea
+                <label className="block text-sm font-medium text-gray-700 mb-1">Opis</label>
+                <input
+                  type="text"
                   value={formData.opis}
                   onChange={(e) => setFormData({ ...formData, opis: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                  rows={2}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   placeholder="Kratak opis tipa događaja..."
                 />
               </div>
 
-              {/* Aktivan */}
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.aktivan}
-                  onChange={(e) => setFormData({ ...formData, aktivan: e.target.checked })}
-                  className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
-                />
-                <span className="text-sm font-medium text-gray-700">Aktivan tip</span>
-              </label>
-
-              {/* Preview */}
-              <div className="pt-4 border-t border-gray-100">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Pregled</label>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+              {/* Aktivan i Preview u istom redu */}
+              <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.aktivan}
+                    onChange={(e) => setFormData({ ...formData, aktivan: e.target.checked })}
+                    className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Aktivan</span>
+                </label>
+                
+                {/* Preview */}
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg">
                   <div 
-                    className="w-10 h-10 rounded-lg flex items-center justify-center text-white"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
                     style={{ backgroundColor: formData.boja }}
                   >
                     {(() => {
                       const PreviewIcon = iconMap[formData.ikona] || Calendar
-                      return <PreviewIcon className="w-5 h-5" />
+                      return <PreviewIcon className="w-4 h-4" />
                     })()}
                   </div>
-                  <span className="font-medium text-gray-900">
-                    {formData.naziv || 'Naziv tipa'}
+                  <span className="text-sm font-medium text-gray-900">
+                    {formData.naziv || 'Pregled'}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 rounded-b-2xl">
+            <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 rounded-b-2xl">
               <button
                 onClick={() => setShowForm(false)}
-                className="px-5 py-2.5 text-gray-700 hover:bg-gray-200 rounded-xl transition-colors font-medium"
+                className="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-xl transition-colors font-medium text-sm"
               >
                 Otkaži
               </button>
               <button
                 onClick={handleSave}
                 disabled={!formData.naziv.trim()}
-                className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
                 <Save className="w-4 h-4" />
-                {editingTip ? 'Sačuvaj izmene' : 'Kreiraj tip'}
+                {editingTip ? 'Sačuvaj' : 'Kreiraj'}
               </button>
             </div>
           </div>
