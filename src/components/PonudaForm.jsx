@@ -176,6 +176,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
     nivoenergetskeefikasnosti: '',
     '3dture': '',
     stsvertikalahorizontala: false,
+    idagentprimio: '', // Agent koji je primio nekretninu
   })
 
   // JSONB detalji
@@ -285,6 +286,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
   const [grejanja, setGrejanja] = useState([])
   const [investitori, setInvestitori] = useState([])
   const [naciniDobijanja, setNaciniDobijanja] = useState([])
+  const [agenti, setAgenti] = useState([]) // Lista agenata za selekciju "Agent primio nekretninu"
   
   // Autocomplete za ulice
   const [ulicaSearchTerm, setUlicaSearchTerm] = useState('')
@@ -416,6 +418,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
         nivoenergetskeefikasnosti: ponudaData.nivoenergetskeefikasnosti || '',
         '3dture': ponudaData['3dture'] || '',
         stsvertikalahorizontala: ponudaData.stsvertikalahorizontala || false,
+        idagentprimio: ponudaData.idagentprimio || '',
       }))
 
       // Popuni JSONB polja ako postoje
@@ -618,13 +621,15 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
         { data: drzaveData },
         { data: grejanjaData },
         { data: investitoriData, error: investitoriError },
-        { data: naciniDobijanjaData, error: naciniDobijanjaError }
+        { data: naciniDobijanjaData, error: naciniDobijanjaError },
+        { data: agentiData, error: agentiError }
       ] = await Promise.all([
         supabase.from('vrstaobjekta').select('*').order('opis'),
         supabase.from('drzava').select('*').order('opis'),
         supabase.from('grejanje').select('*').order('opis'),
         supabase.from('investitor').select('*').order('naziv'),
-        supabase.from('vrstanacinadobijanjaoglasa').select('*').or('stsarhiva.is.null,stsarhiva.eq.false').order('opis')
+        supabase.from('vrstanacinadobijanjaoglasa').select('*').or('stsarhiva.is.null,stsarhiva.eq.false').order('opis'),
+        supabase.from('korisnici').select('id, naziv, email').eq('stsaktivan', true).order('naziv')
       ])
 
       // Ako ima grešku sa investitor tabelom, loguj je ali ne prekidaj učitavanje
@@ -638,13 +643,20 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
         console.warn('⚠️ Greška pri učitavanju načina dobijanja:', naciniDobijanjaError)
       }
 
+      // Ako ima grešku sa agentima, loguj je
+      if (agentiError) {
+        console.warn('⚠️ Greška pri učitavanju agenata:', agentiError)
+      }
+
       console.log('📊 Učitani investitori:', investitoriData)
       console.log('📊 Učitani načini dobijanja:', naciniDobijanjaData)
+      console.log('📊 Učitani agenti:', agentiData)
       setVrsteObjekata(vrsteData || [])
       setDrzave(drzaveData || [])
       setGrejanja(grejanjaData || [])
       setInvestitori(investitoriData || []) // Može biti prazan array ako ima RLS problem
       setNaciniDobijanja(naciniDobijanjaData || [])
+      setAgenti(agentiData || [])
     } catch (error) {
       console.error('Greška pri učitavanju lookup podataka:', error)
     }
@@ -1708,6 +1720,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
         nivoenergetskeefikasnosti: formData.nivoenergetskeefikasnosti || null,
         '3dture': formData['3dture'] || null,
         stsvertikalahorizontala: formData.stsvertikalahorizontala,
+        idagentprimio: formData.idagentprimio ? parseInt(formData.idagentprimio) : null,
       }
 
       // Lokacija podaci
@@ -2396,6 +2409,21 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                   </div>
                 )}
                 </div>
+              </div>
+              <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">🧑‍💼 Agent primio nekretninu</label>
+                <select
+                  value={formData.idagentprimio || ''}
+                  onChange={(e) => handleFieldChange('idagentprimio', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                >
+                  <option value="">-- Izaberi agenta --</option>
+                  {agenti.map((agent) => (
+                    <option key={agent.id} value={agent.id}>
+                      {agent.naziv || agent.email}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">📥 Način dobijanja oglasa</label>
