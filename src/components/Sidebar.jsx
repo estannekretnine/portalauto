@@ -1,4 +1,4 @@
-import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone, Map, BarChart3, PhoneCall, PieChart, Info, Tv, Globe, Clock, UserCheck, FileInput, List, MessageCircle, Shield } from 'lucide-react'
+import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone, Map, BarChart3, PhoneCall, PieChart, Info, Tv, Globe, Clock, UserCheck, FileInput, List, MessageCircle, Shield, Calendar } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = false }) => {
@@ -118,6 +118,11 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
       id: 'tereni',
       label: 'Tereni',
       icon: Map,
+    },
+    {
+      id: 'kalendar',
+      label: 'Kalendar',
+      icon: Calendar,
     },
     {
       id: 'provera',

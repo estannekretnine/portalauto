@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getCurrentUser, logout } from '../utils/auth'
 import { useNavigate } from 'react-router-dom'
+import { startReminderChecker, stopReminderChecker, requestNotificationPermission } from '../utils/notifications'
 import Sidebar from './Sidebar'
 import VrstaObjektaModule from './VrstaObjektaModule'
 import GrejanjeModule from './GrejanjeModule'
@@ -36,6 +37,7 @@ import AnalizaNacinaDobijanjaModule from './izvestaji/AnalizaNacinaDobijanjaModu
 import GlobalChat from './GlobalChat'
 import ChatButton from './ChatButton'
 import AdminPorukeModule from './admin/AdminPorukeModule'
+import KalendarModule from './KalendarModule'
 import { LogOut, Menu, Building2 } from 'lucide-react'
 
 export default function Dashboard() {
@@ -52,6 +54,14 @@ export default function Dashboard() {
       return
     }
     setUser(currentUser)
+
+    // Pokreni proveru podsetnika za kalendar
+    requestNotificationPermission()
+    startReminderChecker(60000) // Proveri svakog minuta
+
+    return () => {
+      stopReminderChecker()
+    }
   }, [navigate])
 
   const handleLogout = () => {
@@ -122,6 +132,7 @@ export default function Dashboard() {
           {activeModule === 'traznja' && <TraznjaModule />}
           {activeModule === 'pozivi' && <PoziviModule />}
           {activeModule === 'tereni' && <TereniModule />}
+          {activeModule === 'kalendar' && <KalendarModule />}
           {activeModule === 'provera' && <ProveraModule />}
           {activeModule === 'izvestaj-eop' && <EOPModule />}
           {activeModule === 'izvestaj-eok' && <EOKModule />}

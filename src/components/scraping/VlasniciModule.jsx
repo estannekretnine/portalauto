@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../utils/supabase'
 import { getCurrentUser } from '../../utils/auth'
-import { UserCheck, Search, Filter, ChevronDown, ChevronUp, ExternalLink, Phone, MapPin, Euro, Ruler, Calendar, Archive, ArchiveRestore, Eye, MessageSquare, Send, X, Mail, FileText, Plus, Edit, Save } from 'lucide-react'
+import { UserCheck, Search, Filter, ChevronDown, ChevronUp, ExternalLink, Phone, MapPin, Euro, Ruler, Calendar, Archive, ArchiveRestore, Eye, MessageSquare, Send, X, Mail, FileText, Plus, Edit, Save, CalendarPlus } from 'lucide-react'
+import QuickScheduleModal from '../calendar/QuickScheduleModal'
 
 export default function VlasniciModule() {
   const [vlasnici, setVlasnici] = useState([])
@@ -29,6 +30,10 @@ export default function VlasniciModule() {
   const [showForm, setShowForm] = useState(false)
   const [editingVlasnik, setEditingVlasnik] = useState(null)
   const [savingVlasnik, setSavingVlasnik] = useState(false)
+  
+  // Quick Schedule state
+  const [showQuickSchedule, setShowQuickSchedule] = useState(false)
+  const [quickScheduleData, setQuickScheduleData] = useState(null)
   const [formData, setFormData] = useState({
     imevlasnika: '',
     kontakttelefon1: '',
@@ -614,6 +619,25 @@ export default function VlasniciModule() {
                           <Edit className="w-4 h-4" />
                         </button>
                         
+                        {/* Dugme za zakazivanje poziva */}
+                        <button
+                          onClick={() => {
+                            setQuickScheduleData({
+                              tip: 'poziv',
+                              naslov: `Poziv: ${vlasnik.imevlasnika || 'Vlasnik'}`,
+                              kontakt_ime: vlasnik.imevlasnika || '',
+                              kontakt_telefon: vlasnik.kontakttelefon1 || vlasnik.kontakttelefon2 || '',
+                              idvlasnik: vlasnik.id,
+                              opis: vlasnik.opisoglasa ? `Nekretnina: ${vlasnik.opisoglasa}` : ''
+                            })
+                            setShowQuickSchedule(true)
+                          }}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Zakaži poziv"
+                        >
+                          <CalendarPlus className="w-4 h-4" />
+                        </button>
+                        
                         {/* Dugme za komentar */}
                         <div className="relative">
                           <button
@@ -1070,6 +1094,20 @@ export default function VlasniciModule() {
           </div>
         </div>
       )}
+
+      {/* Quick Schedule Modal */}
+      <QuickScheduleModal
+        isOpen={showQuickSchedule}
+        onClose={() => {
+          setShowQuickSchedule(false)
+          setQuickScheduleData(null)
+        }}
+        initialData={quickScheduleData}
+        onSuccess={() => {
+          // Opciono: prikaži notifikaciju ili osveži nešto
+          console.log('Poziv uspešno zakazan!')
+        }}
+      />
     </div>
   )
 }
