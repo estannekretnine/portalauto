@@ -298,10 +298,10 @@ export default function PonudeModule() {
       
       setLokacije(lokacijeRes.data || [])
       
-      // Kreiraj listu sa kompletnim putanjama
+      // Kreiraj listu sa kompletnim putanjama - HaloOglasi format (Grad / Opština / Lokacija)
       const allLokaliteti = []
       
-      // Države
+      // Države - prikazuje samo naziv
       ;(drzaveRes.data || []).forEach(d => {
         allLokaliteti.push({
           id: d.id,
@@ -312,59 +312,55 @@ export default function PonudeModule() {
         })
       })
       
-      // Gradovi: Država > Grad
+      // Gradovi - prikazuje samo naziv grada
       ;(gradoviRes.data || []).forEach(g => {
-        const drzava = g.drzava?.opis || ''
         allLokaliteti.push({
           id: g.id,
           type: 'grad',
           opis: g.opis,
-          fullPath: drzava ? `${drzava} > ${g.opis}` : g.opis,
+          fullPath: g.opis,
           typeLabel: 'Grad'
         })
       })
       
-      // Opštine: Država > Grad > Opština
+      // Opštine: Grad / Opština
       ;(opstineRes.data || []).forEach(o => {
         const grad = o.grad?.opis || ''
-        const drzava = o.grad?.drzava?.opis || ''
-        const parts = [drzava, grad, o.opis].filter(Boolean)
+        const parts = [grad, `Opština ${o.opis}`].filter(Boolean)
         allLokaliteti.push({
           id: o.id,
           type: 'opstina',
           opis: o.opis,
-          fullPath: parts.join(' > '),
+          fullPath: parts.join(' / '),
           typeLabel: 'Opština'
         })
       })
       
-      // Lokacije: Država > Grad > Opština > Lokacija
+      // Lokacije: Grad / Opština / Lokacija
       ;(lokacijeRes.data || []).forEach(l => {
         const opstina = l.opstina?.opis || ''
         const grad = l.opstina?.grad?.opis || ''
-        const drzava = l.opstina?.grad?.drzava?.opis || ''
-        const parts = [drzava, grad, opstina, l.opis].filter(Boolean)
+        const parts = [grad, `Opština ${opstina}`, l.opis].filter(Boolean)
         allLokaliteti.push({
           id: l.id,
           type: 'lokacija',
           opis: l.opis,
-          fullPath: parts.join(' > '),
+          fullPath: parts.join(' / '),
           typeLabel: 'Lokacija'
         })
       })
       
-      // Ulice: Država > Grad > Opština > Lokacija > Ulica
+      // Ulice: Grad / Opština / Lokacija / Ulica
       ;(uliceRes.data || []).forEach(u => {
         const lokacija = u.lokacija?.opis || ''
         const opstina = u.lokacija?.opstina?.opis || ''
         const grad = u.lokacija?.opstina?.grad?.opis || ''
-        const drzava = u.lokacija?.opstina?.grad?.drzava?.opis || ''
-        const parts = [drzava, grad, opstina, lokacija, u.opis].filter(Boolean)
+        const parts = [grad, `Opština ${opstina}`, lokacija, u.opis].filter(Boolean)
         allLokaliteti.push({
           id: u.id,
           type: 'ulica',
           opis: u.opis,
-          fullPath: parts.join(' > '),
+          fullPath: parts.join(' / '),
           typeLabel: 'Ulica'
         })
       })
@@ -1245,16 +1241,16 @@ export default function PonudeModule() {
                       setShowLokalitetDropdown(true)
                     }}
                     onFocus={() => setShowLokalitetDropdown(true)}
-                    placeholder="Unesite lokaciju (država, grad, opština, lokacija, ulica)"
+                    placeholder="Gde tražite?"
                     className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   />
                 </div>
                 
-                {/* Dropdown sa rezultatima - prikazuje kompletnu putanju */}
+                {/* Dropdown sa rezultatima - HaloOglasi stil */}
                 {showLokalitetDropdown && filteredLokaliteti.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto">
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-72 overflow-y-auto">
                     {filteredLokaliteti.map(lok => {
-                      // Highlight-uj deo koji se poklapa sa pretragom
+                      // Highlight-uj deo koji se poklapa sa pretragom - boldovanje kao HaloOglasi
                       const search = lokalitetSearch.toLowerCase()
                       const fullPath = lok.fullPath
                       const lowerPath = fullPath.toLowerCase()
@@ -1266,60 +1262,42 @@ export default function PonudeModule() {
                         const match = fullPath.slice(matchIndex, matchIndex + search.length)
                         const after = fullPath.slice(matchIndex + search.length)
                         displayPath = (
-                          <>
-                            <span className="text-gray-500">{before}</span>
-                            <span className="text-amber-600 font-semibold bg-amber-50 px-0.5 rounded">{match}</span>
-                            <span className="text-gray-700">{after}</span>
-                          </>
+                          <span className="text-gray-600">
+                            {before}<span className="font-bold text-gray-900">{match}</span>{after}
+                          </span>
                         )
                       } else {
-                        displayPath = <span className="text-gray-700">{fullPath}</span>
+                        displayPath = <span className="text-gray-600">{fullPath}</span>
                       }
                       
                       return (
                         <button
                           key={`${lok.type}-${lok.id}`}
                           onClick={() => addLokalitet(lok)}
-                          className="w-full px-4 py-3 text-left hover:bg-amber-50 flex items-center justify-between border-b border-gray-100 last:border-0 group transition-colors"
+                          className="w-full px-4 py-2.5 text-left hover:bg-gray-50 border-b border-gray-100 last:border-0 transition-colors"
                         >
-                          <div className="flex-1 min-w-0 pr-3">
-                            <div className="text-sm truncate">{displayPath}</div>
-                          </div>
-                          <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${
-                            lok.type === 'drzava' ? 'bg-blue-100 text-blue-700' :
-                            lok.type === 'grad' ? 'bg-purple-100 text-purple-700' :
-                            lok.type === 'opstina' ? 'bg-emerald-100 text-emerald-700' :
-                            lok.type === 'lokacija' ? 'bg-amber-100 text-amber-700' :
-                            'bg-rose-100 text-rose-700'
-                          }`}>
-                            {lok.typeLabel}
-                          </span>
+                          <div className="text-sm">{displayPath}</div>
                         </button>
                       )
                     })}
                   </div>
                 )}
                 
-                {/* Izabrani lokaliteti kao tagovi - prikazuje punu putanju */}
+                {/* Izabrani lokaliteti kao tagovi */}
                 {selectedLokaliteti.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-3">
                     {selectedLokaliteti.map(lok => (
                       <span
                         key={`${lok.type}-${lok.id}`}
-                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm ${
-                          lok.type === 'drzava' ? 'bg-blue-100 text-blue-800' :
-                          lok.type === 'grad' ? 'bg-purple-100 text-purple-800' :
-                          lok.type === 'opstina' ? 'bg-emerald-100 text-emerald-800' :
-                          lok.type === 'lokacija' ? 'bg-amber-100 text-amber-800' :
-                          'bg-rose-100 text-rose-800'
-                        }`}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm bg-amber-50 text-amber-800 border border-amber-200"
                       >
-                        <span className="max-w-[200px] truncate" title={lok.fullPath}>
+                        <MapPin className="w-3.5 h-3.5 text-amber-600" />
+                        <span className="max-w-[250px] truncate" title={lok.fullPath}>
                           {lok.fullPath}
                         </span>
                         <button
                           onClick={() => removeLokalitet(lok)}
-                          className="hover:bg-black/10 rounded-full p-0.5 transition-colors"
+                          className="hover:bg-amber-200 rounded p-0.5 transition-colors"
                         >
                           <X className="w-3.5 h-3.5" />
                         </button>
