@@ -287,21 +287,21 @@ export default function PonudeModule() {
 
   const loadLokalitetData = async () => {
     try {
-      // Učitaj sve lokalitet podatke sa relacijama
+      // Učitaj sve lokalitet podatke sa ugnežđenim relacijama
       const [drzaveRes, gradoviRes, opstineRes, lokacijeRes, uliceRes] = await Promise.all([
         supabase.from('drzava').select('*').order('opis'),
-        supabase.from('grad').select('*').order('opis'),
-        supabase.from('opstina').select('*').order('opis'),
-        supabase.from('lokacija').select('*').order('opis'),
-        supabase.from('ulica').select('*').order('opis')
+        supabase.from('grad').select('*, drzava(opis)').order('opis'),
+        supabase.from('opstina').select('*, grad(opis, drzava(opis))').order('opis'),
+        supabase.from('lokacija').select('*, opstina(opis, grad(opis, drzava(opis)))').order('opis'),
+        supabase.from('ulica').select('*, lokacija(opis, opstina(opis, grad(opis, drzava(opis))))').order('opis')
       ])
       
       setLokacije(lokacijeRes.data || [])
       
-      // Kreiraj listu sa kompletnim putanjama - HaloOglasi format (Grad / Opština / Lokacija)
+      // Kreiraj listu sa kompletnim putanjama - format: Država / Grad / Opština / Lokacija
       const allLokaliteti = []
       
-      // Države - prikazuje samo naziv
+      // Države - samo naziv
       ;(drzaveRes.data || []).forEach(d => {
         allLokaliteti.push({
           id: d.id,
@@ -312,21 +312,24 @@ export default function PonudeModule() {
         })
       })
       
-      // Gradovi - prikazuje samo naziv grada
+      // Gradovi: Država / Grad
       ;(gradoviRes.data || []).forEach(g => {
+        const drzava = g.drzava?.opis || ''
+        const parts = [drzava, g.opis].filter(Boolean)
         allLokaliteti.push({
           id: g.id,
           type: 'grad',
           opis: g.opis,
-          fullPath: g.opis,
+          fullPath: parts.join(' / '),
           typeLabel: 'Grad'
         })
       })
       
-      // Opštine: Grad / Opština
+      // Opštine: Država / Grad / Opština
       ;(opstineRes.data || []).forEach(o => {
         const grad = o.grad?.opis || ''
-        const parts = [grad, `Opština ${o.opis}`].filter(Boolean)
+        const drzava = o.grad?.drzava?.opis || ''
+        const parts = [drzava, grad, o.opis].filter(Boolean)
         allLokaliteti.push({
           id: o.id,
           type: 'opstina',
@@ -336,11 +339,12 @@ export default function PonudeModule() {
         })
       })
       
-      // Lokacije: Grad / Opština / Lokacija
+      // Lokacije: Država / Grad / Opština / Lokacija
       ;(lokacijeRes.data || []).forEach(l => {
         const opstina = l.opstina?.opis || ''
         const grad = l.opstina?.grad?.opis || ''
-        const parts = [grad, `Opština ${opstina}`, l.opis].filter(Boolean)
+        const drzava = l.opstina?.grad?.drzava?.opis || ''
+        const parts = [drzava, grad, opstina, l.opis].filter(Boolean)
         allLokaliteti.push({
           id: l.id,
           type: 'lokacija',
@@ -350,12 +354,13 @@ export default function PonudeModule() {
         })
       })
       
-      // Ulice: Grad / Opština / Lokacija / Ulica
+      // Ulice: Država / Grad / Opština / Lokacija / Ulica
       ;(uliceRes.data || []).forEach(u => {
         const lokacija = u.lokacija?.opis || ''
         const opstina = u.lokacija?.opstina?.opis || ''
         const grad = u.lokacija?.opstina?.grad?.opis || ''
-        const parts = [grad, `Opština ${opstina}`, lokacija, u.opis].filter(Boolean)
+        const drzava = u.lokacija?.opstina?.grad?.drzava?.opis || ''
+        const parts = [drzava, grad, opstina, lokacija, u.opis].filter(Boolean)
         allLokaliteti.push({
           id: u.id,
           type: 'ulica',
