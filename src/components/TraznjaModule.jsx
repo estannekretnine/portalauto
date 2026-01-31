@@ -659,31 +659,6 @@ export default function TraznjaModule() {
                 </button>
               </div>
 
-              {/* Status kupca */}
-              <div className="flex gap-2">
-                {[
-                  { value: '', label: 'Svi' },
-                  { value: 'vruc', emoji: '🔥', label: 'Vruci', color: 'from-red-400 to-orange-400', borderColor: 'border-red-300' },
-                  { value: 'mlak', emoji: '🟡', label: 'Mlaki', color: 'from-yellow-400 to-amber-400', borderColor: 'border-yellow-300' },
-                  { value: 'hladan', emoji: '❄️', label: 'Hladni', color: 'from-blue-400 to-cyan-400', borderColor: 'border-blue-300' }
-                ].map(option => (
-                  <button
-                    key={option.value}
-                    onClick={() => handleFilterChange('statuskupca', option.value)}
-                    className={`py-2.5 px-3 rounded-lg text-sm font-medium transition-all flex items-center gap-1 ${
-                      filters.statuskupca === option.value
-                        ? option.value === ''
-                          ? 'bg-gray-500 text-white'
-                          : `bg-gradient-to-r ${option.color} text-white`
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {option.emoji && <span className="text-lg">{option.emoji}</span>}
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-
               {/* Lokalitet - Autocomplete */}
               <div ref={lokalitetInputRef} className="relative">
                 <div className="relative">
@@ -917,7 +892,7 @@ export default function TraznjaModule() {
               <thead>
                 <tr className="bg-gradient-to-r from-gray-900 to-black text-white">
                   <th 
-                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider w-16 cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider w-12 cursor-pointer hover:bg-white/10 transition-colors select-none"
                     onClick={() => handleSort('id')}
                   >
                     <div className="flex items-center gap-1">
@@ -928,7 +903,7 @@ export default function TraznjaModule() {
                     </div>
                   </th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
                     onClick={() => handleSort('kontaktosoba')}
                   >
                     <div className="flex items-center gap-1">
@@ -939,7 +914,7 @@ export default function TraznjaModule() {
                     </div>
                   </th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
                     onClick={() => handleSort('opstina')}
                   >
                     <div className="flex items-center gap-1">
@@ -950,7 +925,7 @@ export default function TraznjaModule() {
                     </div>
                   </th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
                     onClick={() => handleSort('lokacija')}
                   >
                     <div className="flex items-center gap-1">
@@ -961,7 +936,7 @@ export default function TraznjaModule() {
                     </div>
                   </th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
                     onClick={() => handleSort('cenado')}
                   >
                     <div className="flex items-center gap-1">
@@ -971,16 +946,15 @@ export default function TraznjaModule() {
                       )}
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">m² od</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">m² do</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Sprat od</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Sprat do</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Status kupca</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">🌡️ Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Aktivan</th>
+                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">M² OD</th>
+                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">M² DO</th>
+                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">Sprat od</th>
+                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">Sprat do</th>
+                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">Status kupca</th>
+                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
+                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">Aktivan</th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
+                    className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
                     onClick={() => handleSort('datumkreiranja')}
                   >
                     <div className="flex items-center gap-1">
@@ -990,101 +964,96 @@ export default function TraznjaModule() {
                       )}
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">UG</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">Agent</th>
-                  <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider w-10"></th>
+                  <th className="px-2 py-2 text-center text-xs font-bold uppercase tracking-wider w-10"></th>
                 </tr>
                 {/* Red sa filterima */}
                 <tr className="bg-gray-800/90">
-                  <th className="px-4 py-2">
+                  <th className="px-2 py-1">
                     <input
                       type="text"
                       value={columnFilters.id}
                       onChange={(e) => handleColumnFilterChange('id', e.target.value)}
                       placeholder="🔍"
-                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-1 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-4 py-2">
+                  <th className="px-2 py-1">
                     <input
                       type="text"
                       value={columnFilters.kontaktosoba}
                       onChange={(e) => handleColumnFilterChange('kontaktosoba', e.target.value)}
                       placeholder="🔍"
-                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-1 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-4 py-2">
+                  <th className="px-2 py-1">
                     <input
                       type="text"
                       value={columnFilters.opstina}
                       onChange={(e) => handleColumnFilterChange('opstina', e.target.value)}
                       placeholder="🔍"
-                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-1 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-4 py-2">
+                  <th className="px-2 py-1">
                     <input
                       type="text"
                       value={columnFilters.lokacija}
                       onChange={(e) => handleColumnFilterChange('lokacija', e.target.value)}
                       placeholder="🔍"
-                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-1 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-4 py-2">
+                  <th className="px-2 py-1">
                     <input
                       type="number"
                       value={columnFilters.cenado}
                       onChange={(e) => handleColumnFilterChange('cenado', e.target.value)}
                       placeholder="≤"
-                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-1 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-4 py-2">
+                  <th className="px-2 py-1">
                     <input
                       type="number"
                       value={columnFilters.kvmod}
                       onChange={(e) => handleColumnFilterChange('kvmod', e.target.value)}
-                      placeholder="od"
-                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                      placeholder="dc"
+                      className="w-full px-1 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-4 py-2">
+                  <th className="px-2 py-1">
                     <input
                       type="number"
                       value={columnFilters.kvmdo}
                       onChange={(e) => handleColumnFilterChange('kvmdo', e.target.value)}
-                      placeholder="do"
-                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                      placeholder="o"
+                      className="w-full px-1 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-4 py-2">
+                  <th className="px-2 py-1">
                     <input
                       type="number"
                       value={columnFilters.spratod}
                       onChange={(e) => handleColumnFilterChange('spratod', e.target.value)}
-                      placeholder="od"
-                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                      placeholder="o"
+                      className="w-full px-1 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-4 py-2">
+                  <th className="px-2 py-1">
                     <input
                       type="number"
                       value={columnFilters.spratdo}
                       onChange={(e) => handleColumnFilterChange('spratdo', e.target.value)}
-                      placeholder="do"
-                      className="w-full px-2 py-1.5 text-xs bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                      placeholder="d"
+                      className="w-full px-1 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                     />
                   </th>
-                  <th className="px-4 py-2"></th>
-                  <th className="px-4 py-2"></th>
-                  <th className="px-4 py-2"></th>
-                  <th className="px-4 py-2"></th>
-                  <th className="px-4 py-2"></th>
-                  <th className="px-4 py-2"></th>
-                  <th className="px-4 py-2"></th>
-                  <th className="px-4 py-2 w-10 text-center"></th>
+                  <th className="px-2 py-1"></th>
+                  <th className="px-2 py-1"></th>
+                  <th className="px-2 py-1"></th>
+                  <th className="px-2 py-1"></th>
+                  <th className="px-2 py-1 w-10 text-center"></th>
                 </tr>
               </thead>
               <tbody>
@@ -1096,72 +1065,72 @@ export default function TraznjaModule() {
                       ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}
                     `}
                   >
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center justify-center min-w-[40px] h-7 bg-gradient-to-r from-gray-900 to-black text-white text-xs font-bold rounded-lg px-2">
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <span className="inline-flex items-center justify-center min-w-[36px] h-6 bg-gradient-to-r from-gray-900 to-black text-white text-xs font-bold rounded-lg px-1.5">
                         {traznja.id}
                       </span>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl flex items-center justify-center">
-                          <Phone className="w-4 h-4 text-amber-700" />
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 bg-gradient-to-br from-amber-100 to-amber-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Phone className="w-3.5 h-3.5 text-amber-700" />
                         </div>
-                        <div>
-                          <span className="text-sm font-semibold text-gray-900 block">{traznja.kontaktosoba || '-'}</span>
+                        <div className="min-w-0">
+                          <span className="text-xs font-semibold text-gray-900 block truncate">{traznja.kontaktosoba || '-'}</span>
                           <span className="text-xs text-gray-500">{traznja.kontakttelefon || ''}</span>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-700">{traznja.opstina?.opis || '-'}</span>
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <span className="text-xs text-gray-700">{traznja.opstina?.opis || '-'}</span>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-amber-500" />
-                        <span className="text-sm font-medium text-gray-700">{traznja.lokacija?.opis || '-'}</span>
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <div className="flex items-center gap-1">
+                        <MapPin className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                        <span className="text-xs font-medium text-gray-700 truncate max-w-[100px]">{traznja.lokacija?.opis || '-'}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-1.5">
-                        <Euro className="w-4 h-4 text-amber-600" />
-                        <span className="text-sm font-bold text-gray-900">{traznja.cenado ? new Intl.NumberFormat('sr-RS').format(traznja.cenado) : '-'}</span>
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <div className="flex items-center gap-1">
+                        <Euro className="w-3.5 h-3.5 text-amber-600" />
+                        <span className="text-xs font-bold text-gray-900">{traznja.cenado ? new Intl.NumberFormat('sr-RS').format(traznja.cenado) : '-'}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-1.5">
-                        <Ruler className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-700">
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <div className="flex items-center gap-1">
+                        <Ruler className="w-3 h-3 text-gray-400" />
+                        <span className="text-xs text-gray-700">
                           {traznja.kvadraturaod || '?'}
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-1.5">
-                        <Ruler className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-700">
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <div className="flex items-center gap-1">
+                        <Ruler className="w-3 h-3 text-gray-400" />
+                        <span className="text-xs text-gray-700">
                           {traznja.kvadraturado || '?'}
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-1.5">
-                        <Building2 className="w-4 h-4 text-slate-500" />
-                        <span className="text-sm text-gray-700">
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <div className="flex items-center gap-1">
+                        <Building2 className="w-3 h-3 text-slate-500" />
+                        <span className="text-xs text-gray-700">
                           {traznja.spratod || '?'}
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-1.5">
-                        <Building2 className="w-4 h-4 text-slate-500" />
-                        <span className="text-sm text-gray-700">
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <div className="flex items-center gap-1">
+                        <Building2 className="w-3 h-3 text-slate-500" />
+                        <span className="text-xs text-gray-700">
                           {traznja.spratdo || '?'}
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
+                    <td className="px-2 py-2 whitespace-nowrap">
                       {traznja.statuskupca ? (
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white ${
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold text-white ${
                           traznja.statuskupca === 'vruc'
                             ? 'bg-gradient-to-r from-red-400 to-orange-400'
                             : traznja.statuskupca === 'mlak'
@@ -1170,14 +1139,14 @@ export default function TraznjaModule() {
                             ? 'bg-gradient-to-r from-blue-400 to-cyan-400'
                             : 'bg-gray-300'
                         }`}>
-                          {traznja.statuskupca === 'vruc' ? '🔥 Vruci' : traznja.statuskupca === 'mlak' ? '🟡 Mlaki' : traznja.statuskupca === 'hladan' ? '❄️ Hladni' : '-'}
+                          {traznja.statuskupca === 'vruc' ? '🔥' : traznja.statuskupca === 'mlak' ? '🟡' : traznja.statuskupca === 'hladan' ? '❄️' : '-'}
                         </span>
                       ) : (
                         <span className="text-gray-400 text-xs">-</span>
                       )}
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold ${
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-bold ${
                         traznja.stskupaczakupac === 'kupac'
                           ? 'bg-blue-100 text-blue-800'
                           : traznja.stskupaczakupac === 'zakupac'
@@ -1187,29 +1156,14 @@ export default function TraznjaModule() {
                         {traznja.stskupaczakupac === 'kupac' ? '🏠 Kupac' : traznja.stskupaczakupac === 'zakupac' ? '🔑 Zakupac' : '-'}
                       </span>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold ${
-                        traznja.statuskupca === 'hladan'
-                          ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                          : traznja.statuskupca === 'mlak'
-                          ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                          : traznja.statuskupca === 'vruc'
-                          ? 'bg-red-100 text-red-800 border border-red-200'
-                          : 'bg-gray-100 text-gray-500 border border-gray-200'
-                      }`}>
-                        {traznja.statuskupca === 'hladan' ? '🥶 Hladan' : 
-                         traznja.statuskupca === 'mlak' ? '😐 Mlak' : 
-                         traznja.statuskupca === 'vruc' ? '🔥 Vruć' : '⚪ -'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="flex flex-col gap-1">
-                        <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <div className="flex flex-col gap-0.5">
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold ${
                           traznja.stsaktivan
                             ? 'bg-emerald-100 text-emerald-800'
                             : 'bg-gray-200 text-gray-600'
                         }`}>
-                          <span className={`w-2 h-2 rounded-full ${traznja.stsaktivan ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
+                          <span className={`w-1.5 h-1.5 rounded-full ${traznja.stsaktivan ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
                           {traznja.stsaktivan ? 'Aktivna' : 'Neaktivna'}
                         </span>
                         {/* Prikaz datuma brisanja za neaktivne */}
@@ -1220,43 +1174,20 @@ export default function TraznjaModule() {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-600">{formatDatum(traznja.datumkreiranja)}</span>
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3 text-gray-400" />
+                        <span className="text-xs text-gray-600">{formatDatum(traznja.datumkreiranja)}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-center">
-                      {traznja.metapodaci?.eop?.stsugovorpotpisan ? (
-                        <div className="inline-flex items-center justify-center w-8 h-8 bg-emerald-100 rounded-full">
-                          <span className="text-emerald-600 text-lg">✓</span>
-                        </div>
-                      ) : (
-                        <div className="inline-flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full">
-                          <span className="text-gray-400 text-lg">−</span>
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      {traznja.korisnik ? (
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center">
-                            <User className="w-3.5 h-3.5 text-purple-700" />
-                          </div>
-                          <span className="text-sm font-medium text-gray-700">{traznja.korisnik.naziv}</span>
-                        </div>
-                      ) : (
-                        <span className="text-sm text-gray-400">-</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-center">
+                    <td className="px-2 py-2 whitespace-nowrap text-center">
                       <div className="relative inline-block">
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
                             setOpenActionMenu(openActionMenu === traznja.id ? null : traznja.id)
                           }}
-                          className="inline-flex items-center justify-center w-10 h-10 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-xl transition-all"
+                          className="inline-flex items-center justify-center w-7 h-7 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg transition-all"
                         >
                           <MoreVertical className="w-5 h-5" />
                         </button>
