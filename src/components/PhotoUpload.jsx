@@ -400,7 +400,7 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
       const mimeType = base64Image.split(';')[0].split(':')[1] || 'image/jpeg'
       
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
         {
           method: 'POST',
           headers: {
@@ -474,7 +474,7 @@ Fokusiraj se na:
       }
       
       // Dodaj metapodatke
-      aiResult.model = 'gemini-1.5-flash'
+      aiResult.model = 'gemini-2.0-flash'
       aiResult.datum_generisanja = new Date().toISOString()
       
       // Ažuriraj fotografiju sa AI opisom
