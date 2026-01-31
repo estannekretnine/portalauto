@@ -1,9 +1,10 @@
-﻿import { useMemo, useState, useRef, useCallback } from 'react'
-import { Upload, X, Star, ArrowUp, ArrowDown, MapPin, Eye, Layers, Play } from 'lucide-react'
+import { useMemo, useState, useRef, useCallback } from 'react'
+import { Upload, X, Star, ArrowUp, ArrowDown, MapPin, Eye, Layers, Play, Sparkles, Loader2 } from 'lucide-react'
 import GalleryPreview from './GalleryPreview'
 
 export default function PhotoUpload({ photos = [], onPhotosChange }) {
   const [dragActive, setDragActive] = useState(false)
+  const [generatingAI, setGeneratingAI] = useState({}) // { photoId: true/false }
   const [activeSketchId, setActiveSketchId] = useState(null)
   const [selectedPhotoForLink, setSelectedPhotoForLink] = useState(null)
   const [hoveredMarker, setHoveredMarker] = useState(null)
@@ -309,6 +310,193 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
       photo.id === id ? { ...photo, skica_coords: coords } : photo
     )
     onPhotosChange(updatedPhotos)
+  }
+
+  // Funkcija za konverziju slike u base64
+  const getImageBase64 = async (photo) => {
+    // Ako je već base64 URL (data:image/...)
+    if (photo.url && photo.url.startsWith('data:')) {
+      return photo.url
+    }
+    
+    // Ako je blob URL, konvertuj u base64
+    if (photo.url && photo.url.startsWith('blob:')) {
+      return new Promise((resolve, reject) => {
+        const img = new Image()
+        img.crossOrigin = 'anonymous'
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          // Smanjujemo rezoluciju za API (max 1024px)
+          const maxSize = 1024
+          let width = img.width
+          let height = img.height
+          if (width > maxSize || height > maxSize) {
+            if (width > height) {
+              height = (height / width) * maxSize
+              width = maxSize
+            } else {
+              width = (width / height) * maxSize
+              height = maxSize
+            }
+          }
+          canvas.width = width
+          canvas.height = height
+          const ctx = canvas.getContext('2d')
+          ctx.drawImage(img, 0, 0, width, height)
+          resolve(canvas.toDataURL('image/jpeg', 0.8))
+        }
+        img.onerror = reject
+        img.src = photo.url
+      })
+    }
+    
+    // Ako ima file objekat
+    if (photo.file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result)
+        reader.onerror = reject
+        reader.readAsDataURL(photo.file)
+      })
+    }
+    
+    // Ako je HTTP URL, pokušaj fetch
+    if (photo.url && (photo.url.startsWith('http://') || photo.url.startsWith('https://'))) {
+      try {
+        const response = await fetch(photo.url)
+        const blob = await response.blob()
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = () => resolve(reader.result)
+          reader.onerror = reject
+          reader.readAsDataURL(blob)
+        })
+      } catch (error) {
+        console.error('Greška pri preuzimanju slike:', error)
+        throw error
+      }
+    }
+    
+    throw new Error('Nije moguće konvertovati sliku u base64')
+  }
+
+  // Funkcija za generisanje AI opisa fotografije korišćenjem Gemini API
+  const generateAIDescription = async (photo) => {
+    const geminiKey = import.meta.env.VITE_GEMINI_API_KEY
+    
+    if (!geminiKey) {
+      alert('Gemini API ključ nije konfigurisan. Dodajte VITE_GEMINI_API_KEY u .env fajl.')
+      return
+    }
+    
+    setGeneratingAI(prev => ({ ...prev, [photo.id]: true }))
+    
+    try {
+      // Dobij base64 sliku
+      const base64Image = await getImageBase64(photo)
+      
+      // Izvuci samo base64 deo (bez data:image/...;base64, prefiksa)
+      const base64Data = base64Image.split(',')[1]
+      const mimeType = base64Image.split(';')[0].split(':')[1] || 'image/jpeg'
+      
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                {
+                  text: `Analiziraj ovu fotografiju nekretnine i generiši strukturirani opis na srpskom jeziku.
+
+Odgovori u sledećem JSON formatu (samo JSON, bez dodatnog teksta):
+{
+  "ai_opis": "Detaljan opis fotografije u 2-3 rečenice",
+  "prostorija": "tip prostorije (npr: dnevna_soba, spavaca_soba, kupatilo, kuhinja, terasa, hodnik, garaza, dvoriste, fasada, ulaz, ostava, potkrovlje, podrum, radna_soba, trpezarija, balkon, eksterijer, detalj)",
+  "karakteristike": ["lista", "uočenih", "karakteristika"],
+  "stanje": "ocena stanja (odlično, dobro, prosečno, potrebna renovacija, loše)"
+}
+
+Fokusiraj se na:
+- Tip prostorije i namenu
+- Osvetljenje (prirodno/veštačko)
+- Podovi (parket, laminat, pločice, itd.)
+- Nameštaj i oprema
+- Opšti utisak i stanje
+- Posebne karakteristike (pogled, visina plafona, itd.)`
+                },
+                {
+                  inline_data: {
+                    mime_type: mimeType,
+                    data: base64Data
+                  }
+                }
+              ]
+            }],
+            generationConfig: {
+              temperature: 0.4,
+              maxOutputTokens: 1024
+            }
+          })
+        }
+      )
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error?.message || 'Greška pri pozivu Gemini API')
+      }
+      
+      const data = await response.json()
+      const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text
+      
+      if (!textResponse) {
+        throw new Error('Prazan odgovor od Gemini API')
+      }
+      
+      // Parsiraj JSON odgovor
+      let aiResult
+      try {
+        // Ukloni markdown code block ako postoji
+        const cleanedResponse = textResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+        aiResult = JSON.parse(cleanedResponse)
+      } catch (parseError) {
+        console.error('Greška pri parsiranju JSON odgovora:', textResponse)
+        // Ako nije validan JSON, koristi tekst kao opis
+        aiResult = {
+          ai_opis: textResponse,
+          prostorija: 'nepoznato',
+          karakteristike: [],
+          stanje: 'nepoznato'
+        }
+      }
+      
+      // Dodaj metapodatke
+      aiResult.model = 'gemini-1.5-flash'
+      aiResult.datum_generisanja = new Date().toISOString()
+      
+      // Ažuriraj fotografiju sa AI opisom
+      const updatedPhotos = photos.map(p => {
+        if (p.id === photo.id) {
+          return {
+            ...p,
+            opis: aiResult.ai_opis, // Postavi kratki opis u opis polje
+            opisfoto: aiResult // Sačuvaj ceo strukturirani opis
+          }
+        }
+        return p
+      })
+      
+      onPhotosChange(updatedPhotos)
+      
+    } catch (error) {
+      console.error('Greška pri generisanju AI opisa:', error)
+      alert(`Greška pri generisanju AI opisa: ${error.message}`)
+    } finally {
+      setGeneratingAI(prev => ({ ...prev, [photo.id]: false }))
+    }
   }
 
   // Postavi prvu skicu kao aktivnu ako nije postavljena
@@ -695,16 +883,76 @@ export default function PhotoUpload({ photos = [], onPhotosChange }) {
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Opis:
-                          </label>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="block text-sm font-medium text-gray-700">
+                              Opis:
+                            </label>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                generateAIDescription(photo)
+                              }}
+                              disabled={generatingAI[photo.id]}
+                              className="flex items-center gap-1 px-2 py-1 text-xs bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-lg hover:from-purple-600 hover:to-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow"
+                            >
+                              {generatingAI[photo.id] ? (
+                                <>
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                  Generiše se...
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="w-3 h-3" />
+                                  AI opis
+                                </>
+                              )}
+                            </button>
+                          </div>
                           <textarea
                             value={photo.opis || ''}
                             onChange={(e) => updatePhotoDescription(photo.id, e.target.value)}
-                            placeholder="Unesite opis fotografije..."
+                            placeholder="Unesite opis fotografije ili kliknite 'AI opis'..."
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
                             rows="2"
                           />
+                          {/* Prikaz AI metapodataka ako postoje */}
+                          {photo.opisfoto && (
+                            <div className="mt-2 p-2 bg-purple-50 rounded-lg border border-purple-100">
+                              <div className="flex flex-wrap gap-1 text-xs">
+                                {photo.opisfoto.prostorija && (
+                                  <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full">
+                                    {photo.opisfoto.prostorija.replace(/_/g, ' ')}
+                                  </span>
+                                )}
+                                {photo.opisfoto.stanje && (
+                                  <span className={`px-2 py-0.5 rounded-full ${
+                                    photo.opisfoto.stanje === 'odlično' ? 'bg-green-100 text-green-700' :
+                                    photo.opisfoto.stanje === 'dobro' ? 'bg-blue-100 text-blue-700' :
+                                    photo.opisfoto.stanje === 'prosečno' ? 'bg-yellow-100 text-yellow-700' :
+                                    'bg-red-100 text-red-700'
+                                  }`}>
+                                    {photo.opisfoto.stanje}
+                                  </span>
+                                )}
+                              </div>
+                              {photo.opisfoto.karakteristike && photo.opisfoto.karakteristike.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {photo.opisfoto.karakteristike.slice(0, 5).map((k, i) => (
+                                    <span key={i} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">
+                                      {k}
+                                    </span>
+                                  ))}
+                                  {photo.opisfoto.karakteristike.length > 5 && (
+                                    <span className="px-1.5 py-0.5 text-gray-400 text-xs">
+                                      +{photo.opisfoto.karakteristike.length - 5}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
 
                         <div>

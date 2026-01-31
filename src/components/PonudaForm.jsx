@@ -448,6 +448,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
           glavna: foto.glavna || false,
           stsskica: foto.stsskica || false,
           skica_coords: foto.skica_coords || '',
+          opisfoto: foto.opisfoto || null, // AI generisani strukturirani opis
           existingId: foto.id // Oznaka da je postojeća fotografija
         }))
         setPhotos(formattedPhotos)
@@ -1579,11 +1580,52 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
   }
 
   // Generisanje vektora iz opisa i detalja (za AI pretragu)
+  // Koristi Hugging Face API (besplatno) - model: all-MiniLM-L6-v2 (384 dimenzije)
   const generateVector = async (text) => {
+    try {
+      const hfKey = import.meta.env.VITE_HUGGINGFACE_API_KEY
+      if (!hfKey) {
+        console.warn('Hugging Face API ključ nije konfigurisan - vektor neće biti generisan')
+        return null
+      }
+
+      const response = await fetch(
+        'https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${hfKey}`
+          },
+          body: JSON.stringify({
+            inputs: text.slice(0, 8000), // Ograniči tekst na 8000 karaktera
+            options: {
+              wait_for_model: true
+            }
+          })
+        }
+      )
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Hugging Face API greška:', errorData)
+        return null
+      }
+
+      const data = await response.json()
+      // HF vraća niz embedding-a, uzimamo prvi
+      return Array.isArray(data[0]) ? data[0] : data
+    } catch (error) {
+      console.error('Greška pri generisanju embedding-a:', error)
+      return null
+    }
+  }
+
+  // Fallback na OpenAI za generisanje vektora (za kompatibilnost)
+  const generateVectorOpenAI = async (text) => {
     try {
       const openaiKey = import.meta.env.VITE_OPENAI_API_KEY
       if (!openaiKey) {
-        console.warn('OpenAI API ključ nije konfigurisan - vektor neće biti generisan')
         return null
       }
 
@@ -1595,7 +1637,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
         },
         body: JSON.stringify({
           model: 'text-embedding-3-small',
-          input: text.slice(0, 8000) // Ograniči tekst na 8000 karaktera
+          input: text.slice(0, 8000)
         })
       })
 
@@ -1608,7 +1650,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
       const data = await response.json()
       return data.data[0].embedding
     } catch (error) {
-      console.error('Greška pri generisanju embedding-a:', error)
+      console.error('Greška pri generisanju OpenAI embedding-a:', error)
       return null
     }
   }
@@ -1764,9 +1806,16 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
         JSON.stringify(aiKarakteristike)
       ].filter(Boolean).join(' ')
       
-      const vector = await generateVector(vectorText)
-      if (vector) {
-        ponudaData.vektor = vector
+      // Generiši Hugging Face vektor (384 dim) - besplatno
+      const vectorHF = await generateVector(vectorText)
+      if (vectorHF) {
+        ponudaData.vektor_hf = vectorHF
+      }
+      
+      // Opciono: generiši i OpenAI vektor (1536 dim) za kompatibilnost
+      const vectorOpenAI = await generateVectorOpenAI(vectorText)
+      if (vectorOpenAI) {
+        ponudaData.vektor = vectorOpenAI
       }
 
       let savedPonuda
@@ -1820,17 +1869,28 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
 
         // Ažuriraj postojeće fotografije
         for (const photo of photos.filter(p => p.existingId)) {
+          const updateData = {
+            datumpromene: new Date().toISOString(),
+            opis: photo.opis || null,
+            redosled: photo.redosled || null,
+            glavna: photo.glavna || false,
+            stsskica: photo.stsskica || false,
+            skica_segment: photo.skica_segment || null,
+            skica_coords: photo.skica_coords || null,
+            opisfoto: photo.opisfoto || null
+          }
+          
+          // Generiši vektor za AI opis fotografije (za pretragu po fotografijama)
+          if (photo.opisfoto?.ai_opis) {
+            const photoVector = await generateVector(photo.opisfoto.ai_opis)
+            if (photoVector) {
+              updateData.vektor_opisa = photoVector
+            }
+          }
+          
           await supabase
             .from('ponudafoto')
-            .update({
-              datumpromene: new Date().toISOString(),
-              opis: photo.opis || null,
-              redosled: photo.redosled || null,
-              glavna: photo.glavna || false,
-              stsskica: photo.stsskica || false,
-              skica_segment: photo.skica_segment || null,
-              skica_coords: photo.skica_coords || null
-            })
+            .update(updateData)
             .eq('id', photo.existingId)
         }
 
@@ -1840,7 +1900,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
           const newPhotosData = await Promise.all(
             newPhotos.map(async (photo) => {
               const url = await convertFileToBase64(photo.file)
-              return {
+              const photoData = {
                 datumpromene: new Date().toISOString(),
                 idponude: savedPonuda.id,
                 url: url,
@@ -1849,8 +1909,19 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                 glavna: photo.glavna || false,
                 stsskica: photo.stsskica || false,
                 skica_segment: photo.skica_segment || null,
-                skica_coords: photo.skica_coords || null
+                skica_coords: photo.skica_coords || null,
+                opisfoto: photo.opisfoto || null
               }
+              
+              // Generiši vektor za AI opis fotografije
+              if (photo.opisfoto?.ai_opis) {
+                const photoVector = await generateVector(photo.opisfoto.ai_opis)
+                if (photoVector) {
+                  photoData.vektor_opisa = photoVector
+                }
+              }
+              
+              return photoData
             })
           )
 
@@ -1871,7 +1942,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                 url = await convertFileToBase64(photo.file)
               }
 
-              return {
+              const photoData = {
                 datumpromene: new Date().toISOString(),
                 idponude: savedPonuda.id,
                 url: url,
@@ -1880,8 +1951,19 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                 glavna: photo.glavna || false,
                 stsskica: photo.stsskica || false,
                 skica_segment: photo.skica_segment || null,
-                skica_coords: photo.skica_coords || null
+                skica_coords: photo.skica_coords || null,
+                opisfoto: photo.opisfoto || null
               }
+              
+              // Generiši vektor za AI opis fotografije
+              if (photo.opisfoto?.ai_opis) {
+                const photoVector = await generateVector(photo.opisfoto.ai_opis)
+                if (photoVector) {
+                  photoData.vektor_opisa = photoVector
+                }
+              }
+              
+              return photoData
             })
           )
 

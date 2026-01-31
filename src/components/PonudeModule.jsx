@@ -89,6 +89,7 @@ export default function PonudeModule() {
   const [aiSearchQuery, setAiSearchQuery] = useState('')
   const [aiSearchLoading, setAiSearchLoading] = useState(false)
   const [aiSearchResults, setAiSearchResults] = useState(null) // null = nije pretraženo, [] = nema rezultata
+  const [aiSearchType, setAiSearchType] = useState('combined') // 'ponude', 'photos', 'combined'
 
   useEffect(() => {
     loadVrsteObjekata()
@@ -96,12 +97,53 @@ export default function PonudeModule() {
     loadPonude()
   }, [])
 
-  // Funkcija za generisanje embedding vektora putem OpenAI API
+  // Funkcija za generisanje embedding vektora putem Hugging Face API (besplatno)
+  // Model: sentence-transformers/all-MiniLM-L6-v2 - 384 dimenzije
   const generateEmbedding = async (text) => {
+    try {
+      const hfKey = import.meta.env.VITE_HUGGINGFACE_API_KEY
+      if (!hfKey) {
+        console.error('Hugging Face API ključ nije konfigurisan')
+        return null
+      }
+
+      const response = await fetch(
+        'https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${hfKey}`
+          },
+          body: JSON.stringify({
+            inputs: text,
+            options: {
+              wait_for_model: true
+            }
+          })
+        }
+      )
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Greška pri generisanju embedding-a')
+      }
+
+      const data = await response.json()
+      // HF vraća niz embedding-a, uzimamo prvi (ili mean pooling ako je više)
+      // Za sentence-transformers model, vraća direktno vektor
+      return Array.isArray(data[0]) ? data[0] : data
+    } catch (error) {
+      console.error('Greška pri generisanju embedding-a:', error)
+      return null
+    }
+  }
+
+  // Fallback na OpenAI ako je konfigurisan (za kompatibilnost sa postojećim vektorima)
+  const generateEmbeddingOpenAI = async (text) => {
     try {
       const openaiKey = import.meta.env.VITE_OPENAI_API_KEY
       if (!openaiKey) {
-        console.error('OpenAI API ključ nije konfigurisan')
         return null
       }
 
@@ -125,12 +167,13 @@ export default function PonudeModule() {
       const data = await response.json()
       return data.data[0].embedding
     } catch (error) {
-      console.error('Greška pri generisanju embedding-a:', error)
+      console.error('Greška pri generisanju OpenAI embedding-a:', error)
       return null
     }
   }
 
   // AI pretraga - semantička pretraga po vektoru
+  // Podržava i Hugging Face (384 dim) i OpenAI (1536 dim) vektore
   const handleAISearch = async () => {
     if (!aiSearchQuery.trim()) {
       alert('Molimo unesite tekst za pretragu')
@@ -139,27 +182,44 @@ export default function PonudeModule() {
 
     setAiSearchLoading(true)
     try {
-      // Generiši embedding za upit
-      const queryEmbedding = await generateEmbedding(aiSearchQuery)
+      // Prvo pokušaj sa Hugging Face (besplatno)
+      let queryEmbedding = await generateEmbedding(aiSearchQuery)
+      let useHF = true
+      
+      // Ako HF nije konfigurisan, pokušaj sa OpenAI
+      if (!queryEmbedding) {
+        queryEmbedding = await generateEmbeddingOpenAI(aiSearchQuery)
+        useHF = false
+      }
       
       if (!queryEmbedding) {
-        alert('Greška pri obradi upita. Proverite da li je OpenAI API ključ konfigurisan.')
+        alert('Greška pri obradi upita. Proverite da li je Hugging Face ili OpenAI API ključ konfigurisan.')
         setAiSearchLoading(false)
         return
       }
 
-      // Pozovi Supabase RPC funkciju za vektorsku pretragu
-      const { data, error } = await supabase.rpc('match_ponude', {
+      // Odaberi RPC funkciju na osnovu tipa pretrage
+      let rpcFunction
+      if (aiSearchType === 'photos') {
+        rpcFunction = 'match_ponude_by_photos'
+      } else if (aiSearchType === 'combined') {
+        rpcFunction = 'match_ponude_combined'
+      } else {
+        // 'ponude' - standardna pretraga
+        rpcFunction = useHF ? 'match_ponude_hf' : 'match_ponude'
+      }
+      
+      const { data, error } = await supabase.rpc(rpcFunction, {
         query_embedding: queryEmbedding,
-        match_threshold: 0.5,
+        match_threshold: aiSearchType === 'combined' ? 0.4 : 0.5,
         match_count: 50
       })
 
       if (error) {
         // Ako RPC funkcija ne postoji, prikaži uputstvo
         if (error.message.includes('function') || error.code === '42883') {
-          alert('AI pretraga nije još konfigurisana u bazi. Potrebno je pokrenuti SQL skriptu za kreiranje funkcije match_ponude.')
-          console.error('Potrebno je kreirati RPC funkciju match_ponude u Supabase')
+          alert(`AI pretraga nije još konfigurisana u bazi. Potrebno je pokrenuti SQL skriptu za kreiranje funkcije ${rpcFunction}.`)
+          console.error(`Potrebno je kreirati RPC funkciju ${rpcFunction} u Supabase`)
         } else {
           throw error
         }
@@ -985,6 +1045,53 @@ export default function PonudeModule() {
                 <div className="absolute bottom-3 right-3 text-xs text-gray-400">
                   {aiSearchQuery.length} karaktera
                 </div>
+              </div>
+
+              {/* Tip pretrage */}
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tip pretrage:
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setAiSearchType('combined')}
+                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                      aiSearchType === 'combined'
+                        ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Kombinovano (preporučeno)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAiSearchType('ponude')}
+                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                      aiSearchType === 'ponude'
+                        ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Samo opisi ponuda
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAiSearchType('photos')}
+                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                      aiSearchType === 'photos'
+                        ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Samo fotografije
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  {aiSearchType === 'combined' && 'Pretražuje i opise ponuda i AI opise fotografija za najbolje rezultate.'}
+                  {aiSearchType === 'ponude' && 'Pretražuje samo tekstualne opise i karakteristike ponuda.'}
+                  {aiSearchType === 'photos' && 'Pretražuje samo AI generisane opise fotografija (npr. "pogled na reku", "moderna kuhinja").'}
+                </p>
               </div>
 
               {/* Info poruka */}
