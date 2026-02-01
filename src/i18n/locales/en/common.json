@@ -107,5 +107,25 @@
     "sr": "Serbian",
     "en": "English",
     "selectLanguage": "Select language"
+  },
+  "login": {
+    "welcome": "Welcome back",
+    "subtitle": "Sign in to your admin panel",
+    "email": "Email address",
+    "emailPlaceholder": "your@email.com",
+    "password": "Password",
+    "submit": "Sign in",
+    "submitting": "Signing in...",
+    "or": "or",
+    "noAccount": "Don't have an account?",
+    "contactAdmin": "Contact administrator at",
+    "hero": {
+      "title1": "Find your",
+      "title2": "perfect home",
+      "description": "Exclusive offer of premium properties. Professional service, transparency and dedication to every client.",
+      "properties": "Properties",
+      "experience": "Years of experience",
+      "satisfaction": "Satisfied clients"
+    }
   }
 }

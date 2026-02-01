@@ -79,12 +79,11 @@ export default function Login() {
           {/* Središnji tekst */}
           <div className="max-w-md">
             <h1 className="text-5xl font-light leading-tight mb-6">
-              Pronađite svoj
-              <span className="block font-semibold text-amber-400">savršeni dom</span>
+              {t('login.hero.title1')}
+              <span className="block font-semibold text-amber-400">{t('login.hero.title2')}</span>
             </h1>
             <p className="text-lg text-white/70 leading-relaxed">
-              Ekskluzivna ponuda premium nekretnina. Profesionalna usluga, 
-              transparentnost i posvećenost svakom klijentu.
+              {t('login.hero.description')}
             </p>
           </div>
           
@@ -92,15 +91,15 @@ export default function Login() {
           <div className="flex gap-12">
             <div>
               <div className="text-4xl font-bold text-amber-400">500+</div>
-              <div className="text-sm text-white/60 mt-1">Nekretnina</div>
+              <div className="text-sm text-white/60 mt-1">{t('login.hero.properties')}</div>
             </div>
             <div>
               <div className="text-4xl font-bold text-amber-400">15+</div>
-              <div className="text-sm text-white/60 mt-1">Godina iskustva</div>
+              <div className="text-sm text-white/60 mt-1">{t('login.hero.experience')}</div>
             </div>
             <div>
               <div className="text-4xl font-bold text-amber-400">98%</div>
-              <div className="text-sm text-white/60 mt-1">Zadovoljnih klijenata</div>
+              <div className="text-sm text-white/60 mt-1">{t('login.hero.satisfaction')}</div>
             </div>
           </div>
         </div>
@@ -123,10 +122,10 @@ export default function Login() {
           {/* Naslov */}
           <div className="mb-8">
             <h1 className="text-3xl font-light text-stone-900 mb-2">
-              Dobrodošli nazad
+              {t('login.welcome')}
             </h1>
             <p className="text-stone-500">
-              Prijavite se na vaš admin panel
+              {t('login.subtitle')}
             </p>
           </div>
 
@@ -134,7 +133,7 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-stone-700 mb-2">
-                Email adresa
+                {t('login.email')}
               </label>
               <div className="relative">
                 <input
@@ -144,14 +143,14 @@ export default function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="w-full px-4 py-3.5 bg-white border border-stone-200 rounded-lg text-stone-900 placeholder-stone-400 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
-                  placeholder="vas@email.com"
+                  placeholder={t('login.emailPlaceholder')}
                 />
               </div>
             </div>
             
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-stone-700 mb-2">
-                Lozinka
+                {t('login.password')}
               </label>
               <div className="relative">
                 <input
@@ -180,11 +179,11 @@ export default function Login() {
               {loading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  Prijavljivanje...
+                  {t('login.submitting')}
                 </>
               ) : (
                 <>
-                  Prijavi se
+                  {t('login.submit')}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
@@ -194,15 +193,15 @@ export default function Login() {
           {/* Divider */}
           <div className="my-8 flex items-center gap-4">
             <div className="flex-1 h-px bg-stone-200"></div>
-            <span className="text-xs text-stone-400 uppercase tracking-wider">ili</span>
+            <span className="text-xs text-stone-400 uppercase tracking-wider">{t('login.or')}</span>
             <div className="flex-1 h-px bg-stone-200"></div>
           </div>
 
           {/* Kontakt info */}
           <div className="text-center">
-            <p className="text-sm text-stone-500 mb-2">Nemate nalog?</p>
+            <p className="text-sm text-stone-500 mb-2">{t('login.noAccount')}</p>
             <p className="text-sm text-stone-600">
-              Kontaktirajte administratora na{' '}
+              {t('login.contactAdmin')}{' '}
               <a href="mailto:admin@nekretnine.rs" className="text-amber-600 hover:text-amber-700 font-medium">
                 admin@nekretnine.rs
               </a>

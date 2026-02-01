@@ -107,5 +107,25 @@
     "sr": "Srpski",
     "en": "English",
     "selectLanguage": "Izaberite jezik"
+  },
+  "login": {
+    "welcome": "Dobrodošli nazad",
+    "subtitle": "Prijavite se na vaš admin panel",
+    "email": "Email adresa",
+    "emailPlaceholder": "vas@email.com",
+    "password": "Lozinka",
+    "submit": "Prijavi se",
+    "submitting": "Prijavljivanje...",
+    "or": "ili",
+    "noAccount": "Nemate nalog?",
+    "contactAdmin": "Kontaktirajte administratora na",
+    "hero": {
+      "title1": "Pronađite svoj",
+      "title2": "savršeni dom",
+      "description": "Ekskluzivna ponuda premium nekretnina. Profesionalna usluga, transparentnost i posvećenost svakom klijentu.",
+      "properties": "Nekretnina",
+      "experience": "Godina iskustva",
+      "satisfaction": "Zadovoljnih klijenata"
+    }
   }
 }
