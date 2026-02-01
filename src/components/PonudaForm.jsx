@@ -2021,10 +2021,10 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-white">
-                {isEditing ? 'Izmena ponude' : 'Dodaj novu ponudu'}
+                {isEditing ? t('editTitle') : t('addNew')}
               </h2>
               <p className="text-gray-400 text-sm">
-                {isEditing ? `ID: ${ponuda.id}` : 'Unesite podatke o nekretnini'}
+                {isEditing ? `ID: ${ponuda.id}` : t('subtitle')}
               </p>
             </div>
           </div>
@@ -2075,7 +2075,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                 <span className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/25">
                   <Info className="w-5 h-5 text-white" />
                 </span>
-              Osnovne informacije
+              {t('form.osnovneInfo')}
             </h3>
               <div className={`w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center transition-transform duration-300 ${openSections.osnovne ? 'rotate-180' : ''}`}>
                 <ChevronDown className="w-5 h-5 text-amber-400" />
@@ -2089,7 +2089,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
             <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
               <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
                 <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">🏠</span>
-                Tip nekretnine
+                {t('form.tipNekretnine')}
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
@@ -2134,7 +2134,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
             <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
               <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
                 <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">📍</span>
-                Lokacija
+                {t('form.lokacija')}
               </h4>
               
               <div className="space-y-3">
@@ -2335,7 +2335,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
             <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
               <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
                 <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">💰</span>
-                Cena i površina
+                {t('form.cenaIPovrsina')}
               </h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {fieldsBySection.osnovne.map(field => (

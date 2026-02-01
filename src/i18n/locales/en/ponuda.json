@@ -26,7 +26,12 @@
     "kvadraturaOd": "Area from (m²)",
     "kvadraturaDo": "Area to (m²)",
     "strukturaOd": "Structure from",
-    "strukturaDo": "Structure to"
+    "strukturaDo": "Structure to",
+    "osnovneInfo": "Basic information",
+    "tipNekretnine": "Property type",
+    "cenaIPovrsina": "Price and area",
+    "status": "Status",
+    "datumPrijema": "Date received"
   },
   "status": {
     "title": "Status",

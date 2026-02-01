@@ -26,7 +26,12 @@
     "kvadraturaOd": "Kvadratura od (m²)",
     "kvadraturaDo": "Kvadratura do (m²)",
     "strukturaOd": "Struktura od",
-    "strukturaDo": "Struktura do"
+    "strukturaDo": "Struktura do",
+    "osnovneInfo": "Osnovne informacije",
+    "tipNekretnine": "Tip nekretnine",
+    "cenaIPovrsina": "Cena i površina",
+    "status": "Status",
+    "datumPrijema": "Datum prijema"
   },
   "status": {
     "title": "Status",
