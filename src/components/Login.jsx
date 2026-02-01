@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react'
 import { login } from '../utils/auth'
 import { useNavigate } from 'react-router-dom'
 import { Building2, Lock, Mail, ArrowRight, MapPin } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export default function Login() {
+  const { t, i18n } = useTranslation('common')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -207,9 +209,31 @@ export default function Login() {
             </p>
           </div>
 
-          {/* Build Info */}
-          {buildInfo && (
-            <div className="mt-10 pt-6 border-t border-stone-200">
+          {/* Language Switcher & Build Info */}
+          <div className="mt-10 pt-6 border-t border-stone-200">
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <button
+                onClick={() => i18n.changeLanguage('sr')}
+                className={`text-sm px-3 py-1.5 rounded-md transition-all ${
+                  i18n.language === 'sr'
+                    ? 'bg-stone-900 text-white'
+                    : 'text-stone-500 hover:text-stone-700 hover:bg-stone-100'
+                }`}
+              >
+                🇷🇸 Srpski
+              </button>
+              <button
+                onClick={() => i18n.changeLanguage('en')}
+                className={`text-sm px-3 py-1.5 rounded-md transition-all ${
+                  i18n.language === 'en'
+                    ? 'bg-stone-900 text-white'
+                    : 'text-stone-500 hover:text-stone-700 hover:bg-stone-100'
+                }`}
+              >
+                🇬🇧 English
+              </button>
+            </div>
+            {buildInfo && (
               <div className="flex items-center justify-center gap-3 text-xs text-stone-400">
                 <span className="font-medium">v{buildInfo.version}</span>
                 <span className="w-1 h-1 bg-stone-300 rounded-full"></span>
@@ -234,8 +258,8 @@ export default function Login() {
                   })()}
                 </span>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>

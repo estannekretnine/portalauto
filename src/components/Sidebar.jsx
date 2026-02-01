@@ -292,11 +292,6 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
           </div>
         )}
 
-        {/* Language Switcher */}
-        <div className={`px-5 pb-4 ${collapsed ? 'flex justify-center' : ''}`}>
-          <LanguageSwitcher collapsed={collapsed} />
-        </div>
-
         {/* Divider */}
         <div className="px-5 mb-2">
           <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
@@ -439,20 +434,24 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
           </ul>
         </nav>
 
-        {/* Logout button */}
-        {onLogout && (
-          <div className="p-6 border-t border-white/5">
+        {/* Footer: Language & Logout */}
+        <div className="p-4 border-t border-white/5">
+          {/* Language Switcher - subtle */}
+          <LanguageSwitcher collapsed={collapsed} />
+          
+          {/* Logout button */}
+          {onLogout && (
             <button
               onClick={onLogout}
-              className={`w-full flex items-center ${collapsed ? 'justify-center' : ''} gap-3 px-4 py-4 rounded-2xl text-gray-400 hover:bg-red-500/10 hover:text-red-400 border border-transparent hover:border-red-500/20 transition-all duration-300`}
+              className={`w-full flex items-center ${collapsed ? 'justify-center' : ''} gap-3 px-4 py-3 mt-3 rounded-xl text-gray-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200`}
               title={collapsed ? t('common:actions.logout') : undefined}
               type="button"
             >
               <LogOut className="w-4 h-4" aria-hidden="true" />
-              {!collapsed && <span className="font-medium">{t('common:actions.logout')}</span>}
+              {!collapsed && <span className="text-sm">{t('common:actions.logout')}</span>}
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </aside>
 
       {/* Overlay for mobile */}
