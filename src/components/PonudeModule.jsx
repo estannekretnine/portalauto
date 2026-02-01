@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
 import { Search, X, Grid, List, Image as ImageIcon, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Building2, Euro, Pencil, Archive, ArchiveRestore, XCircle, MoreVertical, Sparkles, Brain, Loader2, Phone } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import PonudaForm from './PonudaForm'
 import PonudaDetaljiForm from './PonudaDetaljiForm'
 
 export default function PonudeModule() {
+  const { t } = useTranslation(['ponuda', 'common'])
   console.log('🔵 PonudeModule montiran')
   const [ponude, setPonude] = useState([])
   const [vrsteObjekata, setVrsteObjekata] = useState([])
@@ -669,7 +671,7 @@ export default function PonudeModule() {
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-4">
           <div className="w-14 h-14 border-4 border-gray-200 border-t-amber-500 rounded-full animate-spin"></div>
-          <p className="text-gray-600 font-medium">Učitavanje ponuda...</p>
+          <p className="text-gray-600 font-medium">{t('common:status.loading')}</p>
         </div>
       </div>
     )
@@ -919,8 +921,8 @@ export default function PonudeModule() {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Ponude</h2>
-            <p className="text-gray-500 text-sm mt-1">Upravljanje nekretninama</p>
+            <h2 className="text-3xl font-bold text-gray-900 tracking-tight">{t('title')}</h2>
+            <p className="text-gray-500 text-sm mt-1">{t('subtitle')}</p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <button
@@ -928,7 +930,7 @@ export default function PonudeModule() {
               className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg shadow-amber-500/25 font-semibold text-sm"
             >
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Dodaj</span>
+              <span className="hidden sm:inline">{t('addNewShort')}</span>
             </button>
             <button
               onClick={() => setShowAISearch(true)}
@@ -999,8 +1001,8 @@ export default function PonudeModule() {
                   <Brain className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">AI Pretraga</h3>
-                  <p className="text-purple-200 text-xs">Opišite šta tražite prirodnim jezikom</p>
+                  <h3 className="text-lg font-bold text-white">{t('ai.title')}</h3>
+                  <p className="text-purple-200 text-xs">{t('ai.placeholder')}</p>
                 </div>
               </div>
               <button

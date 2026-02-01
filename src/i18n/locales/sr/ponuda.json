@@ -1,7 +1,8 @@
 {
   "title": "Ponude",
   "subtitle": "Upravljanje ponudama nekretnina",
-  "addNew": "Nova ponuda",
+  "addNew": "Dodaj ponudu",
+  "addNewShort": "Dodaj",
   "editTitle": "Izmena ponude",
   "form": {
     "naslov": "Naslov",
@@ -18,19 +19,31 @@
     "lokacija": "Lokacija",
     "ulica": "Ulica",
     "brojUlice": "Broj",
-    "napomena": "Napomena"
+    "napomena": "Napomena",
+    "lokacijaPlaceholder": "Unesite lokaciju (država, grad, opština, lokacija, ulica)",
+    "cenaOd": "Cena od",
+    "cenaDo": "Cena do",
+    "kvadraturaOd": "Kvadratura od (m²)",
+    "kvadraturaDo": "Kvadratura do (m²)",
+    "strukturaOd": "Struktura od",
+    "strukturaDo": "Struktura do"
   },
   "status": {
     "title": "Status",
     "aktivna": "Aktivna",
+    "aktivne": "Aktivne",
+    "neaktivne": "Neaktivne",
     "rezervisana": "Rezervisana",
     "prodata": "Prodata",
-    "arhivirana": "Arhivirana"
+    "arhivirana": "Arhivirana",
+    "storno": "Storno",
+    "sve": "Sve"
   },
   "tip": {
     "title": "Tip ponude",
     "prodaja": "Prodaja",
-    "izdavanje": "Izdavanje"
+    "izdavanje": "Izdavanje",
+    "renta": "Renta"
   },
   "table": {
     "id": "ID",
@@ -41,15 +54,70 @@
     "sprat": "Sprat",
     "sobe": "Sobe",
     "status": "Status",
-    "datum": "Datum"
+    "datum": "Datum",
+    "vrsta": "Vrsta",
+    "opstina": "Opština",
+    "ulica": "Ulica",
+    "struktura": "Struktura"
   },
   "filters": {
     "title": "Filteri",
+    "search": "Pretraga ponuda",
     "prodaja": "Prodaja",
-    "izdavanje": "Izdavanje"
+    "izdavanje": "Izdavanje",
+    "reset": "Resetuj filtere",
+    "showResults": "Prikaži ponude",
+    "searching": "Pretražujem..."
+  },
+  "archive": {
+    "title": "Razlog arhiviranja",
+    "subtitle": "Izaberite razlog arhiviranja ponude",
+    "soldAgency": "Prodat - Agencija",
+    "soldAgencyDesc": "Prodat preko naše agencije",
+    "sold": "Prodat",
+    "soldDesc": "Samostalno ili preko druge agencije",
+    "withdrawn": "Povučen",
+    "withdrawnDesc": "Vlasnik povukao ponudu",
+    "cancelled": "Odustali",
+    "cancelledDesc": "Kupac/vlasnik odustao",
+    "badPapers": "Nisu dobri papiri",
+    "badPapersDesc": "Problem sa dokumentacijom",
+    "legalization": "Legalizacija",
+    "legalizationDesc": "Potrebna legalizacija objekta",
+    "wrongNumber": "Pogrešan broj",
+    "wrongNumberDesc": "Neispravan kontakt telefon",
+    "nonexistentNumber": "Nepostojeći broj",
+    "nonexistentNumberDesc": "Broj telefona ne postoji",
+    "unavailable": "Nedostupan",
+    "unavailableDesc": "Vlasnik nedostupan",
+    "other": "Drugo",
+    "otherDesc": "Ostali razlozi",
+    "confirm": "Arhiviraj ponudu",
+    "cancel": "Otkaži"
+  },
+  "actions": {
+    "edit": "Izmeni",
+    "details": "Detalji",
+    "archive": "Arhiviraj",
+    "unarchive": "Dearhiviraj"
   },
   "messages": {
     "saveSuccess": "Ponuda uspešno sačuvana",
-    "deleteSuccess": "Ponuda uspešno obrisana"
+    "deleteSuccess": "Ponuda uspešno obrisana",
+    "archiveSuccess": "Ponuda arhivirana",
+    "unarchiveSuccess": "Ponuda dearhivirana",
+    "noResults": "Nema ponuda",
+    "noResultsDesc": "Nema ponuda koje odgovaraju vašim kriterijumima."
+  },
+  "pagination": {
+    "total": "Ukupno",
+    "offers": "ponuda"
+  },
+  "ai": {
+    "title": "AI Pretraga",
+    "placeholder": "Opišite šta tražite...",
+    "search": "Pretraži",
+    "searching": "Pretražujem...",
+    "noResults": "Nema rezultata"
   }
 }

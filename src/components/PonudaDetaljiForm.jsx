@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../utils/supabase'
 import { X, Phone, Save, Loader2, Home, User, MessageSquare, CheckCircle, UserPlus, Users, MapPin, Euro, Ruler, Building2, Brain, Tv } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { getCurrentUser } from '../utils/auth'
 
 export default function PonudaDetaljiForm({ ponuda, onClose, onSuccess }) {
+  const { t } = useTranslation(['ponuda', 'common'])
   const [loading, setLoading] = useState(false)
   const [searchingKupac, setSearchingKupac] = useState(false)
   const [kupacStatus, setKupacStatus] = useState(null) // 'novi' | 'stari' | null

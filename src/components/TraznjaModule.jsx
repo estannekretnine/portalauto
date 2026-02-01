@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { supabase } from '../utils/supabase'
 import { Search, X, MapPin, Home, Ruler, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Filter, RotateCcw, Euro, Pencil, Archive, ArchiveRestore, MoreVertical, Phone, Calendar, FileText, User, Building2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import TraznjaForm from './TraznjaForm'
 
 export default function TraznjaModule() {
+  const { t } = useTranslation(['traznja', 'common'])
   console.log('🔵 TraznjaModule montiran')
   const [traznje, setTraznje] = useState([])
   const [loading, setLoading] = useState(true)
@@ -490,7 +492,7 @@ export default function TraznjaModule() {
 
   // Arhiviraj tražnju (postavi stsaktivan na false)
   const handleArhiviraj = async (traznjaId) => {
-    if (!confirm('Da li želite da arhivirate ovu tražnju?')) return
+    if (!confirm(t('messages.archiveConfirm'))) return
     
     try {
       const { error } = await supabase
@@ -506,14 +508,14 @@ export default function TraznjaModule() {
       loadTraznje()
       setOpenActionMenu(null)
     } catch (error) {
-      console.error('Greška pri arhiviranju:', error)
-      alert('Greška pri arhiviranju tražnje: ' + error.message)
+      console.error('Error archiving:', error)
+      alert(t('messages.archiveError') + ': ' + error.message)
     }
   }
 
   // Dearhiviraj tražnju (postavi stsaktivan na true)
   const handleDearhiviraj = async (traznjaId) => {
-    if (!confirm('Da li želite da dearhivirate ovu tražnju?')) return
+    if (!confirm(t('messages.unarchiveConfirm'))) return
     
     try {
       const { error } = await supabase
@@ -529,8 +531,8 @@ export default function TraznjaModule() {
       loadTraznje()
       setOpenActionMenu(null)
     } catch (error) {
-      console.error('Greška pri dearhiviranju:', error)
-      alert('Greška pri dearhiviranju tražnje: ' + error.message)
+      console.error('Error unarchiving:', error)
+      alert(t('messages.unarchiveError') + ': ' + error.message)
     }
   }
 
@@ -539,8 +541,8 @@ export default function TraznjaModule() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Tražnja</h2>
-          <p className="text-gray-500 text-sm mt-1">Upravljanje tražnjama nekretnina</p>
+          <h2 className="text-3xl font-bold text-gray-900 tracking-tight">{t('title')}</h2>
+          <p className="text-gray-500 text-sm mt-1">{t('subtitle')}</p>
         </div>
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <button
@@ -548,8 +550,8 @@ export default function TraznjaModule() {
             className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-2xl hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg shadow-amber-500/25 font-semibold"
           >
             <Plus className="w-5 h-5" />
-            <span className="hidden sm:inline">Dodaj tražnju</span>
-            <span className="sm:hidden">Dodaj</span>
+            <span className="hidden sm:inline">{t('addNew')}</span>
+            <span className="sm:hidden">{t('addNewShort')}</span>
           </button>
           <button
             onClick={() => setShowFilters(!showFilters)}
@@ -560,7 +562,7 @@ export default function TraznjaModule() {
             }`}
           >
             <Filter className="w-4 h-4" />
-            <span className="hidden sm:inline">Filteri</span>
+            <span className="hidden sm:inline">{t('filters.title')}</span>
             {activeFiltersCount > 0 && (
               <span className="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full">{activeFiltersCount}</span>
             )}
@@ -576,7 +578,7 @@ export default function TraznjaModule() {
             <div className="bg-gradient-to-r from-gray-900 to-black px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Search className="w-5 h-5 text-amber-400" />
-                <h3 className="text-lg font-bold text-white">Pretraga tražnji</h3>
+                <h3 className="text-lg font-bold text-white">{t('filters.search')}</h3>
               </div>
               <button
                 onClick={() => setShowFilters(false)}
@@ -590,9 +592,9 @@ export default function TraznjaModule() {
               {/* Tip: Kupac/Zakupac */}
               <div className="flex gap-2">
                 {[
-                  { value: '', label: 'Svi' },
-                  { value: 'kupac', label: '🏠 Kupac' },
-                  { value: 'zakupac', label: '🔑 Zakupac' }
+                  { value: '', label: t('tip.all') },
+                  { value: 'kupac', label: '🏠 ' + t('tip.kupac') },
+                  { value: 'zakupac', label: '🔑 ' + t('tip.zakupac') }
                 ].map(option => (
                   <button
                     key={option.value}
@@ -610,13 +612,13 @@ export default function TraznjaModule() {
 
               {/* Status kupca: Hladan/Mlak/Vruć */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">🌡️ Status kupca</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">🌡️ {t('status.title')}</label>
                 <div className="flex gap-2">
                   {[
-                    { value: '', label: 'Svi', color: 'bg-gray-100 text-gray-600 hover:bg-gray-200', activeColor: 'bg-gray-500 text-white' },
-                    { value: 'hladan', label: '🥶 Hladan', color: 'bg-gray-100 text-gray-600 hover:bg-gray-200', activeColor: 'bg-blue-500 text-white' },
-                    { value: 'mlak', label: '😐 Mlak', color: 'bg-gray-100 text-gray-600 hover:bg-gray-200', activeColor: 'bg-amber-500 text-white' },
-                    { value: 'vruc', label: '🔥 Vruć', color: 'bg-gray-100 text-gray-600 hover:bg-gray-200', activeColor: 'bg-red-500 text-white' }
+                    { value: '', label: t('tip.all'), color: 'bg-gray-100 text-gray-600 hover:bg-gray-200', activeColor: 'bg-gray-500 text-white' },
+                    { value: 'hladan', label: '🥶 ' + t('status.hladan'), color: 'bg-gray-100 text-gray-600 hover:bg-gray-200', activeColor: 'bg-blue-500 text-white' },
+                    { value: 'mlak', label: '😐 ' + t('status.mlak'), color: 'bg-gray-100 text-gray-600 hover:bg-gray-200', activeColor: 'bg-amber-500 text-white' },
+                    { value: 'vruc', label: '🔥 ' + t('status.vruc'), color: 'bg-gray-100 text-gray-600 hover:bg-gray-200', activeColor: 'bg-red-500 text-white' }
                   ].map(option => (
                     <button
                       key={option.value}
@@ -644,7 +646,7 @@ export default function TraznjaModule() {
                   }`}
                 >
                   <span className={`w-2 h-2 rounded-full ${filters.stsaktivan === true ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
-                  Aktivne
+                  {t('filters.aktivne')}
                 </button>
                 <button
                   onClick={() => handleFilterChange('stsaktivan', false)}
@@ -655,7 +657,7 @@ export default function TraznjaModule() {
                   }`}
                 >
                   <span className={`w-2 h-2 rounded-full ${filters.stsaktivan === false ? 'bg-gray-500' : 'bg-gray-400'}`}></span>
-                  Neaktivne
+                  {t('filters.neaktivne')}
                 </button>
               </div>
 
@@ -671,7 +673,7 @@ export default function TraznjaModule() {
                       setShowLokalitetDropdown(true)
                     }}
                     onFocus={() => setShowLokalitetDropdown(true)}
-                    placeholder="Unesite lokaciju (država, grad, opština, lokacija, ulica)"
+                    placeholder={t('form.lokacijaPlaceholder')}
                     className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   />
                 </div>
@@ -763,7 +765,7 @@ export default function TraznjaModule() {
                     value={filters.cenaOd}
                     onChange={(e) => handleFilterChange('cenaOd', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Cena od"
+                    placeholder={t('form.cenaOd')}
                   />
                 </div>
                 <div className="relative">
@@ -773,7 +775,7 @@ export default function TraznjaModule() {
                     value={filters.cenaDo}
                     onChange={(e) => handleFilterChange('cenaDo', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Cena do"
+                    placeholder={t('form.cenaDo')}
                   />
                 </div>
               </div>
@@ -787,7 +789,7 @@ export default function TraznjaModule() {
                     value={filters.kvadraturaOd}
                     onChange={(e) => handleFilterChange('kvadraturaOd', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Kvadratura od (m²)"
+                    placeholder={t('form.kvadraturaOd')}
                   />
                 </div>
                 <div className="relative">
@@ -797,7 +799,7 @@ export default function TraznjaModule() {
                     value={filters.kvadraturaDo}
                     onChange={(e) => handleFilterChange('kvadraturaDo', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Kvadratura do (m²)"
+                    placeholder={t('form.kvadraturaDo')}
                   />
                 </div>
               </div>
@@ -812,7 +814,7 @@ export default function TraznjaModule() {
                     value={filters.strukturaOd}
                     onChange={(e) => handleFilterChange('strukturaOd', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Broj soba od"
+                    placeholder={t('form.brojSobaOd')}
                   />
                 </div>
                 <div className="relative">
@@ -823,7 +825,7 @@ export default function TraznjaModule() {
                     value={filters.strukturaDo}
                     onChange={(e) => handleFilterChange('strukturaDo', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Broj soba do"
+                    placeholder={t('form.brojSobaDo')}
                   />
                 </div>
               </div>
@@ -837,7 +839,7 @@ export default function TraznjaModule() {
                     value={filters.spratOd}
                     onChange={(e) => handleFilterChange('spratOd', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Sprat od"
+                    placeholder={t('form.spratOd')}
                   />
                 </div>
                 <div className="relative">
@@ -847,7 +849,7 @@ export default function TraznjaModule() {
                     value={filters.spratDo}
                     onChange={(e) => handleFilterChange('spratDo', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Sprat do"
+                    placeholder={t('form.spratDo')}
                   />
                 </div>
               </div>
@@ -860,7 +862,7 @@ export default function TraznjaModule() {
                 className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
               >
                 <RotateCcw className="w-4 h-4" />
-                Resetuj filtere
+                {t('filters.reset')}
               </button>
               <button
                 onClick={handleSearch}
@@ -868,7 +870,7 @@ export default function TraznjaModule() {
                 className="flex items-center gap-2 px-6 py-2.5 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-all disabled:opacity-50"
               >
                 <Search className="w-5 h-5" />
-                {loading ? 'Pretražujem...' : 'Prikaži tražnje'}
+                {loading ? t('filters.searching') : t('filters.showResults')}
               </button>
             </div>
           </div>
@@ -881,8 +883,8 @@ export default function TraznjaModule() {
           <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
             <FileText className="w-12 h-12 text-gray-400" />
           </div>
-          <p className="text-gray-900 text-2xl font-bold mb-2">Nema tražnji</p>
-          <p className="text-gray-500">Nema tražnji koje odgovaraju vašim kriterijumima.</p>
+          <p className="text-gray-900 text-2xl font-bold mb-2">{t('messages.noResults')}</p>
+          <p className="text-gray-500">{t('messages.noResultsDesc')}</p>
         </div>
       ) : (
         /* Table View */
@@ -1214,7 +1216,7 @@ export default function TraznjaModule() {
                                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
                               >
                                 <Pencil className="w-4 h-4" />
-                                Promeni
+                                {t('actions.edit')}
                               </button>
                               {traznja.stsaktivan ? (
                                 <button
@@ -1225,7 +1227,7 @@ export default function TraznjaModule() {
                                   className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
                                 >
                                   <Archive className="w-4 h-4" />
-                                  Arhiviraj
+                                  {t('actions.archive')}
                                 </button>
                               ) : (
                                 <button
@@ -1236,7 +1238,7 @@ export default function TraznjaModule() {
                                   className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-emerald-700 hover:bg-emerald-50 transition-colors"
                                 >
                                   <ArchiveRestore className="w-4 h-4" />
-                                  Dearhiviraj
+                                  {t('actions.unarchive')}
                                 </button>
                               )}
                             </div>
@@ -1253,7 +1255,7 @@ export default function TraznjaModule() {
           {/* Pagination */}
           <div className="bg-gradient-to-r from-gray-900 to-black px-6 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-400">Prikaži:</span>
+              <span className="text-sm text-gray-400">{t('common:pagination.showing')}:</span>
               <select
                 value={itemsPerPage}
                 onChange={(e) => {
@@ -1294,7 +1296,7 @@ export default function TraznjaModule() {
             </div>
             
             <div className="text-sm text-gray-400 font-medium">
-              Ukupno: <span className="text-amber-400 font-bold">{totalTraznje}</span> tražnji
+              {t('pagination.total')}: <span className="text-amber-400 font-bold">{totalTraznje}</span> {t('pagination.demands')}
             </div>
           </div>
         </div>

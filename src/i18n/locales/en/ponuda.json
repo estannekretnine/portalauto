@@ -1,7 +1,8 @@
 {
   "title": "Offers",
   "subtitle": "Property offers management",
-  "addNew": "New offer",
+  "addNew": "Add offer",
+  "addNewShort": "Add",
   "editTitle": "Edit offer",
   "form": {
     "naslov": "Title",
@@ -18,19 +19,31 @@
     "lokacija": "Location",
     "ulica": "Street",
     "brojUlice": "Number",
-    "napomena": "Note"
+    "napomena": "Note",
+    "lokacijaPlaceholder": "Enter location (country, city, municipality, location, street)",
+    "cenaOd": "Price from",
+    "cenaDo": "Price to",
+    "kvadraturaOd": "Area from (m²)",
+    "kvadraturaDo": "Area to (m²)",
+    "strukturaOd": "Structure from",
+    "strukturaDo": "Structure to"
   },
   "status": {
     "title": "Status",
     "aktivna": "Active",
+    "aktivne": "Active",
+    "neaktivne": "Inactive",
     "rezervisana": "Reserved",
     "prodata": "Sold",
-    "arhivirana": "Archived"
+    "arhivirana": "Archived",
+    "storno": "Cancelled",
+    "sve": "All"
   },
   "tip": {
     "title": "Offer type",
     "prodaja": "Sale",
-    "izdavanje": "Rent"
+    "izdavanje": "Rent",
+    "renta": "Rent"
   },
   "table": {
     "id": "ID",
@@ -41,15 +54,70 @@
     "sprat": "Floor",
     "sobe": "Rooms",
     "status": "Status",
-    "datum": "Date"
+    "datum": "Date",
+    "vrsta": "Type",
+    "opstina": "Municipality",
+    "ulica": "Street",
+    "struktura": "Structure"
   },
   "filters": {
     "title": "Filters",
+    "search": "Search offers",
     "prodaja": "Sale",
-    "izdavanje": "Rent"
+    "izdavanje": "Rent",
+    "reset": "Reset filters",
+    "showResults": "Show offers",
+    "searching": "Searching..."
+  },
+  "archive": {
+    "title": "Archive reason",
+    "subtitle": "Select reason for archiving the offer",
+    "soldAgency": "Sold - Agency",
+    "soldAgencyDesc": "Sold through our agency",
+    "sold": "Sold",
+    "soldDesc": "Independently or through another agency",
+    "withdrawn": "Withdrawn",
+    "withdrawnDesc": "Owner withdrew the offer",
+    "cancelled": "Cancelled",
+    "cancelledDesc": "Buyer/owner cancelled",
+    "badPapers": "Bad papers",
+    "badPapersDesc": "Documentation problem",
+    "legalization": "Legalization",
+    "legalizationDesc": "Object needs legalization",
+    "wrongNumber": "Wrong number",
+    "wrongNumberDesc": "Invalid contact phone",
+    "nonexistentNumber": "Non-existent number",
+    "nonexistentNumberDesc": "Phone number doesn't exist",
+    "unavailable": "Unavailable",
+    "unavailableDesc": "Owner unavailable",
+    "other": "Other",
+    "otherDesc": "Other reasons",
+    "confirm": "Archive offer",
+    "cancel": "Cancel"
+  },
+  "actions": {
+    "edit": "Edit",
+    "details": "Details",
+    "archive": "Archive",
+    "unarchive": "Unarchive"
   },
   "messages": {
     "saveSuccess": "Offer saved successfully",
-    "deleteSuccess": "Offer deleted successfully"
+    "deleteSuccess": "Offer deleted successfully",
+    "archiveSuccess": "Offer archived",
+    "unarchiveSuccess": "Offer unarchived",
+    "noResults": "No offers",
+    "noResultsDesc": "No offers match your criteria."
+  },
+  "pagination": {
+    "total": "Total",
+    "offers": "offers"
+  },
+  "ai": {
+    "title": "AI Search",
+    "placeholder": "Describe what you're looking for...",
+    "search": "Search",
+    "searching": "Searching...",
+    "noResults": "No results"
   }
 }

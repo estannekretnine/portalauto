@@ -1,20 +1,31 @@
 {
   "title": "Demand",
   "subtitle": "Property demand management",
-  "addNew": "New demand",
+  "addNew": "Add demand",
+  "addNewShort": "Add",
   "editTitle": "Edit demand",
   "form": {
     "kontaktOsoba": "Contact person",
     "kontaktTelefon": "Phone",
     "opstina": "Municipality",
     "lokacija": "Location",
-    "cenaOd": "Price from (€)",
-    "cenaDo": "Price to (€)",
-    "kvadraturaOd": "m² from",
-    "kvadraturaDo": "m² to",
+    "cenaOd": "Price from",
+    "cenaDo": "Price to",
+    "kvadraturaOd": "Area from (m²)",
+    "kvadraturaDo": "Area to (m²)",
     "spratOd": "Floor from",
     "spratDo": "Floor to",
-    "napomena": "Note"
+    "brojSobaOd": "Rooms from",
+    "brojSobaDo": "Rooms to",
+    "napomena": "Note",
+    "lokacijaPlaceholder": "Enter location (country, city, municipality, location, street)",
+    "osnovneInfo": "Basic information",
+    "tipTraznje": "Demand type",
+    "kontaktInfo": "Contact information",
+    "cena": "Price",
+    "kvadraturaStruktura": "Area and structure",
+    "sprat": "Floor",
+    "detalji": "Demand details"
   },
   "status": {
     "title": "Buyer status",
@@ -46,14 +57,40 @@
   },
   "filters": {
     "title": "Filters",
+    "search": "Search demands",
     "aktivne": "Active",
     "neaktivne": "Inactive",
-    "sviStatusi": "All statuses"
+    "sviStatusi": "All statuses",
+    "reset": "Reset filters",
+    "showResults": "Show demands",
+    "searching": "Searching..."
+  },
+  "lokalitet": {
+    "drzava": "Country",
+    "grad": "City",
+    "opstina": "Municipality",
+    "lokacija": "Location",
+    "ulica": "Street"
   },
   "messages": {
     "duplicatePhone": "Existing demands found with this phone number!",
     "saveSuccess": "Demand saved successfully",
     "deleteSuccess": "Demand deleted successfully",
-    "archiveSuccess": "Demand archived"
+    "archiveSuccess": "Demand archived",
+    "archiveConfirm": "Do you want to archive this demand?",
+    "unarchiveConfirm": "Do you want to unarchive this demand?",
+    "archiveError": "Error archiving demand",
+    "unarchiveError": "Error unarchiving demand",
+    "noResults": "No demands",
+    "noResultsDesc": "No demands match your criteria."
+  },
+  "actions": {
+    "edit": "Edit",
+    "archive": "Archive",
+    "unarchive": "Unarchive"
+  },
+  "pagination": {
+    "total": "Total",
+    "demands": "demands"
   }
 }

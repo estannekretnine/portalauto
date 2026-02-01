@@ -3,6 +3,7 @@ import { supabase } from '../utils/supabase'
 import { getCurrentUser } from '../utils/auth'
 import PhotoUpload from './PhotoUpload'
 import { Save, X, Upload, Building2, MapPin, DollarSign, Ruler, Info, Search, ChevronDown, Users, FileText, Receipt, Wallet, UserCheck, Brain, Plus, Trash2, Loader2, Shield, Printer } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import PropertyMap from './PropertyMap'
 import RizikAnalizaModal from './RizikAnalizaModal'
 import { getInitialAnalizaRizika } from '../constants/indikatori-rizika'
@@ -83,6 +84,7 @@ const getVrstaObjektaKey = (vrstaObjektaOpis) => {
 }
 
 export default function PonudaForm({ ponuda, onClose, onSuccess }) {
+  const { t } = useTranslation(['ponuda', 'common'])
   const currentUser = getCurrentUser()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')

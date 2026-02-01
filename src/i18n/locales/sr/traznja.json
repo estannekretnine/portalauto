@@ -1,20 +1,31 @@
 {
   "title": "Tražnja",
   "subtitle": "Upravljanje tražnjama nekretnina",
-  "addNew": "Nova tražnja",
+  "addNew": "Dodaj tražnju",
+  "addNewShort": "Dodaj",
   "editTitle": "Izmena tražnje",
   "form": {
     "kontaktOsoba": "Kontakt osoba",
     "kontaktTelefon": "Telefon",
     "opstina": "Opština",
     "lokacija": "Lokacija",
-    "cenaOd": "Cena od (€)",
-    "cenaDo": "Cena do (€)",
-    "kvadraturaOd": "m² od",
-    "kvadraturaDo": "m² do",
+    "cenaOd": "Cena od",
+    "cenaDo": "Cena do",
+    "kvadraturaOd": "Kvadratura od (m²)",
+    "kvadraturaDo": "Kvadratura do (m²)",
     "spratOd": "Sprat od",
     "spratDo": "Sprat do",
-    "napomena": "Napomena"
+    "brojSobaOd": "Broj soba od",
+    "brojSobaDo": "Broj soba do",
+    "napomena": "Napomena",
+    "lokacijaPlaceholder": "Unesite lokaciju (država, grad, opština, lokacija, ulica)",
+    "osnovneInfo": "Osnovne informacije",
+    "tipTraznje": "Tip tražnje",
+    "kontaktInfo": "Kontakt informacije",
+    "cena": "Cena",
+    "kvadraturaStruktura": "Kvadratura i struktura",
+    "sprat": "Sprat",
+    "detalji": "Detalji tražnje"
   },
   "status": {
     "title": "Status kupca",
@@ -46,14 +57,40 @@
   },
   "filters": {
     "title": "Filteri",
+    "search": "Pretraga tražnji",
     "aktivne": "Aktivne",
     "neaktivne": "Neaktivne",
-    "sviStatusi": "Svi statusi"
+    "sviStatusi": "Svi statusi",
+    "reset": "Resetuj filtere",
+    "showResults": "Prikaži tražnje",
+    "searching": "Pretražujem..."
+  },
+  "lokalitet": {
+    "drzava": "Država",
+    "grad": "Grad",
+    "opstina": "Opština",
+    "lokacija": "Lokacija",
+    "ulica": "Ulica"
   },
   "messages": {
     "duplicatePhone": "Pronađene postojeće tražnje sa ovim brojem!",
     "saveSuccess": "Tražnja uspešno sačuvana",
     "deleteSuccess": "Tražnja uspešno obrisana",
-    "archiveSuccess": "Tražnja arhivirana"
+    "archiveSuccess": "Tražnja arhivirana",
+    "archiveConfirm": "Da li želite da arhivirate ovu tražnju?",
+    "unarchiveConfirm": "Da li želite da dearhivirate ovu tražnju?",
+    "archiveError": "Greška pri arhiviranju tražnje",
+    "unarchiveError": "Greška pri dearhiviranju tražnje",
+    "noResults": "Nema tražnji",
+    "noResultsDesc": "Nema tražnji koje odgovaraju vašim kriterijumima."
+  },
+  "actions": {
+    "edit": "Promeni",
+    "archive": "Arhiviraj",
+    "unarchive": "Dearhiviraj"
+  },
+  "pagination": {
+    "total": "Ukupno",
+    "demands": "tražnji"
   }
 }

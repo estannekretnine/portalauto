@@ -2,10 +2,12 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../utils/supabase'
 import { getCurrentUser } from '../utils/auth'
 import { Save, X, Building2, MapPin, DollarSign, Ruler, Info, Search, ChevronDown, Users, FileText, Receipt, UserCheck, Brain, Plus, Trash2, Phone, Calendar, Home, Euro, Shield, Printer } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import RizikAnalizaModal from './RizikAnalizaModal'
 import { getInitialAnalizaRizika } from '../constants/indikatori-rizika'
 
 export default function TraznjaForm({ traznja, onClose, onSuccess }) {
+  const { t } = useTranslation(['traznja', 'common'])
   const currentUser = getCurrentUser()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -648,7 +650,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
       onSuccess()
       onClose()
     } catch (err) {
-      setError(err.message || 'Greška pri čuvanju tražnje')
+      setError(err.message || t('common:messages.saveError'))
       console.error('Greška:', err)
     } finally {
       setLoading(false)
@@ -686,10 +688,10 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-white">
-                {isEditing ? 'Izmena tražnje' : 'Dodaj novu tražnju'}
+                {isEditing ? t('editTitle') : t('addNew')}
               </h2>
               <p className="text-gray-400 text-sm">
-                {isEditing ? `ID: ${traznja.id}` : 'Unesite podatke o tražnji'}
+                {isEditing ? `ID: ${traznja.id}` : t('subtitle')}
               </p>
             </div>
           </div>
@@ -710,7 +712,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                 <span className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/25">
                   <Info className="w-5 h-5 text-white" />
                 </span>
-                Osnovne informacije
+                {t('form.osnovneInfo')}
               </h3>
               <div className={`w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center transition-transform duration-300 ${openSections.osnovne ? 'rotate-180' : ''}`}>
                 <ChevronDown className="w-5 h-5 text-amber-400" />
@@ -723,7 +725,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
                     <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">🎯</span>
-                    Tip tražnje
+                    {t('form.tipTraznje')}
                   </h4>
                   <div className="flex gap-3">
                     <button
@@ -735,7 +737,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                           : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
                       }`}
                     >
-                      🏠 Kupac
+                      🏠 {t('tip.kupac')}
                     </button>
                     <button
                       type="button"
@@ -746,7 +748,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                           : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
                       }`}
                     >
-                      🔑 Zakupac
+                      🔑 {t('tip.zakupac')}
                     </button>
                   </div>
                 </div>
@@ -755,7 +757,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
                     <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">🌡️</span>
-                    Status kupca
+                    {t('status.title')}
                   </h4>
                   <div className="flex gap-2">
                     <button
@@ -767,7 +769,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                           : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
                       }`}
                     >
-                      ⚪ Prazno
+                      ⚪ {t('status.empty')}
                     </button>
                     <button
                       type="button"
@@ -778,7 +780,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                           : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
                       }`}
                     >
-                      🥶 Hladan
+                      🥶 {t('status.hladan')}
                     </button>
                     <button
                       type="button"
@@ -789,7 +791,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                           : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
                       }`}
                     >
-                      😐 Mlak
+                      😐 {t('status.mlak')}
                     </button>
                     <button
                       type="button"
@@ -800,7 +802,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                           : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
                       }`}
                     >
-                      🔥 Vruć
+                      🔥 {t('status.vruc')}
                     </button>
                   </div>
                 </div>
