@@ -1,0 +1,59 @@
+{
+  "title": "Tražnja",
+  "subtitle": "Upravljanje tražnjama nekretnina",
+  "addNew": "Nova tražnja",
+  "editTitle": "Izmena tražnje",
+  "form": {
+    "kontaktOsoba": "Kontakt osoba",
+    "kontaktTelefon": "Telefon",
+    "opstina": "Opština",
+    "lokacija": "Lokacija",
+    "cenaOd": "Cena od (€)",
+    "cenaDo": "Cena do (€)",
+    "kvadraturaOd": "m² od",
+    "kvadraturaDo": "m² do",
+    "spratOd": "Sprat od",
+    "spratDo": "Sprat do",
+    "napomena": "Napomena"
+  },
+  "status": {
+    "title": "Status kupca",
+    "empty": "Prazno",
+    "hladan": "Hladan",
+    "mlak": "Mlak",
+    "vruc": "Vruć"
+  },
+  "tip": {
+    "title": "Tip",
+    "kupac": "Kupac",
+    "zakupac": "Zakupac",
+    "all": "Svi"
+  },
+  "table": {
+    "id": "ID",
+    "kontakt": "Kontakt",
+    "opstina": "Opština",
+    "lokacija": "Lokacija",
+    "cenaDo": "Cena do",
+    "kvmOd": "M² OD",
+    "kvmDo": "M² DO",
+    "spratOd": "Sprat od",
+    "spratDo": "Sprat do",
+    "statusKupca": "Status kupca",
+    "tip": "Tip",
+    "aktivan": "Aktivan",
+    "datum": "Datum"
+  },
+  "filters": {
+    "title": "Filteri",
+    "aktivne": "Aktivne",
+    "neaktivne": "Neaktivne",
+    "sviStatusi": "Svi statusi"
+  },
+  "messages": {
+    "duplicatePhone": "Pronađene postojeće tražnje sa ovim brojem!",
+    "saveSuccess": "Tražnja uspešno sačuvana",
+    "deleteSuccess": "Tražnja uspešno obrisana",
+    "archiveSuccess": "Tražnja arhivirana"
+  }
+}

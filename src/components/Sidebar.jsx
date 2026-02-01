@@ -1,7 +1,10 @@
 import { Building2, Menu, X, Users, MapPin, ChevronDown, ChevronRight, Flame, Briefcase, Database, Home, LogOut, Sparkles, FileSearch, Phone, Map, BarChart3, PhoneCall, PieChart, Info, Tv, Globe, Clock, UserCheck, FileInput, List, MessageCircle, Shield, Calendar, Tags } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import LanguageSwitcher from './LanguageSwitcher'
 
 const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = false }) => {
+  const { t } = useTranslation(['sidebar', 'common'])
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMaticniPodaciOpen, setIsMaticniPodaciOpen] = useState(false)
   const [isLokalitetOpen, setIsLokalitetOpen] = useState(false)
@@ -14,59 +17,59 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
   const isAdmin = user?.email === 'admin@example.com'
 
   const lokalitetSubItems = [
-    { id: 'lokalitet-drzava', label: 'Država' },
-    { id: 'lokalitet-grad', label: 'Grad' },
-    { id: 'lokalitet-opstina', label: 'Opština' },
-    { id: 'lokalitet-lokacija', label: 'Lokacija' },
-    { id: 'lokalitet-ulica', label: 'Ulica' },
+    { id: 'lokalitet-drzava', label: t('lokalitet.drzava') },
+    { id: 'lokalitet-grad', label: t('lokalitet.grad') },
+    { id: 'lokalitet-opstina', label: t('lokalitet.opstina') },
+    { id: 'lokalitet-lokacija', label: t('lokalitet.lokacija') },
+    { id: 'lokalitet-ulica', label: t('lokalitet.ulica') },
   ]
 
   const izvestajiSubItems = [
-    { id: 'izvestaj-eop', label: 'EOP' },
-    { id: 'izvestaj-eok', label: 'EOK' },
-    { id: 'izvestaj-transakcije', label: 'Izvršene transakcije' },
+    { id: 'izvestaj-eop', label: t('izvestaji.eop') },
+    { id: 'izvestaj-eok', label: t('izvestaji.eok') },
+    { id: 'izvestaj-transakcije', label: t('izvestaji.transakcije') },
   ]
 
   const izvestajiAnalizeSubItems = [
-    { id: 'izvestaj-mesecni', label: 'Mesečni pregled' },
-    { id: 'izvestaj-pozivi', label: 'Analiza poziva' },
-    { id: 'izvestaj-mediji', label: 'Analiza medija' },
-    { id: 'izvestaj-nacin-dobijanja', label: 'Analiza dobijanja oglasa' },
-    { id: 'izvestaj-tereni', label: 'Statistika terena' },
-    { id: 'izvestaj-prodaja-renta', label: 'Prodaja vs Renta' },
-    { id: 'izvestaj-arhivirani', label: 'Arhivirani oglasi' },
+    { id: 'izvestaj-mesecni', label: t('analize.mesecniPregled') },
+    { id: 'izvestaj-pozivi', label: t('analize.analizaPoziva') },
+    { id: 'izvestaj-mediji', label: t('analize.analizaMedija') },
+    { id: 'izvestaj-nacin-dobijanja', label: t('analize.analizaDobijanja') },
+    { id: 'izvestaj-tereni', label: t('analize.statistikaTerena') },
+    { id: 'izvestaj-prodaja-renta', label: t('analize.prodajaVsRenta') },
+    { id: 'izvestaj-arhivirani', label: t('analize.arhiviraniOglasi') },
   ]
 
   const maticniPodaciSubItems = [
-    { id: 'vrstaobjekta', label: 'Vrsta objekta', icon: Building2 },
+    { id: 'vrstaobjekta', label: t('maticniPodaci.vrstaObjekta'), icon: Building2 },
     { 
       id: 'lokalitet', 
-      label: 'Lokalitet', 
+      label: t('maticniPodaci.lokalitet'), 
       icon: MapPin, 
       hasSubmenu: true, 
       subItems: lokalitetSubItems 
     },
-    { id: 'grejanje', label: 'Grejanje', icon: Flame },
-    { id: 'investitor', label: 'Investitor', icon: Briefcase },
-    { id: 'info-firma', label: 'Info-Firma', icon: Info },
-    { id: 'mediji', label: 'Mediji', icon: Tv },
-    { id: 'nacin-dobijanja', label: 'Način dobijanja oglasa', icon: FileInput },
+    { id: 'grejanje', label: t('maticniPodaci.grejanje'), icon: Flame },
+    { id: 'investitor', label: t('maticniPodaci.investitor'), icon: Briefcase },
+    { id: 'info-firma', label: t('maticniPodaci.infoFirma'), icon: Info },
+    { id: 'mediji', label: t('maticniPodaci.mediji'), icon: Tv },
+    { id: 'nacin-dobijanja', label: t('maticniPodaci.nacinDobijanja'), icon: FileInput },
   ]
 
   const scrapingSubItems = [
-    { id: 'scraping-config', label: 'Start scraping', icon: List },
-    { id: 'scraping-vlasnici', label: 'Vlasnici', icon: UserCheck },
-    { id: 'scraping-vreme-trajanja', label: 'Vreme trajanja', icon: Clock },
+    { id: 'scraping-config', label: t('scraping.startScraping'), icon: List },
+    { id: 'scraping-vlasnici', label: t('scraping.vlasnici'), icon: UserCheck },
+    { id: 'scraping-vreme-trajanja', label: t('scraping.vremeTrajanja'), icon: Clock },
   ]
 
   const kalendarSubItems = [
-    { id: 'kalendar', label: 'Kalendar' },
-    { id: 'kalendar-tip-dogadjaja', label: 'Tip događaja' },
+    { id: 'kalendar', label: t('kalendar.kalendar') },
+    { id: 'kalendar-tip-dogadjaja', label: t('kalendar.tipDogadjaja') },
   ]
 
   const adminSubItems = [
-    { id: 'admin-korisnici', label: 'Korisnici', icon: Users },
-    { id: 'admin-poruke', label: 'Poruke', icon: MessageCircle },
+    { id: 'admin-korisnici', label: t('admin.korisnici'), icon: Users },
+    { id: 'admin-poruke', label: t('admin.poruke'), icon: MessageCircle },
   ]
 
   useEffect(() => {
@@ -112,67 +115,67 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
   const menuItems = [
     {
       id: 'ponude',
-      label: 'Ponude',
+      label: t('menu.ponude'),
       icon: Home,
     },
     {
       id: 'traznja',
-      label: 'Tražnja',
+      label: t('menu.traznja'),
       icon: FileSearch,
     },
     {
       id: 'pozivi',
-      label: 'Pozivi',
+      label: t('menu.pozivi'),
       icon: Phone,
     },
     {
       id: 'tereni',
-      label: 'Tereni',
+      label: t('menu.tereni'),
       icon: Map,
     },
     {
       id: 'kalendar-menu',
-      label: 'Kalendar',
+      label: t('kalendar.title'),
       icon: Calendar,
       hasSubmenu: true,
       subItems: kalendarSubItems,
     },
     {
       id: 'provera',
-      label: 'Provera',
+      label: t('menu.provera'),
       icon: PhoneCall,
     },
     {
       id: 'izvestaji',
-      label: 'Izveštaji',
+      label: t('izvestaji.title'),
       icon: BarChart3,
       hasSubmenu: true,
       subItems: izvestajiSubItems,
     },
     {
       id: 'izvestaji-analize',
-      label: 'Izveštaji - Analize',
+      label: t('analize.title'),
       icon: PieChart,
       hasSubmenu: true,
       subItems: izvestajiAnalizeSubItems,
     },
     {
       id: 'maticni-podaci',
-      label: 'Matični podaci',
+      label: t('maticniPodaci.title'),
       icon: Database,
       hasSubmenu: true,
       subItems: maticniPodaciSubItems,
     },
     {
       id: 'scraping',
-      label: 'Scraping',
+      label: t('scraping.title'),
       icon: Globe,
       hasSubmenu: true,
       subItems: scrapingSubItems,
     },
     ...(isAdmin ? [{
       id: 'admin',
-      label: 'Administracija',
+      label: t('admin.title'),
       icon: Shield,
       hasSubmenu: true,
       subItems: adminSubItems,
@@ -234,7 +237,7 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         className="lg:hidden fixed top-3 left-3 z-50 p-2.5 bg-gradient-to-br from-gray-900 to-black text-white rounded-2xl shadow-xl hover:shadow-2xl transition-all border border-white/10"
-        aria-label={isMobileMenuOpen ? 'Zatvori meni' : 'Otvori meni'}
+        aria-label={isMobileMenuOpen ? t('common:actions.close') : t('common:actions.open')}
         aria-expanded={isMobileMenuOpen}
         type="button"
       >
@@ -250,7 +253,7 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
         className={`fixed lg:static inset-y-0 left-0 z-40 ${collapsed ? 'w-20' : 'w-72'} bg-gradient-to-b from-gray-900 via-gray-900 to-black transform ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         } transition-all duration-300 ease-in-out min-h-screen lg:min-h-full flex flex-col border-r border-white/5`}
-        aria-label="Glavna navigacija"
+        aria-label="Main navigation"
       >
         {/* Header */}
         <div className={`p-6 ${collapsed ? 'px-3 flex justify-center' : ''}`}>
@@ -260,8 +263,8 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
                 <Building2 className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-white font-bold text-xl tracking-tight">EstateFlow</h2>
-                <p className="text-amber-400/80 text-xs font-medium">Premium Panel</p>
+                <h2 className="text-white font-bold text-xl tracking-tight">{t('brand.title')}</h2>
+                <p className="text-amber-400/80 text-xs font-medium">{t('brand.subtitle')}</p>
               </div>
             </div>
           )}
@@ -289,13 +292,18 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
           </div>
         )}
 
+        {/* Language Switcher */}
+        <div className={`px-5 pb-4 ${collapsed ? 'flex justify-center' : ''}`}>
+          <LanguageSwitcher collapsed={collapsed} />
+        </div>
+
         {/* Divider */}
         <div className="px-5 mb-2">
           <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 py-2 overflow-y-auto" aria-label="Glavni meni">
+        <nav className="flex-1 px-4 py-2 overflow-y-auto" aria-label="Main menu">
           <ul className="space-y-2">
             {menuItems.map((item) => {
               const Icon = item.icon
@@ -437,11 +445,11 @@ const Sidebar = ({ activeModule, setActiveModule, onLogout, user, collapsed = fa
             <button
               onClick={onLogout}
               className={`w-full flex items-center ${collapsed ? 'justify-center' : ''} gap-3 px-4 py-4 rounded-2xl text-gray-400 hover:bg-red-500/10 hover:text-red-400 border border-transparent hover:border-red-500/20 transition-all duration-300`}
-              title={collapsed ? 'Odjavi se' : undefined}
+              title={collapsed ? t('common:actions.logout') : undefined}
               type="button"
             >
               <LogOut className="w-4 h-4" aria-hidden="true" />
-              {!collapsed && <span className="font-medium">Odjavi se</span>}
+              {!collapsed && <span className="font-medium">{t('common:actions.logout')}</span>}
             </button>
           </div>
         )}

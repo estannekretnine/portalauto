@@ -1,0 +1,66 @@
+{
+  "brand": {
+    "title": "EstateFlow",
+    "subtitle": "Premium Real Estate Platform"
+  },
+  "menu": {
+    "home": "Početna",
+    "dashboard": "Kontrolna tabla",
+    "traznja": "Tražnja",
+    "ponude": "Ponude",
+    "auto": "Auto",
+    "pozivi": "Pozivi",
+    "tereni": "Tereni",
+    "provera": "Provera"
+  },
+  "maticniPodaci": {
+    "title": "Matični podaci",
+    "vrstaObjekta": "Vrsta objekta",
+    "lokalitet": "Lokalitet",
+    "grejanje": "Grejanje",
+    "investitor": "Investitor",
+    "infoFirma": "Info-Firma",
+    "mediji": "Mediji",
+    "nacinDobijanja": "Način dobijanja oglasa"
+  },
+  "lokalitet": {
+    "title": "Lokalitet",
+    "drzava": "Država",
+    "grad": "Grad",
+    "opstina": "Opština",
+    "lokacija": "Lokacija",
+    "ulica": "Ulica"
+  },
+  "izvestaji": {
+    "title": "Izveštaji",
+    "eop": "EOP",
+    "eok": "EOK",
+    "transakcije": "Izvršene transakcije"
+  },
+  "analize": {
+    "title": "Analize",
+    "mesecniPregled": "Mesečni pregled",
+    "analizaPoziva": "Analiza poziva",
+    "analizaMedija": "Analiza medija",
+    "analizaDobijanja": "Analiza dobijanja oglasa",
+    "statistikaTerena": "Statistika terena",
+    "prodajaVsRenta": "Prodaja vs Renta",
+    "arhiviraniOglasi": "Arhivirani oglasi"
+  },
+  "scraping": {
+    "title": "Scraping",
+    "startScraping": "Start scraping",
+    "vlasnici": "Vlasnici",
+    "vremeTrajanja": "Vreme trajanja"
+  },
+  "kalendar": {
+    "title": "Kalendar",
+    "kalendar": "Kalendar",
+    "tipDogadjaja": "Tip događaja"
+  },
+  "admin": {
+    "title": "Admin",
+    "korisnici": "Korisnici",
+    "poruke": "Poruke"
+  }
+}

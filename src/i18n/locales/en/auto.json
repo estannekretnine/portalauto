@@ -1,0 +1,40 @@
+{
+  "title": "Auto",
+  "subtitle": "Automatic listing import",
+  "addNew": "New listing",
+  "editTitle": "Edit listing",
+  "form": {
+    "url": "Listing URL",
+    "naslov": "Title",
+    "opis": "Description",
+    "cena": "Price (€)",
+    "kvadratura": "Area (m²)",
+    "sprat": "Floor",
+    "brojSoba": "Number of rooms",
+    "lokacija": "Location",
+    "izvor": "Source",
+    "vlasnik": "Owner",
+    "telefon": "Phone"
+  },
+  "status": {
+    "title": "Status",
+    "novi": "New",
+    "obradjen": "Processed",
+    "odbijen": "Rejected",
+    "duplikat": "Duplicate"
+  },
+  "table": {
+    "id": "ID",
+    "naslov": "Title",
+    "lokacija": "Location",
+    "cena": "Price",
+    "kvadratura": "m²",
+    "izvor": "Source",
+    "status": "Status",
+    "datum": "Date"
+  },
+  "messages": {
+    "saveSuccess": "Listing saved successfully",
+    "deleteSuccess": "Listing deleted successfully"
+  }
+}

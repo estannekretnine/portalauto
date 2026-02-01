@@ -1,0 +1,40 @@
+{
+  "title": "Auto",
+  "subtitle": "Automatski unos oglasa",
+  "addNew": "Novi oglas",
+  "editTitle": "Izmena oglasa",
+  "form": {
+    "url": "URL oglasa",
+    "naslov": "Naslov",
+    "opis": "Opis",
+    "cena": "Cena (€)",
+    "kvadratura": "Kvadratura (m²)",
+    "sprat": "Sprat",
+    "brojSoba": "Broj soba",
+    "lokacija": "Lokacija",
+    "izvor": "Izvor",
+    "vlasnik": "Vlasnik",
+    "telefon": "Telefon"
+  },
+  "status": {
+    "title": "Status",
+    "novi": "Novi",
+    "obradjen": "Obrađen",
+    "odbijen": "Odbijen",
+    "duplikat": "Duplikat"
+  },
+  "table": {
+    "id": "ID",
+    "naslov": "Naslov",
+    "lokacija": "Lokacija",
+    "cena": "Cena",
+    "kvadratura": "m²",
+    "izvor": "Izvor",
+    "status": "Status",
+    "datum": "Datum"
+  },
+  "messages": {
+    "saveSuccess": "Oglas uspešno sačuvan",
+    "deleteSuccess": "Oglas uspešno obrisan"
+  }
+}

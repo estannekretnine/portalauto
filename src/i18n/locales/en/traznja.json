@@ -1,0 +1,59 @@
+{
+  "title": "Demand",
+  "subtitle": "Property demand management",
+  "addNew": "New demand",
+  "editTitle": "Edit demand",
+  "form": {
+    "kontaktOsoba": "Contact person",
+    "kontaktTelefon": "Phone",
+    "opstina": "Municipality",
+    "lokacija": "Location",
+    "cenaOd": "Price from (€)",
+    "cenaDo": "Price to (€)",
+    "kvadraturaOd": "m² from",
+    "kvadraturaDo": "m² to",
+    "spratOd": "Floor from",
+    "spratDo": "Floor to",
+    "napomena": "Note"
+  },
+  "status": {
+    "title": "Buyer status",
+    "empty": "Empty",
+    "hladan": "Cold",
+    "mlak": "Warm",
+    "vruc": "Hot"
+  },
+  "tip": {
+    "title": "Type",
+    "kupac": "Buyer",
+    "zakupac": "Tenant",
+    "all": "All"
+  },
+  "table": {
+    "id": "ID",
+    "kontakt": "Contact",
+    "opstina": "Municipality",
+    "lokacija": "Location",
+    "cenaDo": "Price to",
+    "kvmOd": "M² FROM",
+    "kvmDo": "M² TO",
+    "spratOd": "Floor from",
+    "spratDo": "Floor to",
+    "statusKupca": "Buyer status",
+    "tip": "Type",
+    "aktivan": "Active",
+    "datum": "Date"
+  },
+  "filters": {
+    "title": "Filters",
+    "aktivne": "Active",
+    "neaktivne": "Inactive",
+    "sviStatusi": "All statuses"
+  },
+  "messages": {
+    "duplicatePhone": "Existing demands found with this phone number!",
+    "saveSuccess": "Demand saved successfully",
+    "deleteSuccess": "Demand deleted successfully",
+    "archiveSuccess": "Demand archived"
+  }
+}

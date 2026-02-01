@@ -1,0 +1,55 @@
+{
+  "title": "Offers",
+  "subtitle": "Property offers management",
+  "addNew": "New offer",
+  "editTitle": "Edit offer",
+  "form": {
+    "naslov": "Title",
+    "opis": "Description",
+    "cena": "Price (€)",
+    "kvadratura": "Area (m²)",
+    "sprat": "Floor",
+    "ukupnoSpratova": "Total floors",
+    "brojSoba": "Number of rooms",
+    "godinaGradnje": "Year built",
+    "vrstaObjekta": "Property type",
+    "grejanje": "Heating",
+    "investitor": "Investor",
+    "lokacija": "Location",
+    "ulica": "Street",
+    "brojUlice": "Number",
+    "napomena": "Note"
+  },
+  "status": {
+    "title": "Status",
+    "aktivna": "Active",
+    "rezervisana": "Reserved",
+    "prodata": "Sold",
+    "arhivirana": "Archived"
+  },
+  "tip": {
+    "title": "Offer type",
+    "prodaja": "Sale",
+    "izdavanje": "Rent"
+  },
+  "table": {
+    "id": "ID",
+    "naslov": "Title",
+    "lokacija": "Location",
+    "cena": "Price",
+    "kvadratura": "m²",
+    "sprat": "Floor",
+    "sobe": "Rooms",
+    "status": "Status",
+    "datum": "Date"
+  },
+  "filters": {
+    "title": "Filters",
+    "prodaja": "Sale",
+    "izdavanje": "Rent"
+  },
+  "messages": {
+    "saveSuccess": "Offer saved successfully",
+    "deleteSuccess": "Offer deleted successfully"
+  }
+}

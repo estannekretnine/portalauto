@@ -1,0 +1,111 @@
+{
+  "actions": {
+    "save": "Sačuvaj",
+    "cancel": "Otkaži",
+    "add": "Dodaj",
+    "addNew": "Dodaj novo",
+    "edit": "Izmeni",
+    "delete": "Obriši",
+    "search": "Pretraži",
+    "filter": "Filtriraj",
+    "close": "Zatvori",
+    "confirm": "Potvrdi",
+    "back": "Nazad",
+    "next": "Dalje",
+    "previous": "Prethodno",
+    "refresh": "Osveži",
+    "export": "Izvezi",
+    "import": "Uvezi",
+    "download": "Preuzmi",
+    "upload": "Otpremi",
+    "view": "Pogledaj",
+    "details": "Detalji",
+    "archive": "Arhiviraj",
+    "activate": "Aktiviraj",
+    "deactivate": "Deaktiviraj",
+    "select": "Izaberi",
+    "selectAll": "Izaberi sve",
+    "clear": "Očisti",
+    "reset": "Resetuj",
+    "apply": "Primeni",
+    "change": "Promeni",
+    "copy": "Kopiraj",
+    "logout": "Odjavi se"
+  },
+  "status": {
+    "active": "Aktivna",
+    "inactive": "Neaktivna",
+    "loading": "Učitavanje...",
+    "saving": "Čuvanje...",
+    "deleting": "Brisanje...",
+    "success": "Uspešno",
+    "error": "Greška",
+    "warning": "Upozorenje",
+    "info": "Informacija",
+    "pending": "Na čekanju",
+    "completed": "Završeno",
+    "cancelled": "Otkazano",
+    "all": "Sve",
+    "yes": "Da",
+    "no": "Ne"
+  },
+  "validation": {
+    "required": "Ovo polje je obavezno",
+    "invalidEmail": "Neispravan email",
+    "invalidPhone": "Neispravan broj telefona",
+    "minLength": "Minimalno {{min}} karaktera",
+    "maxLength": "Maksimalno {{max}} karaktera",
+    "minValue": "Minimalna vrednost je {{min}}",
+    "maxValue": "Maksimalna vrednost je {{max}}",
+    "invalidFormat": "Neispravan format"
+  },
+  "messages": {
+    "saveSuccess": "Uspešno sačuvano",
+    "saveError": "Greška pri čuvanju",
+    "deleteSuccess": "Uspešno obrisano",
+    "deleteError": "Greška pri brisanju",
+    "deleteConfirm": "Da li ste sigurni da želite da obrišete?",
+    "noData": "Nema podataka",
+    "noResults": "Nema rezultata",
+    "loadError": "Greška pri učitavanju podataka"
+  },
+  "pagination": {
+    "page": "Strana",
+    "of": "od",
+    "showing": "Prikazano",
+    "entries": "unosa",
+    "perPage": "po strani",
+    "first": "Prva",
+    "last": "Poslednja"
+  },
+  "table": {
+    "id": "ID",
+    "name": "Naziv",
+    "description": "Opis",
+    "date": "Datum",
+    "createdAt": "Datum kreiranja",
+    "updatedAt": "Datum izmene",
+    "status": "Status",
+    "actions": "Akcije",
+    "noData": "Nema podataka za prikaz"
+  },
+  "form": {
+    "selectOption": "Izaberite opciju",
+    "enterValue": "Unesite vrednost",
+    "optional": "(opciono)",
+    "requiredField": "Obavezno polje"
+  },
+  "time": {
+    "today": "Danas",
+    "yesterday": "Juče",
+    "tomorrow": "Sutra",
+    "thisWeek": "Ova nedelja",
+    "thisMonth": "Ovaj mesec",
+    "thisYear": "Ova godina"
+  },
+  "language": {
+    "sr": "Srpski",
+    "en": "English",
+    "selectLanguage": "Izaberite jezik"
+  }
+}

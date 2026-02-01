@@ -1,0 +1,66 @@
+{
+  "brand": {
+    "title": "EstateFlow",
+    "subtitle": "Premium Real Estate Platform"
+  },
+  "menu": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "traznja": "Demand",
+    "ponude": "Offers",
+    "auto": "Auto",
+    "pozivi": "Calls",
+    "tereni": "Field visits",
+    "provera": "Verification"
+  },
+  "maticniPodaci": {
+    "title": "Master data",
+    "vrstaObjekta": "Property type",
+    "lokalitet": "Location",
+    "grejanje": "Heating",
+    "investitor": "Investor",
+    "infoFirma": "Info-Company",
+    "mediji": "Media",
+    "nacinDobijanja": "Lead source"
+  },
+  "lokalitet": {
+    "title": "Location",
+    "drzava": "Country",
+    "grad": "City",
+    "opstina": "Municipality",
+    "lokacija": "Location",
+    "ulica": "Street"
+  },
+  "izvestaji": {
+    "title": "Reports",
+    "eop": "EOP",
+    "eok": "EOK",
+    "transakcije": "Completed transactions"
+  },
+  "analize": {
+    "title": "Analytics",
+    "mesecniPregled": "Monthly overview",
+    "analizaPoziva": "Call analysis",
+    "analizaMedija": "Media analysis",
+    "analizaDobijanja": "Lead source analysis",
+    "statistikaTerena": "Field visit statistics",
+    "prodajaVsRenta": "Sales vs Rent",
+    "arhiviraniOglasi": "Archived listings"
+  },
+  "scraping": {
+    "title": "Scraping",
+    "startScraping": "Start scraping",
+    "vlasnici": "Owners",
+    "vremeTrajanja": "Duration"
+  },
+  "kalendar": {
+    "title": "Calendar",
+    "kalendar": "Calendar",
+    "tipDogadjaja": "Event type"
+  },
+  "admin": {
+    "title": "Admin",
+    "korisnici": "Users",
+    "poruke": "Messages"
+  }
+}

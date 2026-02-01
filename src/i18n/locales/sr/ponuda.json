@@ -1,0 +1,55 @@
+{
+  "title": "Ponude",
+  "subtitle": "Upravljanje ponudama nekretnina",
+  "addNew": "Nova ponuda",
+  "editTitle": "Izmena ponude",
+  "form": {
+    "naslov": "Naslov",
+    "opis": "Opis",
+    "cena": "Cena (€)",
+    "kvadratura": "Kvadratura (m²)",
+    "sprat": "Sprat",
+    "ukupnoSpratova": "Ukupno spratova",
+    "brojSoba": "Broj soba",
+    "godinaGradnje": "Godina gradnje",
+    "vrstaObjekta": "Vrsta objekta",
+    "grejanje": "Grejanje",
+    "investitor": "Investitor",
+    "lokacija": "Lokacija",
+    "ulica": "Ulica",
+    "brojUlice": "Broj",
+    "napomena": "Napomena"
+  },
+  "status": {
+    "title": "Status",
+    "aktivna": "Aktivna",
+    "rezervisana": "Rezervisana",
+    "prodata": "Prodata",
+    "arhivirana": "Arhivirana"
+  },
+  "tip": {
+    "title": "Tip ponude",
+    "prodaja": "Prodaja",
+    "izdavanje": "Izdavanje"
+  },
+  "table": {
+    "id": "ID",
+    "naslov": "Naslov",
+    "lokacija": "Lokacija",
+    "cena": "Cena",
+    "kvadratura": "m²",
+    "sprat": "Sprat",
+    "sobe": "Sobe",
+    "status": "Status",
+    "datum": "Datum"
+  },
+  "filters": {
+    "title": "Filteri",
+    "prodaja": "Prodaja",
+    "izdavanje": "Izdavanje"
+  },
+  "messages": {
+    "saveSuccess": "Ponuda uspešno sačuvana",
+    "deleteSuccess": "Ponuda uspešno obrisana"
+  }
+}
