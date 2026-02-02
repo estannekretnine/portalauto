@@ -53,6 +53,8 @@
     "statusKupca": "Status kupca",
     "tip": "Tip",
     "aktivan": "Aktivan",
+    "aktivna": "Aktivna",
+    "neaktivna": "Neaktivna",
     "datum": "Datum"
   },
   "filters": {
@@ -82,12 +84,14 @@
     "archiveError": "Greška pri arhiviranju tražnje",
     "unarchiveError": "Greška pri dearhiviranju tražnje",
     "noResults": "Nema tražnji",
-    "noResultsDesc": "Nema tražnji koje odgovaraju vašim kriterijumima."
+    "noResultsDesc": "Nema tražnji koje odgovaraju vašim kriterijumima.",
+    "ucitavanjeTraznji": "Učitavanje tražnji..."
   },
   "actions": {
     "edit": "Promeni",
     "archive": "Arhiviraj",
-    "unarchive": "Dearhiviraj"
+    "unarchive": "Dearhiviraj",
+    "promeni": "Promeni"
   },
   "pagination": {
     "total": "Ukupno",

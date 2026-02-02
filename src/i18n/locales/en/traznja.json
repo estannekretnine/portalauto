@@ -53,6 +53,8 @@
     "statusKupca": "Buyer status",
     "tip": "Type",
     "aktivan": "Active",
+    "aktivna": "Active",
+    "neaktivna": "Inactive",
     "datum": "Date"
   },
   "filters": {
@@ -82,12 +84,14 @@
     "archiveError": "Error archiving demand",
     "unarchiveError": "Error unarchiving demand",
     "noResults": "No demands",
-    "noResultsDesc": "No demands match your criteria."
+    "noResultsDesc": "No demands match your criteria.",
+    "ucitavanjeTraznji": "Loading demands..."
   },
   "actions": {
     "edit": "Edit",
     "archive": "Archive",
-    "unarchive": "Unarchive"
+    "unarchive": "Unarchive",
+    "promeni": "Change"
   },
   "pagination": {
     "total": "Total",

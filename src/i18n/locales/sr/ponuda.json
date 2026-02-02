@@ -31,7 +31,8 @@
     "tipNekretnine": "Tip nekretnine",
     "cenaIPovrsina": "Cena i površina",
     "status": "Status",
-    "datumPrijema": "Datum prijema"
+    "datumPrijema": "Datum prijema",
+    "gdeTrazite": "Gde tražite?"
   },
   "status": {
     "title": "Status",
@@ -42,13 +43,16 @@
     "prodata": "Prodata",
     "arhivirana": "Arhivirana",
     "storno": "Storno",
-    "sve": "Sve"
+    "sve": "Sve",
+    "akt": "Akt",
+    "neak": "Neak"
   },
   "tip": {
     "title": "Tip ponude",
     "prodaja": "Prodaja",
     "izdavanje": "Izdavanje",
-    "renta": "Renta"
+    "renta": "Renta",
+    "sve": "Sve"
   },
   "table": {
     "id": "ID",
@@ -63,7 +67,15 @@
     "vrsta": "Vrsta",
     "opstina": "Opština",
     "ulica": "Ulica",
-    "struktura": "Struktura"
+    "struktura": "Struktura",
+    "str": "STR",
+    "vidljivo": "V",
+    "ugovor": "U",
+    "vidljivoTitle": "Vidljivo na sajtu",
+    "ugovorTitle": "Ugovor potpisan",
+    "arhivacija": "Arh.",
+    "tip": "Tip",
+    "actions": "Akcije"
   },
   "filters": {
     "title": "Filteri",
@@ -72,7 +84,8 @@
     "izdavanje": "Izdavanje",
     "reset": "Resetuj filtere",
     "showResults": "Prikaži ponude",
-    "searching": "Pretražujem..."
+    "searching": "Pretražujem...",
+    "prikaziOglase": "Prikaži oglase"
   },
   "archive": {
     "title": "Razlog arhiviranja",
@@ -98,13 +111,21 @@
     "other": "Drugo",
     "otherDesc": "Ostali razlozi",
     "confirm": "Arhiviraj ponudu",
-    "cancel": "Otkaži"
+    "cancel": "Otkaži",
+    "prodaja": "Prodaja",
+    "ostaliRazlozi": "Ostali razlozi",
+    "izabrano": "Izabrano"
   },
   "actions": {
     "edit": "Izmeni",
     "details": "Detalji",
     "archive": "Arhiviraj",
-    "unarchive": "Dearhiviraj"
+    "unarchive": "Dearhiviraj",
+    "promeni": "Promeni",
+    "arhiviraj": "Arhiviraj",
+    "dearhiviraj": "Dearhiviraj",
+    "storniraj": "Storniraj",
+    "otkazi": "Otkaži"
   },
   "messages": {
     "saveSuccess": "Ponuda uspešno sačuvana",
@@ -112,17 +133,32 @@
     "archiveSuccess": "Ponuda arhivirana",
     "unarchiveSuccess": "Ponuda dearhivirana",
     "noResults": "Nema ponuda",
-    "noResultsDesc": "Nema ponuda koje odgovaraju vašim kriterijumima."
+    "noResultsDesc": "Nema ponuda koje odgovaraju vašim kriterijumima.",
+    "archiveConfirm": "Da li želite da arhivirate ovu ponudu?",
+    "unarchiveConfirm": "Da li želite da dearhivirate ovu ponudu?",
+    "cancelConfirm": "Da li želite da stornirate ovu ponudu?"
   },
   "pagination": {
     "total": "Ukupno",
-    "offers": "ponuda"
+    "offers": "ponuda",
+    "prikazi": "Prikaži",
+    "ukupno": "Ukupno"
   },
   "ai": {
     "title": "AI Pretraga",
     "placeholder": "Opišite šta tražite...",
     "search": "Pretraži",
     "searching": "Pretražujem...",
-    "noResults": "Nema rezultata"
+    "noResults": "Nema rezultata",
+    "primeriUpita": "Primeri upita",
+    "tipPretrage": "Tip pretrage",
+    "kombinovano": "Kombinovano (preporučeno)",
+    "samoOpisi": "Samo opisi ponuda",
+    "samoFotografije": "Samo fotografije",
+    "infoText": "AI pretraga koristi semantičko podudaranje da pronađe nekretnine koje najbolje odgovaraju vašem opisu, čak i ako ne koristite tačne ključne reči.",
+    "aktivna": "AI pretraga aktivna",
+    "pronadjeno": "Pronađeno",
+    "rezultata": "rezultata",
+    "ponisti": "Poništi"
   }
 }

@@ -31,7 +31,8 @@
     "tipNekretnine": "Property type",
     "cenaIPovrsina": "Price and area",
     "status": "Status",
-    "datumPrijema": "Date received"
+    "datumPrijema": "Date received",
+    "gdeTrazite": "Where are you looking?"
   },
   "status": {
     "title": "Status",
@@ -42,13 +43,16 @@
     "prodata": "Sold",
     "arhivirana": "Archived",
     "storno": "Cancelled",
-    "sve": "All"
+    "sve": "All",
+    "akt": "Act",
+    "neak": "Inact"
   },
   "tip": {
     "title": "Offer type",
     "prodaja": "Sale",
     "izdavanje": "Rent",
-    "renta": "Rent"
+    "renta": "Rent",
+    "sve": "All"
   },
   "table": {
     "id": "ID",
@@ -63,7 +67,15 @@
     "vrsta": "Type",
     "opstina": "Municipality",
     "ulica": "Street",
-    "struktura": "Structure"
+    "struktura": "Structure",
+    "str": "STR",
+    "vidljivo": "V",
+    "ugovor": "U",
+    "vidljivoTitle": "Visible on website",
+    "ugovorTitle": "Contract signed",
+    "arhivacija": "Arch.",
+    "tip": "Type",
+    "actions": "Actions"
   },
   "filters": {
     "title": "Filters",
@@ -71,8 +83,9 @@
     "prodaja": "Sale",
     "izdavanje": "Rent",
     "reset": "Reset filters",
-    "showResults": "Show offers",
-    "searching": "Searching..."
+    "showResults": "Show ads",
+    "searching": "Searching...",
+    "prikaziOglase": "Show ads"
   },
   "archive": {
     "title": "Archive reason",
@@ -98,13 +111,21 @@
     "other": "Other",
     "otherDesc": "Other reasons",
     "confirm": "Archive offer",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "prodaja": "Sale",
+    "ostaliRazlozi": "Other reasons",
+    "izabrano": "Selected"
   },
   "actions": {
     "edit": "Edit",
     "details": "Details",
     "archive": "Archive",
-    "unarchive": "Unarchive"
+    "unarchive": "Unarchive",
+    "promeni": "Change",
+    "arhiviraj": "Archive",
+    "dearhiviraj": "Unarchive",
+    "storniraj": "Cancel",
+    "otkazi": "Cancel"
   },
   "messages": {
     "saveSuccess": "Offer saved successfully",
@@ -112,17 +133,32 @@
     "archiveSuccess": "Offer archived",
     "unarchiveSuccess": "Offer unarchived",
     "noResults": "No offers",
-    "noResultsDesc": "No offers match your criteria."
+    "noResultsDesc": "No offers match your criteria.",
+    "archiveConfirm": "Do you want to archive this offer?",
+    "unarchiveConfirm": "Do you want to unarchive this offer?",
+    "cancelConfirm": "Do you want to cancel this offer?"
   },
   "pagination": {
     "total": "Total",
-    "offers": "offers"
+    "offers": "offers",
+    "prikazi": "Show",
+    "ukupno": "Total"
   },
   "ai": {
     "title": "AI Search",
     "placeholder": "Describe what you're looking for...",
     "search": "Search",
     "searching": "Searching...",
-    "noResults": "No results"
+    "noResults": "No results",
+    "primeriUpita": "Query examples",
+    "tipPretrage": "Search type",
+    "kombinovano": "Combined (recommended)",
+    "samoOpisi": "Descriptions only",
+    "samoFotografije": "Photos only",
+    "infoText": "AI search uses semantic matching to find properties that best match your description, even if you don't use exact keywords.",
+    "aktivna": "AI search active",
+    "pronadjeno": "Found",
+    "rezultata": "results",
+    "ponisti": "Cancel"
   }
 }

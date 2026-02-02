@@ -834,7 +834,7 @@ export default function PonudeModule() {
 
   // Arhiviraj ponudu - otvori modal za izbor razloga
   const handleArhiviraj = (ponudaId) => {
-    if (!confirm('Da li želite da arhivirate ovu ponudu?')) return
+    if (!confirm(t('messages.archiveConfirm'))) return
     setOpenActionMenu(null)
     setSelectedPonudaIdForArchive(ponudaId)
     setShowArchiveReasonModal(true)
@@ -842,7 +842,7 @@ export default function PonudeModule() {
 
   // Dearhiviraj ponudu (postavi stsaktivan na true)
   const handleDearhiviraj = async (ponudaId) => {
-    if (!confirm('Da li želite da dearhivirate ovu ponudu?')) return
+    if (!confirm(t('messages.unarchiveConfirm'))) return
     
     try {
       const { error } = await supabase
@@ -894,7 +894,7 @@ export default function PonudeModule() {
 
   // Storniraj ponudu (postavi stsstorniran na true)
   const handleStorniraj = async (ponudaId) => {
-    if (!confirm('Da li želite da stornirate ovu ponudu?')) return
+    if (!confirm(t('messages.cancelConfirm'))) return
     
     try {
       const { error } = await supabase
@@ -1016,7 +1016,7 @@ export default function PonudeModule() {
             <div className="p-6">
               {/* Primeri upita */}
               <div className="mb-4">
-                <p className="text-xs text-gray-500 mb-2">Primeri upita:</p>
+                <p className="text-xs text-gray-500 mb-2">{t('ai.primeriUpita')}:</p>
                 <div className="flex flex-wrap gap-2">
                   {[
                     'Stan u mirnom okruženju za rad od kuće',
@@ -1052,7 +1052,7 @@ export default function PonudeModule() {
               {/* Tip pretrage */}
               <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tip pretrage:
+                  {t('ai.tipPretrage')}:
                 </label>
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -1064,7 +1064,7 @@ export default function PonudeModule() {
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    Kombinovano (preporučeno)
+                    {t('ai.kombinovano')}
                   </button>
                   <button
                     type="button"
@@ -1075,7 +1075,7 @@ export default function PonudeModule() {
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    Samo opisi ponuda
+                    {t('ai.samoOpisi')}
                   </button>
                   <button
                     type="button"
@@ -1086,13 +1086,13 @@ export default function PonudeModule() {
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    Samo fotografije
+                    {t('ai.samoFotografije')}
                   </button>
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
-                  {aiSearchType === 'combined' && 'Pretražuje i opise ponuda i AI opise fotografija za najbolje rezultate.'}
-                  {aiSearchType === 'ponude' && 'Pretražuje samo tekstualne opise i karakteristike ponuda.'}
-                  {aiSearchType === 'photos' && 'Pretražuje samo AI generisane opise fotografija (npr. "pogled na reku", "moderna kuhinja").'}
+                  {aiSearchType === 'combined' && t('ai.infoText')}
+                  {aiSearchType === 'ponude' && t('ai.infoText')}
+                  {aiSearchType === 'photos' && t('ai.infoText')}
                 </p>
               </div>
 
@@ -1101,8 +1101,7 @@ export default function PonudeModule() {
                 <div className="flex items-start gap-2">
                   <Sparkles className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
                   <p className="text-xs text-purple-700">
-                    AI pretraga koristi semantičko podudaranje da pronađe nekretnine koje najbolje odgovaraju vašem opisu, 
-                    čak i ako ne koristite tačne ključne reči.
+                    {t('ai.infoText')}
                   </p>
                 </div>
               </div>
@@ -1117,7 +1116,7 @@ export default function PonudeModule() {
                 }}
                 className="px-5 py-2.5 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-xl transition-colors font-medium"
               >
-                Otkaži
+                {t('actions.otkazi')}
               </button>
               <button
                 onClick={handleAISearch}
@@ -1127,12 +1126,12 @@ export default function PonudeModule() {
                 {aiSearchLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Pretražujem...
+                    {t('ai.searching')}
                   </>
                 ) : (
                   <>
                     <Search className="w-4 h-4" />
-                    Pretraži
+                    {t('ai.search')}
                   </>
                 )}
               </button>
@@ -1149,8 +1148,8 @@ export default function PonudeModule() {
               <Brain className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-purple-900">AI pretraga aktivna</p>
-              <p className="text-xs text-purple-600">"{aiSearchQuery}" - Pronađeno {aiSearchResults.length} rezultata</p>
+              <p className="text-sm font-semibold text-purple-900">{t('ai.aktivna')}</p>
+              <p className="text-xs text-purple-600">"{aiSearchQuery}" - {t('ai.pronadjeno')} {aiSearchResults.length} {t('ai.rezultata')}</p>
             </div>
           </div>
           <button
@@ -1158,7 +1157,7 @@ export default function PonudeModule() {
             className="flex items-center gap-2 px-4 py-2 bg-white text-purple-700 rounded-xl hover:bg-purple-100 transition-colors font-medium text-sm border border-purple-200"
           >
             <X className="w-4 h-4" />
-            Poništi
+            {t('ai.ponisti')}
           </button>
         </div>
       )}
@@ -1170,7 +1169,7 @@ export default function PonudeModule() {
             <div className="bg-gradient-to-r from-gray-900 to-black px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Archive className="w-5 h-5 text-amber-400" />
-                <h3 className="text-lg font-bold text-white">Razlog arhiviranja</h3>
+                <h3 className="text-lg font-bold text-white">{t('archive.title')}</h3>
               </div>
               <button
                 onClick={() => {
@@ -1184,11 +1183,11 @@ export default function PonudeModule() {
               </button>
             </div>
             <div className="p-6">
-              <p className="text-gray-600 mb-4">Izaberite razlog arhiviranja ponude:</p>
+              <p className="text-gray-600 mb-4">{t('archive.subtitle')}</p>
               
               {/* Istaknute opcije za prodaju */}
               <div className="mb-4">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Prodaja</p>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">{t('archive.prodaja')}</p>
                 <div className="grid grid-cols-1 gap-2">
                   {archiveReasons.filter(r => r.highlight).map((reason) => (
                     <button
@@ -1219,7 +1218,7 @@ export default function PonudeModule() {
                                   ? 'bg-emerald-500 text-white' 
                                   : 'bg-blue-500 text-white'
                               }`}>
-                                Izabrano
+                                {t('archive.izabrano')}
                               </span>
                             )}
                           </div>
@@ -1237,7 +1236,7 @@ export default function PonudeModule() {
               
               {/* Ostali razlozi */}
               <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Ostali razlozi</p>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">{t('archive.ostaliRazlozi')}</p>
                 <div className="grid grid-cols-2 gap-2">
                   {archiveReasons.filter(r => !r.highlight).map((reason) => (
                     <button
@@ -1273,14 +1272,14 @@ export default function PonudeModule() {
                   }}
                   className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors font-medium"
                 >
-                  Otkaži
+                  {t('actions.otkazi')}
                 </button>
                 <button
                   onClick={handleArchiveConfirm}
                   disabled={!archiveReason}
                   className="flex-1 px-4 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Arhiviraj
+                  {t('actions.arhiviraj')}
                 </button>
               </div>
             </div>
@@ -1296,7 +1295,7 @@ export default function PonudeModule() {
             <div className="bg-gradient-to-r from-gray-900 to-black px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Search className="w-5 h-5 text-amber-400" />
-                <h3 className="text-lg font-bold text-white">Pretraga ponuda</h3>
+                <h3 className="text-lg font-bold text-white">{t('filters.search')}</h3>
               </div>
               <button
                 onClick={() => setShowFilters(false)}
@@ -1310,9 +1309,9 @@ export default function PonudeModule() {
               {/* Red 1: Tip transakcije */}
               <div className="flex gap-2">
                 {[
-                  { value: '', label: 'Sve' },
-                  { value: 'prodaja', label: 'Prodaja' },
-                  { value: 'renta', label: 'Izdavanje' }
+                  { value: '', label: t('tip.sve') },
+                  { value: 'prodaja', label: t('tip.prodaja') },
+                  { value: 'renta', label: t('tip.izdavanje') }
                 ].map(option => (
                   <button
                     key={option.value}
@@ -1335,7 +1334,7 @@ export default function PonudeModule() {
                   onChange={(e) => handleFilterChange('idvrstaobjekta', e.target.value)}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent appearance-none cursor-pointer"
                 >
-                  <option value="">Tip nekretnine</option>
+                  <option value="">{t('form.tipNekretnine')}</option>
                   {vrsteObjekata.map(vrsta => (
                     <option key={vrsta.id} value={vrsta.id}>{vrsta.opis}</option>
                   ))}
@@ -1355,7 +1354,7 @@ export default function PonudeModule() {
                       setShowLokalitetDropdown(true)
                     }}
                     onFocus={() => setShowLokalitetDropdown(true)}
-                    placeholder="Gde tražite?"
+                    placeholder={t('form.gdeTrazite')}
                     className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   />
                 </div>
@@ -1430,7 +1429,7 @@ export default function PonudeModule() {
                     value={filters.cenaOd}
                     onChange={(e) => handleFilterChange('cenaOd', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Cena od"
+                    placeholder={t('form.cenaOd')}
                   />
                 </div>
                 <div className="relative">
@@ -1440,7 +1439,7 @@ export default function PonudeModule() {
                     value={filters.cenaDo}
                     onChange={(e) => handleFilterChange('cenaDo', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Cena do"
+                    placeholder={t('form.cenaDo')}
                   />
                 </div>
               </div>
@@ -1454,7 +1453,7 @@ export default function PonudeModule() {
                     value={filters.kvadraturaOd}
                     onChange={(e) => handleFilterChange('kvadraturaOd', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Kvadratura od (m²)"
+                    placeholder={t('form.kvadraturaOd')}
                   />
                 </div>
                 <div className="relative">
@@ -1464,7 +1463,7 @@ export default function PonudeModule() {
                     value={filters.kvadraturaDo}
                     onChange={(e) => handleFilterChange('kvadraturaDo', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Kvadratura do (m²)"
+                    placeholder={t('form.kvadraturaDo')}
                   />
                 </div>
               </div>
@@ -1479,7 +1478,7 @@ export default function PonudeModule() {
                     value={filters.strukturaOd}
                     onChange={(e) => handleFilterChange('strukturaOd', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Broj soba od"
+                    placeholder={t('form.strukturaOd')}
                   />
                 </div>
                 <div className="relative">
@@ -1490,7 +1489,7 @@ export default function PonudeModule() {
                     value={filters.strukturaDo}
                     onChange={(e) => handleFilterChange('strukturaDo', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                    placeholder="Broj soba do"
+                    placeholder={t('form.strukturaDo')}
                   />
                 </div>
               </div>
@@ -1506,7 +1505,7 @@ export default function PonudeModule() {
                   }`}
                 >
                   <span className={`w-2 h-2 rounded-full ${filters.statusFilter === 'aktivne' ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
-                  Aktivne
+                  {t('status.aktivne')}
                 </button>
                 <button
                   onClick={() => handleFilterChange('statusFilter', 'neaktivne')}
@@ -1517,7 +1516,7 @@ export default function PonudeModule() {
                   }`}
                 >
                   <span className={`w-2 h-2 rounded-full ${filters.statusFilter === 'neaktivne' ? 'bg-gray-500' : 'bg-gray-400'}`}></span>
-                  Neaktivne
+                  {t('status.neaktivne')}
                 </button>
                 <button
                   onClick={() => handleFilterChange('statusFilter', 'storno')}
@@ -1528,7 +1527,7 @@ export default function PonudeModule() {
                   }`}
                 >
                   <span className={`w-2 h-2 rounded-full ${filters.statusFilter === 'storno' ? 'bg-red-500' : 'bg-gray-400'}`}></span>
-                  Storno
+                  {t('status.storno')}
                 </button>
                 <button
                   onClick={() => handleFilterChange('statusFilter', 'sve')}
@@ -1539,7 +1538,7 @@ export default function PonudeModule() {
                   }`}
                 >
                   <span className={`w-2 h-2 rounded-full ${filters.statusFilter === 'sve' ? 'bg-blue-500' : 'bg-gray-400'}`}></span>
-                  Sve
+                  {t('status.sve')}
                 </button>
               </div>
             </div>
@@ -1551,7 +1550,7 @@ export default function PonudeModule() {
                 className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
               >
                 <RotateCcw className="w-4 h-4" />
-                Resetuj filtere
+                {t('filters.reset')}
               </button>
               <button
                 onClick={handleSearch}
@@ -1559,7 +1558,7 @@ export default function PonudeModule() {
                 className="flex items-center gap-2 px-6 py-2.5 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-all disabled:opacity-50"
               >
                 <Search className="w-5 h-5" />
-                {loading ? 'Pretražujem...' : 'Prikaži oglase'}
+                {loading ? t('filters.searching') : t('filters.prikaziOglase')}
               </button>
             </div>
           </div>
@@ -1572,8 +1571,8 @@ export default function PonudeModule() {
           <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
             <Home className="w-12 h-12 text-gray-400" />
           </div>
-          <p className="text-gray-900 text-2xl font-bold mb-2">Nema ponuda</p>
-          <p className="text-gray-500">Nema ponuda koje odgovaraju vašim kriterijumima.</p>
+          <p className="text-gray-900 text-2xl font-bold mb-2">{t('messages.noResults')}</p>
+          <p className="text-gray-500">{t('messages.noResultsDesc')}</p>
         </div>
       ) : viewMode === 'table' ? (
         /* Table View - Compass Style */
@@ -1587,7 +1586,7 @@ export default function PonudeModule() {
                     onClick={() => handleSort('id')}
                   >
                     <div className="flex items-center gap-0.5">
-                      ID
+                      {t('table.id')}
                       {sortConfig.key === 'id' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                       )}
@@ -1598,7 +1597,7 @@ export default function PonudeModule() {
                     onClick={() => handleSort('vrsta')}
                   >
                     <div className="flex items-center gap-0.5">
-                      Vrsta
+                      {t('table.vrsta')}
                       {sortConfig.key === 'vrsta' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                       )}
@@ -1609,7 +1608,7 @@ export default function PonudeModule() {
                     onClick={() => handleSort('opstina')}
                   >
                     <div className="flex items-center gap-0.5">
-                      Opština
+                      {t('table.opstina')}
                       {sortConfig.key === 'opstina' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                       )}
@@ -1620,7 +1619,7 @@ export default function PonudeModule() {
                     onClick={() => handleSort('lokacija')}
                   >
                     <div className="flex items-center gap-0.5">
-                      Lokacija
+                      {t('table.lokacija')}
                       {sortConfig.key === 'lokacija' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                       )}
@@ -1631,7 +1630,7 @@ export default function PonudeModule() {
                     onClick={() => handleSort('ulica')}
                   >
                     <div className="flex items-center gap-0.5">
-                      Ulica
+                      {t('table.ulica')}
                       {sortConfig.key === 'ulica' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                       )}
@@ -1640,10 +1639,10 @@ export default function PonudeModule() {
                   <th 
                     className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none w-14"
                     onClick={() => handleSort('kvadratura')}
-                    title="Kvadratura nekretnine"
+                    title={t('table.kvadratura')}
                   >
                     <div className="flex items-center gap-0.5">
-                      m²
+                      {t('table.kvadratura')}
                       {sortConfig.key === 'kvadratura' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                       )}
@@ -1654,7 +1653,7 @@ export default function PonudeModule() {
                     onClick={() => handleSort('struktura')}
                   >
                     <div className="flex items-center gap-0.5">
-                      STR
+                      {t('table.str')}
                       {sortConfig.key === 'struktura' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                       )}
@@ -1665,30 +1664,30 @@ export default function PonudeModule() {
                     onClick={() => handleSort('cena')}
                   >
                     <div className="flex items-center gap-0.5">
-                      Cena
+                      {t('table.cena')}
                       {sortConfig.key === 'cena' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                       )}
                     </div>
                   </th>
-                  <th className="px-1 py-2 text-center text-[10px] font-bold uppercase tracking-wider w-8" title="Vidljivo na sajtu">V</th>
-                  <th className="px-1 py-2 text-center text-[10px] font-bold uppercase tracking-wider w-8" title="Ugovor potpisan">U</th>
+                  <th className="px-1 py-2 text-center text-[10px] font-bold uppercase tracking-wider w-8" title={t('table.vidljivoTitle')}>{t('table.vidljivo')}</th>
+                  <th className="px-1 py-2 text-center text-[10px] font-bold uppercase tracking-wider w-8" title={t('table.ugovorTitle')}>{t('table.ugovor')}</th>
                   <th 
                     className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none w-20"
                     onClick={() => handleSort('datumkreiranja')}
                   >
                     <div className="flex items-center gap-0.5">
-                      Datum
+                      {t('table.datum')}
                       {sortConfig.key === 'datumkreiranja' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                       )}
                     </div>
                   </th>
-                  <th className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider w-20">Status</th>
+                  <th className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider w-20">{t('table.status')}</th>
                   {filters.statusFilter !== 'aktivne' && (
-                    <th className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider w-20">Arh.</th>
+                    <th className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider w-20">{t('table.arhivacija')}</th>
                   )}
-                  <th className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider w-16">Tip</th>
+                  <th className="px-2 py-2 text-left text-[10px] font-bold uppercase tracking-wider w-16">{t('table.tip')}</th>
                   <th className="px-1 py-2 text-center text-[10px] font-bold uppercase tracking-wider w-10"></th>
                 </tr>
                 {/* Red sa filterima */}
@@ -1847,7 +1846,7 @@ export default function PonudeModule() {
                               ? 'bg-emerald-500' 
                               : 'bg-gray-400'
                         }`}></span>
-                        {ponuda.stsstorniran ? 'Storno' : ponuda.stsaktivan ? 'Akt' : 'Neak'}
+                        {ponuda.stsstorniran ? t('status.storno') : ponuda.stsaktivan ? t('status.akt') : t('status.neak')}
                       </span>
                     </td>
                     {filters.statusFilter !== 'aktivne' && (
@@ -1863,7 +1862,7 @@ export default function PonudeModule() {
                           ? 'bg-blue-100 text-blue-800'
                           : 'bg-amber-100 text-amber-800'
                       }`}>
-                        {ponuda.stsrentaprodaja === 'prodaja' ? 'P' : 'R'}
+                        {ponuda.stsrentaprodaja === 'prodaja' ? t('tip.prodaja').charAt(0) : t('tip.renta').charAt(0)}
                       </span>
                     </td>
                     <td className="px-1 py-2 whitespace-nowrap text-center">
@@ -1901,7 +1900,7 @@ export default function PonudeModule() {
                                 className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
                               >
                                 <Pencil className="w-3 h-3" />
-                                Promeni
+                                {t('actions.promeni')}
                               </button>
                               <button
                                 onClick={(e) => {
@@ -1913,7 +1912,7 @@ export default function PonudeModule() {
                                 className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
                               >
                                 <Phone className="w-3 h-3" />
-                                Detalji
+                                {t('actions.details')}
                               </button>
                               {ponuda.stsaktivan ? (
                                 <button
@@ -1924,7 +1923,7 @@ export default function PonudeModule() {
                                   className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
                                 >
                                   <Archive className="w-3 h-3" />
-                                  Arhiviraj
+                                  {t('actions.arhiviraj')}
                                 </button>
                               ) : (
                                 <button
@@ -1935,7 +1934,7 @@ export default function PonudeModule() {
                                   className="w-full flex items-center gap-2 px-3 py-2 text-xs text-emerald-700 hover:bg-emerald-50 transition-colors"
                                 >
                                   <ArchiveRestore className="w-3 h-3" />
-                                  Dearhiviraj
+                                  {t('actions.dearhiviraj')}
                                 </button>
                               )}
                               <button
@@ -1946,7 +1945,7 @@ export default function PonudeModule() {
                                 className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-600 hover:bg-red-50 transition-colors"
                               >
                                 <XCircle className="w-3 h-3" />
-                                Storniraj
+                                {t('actions.storniraj')}
                               </button>
                             </div>
                           </>
@@ -1962,7 +1961,7 @@ export default function PonudeModule() {
           {/* Pagination - Compass Style */}
           <div className="bg-gradient-to-r from-gray-900 to-black px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400">Prikaži:</span>
+              <span className="text-xs text-gray-400">{t('pagination.prikazi')}:</span>
               <select
                 value={itemsPerPage}
                 onChange={(e) => {
@@ -2003,7 +2002,7 @@ export default function PonudeModule() {
             </div>
             
             <div className="text-xs text-gray-400 font-medium">
-              Ukupno: <span className="text-amber-400 font-bold">{totalPonude}</span>
+              {t('pagination.ukupno')}: <span className="text-amber-400 font-bold">{totalPonude}</span>
             </div>
           </div>
         </div>
@@ -2045,7 +2044,7 @@ export default function PonudeModule() {
                       ? 'bg-blue-500 text-white'
                       : 'bg-gradient-to-r from-amber-500 to-amber-600 text-white'
                   }`}>
-                    {ponuda.stsrentaprodaja === 'prodaja' ? 'Prodaja' : 'Renta'}
+                    {ponuda.stsrentaprodaja === 'prodaja' ? t('tip.prodaja') : t('tip.renta')}
                   </div>
                 </div>
 
@@ -2094,12 +2093,12 @@ export default function PonudeModule() {
                             ? 'bg-emerald-500' 
                             : 'bg-gray-400'
                       }`}></span>
-                      {ponuda.stsstorniran ? 'Storno' : ponuda.stsaktivan ? 'Aktivan' : 'Neaktivan'}
+                      {ponuda.stsstorniran ? t('status.storno') : ponuda.stsaktivan ? t('status.aktivna') : t('status.neaktivne')}
                     </span>
                     {/* Prikaz datuma brisanja za neaktivne */}
                     {filters.statusFilter !== 'aktivne' && ponuda.datumbrisanja && (
                       <div className="text-[10px] text-gray-500 mt-1">
-                        Arh: {new Date(ponuda.datumbrisanja).toLocaleDateString('sr-RS')}
+                        {t('table.arhivacija')}: {new Date(ponuda.datumbrisanja).toLocaleDateString('sr-RS')}
                       </div>
                     )}
                   </div>
@@ -2111,7 +2110,7 @@ export default function PonudeModule() {
           {/* Pagination - Compass Style */}
           <div className="bg-gradient-to-r from-gray-900 to-black rounded-2xl shadow-lg mt-4 px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400">Prikaži:</span>
+              <span className="text-xs text-gray-400">{t('pagination.prikazi')}:</span>
               <select
                 value={itemsPerPage}
                 onChange={(e) => {
@@ -2152,7 +2151,7 @@ export default function PonudeModule() {
             </div>
             
             <div className="text-xs text-gray-400 font-medium">
-              Ukupno: <span className="text-amber-400 font-bold">{totalPonude}</span>
+              {t('pagination.ukupno')}: <span className="text-amber-400 font-bold">{totalPonude}</span>
             </div>
           </div>
         </div>

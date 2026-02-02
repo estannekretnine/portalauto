@@ -365,7 +365,7 @@ export default function TraznjaModule() {
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-4">
           <div className="w-14 h-14 border-4 border-gray-200 border-t-amber-500 rounded-full animate-spin"></div>
-          <p className="text-gray-600 font-medium">Učitavanje tražnji...</p>
+          <p className="text-gray-600 font-medium">{t('messages.ucitavanjeTraznji')}</p>
         </div>
       </div>
     )
@@ -898,7 +898,7 @@ export default function TraznjaModule() {
                     onClick={() => handleSort('id')}
                   >
                     <div className="flex items-center gap-1">
-                      ID
+                      {t('table.id')}
                       {sortConfig.key === 'id' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                       )}
@@ -909,7 +909,7 @@ export default function TraznjaModule() {
                     onClick={() => handleSort('kontaktosoba')}
                   >
                     <div className="flex items-center gap-1">
-                      Kontakt
+                      {t('table.kontakt')}
                       {sortConfig.key === 'kontaktosoba' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                       )}
@@ -920,7 +920,7 @@ export default function TraznjaModule() {
                     onClick={() => handleSort('opstina')}
                   >
                     <div className="flex items-center gap-1">
-                      Opština
+                      {t('table.opstina')}
                       {sortConfig.key === 'opstina' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                       )}
@@ -931,7 +931,7 @@ export default function TraznjaModule() {
                     onClick={() => handleSort('lokacija')}
                   >
                     <div className="flex items-center gap-1">
-                      Lokacija
+                      {t('table.lokacija')}
                       {sortConfig.key === 'lokacija' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                       )}
@@ -942,25 +942,25 @@ export default function TraznjaModule() {
                     onClick={() => handleSort('cenado')}
                   >
                     <div className="flex items-center gap-1">
-                      Cena do
+                      {t('table.cenaDo')}
                       {sortConfig.key === 'cenado' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                       )}
                     </div>
                   </th>
-                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">M² OD</th>
-                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">M² DO</th>
-                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">Sprat od</th>
-                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">Sprat do</th>
-                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">Status kupca</th>
-                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">Tip</th>
-                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">Aktivan</th>
+                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">{t('table.kvmOd')}</th>
+                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">{t('table.kvmDo')}</th>
+                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">{t('table.spratOd')}</th>
+                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">{t('table.spratDo')}</th>
+                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">{t('table.statusKupca')}</th>
+                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">{t('table.tip')}</th>
+                  <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider">{t('table.aktivan')}</th>
                   <th 
                     className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-white/10 transition-colors select-none"
                     onClick={() => handleSort('datumkreiranja')}
                   >
                     <div className="flex items-center gap-1">
-                      Datum
+                      {t('table.datum')}
                       {sortConfig.key === 'datumkreiranja' && (
                         sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                       )}
@@ -1155,7 +1155,7 @@ export default function TraznjaModule() {
                           ? 'bg-amber-100 text-amber-800'
                           : 'bg-gray-100 text-gray-600'
                       }`}>
-                        {traznja.stskupaczakupac === 'kupac' ? '🏠 Kupac' : traznja.stskupaczakupac === 'zakupac' ? '🔑 Zakupac' : '-'}
+                        {traznja.stskupaczakupac === 'kupac' ? '🏠 ' + t('tip.kupac') : traznja.stskupaczakupac === 'zakupac' ? '🔑 ' + t('tip.zakupac') : '-'}
                       </span>
                     </td>
                     <td className="px-2 py-2 whitespace-nowrap">
@@ -1166,7 +1166,7 @@ export default function TraznjaModule() {
                             : 'bg-gray-200 text-gray-600'
                         }`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${traznja.stsaktivan ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
-                          {traznja.stsaktivan ? 'Aktivna' : 'Neaktivna'}
+                          {traznja.stsaktivan ? t('table.aktivna') : t('table.neaktivna')}
                         </span>
                         {/* Prikaz datuma brisanja za neaktivne */}
                         {!traznja.stsaktivan && traznja.datumbrisanja && (
@@ -1216,7 +1216,7 @@ export default function TraznjaModule() {
                                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
                               >
                                 <Pencil className="w-4 h-4" />
-                                {t('actions.edit')}
+                                {t('actions.promeni')}
                               </button>
                               {traznja.stsaktivan ? (
                                 <button
