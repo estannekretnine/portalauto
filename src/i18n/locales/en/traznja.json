@@ -25,7 +25,16 @@
     "cena": "Price",
     "kvadraturaStruktura": "Area and structure",
     "sprat": "Floor",
-    "detalji": "Demand details"
+    "detalji": "Demand details",
+    "detaljitraznje": "Demand details",
+    "necezadnjispratat": "No top floor",
+    "necesuteren": "No basement",
+    "izaberiteDrzavu": "Select country",
+    "izaberiteGrad": "Select city",
+    "izaberiteOpstinu": "Select municipality",
+    "izaberiteLokaciju": "Select location",
+    "kucajteNazivUlice": "Type street name...",
+    "lokalitetAutomatski": "Location (automatic)"
   },
   "status": {
     "title": "Buyer status",
@@ -96,5 +105,17 @@
   "pagination": {
     "total": "Total",
     "demands": "demands"
+  },
+  "sections": {
+    "osnovne": "Basic Information",
+    "lokacija": "Location",
+    "ai": "AI Characteristics",
+    "metapodaci": "Metadata"
+  },
+  "tabs": {
+    "nalogodavci": "Clients",
+    "eop": "EOP",
+    "realizacija": "Realization",
+    "zastupnik": "Representative"
   }
 }

@@ -8,69 +8,69 @@ import PropertyMap from './PropertyMap'
 import RizikAnalizaModal from './RizikAnalizaModal'
 import { getInitialAnalizaRizika } from '../constants/indikatori-rizika'
 
-// Definicija polja po vrstama objekata
-const FIELD_DEFINITIONS = {
+// Definicija polja po vrstama objekata - funkcija koja prima t() za prevode
+const getFieldDefinitions = (t) => ({
   // Polja koja se prikazuju za sve vrste objekata
   all: [
-    { key: 'naslovaoglasa', label: 'Naslov oglasa (lokacija, sprat, grejanje)', type: 'text', required: true, section: 'osnovne' },
-    { key: 'cena', label: 'Cena (€)', type: 'number', required: true, section: 'osnovne' },
-    { key: 'kvadratura', label: 'Kvadratura (m²)', type: 'number', section: 'osnovne' },
-    { key: 'terasa', label: 'Terasa (m²)', type: 'text', section: 'osnovne' },
-    { key: 'kvadraturaizugovora', label: 'Uknjižena kvadratura (m²)', type: 'number', section: 'osnovne' },
-    { key: 'struktura', label: 'Struktura', type: 'number', section: 'osnovne' },
-    { key: 'stsuseljivost', label: 'Useljivost', type: 'select', options: ['Odmah', 'Vezano', 'Neuseljiv'], section: 'tehnicke' },
-    { key: 'stsdupleks', label: 'Dupleks', type: 'checkbox', section: 'tehnicke' },
-    { key: 'stsimagarazu', label: 'Ima garažu', type: 'checkbox', section: 'tehnicke' },
+    { key: 'naslovaoglasa', label: t('form.naslovOglasa'), type: 'text', required: true, section: 'osnovne' },
+    { key: 'cena', label: t('form.cena'), type: 'number', required: true, section: 'osnovne' },
+    { key: 'kvadratura', label: t('form.kvadratura'), type: 'number', section: 'osnovne' },
+    { key: 'terasa', label: t('form.terasa'), type: 'text', section: 'osnovne' },
+    { key: 'kvadraturaizugovora', label: t('form.uknjizenaKvadratura'), type: 'number', section: 'osnovne' },
+    { key: 'struktura', label: t('form.struktura'), type: 'number', section: 'osnovne' },
+    { key: 'stsuseljivost', label: t('form.useljivost'), type: 'select', options: [t('form.odmah'), t('form.vezano'), t('form.neuseljiv')], section: 'tehnicke' },
+    { key: 'stsdupleks', label: t('form.dupleks'), type: 'checkbox', section: 'tehnicke' },
+    { key: 'stsimagarazu', label: t('form.imaGarazu'), type: 'checkbox', section: 'tehnicke' },
     // Opremljenost - aparati i oprema
-    { key: 'stsfrizider', label: 'Frižider', type: 'checkbox', section: 'opremljenost' },
-    { key: 'stssporet', label: 'Šporet', type: 'checkbox', section: 'opremljenost' },
-    { key: 'stsvesmasina', label: 'Veš mašina', type: 'checkbox', section: 'opremljenost' },
-    { key: 'ststv', label: 'TV', type: 'checkbox', section: 'opremljenost' },
-    { key: 'stsklima', label: 'Klima', type: 'checkbox', section: 'opremljenost' },
-    { key: 'stssudomasina', label: 'Sudo mašina', type: 'checkbox', section: 'opremljenost' },
-    { key: 'stsmikrotalasna', label: 'Mikrotalasna', type: 'checkbox', section: 'opremljenost' },
-    { key: 'stspegla', label: 'Pegla', type: 'checkbox', section: 'opremljenost' },
-    { key: 'stsusisivac', label: 'Usisivač', type: 'checkbox', section: 'opremljenost' },
-    { key: 'stsfen', label: 'Fen', type: 'checkbox', section: 'opremljenost' },
+    { key: 'stsfrizider', label: t('form.frizider'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'stssporet', label: t('form.sporet'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'stsvesmasina', label: t('form.vesMasina'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'ststv', label: t('form.tv'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'stsklima', label: t('form.klima'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'stssudomasina', label: t('form.sudoMasina'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'stsmikrotalasna', label: t('form.mikrotalasna'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'stspegla', label: t('form.pegla'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'stsusisivac', label: t('form.usisivac'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'stsfen', label: t('form.fen'), type: 'checkbox', section: 'opremljenost' },
     // Nivo opremljenosti - na kraju
-    { key: 'stsopremljen', label: 'Nivo opremljenosti', type: 'select', options: ['Prazan', 'Polunamešten', 'Namešten'], section: 'opremljenost' },
-    { key: 'opis', label: 'Opis', type: 'textarea', section: 'osnovne' },
+    { key: 'stsopremljen', label: t('form.nivoOpremljenosti'), type: 'select', options: [t('form.prazan'), t('form.polunamesten'), t('form.namesten')], section: 'opremljenost' },
+    { key: 'opis', label: t('form.opis'), type: 'textarea', section: 'osnovne' },
   ],
   // Polja specifična za određene vrste objekata
   stan: [
-    { key: 'spratstana', label: 'Sprat stana', type: 'number', section: 'tehnicke' },
-    { key: 'spratnostzgrade', label: 'Spratnost zgrade', type: 'number', section: 'tehnicke' },
-    { key: 'sprat', label: 'Sprat', type: 'text', section: 'tehnicke' },
-    { key: 'ststelefon', label: 'Telefon', type: 'checkbox', section: 'opremljenost' },
-    { key: 'brojtelefona_linija', label: 'Broj tel. linija', type: 'select', options: ['Nema', '1', '2', '3', '4', '5+'], section: 'opremljenost' },
-    { key: 'stslift', label: 'Lift', type: 'checkbox', section: 'opremljenost' },
-    { key: 'stsuknjizen', label: 'Uknižen', type: 'checkbox', section: 'opremljenost' },
-    { key: 'stspodrum', label: 'Podrum', type: 'checkbox', section: 'opremljenost' },
-    { key: 'ststoplavoda', label: 'Topla voda', type: 'checkbox', section: 'opremljenost' },
-    { key: 'stsinterfon', label: 'Interfon', type: 'checkbox', section: 'opremljenost' },
-    { key: 'stszasebno', label: 'Zasebno', type: 'checkbox', section: 'opremljenost' },
-    { key: 'stslodja', label: 'Lođa', type: 'checkbox', section: 'opremljenost' },
-    { key: 'stsfb', label: 'FB', type: 'checkbox', section: 'opremljenost' },
+    { key: 'spratstana', label: t('form.spratStana'), type: 'number', section: 'tehnicke' },
+    { key: 'spratnostzgrade', label: t('form.spratnostZgrade'), type: 'number', section: 'tehnicke' },
+    { key: 'sprat', label: t('form.sprat'), type: 'text', section: 'tehnicke' },
+    { key: 'ststelefon', label: t('form.telefon'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'brojtelefona_linija', label: t('form.brojTelLinija'), type: 'select', options: [t('form.nema'), '1', '2', '3', '4', '5+'], section: 'opremljenost' },
+    { key: 'stslift', label: t('form.lift'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'stsuknjizen', label: t('form.uknijzen'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'stspodrum', label: t('form.podrum'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'ststoplavoda', label: t('form.toplaVoda'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'stsinterfon', label: t('form.interfon'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'stszasebno', label: t('form.zasebno'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'stslodja', label: t('form.lodja'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'stsfb', label: t('form.fb'), type: 'checkbox', section: 'opremljenost' },
   ],
   plac: [
-    { key: 'ari', label: 'ARI (m²)', type: 'number', section: 'tehnicke' },
-    { key: 'stslegalizacija', label: 'Legalizacija', type: 'checkbox', section: 'tehnicke' },
-    { key: 'stszasticen', label: 'Zaštićen', type: 'checkbox', section: 'tehnicke' },
+    { key: 'ari', label: t('form.ari'), type: 'number', section: 'tehnicke' },
+    { key: 'stslegalizacija', label: t('form.legalizacija'), type: 'checkbox', section: 'tehnicke' },
+    { key: 'stszasticen', label: t('form.zasticen'), type: 'checkbox', section: 'tehnicke' },
   ],
   kuca: [
-    { key: 'spratnostzgrade', label: 'Spratnost', type: 'number', section: 'tehnicke' },
-    { key: 'etaze', label: 'Etaže', type: 'text', section: 'tehnicke' },
-    { key: 'stspodrum', label: 'Podrum', type: 'checkbox', section: 'opremljenost' },
-    { key: 'stsimaparking', label: 'Ima parking', type: 'checkbox', section: 'opremljenost' },
-    { key: 'stsdvamokracvora', label: 'Dva mokraćvora', type: 'checkbox', section: 'opremljenost' },
+    { key: 'spratnostzgrade', label: t('form.spratnost'), type: 'number', section: 'tehnicke' },
+    { key: 'etaze', label: t('form.etaze'), type: 'text', section: 'tehnicke' },
+    { key: 'stspodrum', label: t('form.podrum'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'stsimaparking', label: t('form.imaParking'), type: 'checkbox', section: 'opremljenost' },
+    { key: 'stsdvamokracvora', label: t('form.dvaMokracvora'), type: 'checkbox', section: 'opremljenost' },
   ],
   poslovni: [
-    { key: 'sprat', label: 'Sprat', type: 'text', section: 'tehnicke' },
-    { key: 'opissekretarice', label: 'Opis sekretarice', type: 'textarea', section: 'tehnicke' },
-    { key: 'prostorije', label: 'Prostorije', type: 'text', section: 'tehnicke' },
-    { key: 'stssalonac', label: 'Salonac', type: 'checkbox', section: 'opremljenost' },
+    { key: 'sprat', label: t('form.sprat'), type: 'text', section: 'tehnicke' },
+    { key: 'opissekretarice', label: t('form.opisSekretarice'), type: 'textarea', section: 'tehnicke' },
+    { key: 'prostorije', label: t('form.prostorije'), type: 'text', section: 'tehnicke' },
+    { key: 'stssalonac', label: t('form.salonac'), type: 'checkbox', section: 'opremljenost' },
   ],
-}
+})
 
 // Mapiranje vrsta objekata (može se proširiti)
 const getVrstaObjektaKey = (vrstaObjektaOpis) => {
@@ -984,6 +984,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
   }
 
   const getVisibleFields = () => {
+    const FIELD_DEFINITIONS = getFieldDefinitions(t)
     const allFields = FIELD_DEFINITIONS.all || []
     if (!selectedVrstaObjekta) return allFields
     
@@ -2093,33 +2094,33 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">🏢 Vrsta objekta <span className="text-red-500">*</span></label>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">🏢 {t('form.vrstaObjekta')} <span className="text-red-500">*</span></label>
                 <select
                   value={formData.idvrstaobjekta}
                   onChange={(e) => handleFieldChange('idvrstaobjekta', e.target.value)}
                   required
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 >
-                  <option value="">Izaberite vrstu objekta</option>
+                  <option value="">{t('form.izaberiteVrstuObjekta')}</option>
                   {vrsteObjekata.map(vrsta => (
                     <option key={vrsta.id} value={vrsta.id}>{vrsta.opis}</option>
                   ))}
                 </select>
               </div>
               <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">💼 Status <span className="text-red-500">*</span></label>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">💼 {t('form.status')} <span className="text-red-500">*</span></label>
                 <select
                   value={formData.stsrentaprodaja}
                   onChange={(e) => handleFieldChange('stsrentaprodaja', e.target.value)}
                   required
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 >
-                  <option value="prodaja">Prodaja</option>
-                  <option value="renta">Renta</option>
+                  <option value="prodaja">{t('tip.prodaja')}</option>
+                  <option value="renta">{t('tip.renta')}</option>
                 </select>
               </div>
               <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">📅 Datum prijema</label>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">📅 {t('form.datumPrijema')}</label>
                 <input
                     type="date"
                     value={formData.datumprijema || ''}
@@ -2143,7 +2144,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                   {/* Ulica - 40% */}
                   <div className="w-[40%]" data-ulica-autocomplete>
                     <label className="block text-xs font-medium text-slate-600 mb-1.5">
-                      🏠 Ulica <span className="text-red-500">*</span>
+                      🏠 {t('form.ulica')} <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -2168,7 +2169,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                             setShowUlicaDropdown(true)
                           }
                         }}
-                        placeholder="Kucajte naziv ulice..."
+                        placeholder={t('form.kucajteNazivUlice')}
                         className="w-full pl-9 pr-8 py-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                       />
                       {ulicaSearchTerm && (
@@ -2241,7 +2242,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
 
                   {/* Broj - 10% */}
                   <div className="w-[10%]">
-                    <label className="block text-xs font-medium text-slate-600 mb-1.5">🔢 Broj</label>
+                    <label className="block text-xs font-medium text-slate-600 mb-1.5">🔢 {t('form.broj')}</label>
                     <input
                       ref={brojUliceInputRef}
                       type="text"
@@ -2256,7 +2257,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
 
                   {/* Latitude - 25% */}
                   <div className="w-[25%]">
-                    <label className="block text-xs font-medium text-slate-600 mb-1.5">📍 Latitude</label>
+                    <label className="block text-xs font-medium text-slate-600 mb-1.5">📍 {t('form.latitude')}</label>
                     <input
                       type="text"
                       value={formData.latitude || ''}
@@ -2268,7 +2269,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
 
                   {/* Longitude - 25% */}
                   <div className="w-[25%]">
-                    <label className="block text-xs font-medium text-slate-600 mb-1.5">📍 Longitude</label>
+                    <label className="block text-xs font-medium text-slate-600 mb-1.5">📍 {t('form.longitude')}</label>
                     <div className="relative">
                       <input
                         type="text"
@@ -2291,7 +2292,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
 
                 {/* Red 2: Lokalitet (automatski) - puna širina */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1.5">🗺️ Lokalitet (automatski)</label>
+                  <label className="block text-xs font-medium text-slate-600 mb-1.5">🗺️ {t('form.lokalitetAutomatski')}</label>
                   <input
                     type="text"
                     value={(() => {
@@ -2356,7 +2357,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                       required={field.required}
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:border-transparent resize-y"
                       rows="3"
-                        placeholder="Unesite opis nekretnine..."
+                        placeholder={t('form.unesiOpis')}
                     />
                   ) : field.key === 'cena' ? (
                     <input
@@ -2410,21 +2411,21 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
             <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
               <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
                 <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">📞</span>
-                Kontakt podaci
+                {t('form.kontaktInfo')}
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">👤 Kontakt osoba</label>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">👤 {t('form.kontaktOsoba')}</label>
                 <input
                   type="text"
                   value={formData.kontaktosoba || ''}
                   onChange={(e) => handleFieldChange('kontaktosoba', e.target.value)}
-                    placeholder="Ime i prezime"
+                    placeholder={t('form.imeIPrezime')}
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 />
               </div>
               <div className="relative">
-                  <label className="block text-xs font-medium text-gray-600 mb-1">📱 Broj telefona</label>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">📱 {t('form.kontaktTelefon')}</label>
                 <div className="relative">
                   <input
                     ref={phoneInputRef}
@@ -2510,13 +2511,13 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                 </select>
               </div>
               <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">📥 Način dobijanja oglasa</label>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">📥 {t('form.nacinDobijanja')}</label>
                 <select
                   value={formData.idnacindobijanja}
                   onChange={(e) => handleFieldChange('idnacindobijanja', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 >
-                  <option value="">Izaberite način dobijanja</option>
+                  <option value="">{t('form.izaberiteNacinDobijanja')}</option>
                   {naciniDobijanja.map(nacin => (
                     <option key={nacin.id} value={nacin.id}>{nacin.opis}</option>
                   ))}
@@ -2540,7 +2541,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                   <span className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/25">
                     <Ruler className="w-5 h-5 text-white" />
                   </span>
-                  Tehničke karakteristike
+                  {t('sections.tehnicke')}
                 </h3>
                 <div className={`w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center transition-transform duration-300 ${openSections.tehnicke ? 'rotate-180' : ''}`}>
                   <ChevronDown className="w-5 h-5 text-amber-400" />
@@ -2654,7 +2655,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                 <span className="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center shadow-md shadow-purple-500/25">
                   <Brain className="w-5 h-5 text-white" />
                 </span>
-                AI karakteristike
+                {t('sections.ai')}
               </h3>
               <div className={`w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center transition-transform duration-300 ${openSections.ai ? 'rotate-180' : ''}`}>
                 <ChevronDown className="w-5 h-5 text-purple-400" />
@@ -2753,11 +2754,11 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                     </h4>
                     <div className="grid grid-cols-2 gap-2">
                       {[
-                        { key: 'portir', label: 'Portir u zgradi', icon: '👮' },
-                        { key: 'video_interfon', label: 'Video interfon', icon: '📹' },
-                        { key: 'protivpozarni_sistem', label: 'Protivpožarni', icon: '🧯' },
-                        { key: 'osigurana_zgrada', label: 'Osigurana zgrada', icon: '🏢' },
-                        { key: 'sigurnosna_vrata', label: 'Sigurnosna vrata', icon: '🚪' }
+                        { key: 'portir', label: t('labels.portir'), icon: '👮' },
+                        { key: 'video_interfon', label: t('labels.videoInterfon'), icon: '📹' },
+                        { key: 'protivpozarni_sistem', label: t('labels.protivpozarni'), icon: '🧯' },
+                        { key: 'osigurana_zgrada', label: t('labels.osiguranaZgrada'), icon: '🏢' },
+                        { key: 'sigurnosna_vrata', label: t('labels.sigurnosnaVrata'), icon: '🚪' }
                       ].map(item => (
                         <label key={item.key} className="flex items-center gap-1.5 text-xs bg-white hover:bg-slate-100 rounded-lg px-2 py-1.5 cursor-pointer transition-colors">
                           <input
@@ -2911,7 +2912,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                   <span className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/25">
                     <Building2 className="w-5 h-5 text-white" />
                   </span>
-                  Opremljenost
+                  {t('sections.opremljenost')}
                 </h3>
                 <div className={`w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center transition-transform duration-300 ${openSections.opremljenost ? 'rotate-180' : ''}`}>
                   <ChevronDown className="w-5 h-5 text-amber-400" />
@@ -3019,7 +3020,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                 <span className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/25">
                   <FileText className="w-5 h-5 text-white" />
                 </span>
-                Dodatne informacije
+                {t('sections.dodatne')}
               </h3>
               <div className={`w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center transition-transform duration-300 ${openSections.dodatne ? 'rotate-180' : ''}`}>
                 <ChevronDown className="w-5 h-5 text-amber-400" />
@@ -3045,14 +3046,14 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                 {/* Grejanje i Investitor */}
                 <div className="bg-slate-50 rounded-xl p-3">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
-                    <span>🔥</span> Grejanje
+                    <span>🔥</span> {t('form.grejanje')}
                 </label>
                 <select
                   value={formData.idgrejanje}
                   onChange={(e) => handleFieldChange('idgrejanje', e.target.value)}
                     className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                 >
-                  <option value="">Izaberite grejanje</option>
+                  <option value="">{t('form.izaberiteGrejanje')}</option>
                   {grejanja.map(grejanje => (
                     <option key={grejanje.id} value={grejanje.id}>{grejanje.opis}</option>
                   ))}
@@ -3061,14 +3062,14 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
 
                 <div className="bg-slate-50 rounded-xl p-3">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
-                    <span>🏗️</span> Investitor
+                    <span>🏗️</span> {t('form.investitor')}
                 </label>
                 <select
                   value={formData.idinvestitor}
                   onChange={(e) => handleFieldChange('idinvestitor', e.target.value)}
                     className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                 >
-                  <option value="">Izaberite investitora</option>
+                  <option value="">{t('form.izaberiteInvestitora')}</option>
                   {investitori.map(investitor => (
                     <option key={investitor.id} value={investitor.id}>{investitor.naziv}</option>
                   ))}
@@ -3077,20 +3078,20 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
 
                 <div className="bg-slate-50 rounded-xl p-3">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
-                    <span>📅</span> Godina gradnje
+                    <span>📅</span> {t('form.godinaGradnje')}
                 </label>
                 <input
                   type="text"
                   value={formData.godinagradnje || ''}
                   onChange={(e) => handleFieldChange('godinagradnje', e.target.value)}
                     className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
-                    placeholder="npr. 2020"
+                    placeholder="2020"
                 />
               </div>
 
                 <div className="bg-slate-50 rounded-xl p-3">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
-                    <span>🎬</span> Video link
+                    <span>🎬</span> {t('form.videoLink')}
                 </label>
                 <input
                   type="text"
@@ -3103,7 +3104,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
 
                 <div className="bg-slate-50 rounded-xl p-3">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
-                    <span>📄</span> Dokumentacija
+                    <span>📄</span> {t('form.dokumentacija')}
                 </label>
                 <input
                   type="text"
@@ -3115,7 +3116,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
 
                 <div className="bg-slate-50 rounded-xl p-3">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
-                    <span>🔗</span> Link
+                    <span>🔗</span> {t('form.link')}
                 </label>
                 <input
                   type="text"
@@ -3142,7 +3143,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
 
                 <div className="bg-slate-50 rounded-xl p-3">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
-                    <span>⚡</span> Nivo energetske efikasnosti
+                    <span>⚡</span> {t('form.nivoEnergetske')}
                 </label>
                 <input
                   type="text"
@@ -3155,7 +3156,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
 
                 <div className="bg-slate-50 rounded-xl p-3">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
-                    <span>🎮</span> 3D ture
+                    <span>🎮</span> {t('form.ture3d')}
                 </label>
                 <input
                   type="text"
@@ -3168,14 +3169,14 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
 
                 <div className="md:col-span-2 bg-slate-50 rounded-xl p-3">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
-                    <span>📝</span> Interne napomene
+                    <span>📝</span> {t('form.interneNapomene')}
                 </label>
                 <textarea
                   value={formData.internenapomene || ''}
                   onChange={(e) => handleFieldChange('internenapomene', e.target.value)}
                     className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent resize-y"
                   rows="3"
-                    placeholder="Napomene vidljive samo agentima..."
+                    placeholder={t('form.napomeneAgenti')}
                 />
               </div>
             </div>
@@ -3198,15 +3199,15 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 {[
-                  { key: 'stsnovogradnja', label: 'Novogradnja', icon: '🏗️' },
-                  { key: 'stssalonac', label: 'Salonac', icon: '🏠' },
-                  { key: 'stssivafaza', label: 'Siva faza', icon: '🧱' },
-                  { key: 'stsuizgradnji', label: 'U izgradnji', icon: '🚧' },
-                  { key: 'stsekskluziva', label: 'Ekskluziva', icon: '⭐' },
-                  { key: 'stshitnaprodaja', label: 'Hitna prodaja', icon: '🔥' },
-                  { key: 'stslux', label: 'Lux', icon: '💎' },
-                  { key: 'stszainvestiranje', label: 'Za investiranje', icon: '📈' },
-                  { key: 'stsvertikalahorizontala', label: 'Vertikala/Horizontala', icon: '↕️' }
+                  { key: 'stsnovogradnja', label: t('labels.novogradnja'), icon: '🏗️' },
+                  { key: 'stssalonac', label: t('labels.salonac'), icon: '🏠' },
+                  { key: 'stssivafaza', label: t('labels.sivaFaza'), icon: '🧱' },
+                  { key: 'stsuizgradnji', label: t('labels.uIzgradnji'), icon: '🚧' },
+                  { key: 'stsekskluziva', label: t('labels.ekskluziva'), icon: '⭐' },
+                  { key: 'stshitnaprodaja', label: t('labels.hitnaProdaja'), icon: '🔥' },
+                  { key: 'stslux', label: t('labels.lux'), icon: '💎' },
+                  { key: 'stszainvestiranje', label: t('labels.zaInvestiranje'), icon: '📈' },
+                  { key: 'stsvertikalahorizontala', label: t('labels.vertikalaHorizontala'), icon: '↕️' }
                 ].map(option => (
                   <label 
                     key={option.key}
@@ -3243,7 +3244,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                 <span className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/25">
                   <Upload className="w-5 h-5 text-white" />
                 </span>
-                Fotografije
+                {t('sections.fotografije')}
               </h3>
               <div className={`w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center transition-transform duration-300 ${openSections.fotografije ? 'rotate-180' : ''}`}>
                 <ChevronDown className="w-5 h-5 text-amber-400" />
@@ -3272,7 +3273,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                 <span className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/25">
                   <Brain className="w-5 h-5 text-white" />
                 </span>
-              Metapodaci
+              {t('sections.metapodaci')}
             </h3>
               <div className={`w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center transition-transform duration-300 ${openSections.metapodaci ? 'rotate-180' : ''}`}>
                 <ChevronDown className="w-5 h-5 text-amber-400" />
@@ -3285,11 +3286,11 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
             {/* Tab navigacija - moderan dizajn */}
             <div className="flex flex-wrap gap-2 mb-6 p-1 bg-slate-100 rounded-xl">
               {[
-                { id: 'vlasnici', label: 'Vlasnici', icon: Users, emoji: '👥' },
-                { id: 'eop', label: 'EOP', icon: FileText, emoji: '📄' },
-                { id: 'troskovi', label: 'Troškovi', icon: Wallet, emoji: '💰' },
-                { id: 'zastupnik', label: 'Zastupnik', icon: UserCheck, emoji: '👤' },
-                { id: 'realizacija', label: 'Realizacija', icon: Receipt, emoji: '✅' }
+                { id: 'vlasnici', label: t('tabs.vlasnici'), icon: Users, emoji: '👥' },
+                { id: 'eop', label: t('tabs.eop'), icon: FileText, emoji: '📄' },
+                { id: 'troskovi', label: t('tabs.troskovi'), icon: Wallet, emoji: '💰' },
+                { id: 'zastupnik', label: t('tabs.zastupnik'), icon: UserCheck, emoji: '👤' },
+                { id: 'realizacija', label: t('tabs.realizacija'), icon: Receipt, emoji: '✅' }
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -3380,9 +3381,9 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                       <div className="mb-4">
                         <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">📋 Lični podaci</p>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          <input type="text" value={vlasnik.ime} onChange={(e) => handleVlasnikChange(index, 'ime', e.target.value)} placeholder="Ime" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                          <input type="text" value={vlasnik.prezime} onChange={(e) => handleVlasnikChange(index, 'prezime', e.target.value)} placeholder="Prezime" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                          <input type="text" value={vlasnik.jmbg} onChange={(e) => handleVlasnikChange(index, 'jmbg', e.target.value)} placeholder="JMBG" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          <input type="text" value={vlasnik.ime} onChange={(e) => handleVlasnikChange(index, 'ime', e.target.value)} placeholder={t('labels.ime')} className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          <input type="text" value={vlasnik.prezime} onChange={(e) => handleVlasnikChange(index, 'prezime', e.target.value)} placeholder={t('labels.prezime')} className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          <input type="text" value={vlasnik.jmbg} onChange={(e) => handleVlasnikChange(index, 'jmbg', e.target.value)} placeholder={t('labels.jmbg')} className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
                         </div>
                       </div>
 
@@ -3390,9 +3391,9 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                       <div className="mb-4">
                         <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">📞 Kontakt</p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          <input type="email" value={vlasnik.email} onChange={(e) => handleVlasnikChange(index, 'email', e.target.value)} placeholder="Email" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                          <input type="text" value={vlasnik.tel} onChange={(e) => handleVlasnikChange(index, 'tel', e.target.value)} placeholder="Telefon" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                          <input type="text" value={vlasnik.adresa} onChange={(e) => handleVlasnikChange(index, 'adresa', e.target.value)} placeholder="Adresa" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          <input type="email" value={vlasnik.email} onChange={(e) => handleVlasnikChange(index, 'email', e.target.value)} placeholder={t('labels.email')} className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          <input type="text" value={vlasnik.tel} onChange={(e) => handleVlasnikChange(index, 'tel', e.target.value)} placeholder={t('labels.telefon')} className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          <input type="text" value={vlasnik.adresa} onChange={(e) => handleVlasnikChange(index, 'adresa', e.target.value)} placeholder={t('labels.adresa')} className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
                         </div>
                       </div>
 
@@ -3400,9 +3401,9 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                       <div className="mb-4">
                         <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">🪪 Dokumentacija</p>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                          <input type="text" value={vlasnik.lk} onChange={(e) => handleVlasnikChange(index, 'lk', e.target.value)} placeholder="Broj LK" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                          <input type="text" value={vlasnik.pib} onChange={(e) => handleVlasnikChange(index, 'pib', e.target.value)} placeholder="PIB" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
-                          <input type="text" value={vlasnik.mesto_rodjenja} onChange={(e) => handleVlasnikChange(index, 'mesto_rodjenja', e.target.value)} placeholder="Mesto rođenja" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          <input type="text" value={vlasnik.lk} onChange={(e) => handleVlasnikChange(index, 'lk', e.target.value)} placeholder={t('labels.brojLk')} className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          <input type="text" value={vlasnik.pib} onChange={(e) => handleVlasnikChange(index, 'pib', e.target.value)} placeholder={t('labels.pib')} className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          <input type="text" value={vlasnik.mesto_rodjenja} onChange={(e) => handleVlasnikChange(index, 'mesto_rodjenja', e.target.value)} placeholder={t('labels.mestoRodjenja')} className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
                         <div>
                             <input type="date" value={vlasnik.datum_rodjenja || ''} onChange={(e) => handleVlasnikChange(index, 'datum_rodjenja', e.target.value || '')} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
                         </div>
@@ -3413,7 +3414,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                       <div className="mb-4">
                         <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">📝 Ostalo</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <input type="text" value={vlasnik.poreklo_imovine} onChange={(e) => handleVlasnikChange(index, 'poreklo_imovine', e.target.value)} placeholder="Poreklo imovine" className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
+                          <input type="text" value={vlasnik.poreklo_imovine} onChange={(e) => handleVlasnikChange(index, 'poreklo_imovine', e.target.value)} placeholder={t('labels.porekloImovine')} className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" />
                           <select value={vlasnik.sts_lice} onChange={(e) => handleVlasnikChange(index, 'sts_lice', e.target.value)} className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent">
                           <option value="">Status lica</option>
                           <option value="fizicko">Fizičko lice</option>
@@ -3494,11 +3495,11 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                           <label className="block text-sm text-slate-600 mb-1">Katastarska parcela</label>
-                          <input type="text" value={metapodaci.eop.katastarska_parceka} onChange={(e) => handleEopChange('katastarska_parceka', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder="Broj parcele" />
+                          <input type="text" value={metapodaci.eop.katastarska_parceka} onChange={(e) => handleEopChange('katastarska_parceka', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder={t('labels.brojParcele')} />
                   </div>
                   <div>
                           <label className="block text-sm text-slate-600 mb-1">Katastarska opština</label>
-                          <input type="text" value={metapodaci.eop.kat_opstina} onChange={(e) => handleEopChange('kat_opstina', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder="Naziv opštine" />
+                          <input type="text" value={metapodaci.eop.kat_opstina} onChange={(e) => handleEopChange('kat_opstina', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder={t('labels.nazivOpstine')} />
                         </div>
                       </div>
                     </div>
@@ -3554,11 +3555,11 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                           <label className="block text-sm text-slate-600 mb-1">Način izvršenja transakcije</label>
-                          <input type="text" value={metapodaci.realizacija.nacin_izvrsenja_transakcije || ''} onChange={(e) => handleRealizacijaChange('nacin_izvrsenja_transakcije', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder="Npr. preko računa-keš, sred.k.nbs..." />
+                          <input type="text" value={metapodaci.realizacija.nacin_izvrsenja_transakcije || ''} onChange={(e) => handleRealizacijaChange('nacin_izvrsenja_transakcije', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder={t('labels.nacinIzvrsenja')} />
                         </div>
                         <div>
                           <label className="block text-sm text-slate-600 mb-1">Banka u kojoj je izvršena transakcija</label>
-                          <input type="text" value={metapodaci.realizacija.banka || ''} onChange={(e) => handleRealizacijaChange('banka', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder="Npr. Erste banka, AIK banka..." />
+                          <input type="text" value={metapodaci.realizacija.banka || ''} onChange={(e) => handleRealizacijaChange('banka', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder={t('labels.banka')} />
                         </div>
                       </div>
                   </div>
@@ -3568,11 +3569,11 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
                       <div className="space-y-3">
                         <div>
                           <label className="block text-sm text-slate-600 mb-1">Namena transakcije</label>
-                          <input type="text" value={metapodaci.realizacija.namena_transakcije} onChange={(e) => handleRealizacijaChange('namena_transakcije', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder="Npr. stanovanje, investicija..." />
+                          <input type="text" value={metapodaci.realizacija.namena_transakcije} onChange={(e) => handleRealizacijaChange('namena_transakcije', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" placeholder={t('labels.namenaTransakcije')} />
                   </div>
                         <div>
                           <label className="block text-sm text-slate-600 mb-1">Primedba</label>
-                          <textarea value={metapodaci.realizacija.primedba} onChange={(e) => handleRealizacijaChange('primedba', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" rows="2" placeholder="Dodatne napomene..." />
+                          <textarea value={metapodaci.realizacija.primedba} onChange={(e) => handleRealizacijaChange('primedba', e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent" rows="2" placeholder={t('labels.dodatneNapomene')} />
                         </div>
                       </div>
                     </div>
@@ -3595,13 +3596,13 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
-                      { key: 'infostan', label: 'Infostan', icon: '🏢' },
-                      { key: 'kablovska', label: 'Kablovska', icon: '📺' },
-                      { key: 'struja', label: 'Struja', icon: '⚡' },
-                      { key: 'telefon', label: 'Telefon', icon: '📞' },
-                      { key: 'internet', label: 'Internet', icon: '🌐' },
-                      { key: 'odrzavanje', label: 'Održavanje', icon: '🔧' },
-                      { key: 'ostalo', label: 'Ostalo', icon: '📋' }
+                      { key: 'infostan', label: t('labels.infostan'), icon: '🏢' },
+                      { key: 'kablovska', label: t('labels.kablovska'), icon: '📺' },
+                      { key: 'struja', label: t('labels.struja'), icon: '⚡' },
+                      { key: 'telefon', label: t('labels.telefon'), icon: '📞' },
+                      { key: 'internet', label: t('labels.internet'), icon: '🌐' },
+                      { key: 'odrzavanje', label: t('labels.odrzavanje'), icon: '🔧' },
+                      { key: 'ostalo', label: t('labels.ostalo'), icon: '📋' }
                   ].map(trosak => (
                       <div key={trosak.key} className="bg-slate-50 rounded-xl p-3">
                         <label className="flex items-center gap-2 text-sm text-slate-600 mb-2">
@@ -3719,7 +3720,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
               }}
               className="px-6 py-3 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition-all font-medium"
             >
-              Otkaži
+              {t('common:actions.cancel')}
             </button>
             <button
               type="submit"
@@ -3727,7 +3728,7 @@ export default function PonudaForm({ ponuda, onClose, onSuccess }) {
               className="px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 font-semibold shadow-lg shadow-amber-500/25"
             >
               <Save className="w-5 h-5" />
-              {loading ? 'Čuvanje...' : (isEditing ? 'Sačuvaj izmene' : 'Sačuvaj ponudu')}
+              {loading ? t('common:status.saving') : (isEditing ? t('common:actions.save') + ' ' + t('common:actions.change').toLowerCase() : t('common:actions.save'))}
             </button>
           </div>
         </form>

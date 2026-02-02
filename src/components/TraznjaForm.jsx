@@ -712,8 +712,8 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                 <span className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/25">
                   <Info className="w-5 h-5 text-white" />
                 </span>
-                {t('form.osnovneInfo')}
-              </h3>
+              {t('sections.osnovne')}
+            </h3>
               <div className={`w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center transition-transform duration-300 ${openSections.osnovne ? 'rotate-180' : ''}`}>
                 <ChevronDown className="w-5 h-5 text-amber-400" />
               </div>
@@ -811,12 +811,12 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
                     <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">📞</span>
-                    Kontakt informacije
+                    {t('form.kontaktInfo')}
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1">
-                        👤 Kontakt osoba <span className="text-red-500">*</span>
+                        👤 {t('form.kontaktOsoba')} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -829,7 +829,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1">
-                        📱 Telefon <span className="text-red-500">*</span>
+                        📱 {t('form.kontaktTelefon')} <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <input
@@ -877,11 +877,11 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
                     <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">💰</span>
-                    Cena
+                    {t('form.cena')}
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Cena od (€)</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">{t('form.cenaOd')}</label>
                       <input
                         type="number"
                         value={formData.cenaod}
@@ -891,7 +891,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Cena do (€)</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">{t('form.cenaDo')}</label>
                       <input
                         type="number"
                         value={formData.cenado}
@@ -907,11 +907,11 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
                     <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">📐</span>
-                    Kvadratura i struktura
+                    {t('form.kvadraturaStruktura')}
                   </h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">m² od</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">{t('form.kvadraturaOd')}</label>
                       <input
                         type="number"
                         value={formData.kvadraturaod}
@@ -920,7 +920,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">m² do</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">{t('form.kvadraturaDo')}</label>
                       <input
                         type="number"
                         value={formData.kvadraturado}
@@ -929,7 +929,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Soba od</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">{t('form.brojSobaOd')}</label>
                       <input
                         type="number"
                         step="0.5"
@@ -939,7 +939,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Soba do</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">{t('form.brojSobaDo')}</label>
                       <input
                         type="number"
                         step="0.5"
@@ -955,11 +955,11 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
                     <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">🏢</span>
-                    Sprat
+                    {t('form.sprat')}
                   </h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Sprat od</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">{t('form.spratOd')}</label>
                       <input
                         type="number"
                         value={formData.spratod}
@@ -969,7 +969,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Sprat do</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">{t('form.spratDo')}</label>
                       <input
                         type="number"
                         value={formData.spratdo}
@@ -987,7 +987,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                         onChange={(e) => handleFieldChange('stsnecezadnjispratat', e.target.checked)}
                         className="rounded border-gray-300 text-red-600 focus:ring-red-500"
                       />
-                      <span className="text-gray-700">🚫 Neće zadnji sprat</span>
+                      <span className="text-gray-700">🚫 {t('form.necezadnjispratat')}</span>
                     </label>
                     <label className="flex items-center gap-2 text-sm bg-white hover:bg-red-50 rounded-lg px-3 py-2 cursor-pointer border border-gray-200 transition-colors">
                       <input
@@ -996,7 +996,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                         onChange={(e) => handleFieldChange('stsnecesuteren', e.target.checked)}
                         className="rounded border-gray-300 text-red-600 focus:ring-red-500"
                       />
-                      <span className="text-gray-700">🚫 Neće suteren</span>
+                      <span className="text-gray-700">🚫 {t('form.necesuteren')}</span>
                     </label>
                   </div>
                 </div>
@@ -1005,7 +1005,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
                     <span className="w-6 h-6 bg-slate-600 rounded-lg flex items-center justify-center text-white text-xs">📝</span>
-                    Detalji tražnje
+                    {t('form.detalji')}
                   </h4>
                   <textarea
                     value={formData.detaljitraznje}
@@ -1030,7 +1030,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                 <span className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/25">
                   <MapPin className="w-5 h-5 text-white" />
                 </span>
-                Lokacija
+                {t('sections.lokacija')}
               </h3>
               <div className={`w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center transition-transform duration-300 ${openSections.lokacija ? 'rotate-180' : ''}`}>
                 <ChevronDown className="w-5 h-5 text-amber-400" />
@@ -1042,7 +1042,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   {/* Autocomplete ulica */}
                   <div className="mb-4" data-ulica-autocomplete>
-                    <label className="block text-xs font-medium text-slate-600 mb-1.5">🏠 Pretraga ulice</label>
+                    <label className="block text-xs font-medium text-slate-600 mb-1.5">🏠 {t('form.ulica')}</label>
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <input
@@ -1053,7 +1053,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                           setShowUlicaDropdown(true)
                         }}
                         onFocus={() => { if (filteredUlice.length > 0) setShowUlicaDropdown(true) }}
-                        placeholder="Kucajte naziv ulice..."
+                        placeholder={t('form.kucajteNazivUlice')}
                         className="w-full pl-9 pr-8 py-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                       />
                       {ulicaSearchTerm && (
@@ -1107,61 +1107,61 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                   {/* Dropdown-ovi za lokaciju */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
                     <div>
-                      <label className="block text-xs font-medium text-slate-600 mb-1">🌍 Država</label>
+                      <label className="block text-xs font-medium text-slate-600 mb-1">🌍 {t('lokalitet.drzava')}</label>
                       <select
                         value={formData.iddrzava}
                         onChange={(e) => handleFieldChange('iddrzava', e.target.value)}
                         className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                       >
-                        <option value="">Izaberi</option>
+                        <option value="">{t('form.izaberiteDrzavu')}</option>
                         {drzave.map(d => <option key={d.id} value={d.id}>{d.opis}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-slate-600 mb-1">🏙️ Grad</label>
+                      <label className="block text-xs font-medium text-slate-600 mb-1">🏙️ {t('lokalitet.grad')}</label>
                       <select
                         value={formData.idgrada}
                         onChange={(e) => handleFieldChange('idgrada', e.target.value)}
                         disabled={!formData.iddrzava}
                         className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent disabled:bg-gray-100"
                       >
-                        <option value="">Izaberi</option>
+                        <option value="">{t('form.izaberiteGrad')}</option>
                         {gradovi.map(g => <option key={g.id} value={g.id}>{g.opis}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-slate-600 mb-1">🏘️ Opština</label>
+                      <label className="block text-xs font-medium text-slate-600 mb-1">🏘️ {t('lokalitet.opstina')}</label>
                       <select
                         value={formData.idopstina}
                         onChange={(e) => handleFieldChange('idopstina', e.target.value)}
                         disabled={!formData.idgrada}
                         className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent disabled:bg-gray-100"
                       >
-                        <option value="">Izaberi</option>
+                        <option value="">{t('form.izaberiteOpstinu')}</option>
                         {opstine.map(o => <option key={o.id} value={o.id}>{o.opis}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-slate-600 mb-1">📍 Lokacija</label>
+                      <label className="block text-xs font-medium text-slate-600 mb-1">📍 {t('lokalitet.lokacija')}</label>
                       <select
                         value={formData.idlokacija}
                         onChange={(e) => handleFieldChange('idlokacija', e.target.value)}
                         disabled={!formData.idopstina}
                         className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent disabled:bg-gray-100"
                       >
-                        <option value="">Izaberi</option>
+                        <option value="">{t('form.izaberiteLokaciju')}</option>
                         {lokacije.map(l => <option key={l.id} value={l.id}>{l.opis}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-slate-600 mb-1">🛣️ Ulica</label>
+                      <label className="block text-xs font-medium text-slate-600 mb-1">🛣️ {t('lokalitet.ulica')}</label>
                       <select
                         value={formData.idulica}
                         onChange={(e) => handleFieldChange('idulica', e.target.value)}
                         disabled={!formData.idlokacija}
                         className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent disabled:bg-gray-100"
                       >
-                        <option value="">Izaberi</option>
+                        <option value="">{t('form.izaberiteLokaciju')}</option>
                         {ulice.map(u => <option key={u.id} value={u.id}>{u.opis}</option>)}
                       </select>
                     </div>
@@ -1182,7 +1182,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                 <span className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/25">
                   <Brain className="w-5 h-5 text-white" />
                 </span>
-                AI Karakteristike (za pretragu)
+                {t('sections.ai')}
               </h3>
               <div className={`w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center transition-transform duration-300 ${openSections.ai ? 'rotate-180' : ''}`}>
                 <ChevronDown className="w-5 h-5 text-amber-400" />
@@ -1632,7 +1632,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                 <span className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-md shadow-amber-500/25">
                   <Users className="w-5 h-5 text-white" />
                 </span>
-                Metapodaci
+                {t('sections.metapodaci')}
               </h3>
               <div className={`w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center transition-transform duration-300 ${openSections.metapodaci ? 'rotate-180' : ''}`}>
                 <ChevronDown className="w-5 h-5 text-amber-400" />
@@ -1644,10 +1644,10 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
                 {/* Tab navigacija */}
                 <div className="flex flex-wrap gap-2 mb-6 p-1 bg-slate-100 rounded-xl">
                   {[
-                    { id: 'nalogodavci', label: 'Nalogodavci', emoji: '👥' },
-                    { id: 'eop', label: 'EOP', emoji: '📄' },
-                    { id: 'realizacija', label: 'Realizacija', emoji: '✅' },
-                    { id: 'zastupnik', label: 'Zastupnik', emoji: '👤' }
+                    { id: 'nalogodavci', label: t('tabs.nalogodavci'), emoji: '👥' },
+                    { id: 'eop', label: t('tabs.eop'), emoji: '📄' },
+                    { id: 'realizacija', label: t('tabs.realizacija'), emoji: '✅' },
+                    { id: 'zastupnik', label: t('tabs.zastupnik'), emoji: '👤' }
                   ].map(tab => (
                     <button
                       key={tab.id}
@@ -2045,7 +2045,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
               onClick={onClose}
               className="px-6 py-3 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition-all font-medium"
             >
-              Otkaži
+              {t('common:actions.cancel')}
             </button>
             <button
               type="submit"
@@ -2053,7 +2053,7 @@ export default function TraznjaForm({ traznja, onClose, onSuccess }) {
               className="px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 font-semibold shadow-lg shadow-amber-500/25"
             >
               <Save className="w-5 h-5" />
-              {loading ? 'Čuvanje...' : (isEditing ? 'Sačuvaj izmene' : 'Sačuvaj tražnju')}
+              {loading ? t('common:status.saving') : (isEditing ? t('common:actions.save') : t('common:actions.save'))}
             </button>
           </div>
         </form>

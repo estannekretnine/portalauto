@@ -25,7 +25,16 @@
     "cena": "Cena",
     "kvadraturaStruktura": "Kvadratura i struktura",
     "sprat": "Sprat",
-    "detalji": "Detalji tražnje"
+    "detalji": "Detalji tražnje",
+    "detaljitraznje": "Detalji tražnje",
+    "necezadnjispratat": "Neće zadnji sprat",
+    "necesuteren": "Neće suteren",
+    "izaberiteDrzavu": "Izaberite državu",
+    "izaberiteGrad": "Izaberite grad",
+    "izaberiteOpstinu": "Izaberite opštinu",
+    "izaberiteLokaciju": "Izaberite lokaciju",
+    "kucajteNazivUlice": "Kucajte naziv ulice...",
+    "lokalitetAutomatski": "Lokalitet (automatski)"
   },
   "status": {
     "title": "Status kupca",
@@ -96,5 +105,17 @@
   "pagination": {
     "total": "Ukupno",
     "demands": "tražnji"
+  },
+  "sections": {
+    "osnovne": "Osnovne informacije",
+    "lokacija": "Lokacija",
+    "ai": "AI Karakteristike",
+    "metapodaci": "Metapodaci"
+  },
+  "tabs": {
+    "nalogodavci": "Nalogodavci",
+    "eop": "EOP",
+    "realizacija": "Realizacija",
+    "zastupnik": "Zastupnik"
   }
 }
